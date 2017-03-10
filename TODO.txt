@@ -1,0 +1,63 @@
+
+  - Add link/button "Go to last execution of this test" in order to easily navigate to re-run test
+
+    ======================
+
+    problems in IE (International Exploiter)
+
+     - font size - use smaller fonts
+     - tables - overflow must be auto, not scroll
+     - border round corners - using .htc ie fix
+     - Edit,Delete and other buttons - image is outside the button
+     - Test state headers (Total,Passed,Running,Failed) - the text must be transparent
+     - Home page - 'Choose database...' content must be centralized
+
+
+    ======================
+
+    - Compare pass/fail tests
+
+    - Merge messages - when the log message is large its reparated by the stored procedure
+    to more messages with the same timestamp. We may check if there are messages with same timestamp,
+    log level, machine, thread and to merge it in one. But this can't be done if we want to get 10
+    results and the 10th is the first part of the message, we wont know for the others (11,12,...)
+
+    - remember the filter selections in the session:
+        - the whole Runs filter. Add a special icon on the filter when there is selection
+
+    - the real time change of the running state
+
+    - running state for:
+        - suite
+        - scenario
+        - test case
+        - load queue
+        - checkpoint
+        Change "false"/"true" state text with images !?
+
+
+    - Add system info for the monitored machines. Can be done using the folloing code:
+        Sigar sigar = new Sigar();
+        CpuInfo info = sigar.getCpuInfoList()[0];
+        System.out.println( "CPU info:\nVendor: " + info.getVendor() + "\nModel: " + info.getModel()
+                            + "\nSpeed: " + info.getMhz() + "Mhz\nNumber of CPUs: " + info.getTotalCores()
+                            + "\n\nRAM: " + sigar.getMem().getRam() + " MBs" );
+
+    - Performance/monitoring: install Wicket Inspector
+       http://wicketstuff.org/wicket14/echo/?wicket:bookmarkablePage=:org.apache.wicket.devutils.inspector.InspectorPage
+
+
+   ======================
+
+   - clean unused Stored Procedures - MSSQL
+
+   - update SanityCheck procedure
+
+   - [2011-04-11] IE: AFter page expired there is no return to the previous page
+
+   - [2011-04-11] Major: after replace with new MessagesPannel classes (2) and
+   session expiration in -beta testcase messages are missing. Namely only one row without actual message there.
+
+   - [2011-04-11] Low: Research features for session tracking - IP/user, current page? Useful in tomcat manager to check which sessions are important ones and we should delay restart.
+
+

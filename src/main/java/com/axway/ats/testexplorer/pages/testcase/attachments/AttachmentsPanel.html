@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html
+  xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+
+
+</head>
+<body>
+  <wicket:panel>
+    <form wicket:id="form">
+        <div style="font-family:Verdana;font-size:15px;font-weight:bold;padding:40px 50px;" wicket:id="noButtonPanel">
+            <span>No attached files</span>
+        </div>
+      <table>
+        <tr>
+          <td>
+            <div wicket:id="buttonPanel">
+              <span wicket:id="buttons">
+                <a href="#" class="button attachedButtons" wicket:id="alink">
+                  <span wicket:id="name"></span>
+                </a>
+              </span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span wicket:id="startingDisplayingMessage"></span>
+            <a href="#"  wicket:id="download"><span wicket:id="downloadLabel"></span></a>
+            <span wicket:id="endingDisplayingMessage"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <textarea readonly style="resize: both" rows="30" cols="100"
+              wicket:id="fileContent" spellcheck="false" wrap="off"></textarea>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </wicket:panel>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<head>
+	<title>Compare Runs</title>
+</head>
+<body>
+    <wicket:extend>
+
+        <div class="mainContent">
+            <div wicket:id="testsComparison" class="testsComparison" >
+                <form wicket:id="testsComparisonForm" autocomplete="off" >
+                    <table border="0" cellspacing="0" class="runsDetailsTable" id="runsDetailsTable">
+                        <tbody>
+                            <tr wicket:id="runsDetailsRows">
+                                <td wicket:id="runsDetailsColumns">
+                                    <input type="checkbox" wicket:id="showOnlyTestsPresentInAllRuns" />
+                                    <span wicket:id="label"></span>
+                                    <select wicket:id="stateChoices" multiple="multiple" class="multiSelect"
+                                       title="Filter tests by state">
+                                            <span wicket:id="stateOptions"><option wicket:id="option"></option></span>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="submit" class="refreshButton"
+                        wicket:id="applyFilterButton" style="display:none;" value="Apply filter"/>
+                </form>
+                <script type="text/javascript">
+                    try {
+                        $('.multiSelect').keydown(function(e){
+                            if (e.keyCode == 13) {
+                                $('#applyFilterButton').click();
+                            }
+                        });
+                    } catch(err) {}
+                </script>
+            </div>
+        </div>
+
+        <div class="bottomNoteContent">
+            This page is used to compare the testcase execution results in multiple runs.<br/><br/>
+            You can select which tests to compare by using the State filter.<br/>
+            Running tests are always displayed.<br/>
+            No selection is equivalent to selecting all options.
+        </div>
+
+    </wicket:extend>
+</body>
+</html>

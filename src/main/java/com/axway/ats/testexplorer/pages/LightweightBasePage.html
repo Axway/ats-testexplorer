@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+    <head>
+        <title wicket:id="page_title">[VALUE]</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <script type="text/javascript" src="js/jquery-1.7.2.custom.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.9.min.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body>
+
+        <img id="ajaxLoader" src="images/loader.gif" alt="loader"
+            style="display:none;position:absolute;top:8px;left:16px;z-index:99999;"/>
+
+        <div style="height: 35px; width: 100%;padding:7px 0px;">
+            <a href="." title="Go to home page">
+                <img src="images/logo.png" style="float:left;margin-left:7px;" alt="axway logo"/>
+            </a>
+            <span wicket:id="headerText" class="headerText"></span>
+            <span wicket:id="topRightContent" class="topRightContent">
+                <span wicket:id="dbName" ></span>
+            </span>
+        </div>
+
+        <div wicket:id="feedback" ></div>
+
+        <div wicket:id="page_wrapper">
+            <wicket:child />
+        </div>
+
+    </body>
+</html>

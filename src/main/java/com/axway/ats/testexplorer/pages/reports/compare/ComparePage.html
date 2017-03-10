@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<head>
+	<title>Compare Runs and Testcases</title>
+</head>
+<body>
+    <wicket:extend>
+
+        <div style="width: 100%;">
+            <div class="itemsToCompare">
+                <form wicket:id="itemsToCompareForm">
+
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td style="width:100%">
+                                    <div class="compHeader">Runs</div>
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:20px; border-left:1px solid #DDDDDD;"></th>
+                                                <th>Run</th>
+                                                <th>Version</th>
+                                                <th>Build</th>
+                                                <th>Start</th>
+                                                <th>End</th>
+                                                <th style="width:16px;padding:3px;">
+                                                    <a href="#" wicket:id="removeAllRuns" class="removeAllItemsIcon"
+                                                        title="Remove all Runs"></a>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr wicket:id="runsToCompare" >
+                                                <td style="border-left:1px solid #DDDDDD;padding:0;">
+                                                    <input type="checkbox" wicket:id="checkbox" class="checkbox"
+                                                        style="height:16px;width:16px;"/>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="runName"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="version"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="build"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="startDate"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="endDate"></span>
+                                                </td>
+                                                <td>
+                                                    <a href="#" wicket:id="removeIcon" class="removeItemIcon"></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <span wicket:id="noRunsLabel" class="noSelectedItems">No selected runs</span>
+                                    <a href="#" class="button regularCompareButton" wicket:id="regular_runs_compare_button">
+                                        <span>Testcase state compare</span>
+                                    </a>
+									<div>
+										<div wicket:id="runs_compare_plugin_buttons">
+						                	<a wicket:id="runs_compare_plugin_button" href="#" class="button customCompareButton">
+						                    	<img src="images/report.png" alt="" style="border:none;float:left;padding:4px 7px 0 8px;" />
+						                    	<span wicket:id="button_name" style="text-align:center">[VALUE]</span>
+						                    </a>
+										</div>
+									</div>                                    
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="width:100%;padding-top:40px;">
+
+                                    <hr style="margin: 0 0 30px 0"/>
+
+                                    <div class="compHeader">Testcases</div>
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:20px;border-left:1px solid #DDDDDD;"></th>
+                                                <th>Run</th>
+                                                <th>Suite</th>
+                                                <th>Scenario</th>
+                                                <th>Testcase</th>
+                                                <th>Start</th>
+                                                <th>Alias</th>
+                                                <th style="width:16px;padding:3px;"></th>
+                                                <th style="width:16px;padding:3px;">
+                                                    <a href="#" wicket:id="removeAllTestcases" class="removeAllItemsIcon"
+                                                        title="Remove all Testcases"></a>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr wicket:id="testcasesToCompare" >
+                                                <td style="border-left:1px solid #DDDDDD;padding:0;">
+                                                    <input type="checkbox" wicket:id="checkbox" class="checkbox"
+                                                        style="height:16px;width:16px;"/>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="runName"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="suiteName"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="scenarioName"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="testcaseName"></span>
+                                                </td>
+                                                <td onclick="checkFirstCheckbox(this);" style="cursor:pointer;">
+                                                    <span wicket:id="dateStart"></span>
+                                                </td>
+                                                <td style="padding:1px;"><input type="text" wicket:id="testcaseAlias"></input></td>
+                                                <td>
+                                                	<a href="#" wicket:id="moveUpLink" class="upItemIcon"></a> 
+                                            	</td>
+                                                <td>
+                                                    <a href="#" wicket:id="removeIcon" class="removeItemIcon"></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <span wicket:id="noTestcasesLabel" class="noSelectedItems">No selected testcases</span>
+                                    <div title="The standard compare which is product neutral">
+                                        <a href="#" class="button regularCompareButton" wicket:id="regular_testcases_compare_button">
+                                            <span>Standard compare</span>
+                                        </a>
+                                    </div>
+									<div>
+										<div wicket:id="testcases_compare_plugin_buttons">
+						                	<a wicket:id="testcases_compare_plugin_button" href="#" class="button customCompareButton">
+						                    	<img src="images/report.png" alt="" style="border:none;float:left;padding:4px 7px 0 8px;" />
+						                    	<span wicket:id="button_name" style="text-align:center">[VALUE]</span>
+						                    </a>
+										</div>
+									</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+              </div>
+        </div>
+
+    </wicket:extend>
+</body>
+</html>

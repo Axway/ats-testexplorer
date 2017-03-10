@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<wicket:head>
+
+	<script type="text/javascript" src="js/loader.js">
+		
+	</script>
+	<script type="text/javascript" src="js/jsapi.js"></script>
+	<script type="text/javascript" src="js/treemap.js"></script>
+</wicket:head>
+<body>
+	<wicket:extend>
+		<div class="mainContent">
+
+			<a wicket:id="modalTooltip"> <img src="images/help.png" alt=""
+				title="&nbsp;&nbsp;&nbsp;&nbsp;This treemap view is used for displaying hierarchically structured data regarding test status relation to test groups. With this view you can get an overview of risks from a test automation execution perspective.
+ 
+    The main rectangles represent test groups and consists of other rectangles representing test status.
+ 
+    The rectangle sizes are ordered by a quantitative variable and it shows you how many tests you have for a specific test group. The color of main rectangles is determined by the test status, having tone colors from red to green where a tone closer to green show that tests are mostly passed where those closer to red show that tests mostly fail.
+ 
+    Hovering over each rectangle displays tests aggregate information and the navigation in the nested groups is done with left click to see test statuses and right click to go back to see the groups."
+				wicket:id="helpButton" style="float: right; margin: 5px 5px 0 0;" />
+			</a>
+
+			<div class="filterContent" style="margin-right: 30px;">
+				<div class="filterHeader noselection"
+					onclick="showOrHideFilter(this)">
+					<img src="images/filter.png"
+						style="float: left; margin: 4px 5px 0 5px;" /> <span>
+						FILTER</span> <img src="images/up.png" class="arrowUp"
+						style="float: right; margin: 5px 10px 0 0; display: none;" /> <img
+						src="images/down.png" class="arrowDown"
+						style="float: right; margin: 5px 10px 0 0;" />
+				</div>
+				<div class="searchHeaderContent">
+					<form id="searchForm" wicket:id="searchForm">
+						<table class="filterTable">
+							<tbody>
+								<tr>
+									<td style="vertical-align: top;">
+										<div style="margin: 10px;">Product:</div>
+										<div>
+											<select wicket:id="search_by_product" id="product"
+												title="Search all testcases by product name"
+												style="margin-right: 0px;"></select>
+										</div>
+									</td>
+
+
+									<td style="vertical-align: top;">
+										<div style="margin: 10px;">Version:</div>
+										<div>
+											<select wicket:id="search_by_version" id="version"
+												title="Search all testcases by version name"
+												class="multiSelect"></select>
+										</div>
+									</td>
+
+
+									<td style="vertical-align: top;">
+										<div style="margin: 10px;">All groups:</div>
+										<div>
+											<select wicket:id="search_by_all_groups" id="group"
+												title="Search all testcases by group name"
+												class="multiSelect"></select>
+										</div>
+									</td>
+
+									<td style="vertical-align: top;">
+
+										<div style="margin: 10px;">Groups contains:</div>
+										<div style="margin: 10px;">
+											<input type="text" wicket:id="search_by_group_contains"
+												title="Search all testcases by contains in Group name"
+												style="margin-right: 0px;" />
+										</div>
+
+									</td>
+									<td style="vertical-align: top;">
+										<div style="margin: 10px;">Started after:</div>
+										<div style="margin: 10px">
+											<input type="text" wicket:id="search_by_after_date"
+												title="Search all testcases started on or after this day"
+												style="margin-right: 0px;" />
+										</div>
+
+										<div style="margin: 10px;">Started before:</div>
+										<div style="margin: 10px;">
+											<input type="text" wicket:id="search_by_before_date"
+												title="Search all testcases started on or before this day"
+												style="margin-right: 0px;">
+										</div>
+									</td>
+
+									<td style="vertical-align: center;">
+										<div style="margin: 2px 5px 50px 30px;">
+											<a href="#" wicket:id="submit" class="button"
+												style="margin: 2px 5px 2px 0px;"> <span>Submit</span>
+											</a>
+										</div>
+
+										<div style="margin: 10px;">
+											<a href="#" wicket:id="clear" class="button"
+												style="margin: 2px 5px 2px 25px;"> <span>Reset</span>
+											</a>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div id="filterDataPanel">
+				<span id='productNameHolder'></span> <span id='versionNamesHolder'></span>
+				<span id='groupNamesHolder'></span> <span id='groupContainsHolder'></span>
+				<span id='startedAfterHolder'></span> <span id='startedBeforeHolder'></span>
+			</div>
+			<div id="chart_div" style="width: 100%; height: 75%;"></div>
+		</div>
+	</wicket:extend>
+</body>
+</html>
+

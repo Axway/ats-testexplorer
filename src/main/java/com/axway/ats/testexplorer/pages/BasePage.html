@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    lang="en" >
+    <head>
+        <title wicket:id="page_title">[VALUE]</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <script type="text/javascript" src="js/jquery-1.7.2.custom.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.9.min.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+  		<!-- Dashboards -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
+    </head>
+    <body onload="checkIeNotification('topNotifyArea')">
+
+        <img id="ajaxLoader" src="images/loader.gif" alt="loader"
+            style="display:none;position:absolute;top:8px;left:222px;z-index:99999;"/>
+
+        <div style="height: 35px; width: 100%;padding:7px 0px;">
+            <a href="." title="Go to home page">
+                <img src="images/logo.png" style="float:left;margin-left:7px;" alt="axway logo"/>
+            </a>
+            <div id="topNotifyArea">Please use Firefox or Chrome browser.
+                <a class="link" href="javascript:hideElementPermanently('topNotifyArea', 'ieWarn');" title="Ok. Dismiss">OK</a>
+            </div>
+            <div wicket:id="topRightContent" class="topRightContent">
+                <div class="topButtonsBar" title="Compare runs/testcases" >
+                    <a href="compare" class="compareButton" target="_blank" style="position:relative">
+                        <img class="arrowUpIndicator" src="images/arrow-up.png" />
+                        <img src="images/compare.gif" alt=""/>
+                        <strong><span wicket:id="itemsCount">0</span></strong>
+                        <span>&nbsp;&nbsp;items</span>
+                    </a>
+                    <span wicket:id="representationLink" title="Select representation view"></span>
+                    <span wicket:id="machinesLink" title="Machines management page" ></span>
+                    <span wicket:id="runCopyLink" title="Copy run" ></span>
+                    <a wicket:id="testcasesCopyLink" class="testcasesCopyLink" title="Copy testcases to another run" >&nbsp;</a>
+                </div>
+                <span wicket:id="dbName" ></span>
+            </div>
+        </div>
+        <table class="navigatorTable">
+            <tr>
+                <td><div class="locationLabel">
+					<a href="#" wicket:id="testDetailsButton" style="color: white; text-decoration: none;"
+						title="Here you can see the current run/suite/scenario"> 
+						<img src="images/right.png" class="arrowRight" /> 
+						<span style="float: right; width: 70%;">Location:&nbsp;</span> 
+						<img src="images/down.png" class="arrowDown" />
+					</a>
+				</div></td>
+                <td style="width:100%;">
+
+                    <div class="navigationToolbar">
+                        <div style="margin-left: 10px;">
+                            <span wicket:id="navigation_links">
+                                <span>&nbsp;/&nbsp;</span>
+                                <a wicket:id="navigation_link" href="#">
+                                    <span wicket:id="navigation_link_name"></span>
+                                </a>
+                            </span>
+                            <span>&nbsp;/&nbsp;</span>
+                            <span style="white-space: nowrap;">
+                                <span wicket:id="navigation_current_page_name" style="font-weight:bold;" ></span>
+                                <span wicket:id="navigation_suffix" class="navigationSuffix" ></span>
+                            </span>
+
+                            <span wicket:id="testcaseNavigationButtons" class="testcaseNavigatioButtonsPanel">
+                                <a wicket:id="goToPrevTestcase" href="#" class="goToPrevTestcase"
+                                    title="Previous run of the same testcase" >&nbsp;</a>
+                                <a wicket:id="goToNextTestcase" href="#" class="goToNextTestcase"
+                                    title="Next run of the same testcase" >&nbsp;</a>
+                                <a wicket:id="goToLastTestcase" href="#" class="goToLastTestcase"
+                                    title="Last run of the same testcase" >&nbsp;</a>
+                            </span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+				<td style="width: 100%;" colspan="2">
+					<div wicket:id="testDetails" class="mainContent" id="testDetails"
+						style="margin-top: 10px; display: none">
+						<div class="header noselection">
+							<span style="margin-left: 28px;">LOCATION DETAILS</span>
+						</div>
+						<div wicket:id="singleRun" class="testDetail"></div>
+						<div wicket:id="singleSuite" class="testDetail"></div>
+						<div wicket:id="singleScenario" class="testDetail"></div>
+					</div>
+				</td>
+			</tr>
+        </table>
+
+        <div wicket:id="feedback" ></div>
+      
+        <div wicket:id="page_wrapper">
+            <wicket:child />
+        </div>
+    </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<head>
+	<title>Testcases Copy</title>
+</head>
+<body>
+    <wicket:extend>
+
+        <div style="width: 100%;">
+            <div class="itemsToCompare">
+
+                <form wicket:id="form">
+                    <table cellspacing="0" cellpadding="0" border="0" style="display: inline;">
+                    <tbody>
+                        <tr>
+                            <td style="padding-bottom: 15px;">
+                                This page allows copying one or more test cases to another run in same or other database placed on same or other host.<br>
+                                Depending on the amount of the test data the whole operation may take a significant period of time.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="padding-bottom: 5px;">
+                                    The following table specifies the source and destination parameters:
+                                </div>
+                                <div style="margin-bottom: 15px">
+                                    <table cellspacing="0" cellpadding="0" border="0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width: 45px;">&nbsp;</th>
+                                                <th style="width: 150px;">Host</th>
+                                                <th style="width: 150px;">Database</th>
+                                                <th style="width: 200px;">Selection to copy</th>
+                                                <th style="width: 45px;">&nbsp;</th>
+                                                <th style="width: 150px;">Host</th>
+                                                <th style="width: 150px;">Database</th>
+                                                <th style="width: 80px;">Run Id</th>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align: center;"><strong>FROM:</strong></td>
+                                                <td><input type="text" readonly="readonly" wicket:id="sourceHost" style="background: white" value=""></td>
+                                                <td><input type="text" readonly="readonly" wicket:id="sourceDbName" style="background: white" value="test_2.3.0.snapshot"></td>
+                                                <td><textarea wicket:id="sourceSelectionToCopy"></textarea></td>
+                                                <td style="text-align: center;"><strong>TO:</strong></td>
+                                                <td><input type="text" wicket:id="destinationHost" value=""></td>
+                                                <td><input type="text" wicket:id="destinationDbName" value=""></td>
+                                                <td><input type="text" wicket:id="destinationRunId" value=""></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <div style="padding-bottom: 5px;">Select your overwrite option:</div>
+                                    <span wicket:id="testcaseOverwriteOption"></span>
+                                </div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="#" class="button copyButton" wicket:id="copyButton">
+                                    <span>Copy Testcases</span>
+                                </a>
+                                <span id="copyHiddenButtonSpan" style="display:none;">
+                                    <input type="button" wicket:id="copyHiddenButton" value=""
+                                        style="display:none;margin:0;"/>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </form>
+
+                <div class="tableHeader" style="margin: 15px 0 0;">Info console</div>
+                <div class="logsContainer">
+                    <table wicket:id="webConsole" style="padding: 0px 10px;" >
+                    <tbody>
+                        <tr wicket:id="messages">
+                            <td><span wicket:id="message" style="white-space: pre;"></span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="endOfConsole"></span>
+                                <script>
+                                    document.getElementById("endOfConsole").scrollIntoView(true);
+                                </script>
+                            </td>
+                         </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </wicket:extend>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<head>
+	<wicket:head>
+        <style>
+            input[type=text] {
+            	border:1px solid #BBBBBB; 
+            	width: 100%;
+            }
+        </style>
+    </wicket:head>
+</head>
+<body>
+	<wicket:extend>
+		<table class="mainContent" wicket:id="mainContainer"
+			style="width: 500px; margin-left: 75px; padding:20px; font-family: monospace; font-weight:bold; color: #527C96;">
+			<tr>
+				<td colspan="2" style="text-align: center; font-size: 18px;">Choose a report template</td>
+			</tr>
+			<tr><td><br/></td><td></td></tr>
+			<tr>
+				<td>Run:</td>
+				<td>
+					<input wicket:id="run_name" type="text" value=""/>
+				</td>
+			</tr>
+			<tr>
+				<td>Run ID:</td>
+				<td>
+					<input wicket:id="run_id" type="text" value=""/>
+				</td>
+			</tr>	
+			<tr>
+				<td>Suite:</td>
+				<td>
+					<input wicket:id="suite_name" type="text" value=""/>
+				</td>
+			</tr>
+			<tr>
+				<td>Scenario:</td>
+				<td>
+					<input wicket:id="scenario_name" type="text" value=""/>
+				</td>
+			</tr>								
+			<tr>
+				<td>Testcase:</td>
+				<td>
+					<input wicket:id="testcase_name" type="text" value=""/>
+				</td>
+			</tr>			
+			<tr>
+				<td>Testcase ID:</td>
+				<td>
+					<input wicket:id="testcase_id" type="text" value=""/>
+				</td>
+			</tr>
+			<tr><td><br/></td><td></td></tr>
+			<tr><td><br/></td><td></td></tr>
+		
+			<tr wicket:id="report_buttons">
+				<td>
+                	<a wicket:id="report_button" href="#" class="button" style="margin: 2px 5px 2px 10px;">
+                    	<img src="images/report.png" alt="" style="border:none;float:left;padding:4px 7px 0 8px;" />
+                    	<span wicket:id="button_name" style="text-align:center;width:150px;">[VALUE]</span>
+                    </a>
+				</td>
+			</tr>
+		</table>
+	</wicket:extend>
+</body>
+</html>

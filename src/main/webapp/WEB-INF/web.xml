@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+     version="2.4">
+
+    <display-name>Axway Test Explorer</display-name>
+
+	<listener>
+		<listener-class>com.axway.ats.testexplorer.pages.testcase.attachments.ContextListener</listener-class>
+	</listener>
+	
+	<servlet>
+		<servlet-name>UploadServlet</servlet-name>
+		<servlet-class>com.axway.ats.testexplorer.pages.testcase.attachments.UploadServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>UploadServlet</servlet-name>
+		<url-pattern>/UploadServlet</url-pattern>
+	</servlet-mapping>
+
+    <filter>
+        <filter-name>wicket.LogW</filter-name>
+         <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>com.axway.ats.testexplorer.TestExplorerApplication</param-value>
+         </init-param>
+     </filter>
+
+    <filter-mapping>
+        <filter-name>wicket.LogW</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+     <context-param>
+        <param-name>configuration</param-name>
+        <!--param-value>development</param-value-->
+        <param-value>deployment</param-value>
+    </context-param>
+
+      <session-config>
+        <!-- session-timeout: timeout in minutes -->
+          <session-timeout>240</session-timeout>
+      </session-config>
+
+</web-app>

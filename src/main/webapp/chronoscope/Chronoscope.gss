@@ -1,0 +1,76 @@
+/*
+    http://gwt-chronoscope.googlecode.com/svn/apidocs/gssdoc.html
+*/
+axislegend daterange {
+    date-format: HH:mm:ss (dd.MMM);
+}
+grid {
+    color: gray;
+    width: 1px;
+    border-width: 0;
+    opacity: 0.08;
+    visibility: visible;
+}
+marker {
+    background-color: white;
+    color: gray;
+    border-left-width: 1px;
+    font-family: Verdana;
+    font-size: 7pt;
+}
+marker guideline {
+    color: red;
+    date-format: HH:mm;
+    visibility: hidden;
+}
+crosshair {
+    color: gray;
+    visibility:hidden;
+    value-visibility:hidden;
+    font-family: Verdana;
+    font-size: 5pt;
+    date-format: ;
+}
+point.focus guideline {
+    color: blue;
+    date-format: HH:mm:ss;
+    visibility: hidden;
+    line-thickness: 2;
+}
+tick {
+    color: black;
+    border-width: 1;
+}
+shadow {
+    width: 2;
+    top: 2;
+    left: 2;
+    color: gray;
+}
+point {
+    radius: 2px;
+    width: 1;
+    color: gray;
+    background-color: white;
+    line-thickness: 1;
+    border-width: 1;
+    visibility: hidden;
+}
+point.hover {
+    radius: 4px;
+    color: red;
+    width: 3;
+    line-thickness: 2;
+    background-color: white;
+    visibility: visible;
+}
+point.focus {
+    color: blue;
+    width: 3;
+    border-style: solid;
+    border-width: 2;
+    visibility: visible;
+}
+point shadow {
+    width: 0;
+}
