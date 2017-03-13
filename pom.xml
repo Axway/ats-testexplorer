@@ -315,32 +315,21 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>${maven.enforcer.plugin.version}</version>
 				<executions>
 					<execution>
-						<id>enforce-versions</id>
+						<id>enforce-rules</id>
 						<goals>
 							<goal>enforce</goal>
 						</goals>
 						<configuration>
 							<rules>
-								<bannedPlugins>
-									<!-- will only display a warning but does not fail the build. -->
-									<level>ERROR</level>
-									<excludes>
-										<exclude>org.apache.maven.plugins:maven-verifier-plugin</exclude>
-									</excludes>
-									<message>Please consider using the maven-invoker-plugin
-										(http://maven.apache.org/plugins/maven-invoker-plugin/)!</message>
-								</bannedPlugins>
-								<requireMavenVersion>
-									<version>${maven.min.version}</version>
-								</requireMavenVersion>
 								<requireJavaVersion>
 									<version>${java.version}</version>
 								</requireJavaVersion>
+								<requireMavenVersion>
+									<version>${maven.min.version}</version>
+								</requireMavenVersion>
 							</rules>
 						</configuration>
 					</execution>
