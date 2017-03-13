@@ -1,0 +1,17 @@
+language: java
+jdk:
+    oraclejdk8
+script: mvn clean install deploy --settings="settings.xml"
+cache:
+  directories:
+    - $HOME/.m2
+notifications:
+  email:
+    recipients:
+      - group.ats.team@axway.com
+    on_success: change
+    on_failure: always
+env:
+   global:
+     - secure: "TQrqEmqxLhpH8Ia+YCFaRy6tP4E9PW9ygT59B+a7pYlpspwgZb3ojajzyxjX9gSMwlo6+D9hVZx78EcThYdhzztLeJhWDzExGCxByTOyahj2X2BnUNMD2vcySz/KHs005Q4BIWGR1Bpp/uERCBFjVFb/OPNMMEFlN3GxI/5rx57Yd1Qmlh2zQp+rJuWiYKbMUqK8XX4h1sAUc+pF4gLVp8KQZXtI3WxBG7MMQBTMOiuJNkR8d093YBCMPn4Y0W4cdJnLJB3Z3qa3Ea8ZyHeNTWpCQFBdCywaDRtxNjMkHm1S6qimz6o8Dd2aLhvzWVBHvyKsZnzbM9ulxG35hsq89eQobSlNts9giCDMGfXAsu2ie1KvGommzM+N75Zj2+pg5cDzAg42jiHy6WIzgISch25IsRlLcfPEX6JhNq0dgFwrtzDOiehqo2cVCSegrYclPtJuuukZdBIFTWDOdMgJZshNlvVaV5s1RzwMjg9uQxTn/TnxE5uX5mIF+mMENDG/UYSzZ15nig1qJNu/p6iIQ8xRhtdDIcmlFY+Zh7SfIDbIVBPQ7EOsIqXfsSroQTaDV9f2PELyZjN2/sPV0Qnz9a3/yL1kfWZxdh/RsLPn0Mr5uLqzwMum1tcqBUtL00KV4taHetIwqezBUtgTJ4Lr3d/OrsbGwX60N8DLAL3+5o0="
+     - secure: "wFp/PsAyAUXzYY1q5Z8q4rNn1P6hh+wXJJ+zkV6sc5d4QiMkTDt5Ogqhzr2sMhHGWoPTC4BsDbzqrK/PjyKa8Cy9PB5cHWvkSTFpXo4OITZ5wNmoyKs3AgpB79bfkqj06GJpB27EQQknKdGLclnbPoF7cAIM+1NociWJQYhk68oC9+/IMWpHItvDj6J3qtd46m6pKu1uJiCiDlWzeqcPhhnK1EsNLFrYa2v5dPdVVkeliXc7agoFPzpwOX0N2X9DCb/h91an3aAmIBtLXq7StMMXaXujevPPLEA/vh4p6YhmFO8eLOPgJchqCkw5HXWn0IBTuyrxtJqo8TCcaaxJ8kITBuL0qelNsQvM7Uw8pu7kere1k3qEKNAtciKX8JcSFgtzT/VYJF1qVwlbx877t1wusH+bvmb/u5pBj5D9Sy/trkkpH2x4QVAGQtcda1mkd7YucNcBNJ8WNdkYQUMlKmB2zhD+dIiEJc3xFnD8Wwh+0D0mMl5i00Y/1xHH6zN/zrYkj5w2GlWbTDGd2rOB5sWO07YPm13ONrm0YnVF18FFn64Xh3mubNEW1FWmgjLanLDBq/8oj7YlHtYOhgQjOjiR90cJPTsYO541Z33yj0gkIyt/veZQOJmc0Yva7dWvxyUuMHnAoyVFSPh/EmfOLZDwc2Y5TNBliWOqjZuA41o="
