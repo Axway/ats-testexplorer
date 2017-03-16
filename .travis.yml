@@ -2,11 +2,13 @@ language: java
 jdk:
     oraclejdk8
 before_install:
-    - wget https://maven.oracle.com/com/oracle/jdbc/ojdbc7/12.1.0.1/ojdbc7-12.1.0.1.jar --user=$MAVEN_ORACLE_USER --password=$MAVEN_ORACLE_PASSWD
-    - wget https://maven.oracle.com/com/oracle/jdbc/ojdbc7/12.1.0.1/ojdbc7-12.1.0.1.pom --user=$MAVEN_ORACLE_USER --password=$MAVEN_ORACLE_PASSWD
-    - mvn install:install-file -Dfile=ojdbc7-12.1.0.1.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc7 -Dversion=12.1.0.1 -Dpackaging=pom -DpomFile=ojdbc7-12.1.0.1.pom
-    - mvn install:install-file -Dfile=ojdbc7-12.1.0.1.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc7 -Dversion=12.1.0.1 -Dpackaging=jar -DpomFile=ojdbc7-12.1.0.1.pom
-script: mvn clean install deploy --settings="settings.xml"
+    #- wget https://maven.oracle.com/com/oracle/jdbc/ojdbc7/12.1.0.1/ojdbc7-12.1.0.1.jar --user=$MAVEN_ORACLE_USER --password=$MAVEN_ORACLE_PASSWD
+    #- wget https://maven.oracle.com/com/oracle/jdbc/ojdbc7/12.1.0.1/ojdbc7-12.1.0.1.pom --user=$MAVEN_ORACLE_USER --password=$MAVEN_ORACLE_PASSWD
+    #- mvn install:install-file -Dfile=ojdbc7-12.1.0.1.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc7 -Dversion=12.1.0.1 -Dpackaging=pom -DpomFile=ojdbc7-12.1.0.1.pom
+    #- mvn install:install-file -Dfile=ojdbc7-12.1.0.1.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc7 -Dversion=12.1.0.1 -Dpackaging=jar -DpomFile=ojdbc7-12.1.0.1.pom
+     - rm ~/.m2/settings.xml
+     - cp cp settings.xml ~/.m2
+script: mvn clean install deploy
 cache:
   directories:
     - $HOME/.m2
@@ -18,7 +20,11 @@ notifications:
     on_failure: always
 env:
    global:
+     # sonatype username
      - secure: "TQrqEmqxLhpH8Ia+YCFaRy6tP4E9PW9ygT59B+a7pYlpspwgZb3ojajzyxjX9gSMwlo6+D9hVZx78EcThYdhzztLeJhWDzExGCxByTOyahj2X2BnUNMD2vcySz/KHs005Q4BIWGR1Bpp/uERCBFjVFb/OPNMMEFlN3GxI/5rx57Yd1Qmlh2zQp+rJuWiYKbMUqK8XX4h1sAUc+pF4gLVp8KQZXtI3WxBG7MMQBTMOiuJNkR8d093YBCMPn4Y0W4cdJnLJB3Z3qa3Ea8ZyHeNTWpCQFBdCywaDRtxNjMkHm1S6qimz6o8Dd2aLhvzWVBHvyKsZnzbM9ulxG35hsq89eQobSlNts9giCDMGfXAsu2ie1KvGommzM+N75Zj2+pg5cDzAg42jiHy6WIzgISch25IsRlLcfPEX6JhNq0dgFwrtzDOiehqo2cVCSegrYclPtJuuukZdBIFTWDOdMgJZshNlvVaV5s1RzwMjg9uQxTn/TnxE5uX5mIF+mMENDG/UYSzZ15nig1qJNu/p6iIQ8xRhtdDIcmlFY+Zh7SfIDbIVBPQ7EOsIqXfsSroQTaDV9f2PELyZjN2/sPV0Qnz9a3/yL1kfWZxdh/RsLPn0Mr5uLqzwMum1tcqBUtL00KV4taHetIwqezBUtgTJ4Lr3d/OrsbGwX60N8DLAL3+5o0="
+     # sonatype password
      - secure: "wFp/PsAyAUXzYY1q5Z8q4rNn1P6hh+wXJJ+zkV6sc5d4QiMkTDt5Ogqhzr2sMhHGWoPTC4BsDbzqrK/PjyKa8Cy9PB5cHWvkSTFpXo4OITZ5wNmoyKs3AgpB79bfkqj06GJpB27EQQknKdGLclnbPoF7cAIM+1NociWJQYhk68oC9+/IMWpHItvDj6J3qtd46m6pKu1uJiCiDlWzeqcPhhnK1EsNLFrYa2v5dPdVVkeliXc7agoFPzpwOX0N2X9DCb/h91an3aAmIBtLXq7StMMXaXujevPPLEA/vh4p6YhmFO8eLOPgJchqCkw5HXWn0IBTuyrxtJqo8TCcaaxJ8kITBuL0qelNsQvM7Uw8pu7kere1k3qEKNAtciKX8JcSFgtzT/VYJF1qVwlbx877t1wusH+bvmb/u5pBj5D9Sy/trkkpH2x4QVAGQtcda1mkd7YucNcBNJ8WNdkYQUMlKmB2zhD+dIiEJc3xFnD8Wwh+0D0mMl5i00Y/1xHH6zN/zrYkj5w2GlWbTDGd2rOB5sWO07YPm13ONrm0YnVF18FFn64Xh3mubNEW1FWmgjLanLDBq/8oj7YlHtYOhgQjOjiR90cJPTsYO541Z33yj0gkIyt/veZQOJmc0Yva7dWvxyUuMHnAoyVFSPh/EmfOLZDwc2Y5TNBliWOqjZuA41o="
+     # maven oracle username
      - secure: "kK98JWdJdewv0gQjd1ivCYLfQ+SvX3LElMQ5wW835ma1xec4XRKafckges6LEN5GJx28Y604aMCWQ29nhEy6m3NWQwm28opieAu72nH3lFxqGNLIMfFgKgGKiYO/2S6eFBosn0f5XWq4WcatfY7guVbza1KhunyMqOlm3DZ5IIJZHeDHcqh8yXhva6RP23COnPK+2LgpuSRGz6Z2ROZjAXBcsdq2V7/vwyCqWA0dmTBXdQwvrzxN3T0inGf2V2RYQbIvQV8vkOHJLk0aqkdQ+MjNy56QvrfavaWJSrl7eAahTjZssyhzBw0xVSKQkyujuguq17lbJfza/z/i//NiG712ht3pWNrJyDQd8LJQJ/D5B4zfhp+WI4mZo+AJvvqv5V9Ioa0IgriUbt8vA3glH2nV5+eERQq8/x0gjr8KK6BmaveuELj3WvUYwWFsGBaAPx3V40a1y/ouMm/K8/YsEm48x/dNyA/cN8deg5Y9gHdf8nkg0/yjnXtUN9C45j0DXQTl2eHMR1qCuys4VUMAeO+XFiUhUNwgK6bMCDcTDOkl0BL/ONJeW0WxQhcvDD8cCt81Ro/AheXQERQ0fw5EC40+qMrbEiEl1f2/7LEXcRX5r+LjdsDY4+apwDsOzlb+Gz5nU/UEqAXYGDmaQr0qxuHQDYKfT6Ch4Zq5h7e06LA="
+     # maven oracle password
      - secure: "VFU/hnhPRgIwXdsGDEpOVrFXGTjrfV/uJgxK7m4RH9YFSRqQDaeOZysfk021U8EHcjxABlCSSXp3ldGMTHQ6BFH18YFkqMzvh8FCrn1//TyixrwIJRn/mXNYcUJ/dAKN983YobTLx9Ht1qFnBUj9DJLQ9JoPszwWVnThl7EkDjAGVOTSINM22t7sUrY3j9zD3LW7xR/c2q7hTQgLOXK68SEV8kWXDgUrtLvwV3NJbU7DLYdnUwCtq88xf6lFAfsUOh7X7cyyoccOdyY5dq4VFS2os/0Z985pingeYfmtg0iPjhBLqaKGAl6gV1qVBH9d8rf8D1WNLCaw36evK2kIq53EP5rI+XbWY35JsHbBvtk2oZVEgdHMo1Nj4BGwvOHi5/7BPnIj8s3nR40xYbldPU5ZrxNbMrMfDEaBarlOCwnHQ8Pm/me5ChnfFq+V72ybwI9XtB8psFvMsIzQRNxyCE/0NjJ8+xGdtB/8alobNWREW5BnZduL6XCJ3Ty6YoJrM2msyu2AoYRhIMfFqXnSBY7fOFsrG7i5JE1OIzJ+5qusFX35uO2MiI3VvNaOTfqB/rz4EolxKqlQxLQt1s1Rr49oBXG2L5IhDdHkmuUz5s772VGWGNAF4E+q+/SfvB+jkv36adKE7ISnyiKAcOXx8t728mcX3eYbF9eWF09cFa0="
