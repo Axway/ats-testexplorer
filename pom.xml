@@ -6,19 +6,18 @@
 	<groupId>com.axway.ats.testexplorer</groupId>
 	<artifactId>ats-testexplorer</artifactId>
 	<version>4.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	<packaging>war</packaging>
 	<name>ATS-TestExplorer</name>
 	<description>
     	ATS Web application for exploring ongoing and passed test executions of projects using ATS DB logging (ATS Framework)
     </description>
 	<url>https://github.com/Axway/ats-testexplorer</url>
-
 	<properties>
 		<java.version>1.8</java.version>
 		<maven.min.version>3.0.5</maven.min.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<ats.program.version>4.0.0-SNAPSHOT</ats.program.version>
+		<ats.framework.version>4.0.0-SNAPSHOT</ats.framework.version>
 		<maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 		<apache.commons-lang.version>2.4</apache.commons-lang.version>
 		<apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>
@@ -38,6 +37,10 @@
 		<log4j.version>1.2.17</log4j.version>
 		<org.slf4j.version>1.5.8</org.slf4j.version>
 		<build.number>SNAPSHOT</build.number>
+
+		<buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
+		<maven-war-plugin.version>3.0.0</maven-war-plugin.version>
+		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 
 		<maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
 		<!-- Travis CI plugin versions -->
@@ -90,17 +93,17 @@
 								<artifactItem>
 									<groupId>com.axway.ats.framework</groupId>
 									<artifactId>ats-common</artifactId>
-									<version>${ats.program.version}</version>
+									<version>${ats.framework.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.axway.ats.framework</groupId>
 									<artifactId>ats-core</artifactId>
-									<version>${ats.program.version}</version>
+									<version>${ats.framework.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.axway.ats.framework</groupId>
 									<artifactId>ats-log</artifactId>
-									<version>${ats.program.version}</version>
+									<version>${ats.framework.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>commons-dbcp</groupId>
@@ -197,7 +200,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -231,32 +234,74 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Adds SCM revision number to manifest file -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>${buildnumber-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<!-- Do NOT perform git pull -->
+					<doUpdate>false</doUpdate>
+					<!-- show github commit sha up to the 5th symbol -->
+					<shortRevisionLength>5</shortRevisionLength>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
+				<configuration>
+					<!-- <webXml>src\main\webapp\WEB-INF\web.xml</webXml> -->
+
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Build-Time>${maven.build.timestamp}</Implementation-Build-Time>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-Build-Number>${build.number}</Implementation-Build-Number>
+							<Implementation-SCM-Revision>${buildNumber}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>create-war</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<appendAssemblyId>false</appendAssemblyId>
-							<descriptors>
-								<descriptor>src/assembly/war.xml</descriptor>
-							</descriptors>
-							<archive>
-								<manifestEntries>
-									<Specification-Title>Axway ATS Test Explorer</Specification-Title>
-									<Specification-Version>${project.version}</Specification-Version>
-									<Implementation-Title>${project.name}</Implementation-Title>
-									<Implementation-Version>${project.version}, build:
-										${build.number}</Implementation-Version>
-									<Implementation-Vendor>Axway Inc.</Implementation-Vendor>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</execution>
+					<!-- <execution> -->
+					<!-- <id>create-war</id> -->
+					<!-- <phase>package</phase> -->
+					<!-- <goals> -->
+					<!-- <goal>single</goal> -->
+					<!-- </goals> -->
+					<!-- <configuration> -->
+					<!-- <appendAssemblyId>false</appendAssemblyId> -->
+					<!-- <descriptors> -->
+					<!-- <descriptor>src/assembly/war.xml</descriptor> -->
+					<!-- </descriptors> -->
+					<!-- <archive> -->
+					<!-- <manifestEntries> -->
+					<!-- <Specification-Title>Axway ATS Test Explorer</Specification-Title> -->
+					<!-- <Specification-Version>${project.version}</Specification-Version> -->
+					<!-- <Implementation-Title>${project.name}</Implementation-Title> -->
+					<!-- <Implementation-Version>${project.version}, build: -->
+					<!-- ${build.number}</Implementation-Version> -->
+					<!-- <Implementation-Vendor>Axway Inc.</Implementation-Vendor> -->
+					<!-- </manifestEntries> -->
+					<!-- </archive> -->
+					<!-- </configuration> -->
+					<!-- </execution> -->
 					<execution>
 						<id>create-final-package</id>
 						<phase>package</phase>
@@ -316,6 +361,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${maven.enforcer.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>enforce-rules</id>
@@ -342,12 +388,12 @@
 		<dependency>
 			<groupId>com.axway.ats.framework</groupId>
 			<artifactId>ats-core</artifactId>
-			<version>${ats.program.version}</version>
+			<version>${ats.framework.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.axway.ats.framework</groupId>
 			<artifactId>ats-log</artifactId>
-			<version>${ats.program.version}</version>
+			<version>${ats.framework.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
