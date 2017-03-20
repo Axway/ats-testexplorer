@@ -3,4 +3,4 @@
 # ats-testexplorer
 ATS Web application for exploring ongoing and passed test executions of projects using ATS DB logging
 
-Other related projects are ATS Framework, and REST logger.
+Other related projects are ATS Framework and ATS REST logger.
