@@ -71,7 +71,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private static final long     serialVersionUID                = 1L;
 
-    protected static Logger       LOG;
+    protected static transient Logger       LOG;
 
     private String                pageSuffix;
 
