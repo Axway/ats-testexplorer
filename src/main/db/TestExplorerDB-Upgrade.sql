@@ -666,4 +666,48 @@ print '-- UNCOMMENT BEFORE RELEASE update internalVersion in [dbo].[tInternal]'
 -- UPDATE [dbo].[tInternal] SET [value]='5' WHERE [key]='internalVersion'
 -- GO
 
-
+
+print 'start alter procedure sp_delete_scenario '
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER     PROCEDURE [dbo].[sp_delete_scenario]
+
+@scenarioIds VARCHAR(1000),
+@suiteId VARCHAR(1000)
+
+AS
+
+DECLARE @delimiter VARCHAR(10) =',' -- the used delimiter
+
+BEGIN
+    DECLARE
+        @idIndex SMALLINT,
+        @idToken VARCHAR(100)
+
+    WHILE @scenarioIds <> ''
+    BEGIN
+        SET @idIndex = CHARINDEX(@delimiter, @scenarioIds)
+
+        IF @idIndex > 0
+            BEGIN
+                SET @idToken = LEFT(@scenarioIds, @idIndex-1)
+                SET @scenarioIds = RIGHT(@scenarioIds, LEN(@scenarioIds)-@idIndex)
+            END
+        ELSE
+            BEGIN
+                SET @idToken = @scenarioIds
+                SET @scenarioIds = ''
+            END
+
+        DELETE FROM tTestcases WHERE tTestcases.scenarioId=@idToken and tTestcases.suiteId=@suiteId
+
+    END
+END
+
+print 'end alter procedure sp_delete_scenario '
+GO
+

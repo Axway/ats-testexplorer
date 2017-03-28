@@ -1582,7 +1582,8 @@ GO
 --*********************************************************
 CREATE     PROCEDURE [dbo].[sp_delete_scenario]
 
-@scenarioIds VARCHAR(1000)
+@scenarioIds VARCHAR(1000),
+@suiteId VARCHAR(1000)
 
 AS
 
@@ -1608,7 +1609,7 @@ BEGIN
                 SET @scenarioIds = ''
             END
 
-        DELETE FROM tScenarios WHERE tScenarios.scenarioId=@idToken
+        DELETE FROM tTestcases WHERE tTestcases.scenarioId=@idToken and tTestcases.suiteId=@suiteId
 
     END
 END

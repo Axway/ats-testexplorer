@@ -170,21 +170,25 @@ public class TestExplorerDbWriteAccess extends DbWriteAccess implements TestExpl
     public void deleteScenarios( List<Object> objectsToDelete ) throws DatabaseAccessException {
 
         StringBuilder scenarioIds = new StringBuilder();
+        String suiteId = ( ( Scenario ) objectsToDelete.get( 0 ) ).suiteId; // all scenarios belong to the same suite
         for( Object obj : objectsToDelete ) {
             scenarioIds.append( ( ( Scenario ) obj ).scenarioId );
             scenarioIds.append( "," );
         }
+        
         scenarioIds.delete( scenarioIds.length() - 1, scenarioIds.length() );
 
-        final String errMsg = "Unable to delete scenario(s) with id " + scenarioIds;
+        final String errMsg = "Unable to delete scenario(s) with id " + scenarioIds + " and suiteId "
+                              + suiteId;
 
-        String sqlLog = new SqlRequestFormatter().add( "scenario id(s)", scenarioIds ).format();
+        String sqlLog = new SqlRequestFormatter().add( "scenario id(s)", scenarioIds ).add( "suiteId", suiteId ).format();
         Connection connection = getConnection();
         CallableStatement callableStatement = null;
         try {
 
-            callableStatement = connection.prepareCall( "{ call sp_delete_scenario(?) }" );
+            callableStatement = connection.prepareCall( "{ call sp_delete_scenario(?,?) }" );
             callableStatement.setString( 1, scenarioIds.toString() );
+            callableStatement.setString( 2, suiteId );
             callableStatement.execute();
 
             LOG.debug( sqlLog );
