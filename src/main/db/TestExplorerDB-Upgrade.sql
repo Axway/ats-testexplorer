@@ -711,3 +711,109 @@ END
 print 'end alter procedure sp_delete_scenario '
 GO
 
+
+
+print 'start alter procedure sp_delete_testcase '
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[sp_delete_testcase]    Script Date: 03/19/2012 17:05:20 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER       PROCEDURE [dbo].[sp_delete_testcase]
+
+@testcaseIds VARCHAR(5000)
+
+AS
+
+DECLARE @delimiter VARCHAR(10) =',' -- the used delimiter
+
+BEGIN
+    DECLARE
+        @idIndex SMALLINT,
+        @idToken VARCHAR(100)
+
+    WHILE @testcaseIds <> ''
+    BEGIN
+        SET @idIndex = CHARINDEX(@delimiter, @testcaseIds)
+
+        IF @idIndex > 0
+            BEGIN
+                SET @idToken = LEFT(@testcaseIds, @idIndex-1)
+                SET @testcaseIds = RIGHT(@testcaseIds, LEN(@testcaseIds)-@idIndex)
+            END
+        ELSE
+            BEGIN
+                SET @idToken = @testcaseIds
+                SET @testcaseIds = ''
+            END
+
+        DELETE FROM tTestcases WHERE tTestcases.testcaseId=@idToken
+    END
+END
+GO
+
+print 'end alter procedure sp_delete_testcase '
+GO
+
+
+print 'start alter procedure sp_db_cleanup '
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_db_cleanup]     ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[sp_db_cleanup]
+
+AS
+DECLARE @start_time datetime;
+DECLARE @end_time datetime;
+DECLARE @length int;
+BEGIN
+
+ SET @start_time = (SELECT SYSDATETIME());
+  PRINT 'START DELETING RUN MESSAGES: ' + cast(@start_time as varchar(20));
+  DELETE FROM tRunMessages WHERE runId NOT IN (SELECT runId FROM tRuns);
+  SET @end_time = (SELECT SYSDATETIME());
+  PRINT 'END DELETING RUN MESSAGES: ' + cast(@end_time as varchar(20));
+  PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time ) as varchar(100));
+
+  SET @start_time = (SELECT SYSDATETIME());
+  PRINT 'START DELETING SUITE MESSAGES: ' + cast(@start_time as varchar(20));
+  DELETE FROM tSuiteMessages WHERE suiteId NOT IN (SELECT suiteId FROM tSuites);
+  SET @end_time = (SELECT SYSDATETIME());
+  PRINT 'END DELETING SUITE MESSAGES: ' + cast(@end_time as varchar(20));
+  PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time ) as varchar(100));
+
+  -- When deleting tRunMessages, tSuiteMessages and tMessages we cannot not use AUTO DELETE for tUniqueMessages,
+  -- because it is possible to have same message(identified by its uniqueMessageId) in more than one place in 
+  -- one or more of these parent tables
+  SET @start_time = (SELECT SYSDATETIME());
+  PRINT 'START DELETING UNIQUE MESSAGES: ' + cast(@start_time as varchar(20));
+  DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN 
+    (
+            SELECT uniqueMessageId FROM tMessages 
+      UNION SELECT uniqueMessageId FROM tRunMessages
+      UNION SELECT uniqueMessageId FROM tSuiteMessages
+    );
+  SET @end_time = (SELECT SYSDATETIME());
+  PRINT 'END DELETING UNIQUE MESSAGES: ' + cast(@end_time as varchar(20));
+  PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time )as varchar(100));
+  
+  SET @start_time = (SELECT SYSDATETIME());
+  PRINT 'START DELETING SCENARIOS: ' + cast(@start_time as varchar(20));
+  DELETE FROM tScenarios WHERE scenarioId NOT IN (SELECT scenarioId FROM tTestcases);
+  SET @end_time = (SELECT SYSDATETIME());
+  PRINT 'END DELETING SCENARIOS: ' + cast(@end_time as varchar(20));
+  PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time ) as varchar(100));
+
+END
+GO
+
+print 'end alter procedure sp_db_cleanup '
+GO

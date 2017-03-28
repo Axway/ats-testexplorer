@@ -2256,7 +2256,6 @@ CREATE       PROCEDURE [dbo].[sp_delete_testcase]
 AS
 
 DECLARE @delimiter VARCHAR(10) =',' -- the used delimiter
-DECLARE @scenarioId int
 
 BEGIN
     DECLARE
@@ -2278,7 +2277,6 @@ BEGIN
                 SET @testcaseIds = ''
             END
 
-        SET @scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @idToken)
         DELETE FROM tTestcases WHERE tTestcases.testcaseId=@idToken
     END
 END
@@ -3285,6 +3283,13 @@ BEGIN
   SET @end_time = (SELECT SYSDATETIME());
   PRINT 'END DELETING UNIQUE MESSAGES: ' + cast(@end_time as varchar(20));
   PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time )as varchar(100));
+  
+  SET @start_time = (SELECT SYSDATETIME());
+  PRINT 'START DELETING SCENARIOS: ' + cast(@start_time as varchar(20));
+  DELETE FROM tScenarios WHERE scenarioId NOT IN (SELECT scenarioId FROM tTestcases);
+  SET @end_time = (SELECT SYSDATETIME());
+  PRINT 'END DELETING SCENARIOS: ' + cast(@end_time as varchar(20));
+  PRINT 'EXECUTED FOR TIME IN MILISECONDS:' + cast(DATEDIFF(millisecond,@start_time ,@end_time ) as varchar(100));
 
 END
 GO
