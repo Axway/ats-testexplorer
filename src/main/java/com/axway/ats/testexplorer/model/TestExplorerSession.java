@@ -68,7 +68,7 @@ public class TestExplorerSession extends WebSession {
 
         Properties configProperties = ( ( TestExplorerApplication ) getApplication() ).getConfigProperties();
         if( configProperties == null ) {
-            LOG.warn( "There is no config.properties" );
+            LOG.warn( "There is no ats.config.properties" );
             return;
         }
 

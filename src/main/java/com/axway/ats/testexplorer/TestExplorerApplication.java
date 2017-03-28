@@ -114,7 +114,7 @@ public class TestExplorerApplication extends WebApplication {
             configProperties = new Properties();
             configProperties.load( this.getClass()
                                        .getClassLoader()
-                                       .getResourceAsStream( "config.properties" ) );
+                                       .getResourceAsStream( "ats.config.properties" ) );
         } catch( IOException e ) {
             LOG.error( "Can't load config.properties file", e );
         }
