@@ -1,9 +1,9 @@
 GO
-/****** Object:  User [AutoUser]    Script Date: 04/11/2011 20:46:21 ******/
-CREATE USER [AutoUser] FOR LOGIN [AutoUser] WITH DEFAULT_SCHEMA=[AutoUser]
+/****** Object:  User [AtsUser]    Script Date: 04/11/2011 20:46:21 ******/
+CREATE USER [AtsUser] FOR LOGIN [AtsUser] WITH DEFAULT_SCHEMA=[AtsUser]
 GO
-/****** Object:  Schema [AutoUser]    Script Date: 04/11/2011 20:46:18 ******/
-CREATE SCHEMA [AutoUser] AUTHORIZATION [AutoUser]
+/****** Object:  Schema [AtsUser]    Script Date: 04/11/2011 20:46:18 ******/
+CREATE SCHEMA [AtsUser] AUTHORIZATION [AtsUser]
 GO
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON

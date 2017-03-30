@@ -69,11 +69,11 @@ echo ALTER DATABASE [%dbname%] SET TORN_PAGE_DETECTION ON  >> tempCreateDBScript
 echo GO >> tempCreateDBScript.sql
 echo USE [%dbname%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC master.dbo.sp_addlogin @loginame = N'AutoUser', @passwd = 'SECRET123', @defdb = N'%dbname%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
+echo EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'%dbname%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_grantdbaccess @loginame = N'AutoUser', @name_in_db = N'AutoUser' >> tempCreateDBScript.sql
+echo EXEC dbo.sp_grantdbaccess @loginame = N'AtsUser', @name_in_db = N'AtsUser' >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_addrolemember @rolename = N'db_owner', @membername  = N'AutoUser' >> tempCreateDBScript.sql
+echo EXEC dbo.sp_addrolemember @rolename = N'db_owner', @membername  = N'AtsUser' >> tempCreateDBScript.sql
 echo USE [%dbname%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 
