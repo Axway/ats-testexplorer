@@ -6,7 +6,9 @@ Test Explorer is a web application used to review and analyze the results of aut
 
 Documentaion is available at https://axway.github.io/ats-testexplorer/index.html
 
-Other related projects are:
+Download location at https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/
+
+Other related projects:
 <ul>
   <li>ATS Framework at https://github.com/Axway/ats-framework</li>
   <li>ATS HTTP DB Logger at https://github.com/Axway/ats-httpdblogger</li>
