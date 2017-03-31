@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ATS : Test Explorer - Install guide</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">ATS</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="ATS-Test-Explorer-Guide.html">ATS Test Explorer Guide</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            ATS : Test Explorer - Install guide
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+        
+            Created by <span class='author'> Nikolay Gogovski</span>, last modified on Mar 31, 2017
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="TestExplorer-Installguide-Introduction">Introduction</h1><p>We list here all steps needed to install and setup Test Explorer database and web application</p><p> </p><hr/><h1 id="TestExplorer-Installguide-InstallationPrerequisites">Installation Prerequisites</h1><p>You must comply with the following prerequisites prior to installation:</p><ul><li>Microsoft SQL Server 2008 R2 or later</li><li>JRE 7 or later</li><li>Tomcat 7 or 8</li><li>The latest ATS Test Explorer release from <a class="external-link" href="https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/" rel="nofollow">here</a> <br/> <em> <span class="icon-link jar"> </span> </em></li></ul><p> </p><hr/><h1 id="TestExplorer-Installguide-SQLServersetup">SQL Server setup</h1><h3 id="TestExplorer-Installguide-Installation">Installation</h3><p>During installation make sure to choose <em>mixed authentication mode</em>. This is done in order to allow user authenticating through both JDBC and Windows. This can also be done after the install is over by going to SQL Server Management Studio, context menu on Server tree to open Server properties () and then go to Security tab.</p><h3 id="TestExplorer-Installguide-Setup">Setup</h3><p>Go to SQL Server Management Studio. In Object Explorer view, right click the server and go to &quot;Properties&quot;, go to &quot;Connections&quot;, check the following:</p><ul><li>ANSI warnings</li><li>Arithmetic abort</li><li>Quoted identifier</li></ul><p>Go to SQL Server Configuration Manager. In SQL Server Network Configuration go to Protocols for MSSQLSERVER and enable TCP/IP connections</p><p>Create a new user called <em><strong>AtsUser</strong></em> with password <em><strong>AtsPassword</strong></em>. Assign all privileges except <em><strong>denydata*</strong></em></p><p> </p><hr/><h1 id="TestExplorer-Installguide-InstallingtheTestExplorerdatabase">Installing the Test Explorer database</h1><p>Unzip the Test Explorer zip archive.</p><p>Run the <em>&lt;Test Explorer Zip&gt;/db/install.cmd</em> script. You will be asked for a database name - give the one you want. In a few seconds you have your new database ready to operate.</p><p>You can run this step as many times as needed to create the number of databases you want.</p><p> </p><div class="confluence-information-macro has-no-icon confluence-information-macro-note"><div class="confluence-information-macro-body"><p>The username is expected to be <em> <strong>AtsUser</strong> </em> and the password - <strong> <em>AtsPassword</em> </strong></p><p> If this is not your case - edit the <em>&lt;Test Explorer Zip&gt;/db/generateCreateDBScript.cmd</em> as needed</p></div></div><div class="confluence-information-macro has-no-icon confluence-information-macro-note"><div class="confluence-information-macro-body"><p>It is expected to have the SQL Server installed in &quot;<em>C:\Program Files\Microsoft SQL Server</em>&quot;.</p><p>If this is not your case -edit the <em>&lt;Test Explorer Zip&gt;/db/install.cmd</em> as needed</p></div></div><p> </p><hr/><h1 id="TestExplorer-Installguide-StartingtheTestExplorerapplication">Starting the Test Explorer application</h1><p>Place the <em>&lt;Test Explorer Zip&gt;/</em> <em>ats-explorer-x.x.x.war</em> in the web application folder of Tomcat. Test Explorer should work OK with any modern servlet container, but we have tested it on Tomcat only.</p><div class="confluence-information-macro has-no-icon confluence-information-macro-note"><div class="confluence-information-macro-body"><p>Rename the <em>ats-testexplorer-x.x.x.war</em> to some more appropriate name like &quot;TestExplorer&quot; as this will affect your URL.</p></div></div><p> </p><p>Start a browser and go to <em>http://&lt;your_server_ip&gt;:8080/TestExplorer</em></p><div class="confluence-information-macro has-no-icon confluence-information-macro-note"><div class="confluence-information-macro-body"><p>Of course you can make it run on port 80, so the URL will become in the form of <em>http://&lt;your_server_ip&gt;/TestExplorer</em></p></div></div><p> </p><hr/><h1 id="TestExplorer-Installguide-Upgradingthedatabase">Upgrading the database</h1><ul><li>Just run <em>&lt;Test Explorer Zip&gt;/db/upgrade.cmd</em> script and then specify the DB name you want to upgrade.<br/> <strong>Note</strong> that upgrades are only applied for consecutive versions. I.e. in order to upgrade from version 3.8.0 to 3.10.0 you must first upgrade to version 3.9.0 and then to 3.10.0.</li></ul><p> </p><hr/><h1 id="TestExplorer-Installguide-Resources">Resources</h1><p>Ports used by MSSQL Server - <a class="external-link" href="http://support.microsoft.com/kb/287932" rel="nofollow">http://support.microsoft.com/kb/287932</a></p><p>Register Tomcat as a Windows service - Run service.bat install - for more info: <a class="external-link" href="http://tomcat.apache.org/tomcat-7.0-doc/windows-service-howto.html" rel="nofollow">here</a></p><p> </p><hr/><p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a></p><hr/>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 31, 2017 08:05</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
