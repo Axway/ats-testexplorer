@@ -4,7 +4,7 @@
 
 	<groupId>com.axway.ats.testexplorer</groupId>
 	<artifactId>ats-testexplorer</artifactId>
-	<version>4.0.1-SNAPSHOT</version>
+	<version>4.0.1</version>
 	<packaging>war</packaging>
 	<name>ATS-TestExplorer</name>
 	<description>
@@ -518,7 +518,7 @@
 		<connection>scm:git:https://github.com/Axway/ats-framework.git</connection>
 		<developerConnection>scm:git:git@github.com:Axway/ats-framework.git</developerConnection>
 		<url>https://github.com/Axway/ats-framework</url>
-	  <tag>v4.0.0</tag>
+	  <tag>v4.0.1</tag>
   </scm>
 
 	<developers>
