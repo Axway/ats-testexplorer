@@ -515,9 +515,9 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:https://github.com/Axway/ats-framework.git</connection>
-		<developerConnection>scm:git:git@github.com:Axway/ats-framework.git</developerConnection>
-		<url>https://github.com/Axway/ats-framework</url>
+		<connection>scm:git:https://github.com/Axway/ats-testexplorer.git</connection>
+		<developerConnection>scm:git:git@github.com:Axway/ats-testexplorer.git</developerConnection>
+		<url>https://github.com/Axway/ats-testexplorer</url>
 	  <tag>v4.0.0</tag>
   </scm>
 
