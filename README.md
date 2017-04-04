@@ -14,3 +14,5 @@ Other related projects:
   <li>ATS HTTP DB Logger at https://github.com/Axway/ats-httpdblogger</li>
   <li>ATS Distribution at https://github.com/Axway/ats-distrib</li>
 </ul>
+
+Contact ATS team at group.ats.team@axway.com
