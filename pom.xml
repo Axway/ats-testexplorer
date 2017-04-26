@@ -12,7 +12,8 @@
     </description>
 	<url>https://github.com/Axway/ats-testexplorer</url>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>1.7</java.version> <!-- Minimum Java to use for compilation -->
+		<java.classlevel.version>1.7</java.classlevel.version> <!-- Output class compliance level -->
 		<maven.min.version>3.0.5</maven.min.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -207,9 +208,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<encoding>UTF-8</encoding>
+					<source>${java.classlevel.version}</source>
+					<target>${java.classlevel.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -256,8 +257,8 @@
 					<doCheck>false</doCheck>
 					<!-- Do NOT perform git pull -->
 					<doUpdate>false</doUpdate>
-					<!-- show github commit sha up to the 5th symbol -->
-					<shortRevisionLength>5</shortRevisionLength>
+					<!-- show github commit SHA up to the 7th symbol -->
+					<shortRevisionLength>7</shortRevisionLength>
 				</configuration>
 			</plugin>
 			<plugin>
