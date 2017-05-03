@@ -3444,14 +3444,14 @@ GO
 
 
 /****** Record the version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.0')
+INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
 GO
 
 /****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '5')
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
 GO
 
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '5')
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
 GO
-
+
