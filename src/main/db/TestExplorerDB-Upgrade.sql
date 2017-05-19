@@ -1,12 +1,12 @@
 -- ***********************************************
 -- Script for upgrade from version 4.0.1 to 4.0.2
 -- ***********************************************
+-
 print '-- UNCOMMENT BEFORE RELEASE update internalVersion in [dbo].[tInternal]'
 -- GO
 
 -- UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
 -- GO
-||||||| merged common ancestors
 DROP PROCEDURE dbo.sp_get_controllers;  
 GO
 DROP PROCEDURE dbo.getUniqueMessageId;  
@@ -674,7 +674,8 @@ print '-- UNCOMMENT BEFORE RELEASE update internalVersion in [dbo].[tInternal]'
 
 print 'start alter procedure sp_delete_scenario '
 GO
-SET ANSI_NULLS ON
+
+SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
