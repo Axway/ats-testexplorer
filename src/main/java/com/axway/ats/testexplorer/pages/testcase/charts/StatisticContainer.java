@@ -24,7 +24,7 @@ import java.util.TreeMap;
 /**
  * this is:
  *  - the parent process when working with system processes
- *  - the action queue name when working with HTF actions
+ *  - the action queue name when working with Agent actions
  *
  * it contains statistic descriptions
  */

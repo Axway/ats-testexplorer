@@ -20,8 +20,8 @@ ________________________________________________________________________________
                                                            Stored procedures for obtaining scenarios are left, as Test Explorer needs them. The test hierarchy in Test Explorer is not changed.
 
 ***     4        ***|   3.11.0      |  20-10-2016   | ATS OFFICIAL RELEASE
-        5           |   4.0.0       |  xx-xx-xxxx   |
-                    |               |               |
+        5        ***|   4.0.0       |  30-03-2017   | ATS OFFICIAL RELEASE (First Open source release)
+        6           |   4.0.1       |  xx-xx-xxxx   |
 
 
 
