@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,9 +39,10 @@ import com.axway.ats.core.utils.IoUtils;
 /**
  * Write the monitoring data into CSV file
  */
-public class CsvWriter {
+public class CsvWriter implements Serializable {
 
-    private static Logger             LOG = Logger.getLogger( CsvWriter.class );
+    private static final long serialVersionUID = 1L;
+    private static final Logger  LOG = Logger.getLogger( CsvWriter.class );
 
     private DownloadLink       downloadFile;
 
@@ -69,7 +71,7 @@ public class CsvWriter {
 
             @Override
             public void onClick() {
-                
+
                 IResourceStream resourceStream = new FileResourceStream( new org.apache.wicket.util.file.File( generateFile( fileName ) ) );
                 getRequestCycle().scheduleRequestHandlerAfterCurrent( new ResourceStreamRequestHandler( resourceStream ) {}.setFileName( fileName )
                                                                                                                            .setContentDisposition( ContentDisposition.ATTACHMENT ) );
@@ -121,7 +123,7 @@ public class CsvWriter {
 
     /**
      * Order all chart data by timestamp
-     * 
+     *
      * @param chartDataLists list with all data chart lists
      * @return ordered data chart list by timestamp
      */
@@ -157,9 +159,9 @@ public class CsvWriter {
 
     /**
      * Insert the ordered data into the ordered list
-     * 
+     *
      * @param chartDataLists List with all chart data lists
-     * @param orderedChartDataList List with the ordered chart data 
+     * @param orderedChartDataList List with the ordered chart data
      * @param lowestTimestamp  The lowest timestamp
      * @param hasMoreElements  Left elements for ordering
      */

@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,11 +42,11 @@ import com.axway.ats.testexplorer.pages.model.filtering.IFilter;
 import com.inmethod.grid.datagrid.DataGrid;
 
 public class RunsFilter extends Form<Object> implements IFilter {
-    
-    private Logger LOG = Logger.getLogger( getClass() );
+
+    private final static Logger LOG = Logger.getLogger( RunsFilter.class );
 
     private static final long serialVersionUID   = 1L;
-    
+
     // these values are added to the URL, when filtered runs are saved
     private String runValue = "run";
     private String productValue = "product";
@@ -56,7 +56,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
     private String userNoteValue = "userNote";
     private String beforeDateValue = "beforeDate";
     private String afterDateValue =  "afterDate";
-    
+
 
     private TextField<String> searchByRun        = new TextField<String>( "search_by_run",
                                                                           new Model<String>( "" ) );
@@ -81,7 +81,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
     private String urlParameters = "";
 
     private boolean showFilter;
-    
+
     @SuppressWarnings({ "rawtypes" })
     public RunsFilter( String id,
                        final DataGrid dataGrid,
@@ -178,7 +178,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
                 target.add( dataGrid );
             }
         } );
-        
+
         // copy URL button
         add( new AjaxButton( "copy_url_button" ) {
             private static final long serialVersionUID = 1L;
@@ -198,11 +198,11 @@ public class RunsFilter extends Form<Object> implements IFilter {
                 target.add( dataGrid );
             }
         } );
-        
+
         setSearchValuesOnLoad(parameters);
-        
+
     }
-    
+
     @Override
     public boolean hasSelectedFields() {
 
@@ -233,7 +233,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
 
         return false;
    }
-    
+
     @Override
     public void renderHead(
                             IHeaderResponse response ) {
@@ -242,8 +242,8 @@ public class RunsFilter extends Form<Object> implements IFilter {
         if(showFilter || hasSelectedFields())
             response.render( OnDomReadyHeaderItem.forScript( "$('.filterHeader').click()" ) );
     }
-    
-    
+
+
     private void setSearchValuesOnLoad(
                                         PageParameters parameters ) {
 
@@ -271,7 +271,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
             LOG.debug( "Unable to parse date !", e );
         }
     }
-    
+
     private String getParameterValue(
                                       StringValue value ) {
 
@@ -283,9 +283,9 @@ public class RunsFilter extends Form<Object> implements IFilter {
 
         return "";
     }
-    
+
     private void clearPageParameters(PageParameters parameters){
-        
+
         parameters.remove( "run" );
         parameters.remove( "product" );
         parameters.remove( "version" );
@@ -295,7 +295,7 @@ public class RunsFilter extends Form<Object> implements IFilter {
         parameters.remove( "afterDate" );
         parameters.remove( "beforeDate" );
     }
-    
+
     public String getWhereClause() {
 
         StringBuilder where = new StringBuilder();
