@@ -663,7 +663,7 @@ GO
 CREATE                 PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
 
 @fdate varchar(150),
-@testcaseIds varchar(100)
+@WhereClause varchar(1000)
 
 AS
 
@@ -685,7 +685,7 @@ SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
                      INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
                      INNER JOIN tMachines m on (ss.machineId = m.machineId)
                      INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
-                WHERE ss.testcaseId in (' + @testcaseIds + ')
+                ' + @WhereClause + '
                 GROUP BY tt.testcaseId, tt.dateStart, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
                 ORDER BY st.name';
 
@@ -3311,7 +3311,8 @@ CREATE   PROCEDURE [dbo].[sp_get_checkpoint_statistics]
 
 @fdate varchar(150),
 @testcaseIds varchar(150),
-@checkpointNames varchar(1000)
+@checkpointNames varchar(1000),
+@parentNames varchar(1000)
 
 AS
 
@@ -3329,7 +3330,7 @@ SELECT
      INNER JOIN tCheckpointsSummary chs on (chs.checkpointSummaryId = ch.checkpointSummaryId)
      INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
      INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
-WHERE tt.testcaseId in ( '+@testcaseIds+' ) AND ch.name in ( '+@checkpointNames+' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
+WHERE tt.testcaseId in ( '+@testcaseIds+' ) AND ch.name in ( '+@checkpointNames+' ) AND  c.name in ( '+@parentNames+' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
 ORDER BY ch.endTime';
 
 EXEC (@sql)
@@ -3343,7 +3344,7 @@ GO
 CREATE                PROCEDURE [dbo].[sp_get_checkpoint_statistic_descriptions]
 
 @fdate varchar(150),
-@testcaseIds varchar(100)
+@WhereClause varchar(1000)
 
 AS
 
@@ -3356,7 +3357,7 @@ SET  @sql =
              FROM tCheckpointsSummary chs
              INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
              INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
-        WHERE tt.testcaseId in (' + @testcaseIds + ')
+        ' + @WhereClause + '
         GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name
         ORDER BY chs.name';
 

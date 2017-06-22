@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+    <wicket:head>
+
+        <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
+        <script type="text/javascript" src="chronoscope/widget.nocache.js"></script>
+        <link href="chronoscope/Chronoscope.css" rel="stylesheet" type="text/css" />
+        <link href="chronoscope/Chronoscope.gss" rel="stylesheet" type="text/gss" />
+
+    </wicket:head>
+</head>
+<body>
+    <wicket:panel>
+
+	    <form class="mainContent" style="margin-left:5px;" wicket:id="chartsPanelContent">
+    		<div wicket:id="chartsListView">
+    			<table>
+    				<tr>
+    					<td>
+							<div class="chartHeaderLine" style="margin-left:20px">
+								<a href="#" title="Download the selected data in CSV file" wicket:id="download" >
+									<img src="images/csv.png" alt="" class="csv-icon" />
+								</a>
+								<span wicket:id="chartTitle"></span>
+								<a href="#" tooltip="update diagram data" class="chartRefresh" wicket:id="refreshChart">
+									<img src="images/refresh_red.png" style="display:none;" alt="" id="chartRefreshLoader" width="24" height="24" />
+								</a>
+							</div>
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>
+							<div style="margin-left:20px;" wicket:id="chartScriptContainer"></div>
+    					</td>
+    				</tr>
+    			</table>
+			</div>
+			
+
+	        <br/><br/>
+	        <!-- Statistic details section - START - -->
+	        <a name="statDetails" class="mark">&nbsp;</a>
+	        <table border="0" style="margin-left:20px" cellspacing="0" class="statDetailsTable" id="statDetailsTable">
+	            <tbody>
+	                <tr wicket:id="statDetailsRows">
+	                    <td wicket:id="statDetailsColumns">
+	                        <div wicket:id="label" ></div>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table>
+	        <!-- Statistic details section - END - -->
+	        
+		</form>
+		
+    </wicket:panel>
+</body>
+</html>

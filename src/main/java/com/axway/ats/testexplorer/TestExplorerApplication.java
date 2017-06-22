@@ -55,6 +55,7 @@ import com.axway.ats.testexplorer.pages.scenarios.ScenariosPage;
 import com.axway.ats.testexplorer.pages.suites.SuiteMessagePage;
 import com.axway.ats.testexplorer.pages.suites.SuitesPage;
 import com.axway.ats.testexplorer.pages.testcase.TestcasePage;
+import com.axway.ats.testexplorer.pages.testcase.statistics.charts.ChartsPage;
 import com.axway.ats.testexplorer.pages.testcases.TestcasesPage;
 import com.axway.ats.testexplorer.pages.testcasesByGroups.TestcasesByGroupsPage;
 import com.axway.ats.testexplorer.pages.testcasesCopy.TestcasesCopyPage;
@@ -88,6 +89,8 @@ public class TestExplorerApplication extends WebApplication {
         mountPage( "/scenarios", ScenariosPage.class );
         mountPage( "/testcases", TestcasesPage.class );
         mountPage( "/testcase", TestcasePage.class );
+        
+        mountPage( "/charts", ChartsPage.class );
 
         mountPage( "/compare", ComparePage.class );
         mountPage( "/compareStatistics", CompareTestcaseSystemStatisticsPage.class );

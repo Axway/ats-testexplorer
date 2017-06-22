@@ -27,8 +27,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import com.axway.ats.testexplorer.pages.model.BookmarkableTabbedPanel;
 import com.axway.ats.testexplorer.pages.model.messages.MessagesPanel;
 import com.axway.ats.testexplorer.pages.testcase.attachments.AttachmentsPanel;
-import com.axway.ats.testexplorer.pages.testcase.charts.ChartsPanel;
 import com.axway.ats.testexplorer.pages.testcase.loadqueues.LoadQueuesPanel;
+import com.axway.ats.testexplorer.pages.testcase.statistics.StatisticsPanel;
 
 public class TestcasePanel extends Panel {
 
@@ -38,7 +38,7 @@ public class TestcasePanel extends Panel {
 
     public TestcasePanel( String id,
                           final String testcaseId,
-                          PageParameters parameters ) {
+                          final PageParameters parameters ) {
 
         super( id );
 
@@ -72,7 +72,7 @@ public class TestcasePanel extends Panel {
             public Panel getPanel(
                                    String panelId ) {
 
-                return new ChartsPanel( panelId, testcaseId, false );
+                return new StatisticsPanel( panelId, parameters, testcaseId, false );
             }
         } );
         

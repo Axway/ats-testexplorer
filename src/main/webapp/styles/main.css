@@ -564,7 +564,7 @@ div.tab-panel {
     vertical-align: bottom !important;
 }
 
-#chartid {
+.chartid {
     background-color:white;
     border-right:1px solid #DDDDDD;
     border-bottom:1px solid #DDDDDD;
@@ -733,6 +733,10 @@ tr.statisticRow:hover, tr.statisticParentRow:hover {
         background-color:transparent !important;
     }
 
+.statisticRow td {
+    border-right: 1px solid #DDDDDD;
+}
+
 .statisticColumn {
     border-right: 1px solid #DDDDDD;
 }
@@ -857,7 +861,11 @@ table.statDetailsTable {
     text-indent: 20px;
 }
 
-tr.statDetailsHeaderRow, tr.statisticsHeaderRow {
+.chartGroup td {
+	border-top: 5px solid rgba(18, 19, 18, 0.17);
+}
+
+tr.statDetailsHeaderRow, tr.statisticsHeaderRow, .chartGroup {
     font-weight:bold;
     background-color:white;
     background-image:url("../images/vista-bg-grey.png");
@@ -1191,6 +1199,15 @@ legend.customizations {
 .aliasInputText {
     width: 400px !important;
 }
+
+.fixGroupTableColumn {
+    overflow: hidden;
+    display: block;
+    margin: 0 8px 0 8px;
+    white-space: nowrap;
+    text-align: left;
+}
+
 .fixTableColumn {
     overflow: hidden;
     display: block;

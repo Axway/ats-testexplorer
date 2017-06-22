@@ -18,7 +18,7 @@ package com.axway.ats.testexplorer.pages.reports.compare;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.axway.ats.testexplorer.pages.LightweightBasePage;
-import com.axway.ats.testexplorer.pages.testcase.charts.ChartsPanel;
+import com.axway.ats.testexplorer.pages.testcase.statistics.StatisticsPanel;
 
 public class CompareTestcaseSystemStatisticsPage extends LightweightBasePage {
 
@@ -30,7 +30,7 @@ public class CompareTestcaseSystemStatisticsPage extends LightweightBasePage {
 
         String testcaseIds = extractParameter( parameters, "testcaseIds" );
 
-        add( new ChartsPanel( "chartsPanel", testcaseIds, true ) );
+        add( new StatisticsPanel( "chartsPanel", parameters, testcaseIds, true ) );
     }
 
     @Override

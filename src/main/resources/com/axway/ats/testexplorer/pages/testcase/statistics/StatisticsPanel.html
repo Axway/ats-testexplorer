@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+    <wicket:head>
+
+        <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
+        <script type="text/javascript" src="chronoscope/widget.nocache.js"></script>
+        <link href="chronoscope/Chronoscope.css" rel="stylesheet" type="text/css" />
+        <link href="chronoscope/Chronoscope.gss" rel="stylesheet" type="text/gss" />
+
+    </wicket:head>
+</head>
+<body>
+    <wicket:panel>
+
+    <div style="font-family:Verdana;font-size:15px;font-weight:bold;padding:40px 50px;" wicket:id="noChartsPanelContent">
+        <span>No system statistics</span>
+    </div>
+
+    <div style="margin-left:5px;" wicket:id="chartsPanelContent">
+
+        <a name="statistics" class="mark">&nbsp;</a>
+		
+        <form wicket:id="statsForm" style="margin-bottom:15px;">
+        
+			<table class="statsTable">
+				<tr>
+                    <td style="padding:7px 0px 7px 0px;" colspan="8">
+            			<a href="#" class="button" wicket:id="displayButton" style="width:200px;text-align:center;margin-left:9px;">
+            				<span title="Show selected statistics and all diagrams charts">Display diagrams</span>
+            			</a>
+            			
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="padding:7px 0px 7px 0px;">
+                        <a href="#" class="button" style="width:200px;text-align:center;margin-left:9px;"
+                            onclick="clickDisplayCharButton(false);return false;">
+                            <span title="Add selected statistics to this diagram">Add items to diagram</span>
+                        </a>
+                        <input type="button" wicket:id="addDiagramButton" class="hiddenDisplayChartButton"
+                            style="display:none;"/>
+                        <input title="Input diagram name" wicket:id="diagramName" style="width:150px;margin:0px 7px 0px 20px;" type="text" />
+                    </td>
+                </tr>
+				<tr class="statisticRow" wicket:id="chartGroupRows">
+					<td>			
+						<a href="#" class="fixGroupTableColumn removeItemIcon" wicket:id="removeIcon"></a>
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="statName"></span>
+					</td>
+					<td>		
+						<input type="text" style="width:100px" wicket:id="alias" />	
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="startDate"></span>
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="run"></span>
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="suite"></span>
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="scenario"></span>
+					</td>
+					<td>			
+						<span class="fixGroupTableColumn" wicket:id="testcase"></span>
+					</td>
+				</tr>
+			</table>
+			
+       		<p><p>
+        
+            <table border="0" cellspacing="0">
+
+                <!-- System statistics section - START - -->
+                <tr>
+                    <td style="vertical-align: top">
+                        <table border="0" cellspacing="0" class="statsTable" id="systemStatsTable" style="width: 100%;">
+                            <tbody>
+                                <tr wicket:id="systemStatsRows">
+                                    <td wicket:id="systemStatsColumns">
+                                        <div wicket:id="label" ></div>
+                                        <input type="checkbox" wicket:id="checkbox" ></input>
+                                        <span wicket:id="inputText" class="fixTableColumn"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <!-- System statistics section - END - -->
+
+                <!-- User activity statistics section - START - -->
+                <tr>
+                    <td style="vertical-align: top">
+                        <!-- User activity statistics section -->
+                        <table border="0" cellspacing="0" class="statsTable" id="userStatsTable" style="width: 100%;">
+                            <tbody>
+                                <tr wicket:id="userStatsRows">
+                                    <td wicket:id="userStatsColumns">
+                                        <div wicket:id="label" ></div>
+                                        <input type="checkbox" wicket:id="checkbox" ></input>
+                                        <span wicket:id="inputText" class="fixTableColumn"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <!-- User activity statistics section - END - -->
+
+                <!-- Action responses section - START - -->
+                <tr>
+                    <td style="vertical-align: top;">
+                        <table border="0" cellspacing="0" style="margin-right:20px;width:100%"
+                            class="statsTable" id="checkpointStatsTable">
+                            <tbody>
+                                <tr wicket:id="checkpointStatsRows">
+                                    <td wicket:id="checkpointStatsColumns">
+                                        <div wicket:id="label"></div>
+                                        <input type="checkbox" wicket:id="checkbox"></input>
+                                        <span wicket:id="inputText" class="centeredLabel"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <!-- Action responses section - END - -->
+            </table>
+
+            <script type="text/javascript">
+                markTableCellsAccToSelectedCheckboxes('systemStatsTable');
+                markTableCellsAccToSelectedCheckboxes('userStatsTable');
+                markTableCellsAccToSelectedCheckboxes('checkpointStatsTable');
+            </script>
+
+            <div style="display:hidden;">
+                <!-- Getting current user local time offset to fix it in the chart (Chronoscope chart automatically changes timestamps according the current time)
+                     We are using getTimezoneOffsetWithoutDST() because 'Daylight Saving Time' is ignored by the Chronoscope script -->
+                <input type="hidden" id="timeOffset" name="tio" value="0" />
+                <script type="text/javascript">
+                      document.getElementById('timeOffset').value = -(new Date().getTimezoneOffsetWithoutDST()/60);
+                </script>
+            </div>
+
+        </form>
+    </div>
+
+    </wicket:panel>
+</body>
+</html>

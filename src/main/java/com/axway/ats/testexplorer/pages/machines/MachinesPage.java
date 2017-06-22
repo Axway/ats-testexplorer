@@ -53,7 +53,6 @@ public class MachinesPage extends LightweightBasePage {
     private Form<Object>                 machineInfoDialogForm;
     private Machine                      machineForEdit;
 
-    private static final int             MAX_MACHINE_ALIAS_LENGTH = 20;
     private static final int             MAX_MACHINE_INFO_LENGTH  = 10000;
 
     public MachinesPage( PageParameters parameters ) {
@@ -242,9 +241,6 @@ public class MachinesPage extends LightweightBasePage {
                     String newMachineAlias = machineModels.get( machine.machineId ).getObject();
                     if( newMachineAlias != null ) {
                         newMachineAlias = newMachineAlias.trim();
-                        if( newMachineAlias.length() > MAX_MACHINE_ALIAS_LENGTH ) {
-                            newMachineAlias = newMachineAlias.substring( 0, MAX_MACHINE_ALIAS_LENGTH );
-                        }
                     }
                     if( ( newMachineAlias == null && machine.alias != null )
                         || ( newMachineAlias != null && !newMachineAlias.equals( machine.alias ) ) ) {

@@ -132,3 +132,123 @@ GO
 
 print 'end alter sp_insert_user_activity_statistic_by_ids '
 GO
+
+print 'start alter sp_get_system_statistic_descriptions '
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_system_statistic_descriptions]    Script Date: 04/11/2011 20:46:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                 PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
+
+@fdate varchar(150),
+@testcaseIds varchar(100)
+
+AS
+
+DECLARE @sql varchar(8000)
+
+SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
+                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), tt.dateStart) as testcaseStarttime,
+                        m.machineId,
+                        CASE
+                            WHEN m.machineAlias is NULL OR DATALENGTH(m.machineAlias) = 0 THEN m.machineName
+                            ELSE m.machineAlias
+                        END as machineName,
+                        ss.statsTypeId, st.name, st.params, st.parentName, st.internalName, st.units,
+                        COUNT(ss.value) as statsNumberMeasurements,
+                        CAST( MIN(ss.value) AS Decimal(20,2) ) as statsMinValue,
+                        CAST( AVG(ss.value) AS Decimal(20,2) ) as statsAvgValue,
+                        CAST( MAX(ss.value) AS Decimal(20,2) ) as statsMaxValue
+                     FROM tSystemStats ss
+                     INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
+                     INNER JOIN tMachines m on (ss.machineId = m.machineId)
+                     INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
+                WHERE ss.testcaseId in (' + @testcaseIds + ')
+                GROUP BY tt.testcaseId, tt.dateStart, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+                ORDER BY st.name';
+
+EXEC (@sql)
+GO
+
+print 'end alter sp_get_system_statistic_descriptions '
+GO
+
+print 'start alter sp_get_checkpoint_statistics '
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistics]    Script Date: 06/28/2011 16:05:37 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER   PROCEDURE [dbo].[sp_get_checkpoint_statistics]
+
+@fdate varchar(150),
+@testcaseIds varchar(150),
+@checkpointNames varchar(1000)
+
+AS
+
+DECLARE @sql varchar(8000)
+SET @sql = '
+SELECT
+    ch.checkpointId as statsTypeId,
+    c.name as queueName,
+    ch.name as statsName,
+    ch.responseTime as value,
+    DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ch.endTime) as statsAxisTimestamp,
+    c.name as queueName,
+    tt.testcaseId
+     FROM tCheckpoints ch
+     INNER JOIN tCheckpointsSummary chs on (chs.checkpointSummaryId = ch.checkpointSummaryId)
+     INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
+     INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
+WHERE tt.testcaseId in ( '+@testcaseIds+' ) AND ch.name in ( '+@checkpointNames+' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
+ORDER BY ch.endTime';
+
+EXEC (@sql)
+GO
+
+print 'end alter sp_get_checkpoint_statistics '
+GO
+
+print 'start alter sp_get_checkpoint_statistic_descriptions '
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistic_descriptions]    Script Date: 06/27/2011 10:19:48 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                PROCEDURE [dbo].[sp_get_checkpoint_statistic_descriptions]
+
+@fdate varchar(150),
+@testcaseIds varchar(100)
+
+AS
+
+DECLARE @sql varchar(8000)
+SET  @sql =
+        'SELECT  tt.testcaseId, tt.name as testcaseName,
+        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), tt.dateStart) as testcaseStarttime,
+        c.name as queueName, chs.name as name,
+        sum(chs.numPassed + chs.numFailed) as statsNumberMeasurements
+             FROM tCheckpointsSummary chs
+             INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
+             INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
+        WHERE tt.testcaseId in (' + @testcaseIds + ')
+        GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name
+        ORDER BY chs.name';
+
+EXEC (@sql)
+GO
+
+print 'end alter sp_get_checkpoint_statistic_descriptions '
+GO
+

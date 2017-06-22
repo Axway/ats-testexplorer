@@ -18,7 +18,10 @@ package com.axway.ats.testexplorer.model;
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -33,27 +36,32 @@ import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbWriteAccessInterface;
 import com.axway.ats.testexplorer.pages.model.TableColumn;
+import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription;
 
 public class TestExplorerSession extends WebSession {
 
-    private static final long                            serialVersionUID = 1L;
+    private static final long                                            serialVersionUID = 1L;
 
-    private static final Logger                          LOG              = Logger.getLogger( TestExplorerSession.class );
+    private static final Logger                                          LOG              = Logger.getLogger( TestExplorerSession.class );
 
-    private transient TestExplorerDbReadAccessInterface  dbReadConnection;
-    private transient TestExplorerDbWriteAccessInterface dbWriteConnection;
+    private transient TestExplorerDbReadAccessInterface                  dbReadConnection;
+    private transient TestExplorerDbWriteAccessInterface                 dbWriteConnection;
 
-    public CompareContainer                              compareContainer = new CompareContainer();
+    public CompareContainer                                              compareContainer = new CompareContainer();
+    // <diagramName,<<testcase1,<stat1,stat2>>,<testcase2,<stat3,stat4>>>>
+    private Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramContainer = new HashMap<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>>();
 
-    private String                                       dbName           = "";
-    private String                                       dbVersion        = null;
-    private String                                       dbHost           = "127.0.0.1";
-    private String                                       dbUser;
-    private String                                       dbPassword;
-    private int                                          rowsPerPage      = 50;
+    private int                                                          diagramNameIndex = 1;
+    
+    private String                                                       dbName           = "";
+    private String                                                       dbVersion        = null;
+    private String                                                       dbHost           = "127.0.0.1";
+    private String                                                       dbUser;
+    private String                                                       dbPassword;
+    private int                                                          rowsPerPage      = 50;
     // minimal message level for Messages Page filtering
-    private String                                       minMessageLevel  = "info";
-    private String                                       pdfExporterPath  = null;
+    private String                                                       minMessageLevel  = "info";
+    private String                                                       pdfExporterPath  = null;
 
     public TestExplorerSession( Request request ) {
 
@@ -252,6 +260,21 @@ public class TestExplorerSession extends WebSession {
     public CompareContainer getCompareContainer() {
 
         return this.compareContainer;
+    }
+
+    public Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> getDiagramContainer() {
+
+        return this.diagramContainer;
+    }
+    
+    public int getDiagramNameIndex() {
+
+        return this.diagramNameIndex;
+    }
+    
+    public void setDiagramNameIndex(int newIndex) {
+
+        this.diagramNameIndex = newIndex;
     }
 
     public String getMinMessageLevel() {
