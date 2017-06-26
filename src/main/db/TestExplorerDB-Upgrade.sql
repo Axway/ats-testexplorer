@@ -1,7 +1,7 @@
 -- ***********************************************
 -- Script for upgrade from version 4.0.1 to 4.0.2
 -- ***********************************************
--
+
 print '-- UNCOMMENT BEFORE RELEASE update internalVersion in [dbo].[tInternal]'
 -- GO
 
@@ -123,11 +123,6 @@ IF @@ERROR <> 0 --error has happened
     ROLLBACK
 ELSE
     COMMIT
-GO
-/****** Object:  StoredProcedure [dbo].[sp_end_suite]    Script Date: 04/11/2011 20:46:19 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
 GO
 
 print 'end alter sp_insert_user_activity_statistic_by_ids '
