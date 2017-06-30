@@ -140,7 +140,7 @@ GO
 ALTER                 PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
 
 @fdate varchar(150),
-@testcaseIds varchar(100)
+@WhereClause varchar(1000)
 
 AS
 
@@ -162,7 +162,7 @@ SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
                      INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
                      INNER JOIN tMachines m on (ss.machineId = m.machineId)
                      INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
-                WHERE ss.testcaseId in (' + @testcaseIds + ')
+                ' + @WhereClause + '
                 GROUP BY tt.testcaseId, tt.dateStart, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
                 ORDER BY st.name';
 
@@ -185,7 +185,8 @@ ALTER   PROCEDURE [dbo].[sp_get_checkpoint_statistics]
 
 @fdate varchar(150),
 @testcaseIds varchar(150),
-@checkpointNames varchar(1000)
+@checkpointNames varchar(1000),
+@parentNames varchar(1000)
 
 AS
 
@@ -197,13 +198,12 @@ SELECT
     ch.name as statsName,
     ch.responseTime as value,
     DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ch.endTime) as statsAxisTimestamp,
-    c.name as queueName,
     tt.testcaseId
      FROM tCheckpoints ch
      INNER JOIN tCheckpointsSummary chs on (chs.checkpointSummaryId = ch.checkpointSummaryId)
      INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
      INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
-WHERE tt.testcaseId in ( '+@testcaseIds+' ) AND ch.name in ( '+@checkpointNames+' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
+WHERE tt.testcaseId in ( '+@testcaseIds+' ) AND ch.name in ( '+@checkpointNames+' ) AND  c.name in ( '+@parentNames+' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
 ORDER BY ch.endTime';
 
 EXEC (@sql)
@@ -224,7 +224,7 @@ GO
 ALTER                PROCEDURE [dbo].[sp_get_checkpoint_statistic_descriptions]
 
 @fdate varchar(150),
-@testcaseIds varchar(100)
+@WhereClause varchar(1000)
 
 AS
 
@@ -237,7 +237,7 @@ SET  @sql =
              FROM tCheckpointsSummary chs
              INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
              INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
-        WHERE tt.testcaseId in (' + @testcaseIds + ')
+        ' + @WhereClause + '
         GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name
         ORDER BY chs.name';
 
@@ -245,5 +245,106 @@ EXEC (@sql)
 GO
 
 print 'end alter sp_get_checkpoint_statistic_descriptions '
+GO
+
+print 'start alter sp_get_system_statistics '
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_system_statistics]    Script Date: 06/27/2017 11:22:34 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                PROCEDURE [dbo].[sp_get_system_statistics]
+
+@fdate varchar(150),
+@testcaseIds varchar(150),
+@machineIds varchar(500),
+@statsTypeIds varchar(150)
+
+AS
+
+DECLARE @sql varchar(8000)
+SET     @sql = 'SELECT  st.name as statsName,
+                        st.parentName as statsParent,
+                        st.units as statsUnit,
+                        ss.value,
+                        st.statsTypeId,
+                        convert(varchar,ss.timestamp,20) as statsAxis,
+                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ss.timestamp) as statsAxisTimestamp,
+                        ss.machineId,
+                        ss.testcaseId
+
+                     FROM       tSystemStats ss
+                     LEFT JOIN tStatsTypes st ON (ss.statsTypeId = st.statsTypeId)
+                     JOIN    tTestcases tt ON (tt.testcaseId = ss.testcaseId)
+             WHERE       ss.testcaseId in ( '+@testcaseIds+' )
+                         AND ss.machineId in ( '+@machineIds+' )
+                         AND st.statsTypeId IN ('+@statsTypeIds+')
+             GROUP BY    st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId
+             ORDER BY    ss.timestamp'
+
+EXEC (@sql)
+GO
+
+print 'end alter sp_get_system_statistics '
+GO
+
+print ' start alter sp_delete_suite'
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_delete_suite]    Script Date: 09/26/2016 16:31:55 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER      PROCEDURE [dbo].[sp_delete_suite]
+
+@suiteIds VARCHAR(1000)
+
+AS
+
+DECLARE @delimiter VARCHAR(10) =',' -- the used delimiter
+
+BEGIN
+    DECLARE
+        @idIndex SMALLINT,
+        @idToken VARCHAR(100)
+
+    WHILE @suiteIds <> ''
+    BEGIN
+        SET @idIndex = CHARINDEX(@delimiter, @suiteIds)
+
+        IF @idIndex > 0
+            BEGIN
+                SET @idToken = LEFT(@suiteIds, @idIndex-1)
+                SET @suiteIds = RIGHT(@suiteIds, LEN(@suiteIds)-@idIndex)
+            END
+        ELSE
+            BEGIN
+                SET @idToken = @suiteIds
+                SET @suiteIds = ''
+            END
+
+    DELETE FROM tSuiteMessages WHERE tSuiteMessages.suiteId IN (SELECT suiteId FROM tSuites WHERE tSuites.suiteId=@idToken);
+    DELETE FROM tSuites WHERE tSuites.suiteId = @idToken;
+
+    END
+END
+GO
+
+print ' end alter sp_delete_suite'
+GO
+
+print ' start rename all machine names from "HTF Controllers" to "ATS Agents"'
+GO
+
+UPDATE tMachines
+SET machineName='ATS Agents'
+WHERE machineName='HTF Controllers'
+
+print ' end rename all machine names from "HTF Controllers" to "ATS Agents"'
 GO
 
