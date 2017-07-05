@@ -5,6 +5,19 @@ GO
 /****** Object:  Schema [AtsUser]    Script Date: 04/11/2011 20:46:18 ******/
 CREATE SCHEMA [AtsUser] AUTHORIZATION [AtsUser]
 GO
+
+/****** Record the version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
+GO
+
+/****** Record the initial version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
+GO
+
+/****** Record the internal version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+GO
+
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON
 GO
@@ -3564,16 +3577,4 @@ GO
 GO
 
 
-
-/****** Record the version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
-GO
-
-/****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
-GO
-
-/****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
-GO
 
