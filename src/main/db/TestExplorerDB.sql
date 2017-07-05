@@ -1879,14 +1879,33 @@ GO
 CREATE       PROCEDURE [dbo].[sp_update_suite]
 
 @suiteId INT,
+@suiteName VARCHAR(50),
 @userNote VARCHAR(255),
 
 @RowsUpdated INT =0 OUT
 
 AS
 
-UPDATE    tSuites
-SET        userNote=@userNote
+DECLARE
+@currentSuiteName VARCHAR(50),
+@currentUserNote VARCHAR(255)
+
+-- get the current values
+SELECT  @currentSuiteName = name,
+        @currentUserNote  = userNote
+FROM    tSuites
+WHERE   suiteId = @suiteId
+
+-- update the Suite info, if the provided value is null, then use the current value
+UPDATE tSuites
+SET    name = CASE
+                       WHEN @suiteName IS NULL THEN @currentSuiteName
+                       ELSE @suiteName
+                   END,
+       userNote =  CASE
+                       WHEN @userNote IS NULL THEN @currentUserNote
+                       ELSE @userNote
+                   END
 WHERE    tSuites.suiteId=@suiteId
 
 SET @RowsUpdated = @@ROWCOUNT
