@@ -2,11 +2,16 @@
 -- Script for upgrade from version 4.0.1 to 4.0.2
 -- ***********************************************
 
-print '-- UNCOMMENT BEFORE RELEASE update internalVersion in [dbo].[tInternal]'
--- GO
+/****** Record the initial version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
+GO
 
--- UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
--- GO
+/****** Record the internal version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+GO
+
+-- updates for internal version 7
+
 print 'start alter sp_insert_user_activity_statistic_by_ids '
 GO
 /****** Object:  StoredProcedure [dbo].[sp_insert_user_activity_statistic_by_ids]  ******/
