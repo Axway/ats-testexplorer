@@ -1,12 +1,48 @@
 GO
-/****** Object:  User [AtsUser]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  User [AtsUser] ******/
 CREATE USER [AtsUser] FOR LOGIN [AtsUser] WITH DEFAULT_SCHEMA=[AtsUser]
 GO
-/****** Object:  Schema [AtsUser]    Script Date: 04/11/2011 20:46:18 ******/
+/****** Object:  Schema [AtsUser] ******/
 CREATE SCHEMA [AtsUser] AUTHORIZATION [AtsUser]
 GO
 
-/****** Object:  StoredProcedure [dbo].[stringArrayIntoTable]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  Table [dbo].[tInternal] ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[tInternal](
+    [id] [int] IDENTITY(1,1) NOT NULL,
+    [key] [varchar](50) NOT NULL,
+    [value] [varchar](256) NOT NULL,
+ CONSTRAINT [PK_tSystem] PRIMARY KEY CLUSTERED
+(
+    [id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
+ CONSTRAINT [IX_tSystem] UNIQUE NONCLUSTERED
+(
+    [key] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+
+/****** Record the version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
+GO
+
+/****** Record the initial version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
+GO
+
+/****** Record the internal version ******/
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+GO
+
+/****** Object:  StoredProcedure [dbo].[stringArrayIntoTable] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -512,29 +548,7 @@ ON [dbo].[tCheckpoints] (checkpointSummaryId)
 INCLUDE (name, responseTime, endTime, result);
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tInternal]    Script Date: 04/11/2011 20:46:20 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-SET ANSI_PADDING ON
-GO
-CREATE TABLE [dbo].[tInternal](
-    [id] [int] IDENTITY(1,1) NOT NULL,
-    [key] [varchar](50) NOT NULL,
-    [value] [varchar](256) NOT NULL,
- CONSTRAINT [PK_tSystem] PRIMARY KEY CLUSTERED
-(
-    [id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
- CONSTRAINT [IX_tSystem] UNIQUE NONCLUSTERED
-(
-    [key] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
+
 /****** Object:  Table [dbo].[tColumnDefinition] ******/
 SET ANSI_NULLS ON
 GO
@@ -3583,16 +3597,5 @@ GO
      ('Level',5,80,'tTestcase',1),('Message',6,840,'tTestcase',1);
 GO
 
-/****** Record the version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
-GO
-
-/****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
-GO
-
-/****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
-GO
 
 
