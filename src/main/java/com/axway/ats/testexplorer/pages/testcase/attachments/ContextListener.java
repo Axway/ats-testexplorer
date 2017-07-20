@@ -18,7 +18,9 @@ package com.axway.ats.testexplorer.pages.testcase.attachments;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.axway.ats.common.filesystem.FileSystemOperationException;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
+import com.axway.ats.core.utils.IoUtils;
 import com.axway.ats.core.utils.StringUtils;
 
 public class ContextListener implements ServletContextListener {
@@ -42,12 +44,19 @@ public class ContextListener implements ServletContextListener {
             sce.getServletContext()
                .log( "CATALINA_BASE was not set, no file would be attached to the current test case!" );
         } else {
-            
-            if( !operations.doesFileExist( tomcatDir + "\\" + ATTACHED_FILES_DIR) )
-                operations.createDirectory( tomcatDir + "\\" + ATTACHED_FILES_DIR );
+            String atsAttachedFiles = IoUtils.normalizeFilePath( tomcatDir + "\\" + ATTACHED_FILES_DIR );
+            if( !operations.doesFileExist( atsAttachedFiles ) ) {
+                try {
+                    operations.createDirectory( atsAttachedFiles );
+                } catch( FileSystemOperationException fsoe ) {
+                    sce.getServletContext().log(
+                                                 "Could not create directory for storing ATS attached files at "
+                                                 + atsAttachedFiles, fsoe );
+                    return;
+                }
+            }
 
             // setting folder path to the property
-            String atsAttachedFiles = tomcatDir + "\\" + ATTACHED_FILES_DIR;
             sce.getServletContext().setAttribute( ATTACHED_FILES_DIR, atsAttachedFiles );
 
             sce.getServletContext()
