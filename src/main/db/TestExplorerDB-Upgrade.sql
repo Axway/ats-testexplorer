@@ -399,3 +399,42 @@ GO
 print 'end alter procedure sp_update_suite '
 GO
 
+print 'start alter sp-get_checkpoint_statistic_description'
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistic_descriptions]    Script Date: 06/27/2011 10:19:48 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                PROCEDURE [dbo].[sp_get_checkpoint_statistic_descriptions]
+
+@fdate varchar(150),
+@WhereClause varchar(1000)
+
+AS
+
+DECLARE @sql varchar(8000)
+SET  @sql =
+        'SELECT  tt.testcaseId, tt.name as testcaseName,
+        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), tt.dateStart) as testcaseStarttime,
+        c.name as queueName, chs.name as name,
+        sum(chs.numPassed + chs.numFailed) as statsNumberMeasurements,
+        chs.minResponseTime as statsMinValue,
+        chs.maxResponseTime as statsMaxValue,
+        chs.avgResponseTime as statsAvgValue
+             FROM tCheckpointsSummary chs
+             INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
+             INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
+        ' + @WhereClause + '
+        GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name, 
+        chs.minResponseTime, chs.maxResponseTime, chs.avgResponseTime        
+        ORDER BY chs.name';
+
+EXEC (@sql)
+GO
+
+print 'end alter sp-get_checkpoint_statistic_description'
+GO
+

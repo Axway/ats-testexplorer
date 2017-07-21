@@ -3387,12 +3387,16 @@ SET  @sql =
         'SELECT  tt.testcaseId, tt.name as testcaseName,
         DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), tt.dateStart) as testcaseStarttime,
         c.name as queueName, chs.name as name,
-        sum(chs.numPassed + chs.numFailed) as statsNumberMeasurements
+        sum(chs.numPassed + chs.numFailed) as statsNumberMeasurements,
+        chs.minResponseTime as statsMinValue,
+        chs.maxResponseTime as statsMaxValue,
+        chs.avgResponseTime as statsAvgValue
              FROM tCheckpointsSummary chs
              INNER JOIN tLoadQueues c on (c.loadQueueId = chs.loadQueueId)
              INNER JOIN tTestcases tt on (tt.testcaseId = c.testcaseId)
         ' + @WhereClause + '
-        GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name
+        GROUP BY tt.testcaseId, tt.dateStart, tt.name, c.name, chs.name, 
+        chs.minResponseTime, chs.maxResponseTime, chs.avgResponseTime        
         ORDER BY chs.name';
 
 EXEC (@sql)
