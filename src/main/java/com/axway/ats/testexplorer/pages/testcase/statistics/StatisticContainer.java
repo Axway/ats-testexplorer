@@ -83,8 +83,7 @@ public class StatisticContainer implements Serializable {
 
         for( DbStatisticDescription statDescription : statDescriptions.values() ) {
             // statistic containers keep one entry of a statistic description for all testcases
-            if( statDescription.getUidNoMatterTestcaseAndMachine()
-                               .equals( newStatDescription.getUidNoMatterTestcaseAndMachine() ) ) {
+            if( statDescription.getUid().equals( newStatDescription.getUid() ) ) {
                 return true;
             }
         }

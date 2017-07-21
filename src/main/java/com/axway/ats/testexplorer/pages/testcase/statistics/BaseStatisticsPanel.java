@@ -52,54 +52,55 @@ public abstract class BaseStatisticsPanel extends Panel {
         List<StatisticDescription> dbStatisticDescriptions = loadSystemAndUserStatisticDescriptions( timeOffSet );
         for( StatisticDescription dbStatDescription : dbStatisticDescriptions ) {
 
-            com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription statDescription = new com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription( dbStatDescription.statisticTypeId,
-                                                                                                                                                                               dbStatDescription.testcaseId,
-                                                                                                                                                                               dbStatDescription.testcaseName,
-                                                                                                                                                                               dbStatDescription.testcaseStarttime,
-                                                                                                                                                                               dbStatDescription.machineId,
-                                                                                                                                                                               dbStatDescription.machineName,
-                                                                                                                                                                               dbStatDescription.parent,
-                                                                                                                                                                               dbStatDescription.internalName,
-                                                                                                                                                                               dbStatDescription.statisticName,
-                                                                                                                                                                               "",
-                                                                                                                                                                               dbStatDescription.unit,
-                                                                                                                                                                               dbStatDescription.params,
-                                                                                                                                                                               dbStatDescription.minValue,
-                                                                                                                                                                               dbStatDescription.avgValue,
-                                                                                                                                                                               dbStatDescription.maxValue,
-                                                                                                                                                                               dbStatDescription.numberMeasurements );
+            DbStatisticDescription statDescription = new DbStatisticDescription( dbStatDescription.statisticTypeId,
+                                                                                 dbStatDescription.testcaseId,
+                                                                                 dbStatDescription.testcaseName,
+                                                                                 dbStatDescription.testcaseStarttime,
+                                                                                 dbStatDescription.machineId,
+                                                                                 dbStatDescription.machineName,
+                                                                                 dbStatDescription.parent,
+                                                                                 dbStatDescription.internalName,
+                                                                                 dbStatDescription.statisticName,
+                                                                                 "", 
+                                                                                 dbStatDescription.unit,
+                                                                                 dbStatDescription.params,
+                                                                                 dbStatDescription.minValue,
+                                                                                 dbStatDescription.avgValue,
+                                                                                 dbStatDescription.maxValue,
+                                                                                 dbStatDescription.numberMeasurements );
 
             if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase( dbStatDescription.machineName ) ) {
                 // this is a user activity statistic
-                this.userStatisticsPanel.addStatisticDescription( statDescription, true, isComparing );
+                this.userStatisticsPanel.addStatisticDescription( statDescription, isComparing );
             } else {
                 // this is a system statistic
-                this.systemStatisticsPanel.addStatisticDescription( statDescription, false, isComparing );
+                this.systemStatisticsPanel.addStatisticDescription( statDescription, isComparing );
             }
         }
-        this.userStatisticsPanel.removeCombinedContainerIfWeDoNotNeedIt();
 
         // load statistics descriptions from Checkpoints table
         dbStatisticDescriptions = loadChechpointStatisticDescriptions( timeOffSet );
         if( dbStatisticDescriptions != null && !dbStatisticDescriptions.isEmpty() ) {
             for( StatisticDescription dbStatDescription : dbStatisticDescriptions ) {
 
-                com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription statDescription = new com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription( dbStatDescription.statisticTypeId,
-                                                                                                                                                                                   dbStatDescription.testcaseId,
-                                                                                                                                                                                   dbStatDescription.testcaseName,
-                                                                                                                                                                                   dbStatDescription.testcaseStarttime,
-                                                                                                                                                                                   dbStatDescription.machineId,
-                                                                                                                                                                                   dbStatDescription.machineName,
-                                                                                                                                                                                   dbStatDescription.queueName,
-                                                                                                                                                                                   dbStatDescription.internalName,
-                                                                                                                                                                                   dbStatDescription.statisticName,
-                                                                                                                                                                                   "",
-                                                                                                                                                                                   dbStatDescription.unit,
-                                                                                                                                                                                   dbStatDescription.params,
-                                                                                                                                                                                   dbStatDescription.numberMeasurements );
-                this.actionStatisticsPanel.addStatisticDescription( statDescription, true, isComparing );
+                DbStatisticDescription statDescription = new DbStatisticDescription( dbStatDescription.statisticTypeId,
+                                                                                     dbStatDescription.testcaseId,
+                                                                                     dbStatDescription.testcaseName,
+                                                                                     dbStatDescription.testcaseStarttime,
+                                                                                     dbStatDescription.machineId,
+                                                                                     dbStatDescription.machineName,
+                                                                                     dbStatDescription.queueName,
+                                                                                     dbStatDescription.internalName,
+                                                                                     dbStatDescription.statisticName,
+                                                                                     "", 
+                                                                                     dbStatDescription.unit,
+                                                                                     dbStatDescription.params,
+                                                                                     dbStatDescription.minValue,
+                                                                                     dbStatDescription.avgValue,
+                                                                                     dbStatDescription.maxValue,
+                                                                                     dbStatDescription.numberMeasurements );
+                this.actionStatisticsPanel.addStatisticDescription( statDescription, isComparing );
             }
-            actionStatisticsPanel.removeCombinedContainerIfWeDoNotNeedIt();
         }
 
         boolean thereAreSomeStatistics = systemStatisticsPanel.hasData() || userStatisticsPanel.hasData()

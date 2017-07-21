@@ -386,7 +386,25 @@ public class ChartData implements Serializable {
 
         return minMaxValuesMap;
     }
+    
+    public ChartData newInstance() {
 
+        ChartData newInstance = new ChartData( this.statLabel, this.machineLabel, this.unit );
+        newInstance.timestamps = this.timestamps;
+        newInstance.axisAvgValues = this.axisAvgValues;
+        newInstance.axisCountValues = this.axisCountValues;
+        newInstance.axisSumValues = this.axisSumValues;
+        newInstance.axisTotalValues = this.axisTotalValues;
+        newInstance.axisValues = this.axisValues;
+        newInstance.jsMarkers = this.jsMarkers;
+        newInstance.jsMarkersCount = this.jsMarkersCount;
+        newInstance.machineId = this.machineId;
+        newInstance.startTimestamp = this.startTimestamp;
+        newInstance.statisticTypeId = this.statisticTypeId;
+        newInstance.testcaseId = this.testcaseId;
+
+        return newInstance;
+    }
 }
 
 /**

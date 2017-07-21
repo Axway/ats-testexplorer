@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,8 +189,10 @@ public class ChartsPanel extends BaseStatisticsPanel {
             Set<String> expectedActions = new HashSet<String>();
             for( List<DbStatisticDescription> actionList : actionStatistics.values() ) {
                 for( DbStatisticDescription action : actionList ) {
-                    actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
-                    if( actionParents.indexOf( action.parentName ) == -1 ) {
+                    if( !actions.toString().contains( "'" + action.name + "'" ) ) {
+                        actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
+                    }
+                    if( !actionParents.toString().contains( "'" + action.parentName + "'" ) ) {
                         actionParents.append( "'" ).append( action.parentName ).append( "'," );
                     }
                     expectedActions.add( action.testcaseId + "->" + action.machineId + "->"
@@ -388,8 +391,10 @@ public class ChartsPanel extends BaseStatisticsPanel {
         Set<String> expectedActions = new HashSet<String>();
         for( List<DbStatisticDescription> actionList : actionStatistics.values() ) {
             for( DbStatisticDescription action : actionList ) {
-                actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
-                if( actionParents.indexOf( action.parentName ) == -1 ) {
+                if( !actions.toString().contains( "'" + action.name + "'" ) ) {
+                    actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
+                }
+                if( !actionParents.toString().contains( "'" + action.parentName + "'" ) ) {
                     actionParents.append( "'" ).append( action.parentName ).append( "'," );
                 }
                 expectedActions.add( action.testcaseId + "->" + action.machineId + "->" + action.parentName
@@ -451,19 +456,23 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
     private void setChartData( Collection<ChartData> statisticsChartData, boolean userStatistics ) {
 
-        for( ChartData chartData : statisticsChartData ) {
-            for( List<DbStatisticDescription> stats : userAndSystemStatistics.values() ) {
-                for( DbStatisticDescription stat : stats ) {
+        for( List<DbStatisticDescription> stats : userAndSystemStatistics.values() ) {
+            for( DbStatisticDescription stat : stats ) {
+                Iterator<ChartData> chartDataIterator = statisticsChartData.iterator();
+                while( chartDataIterator.hasNext() ) {
+                    ChartData chartData = chartDataIterator.next();
                     if( chartData.getTestcaseId() == stat.testcaseId
                         && chartData.getStatisticTypeId() == stat.statisticId
                         && chartData.getMachineId() == stat.machineId ) {
+                        ChartData chartDataCopy = chartData.newInstance();
                         if( !stat.alias.equals( "null" ) && !stat.alias.isEmpty() ) {
-                            chartData.setLabel( stat.alias );
+                            chartDataCopy.setLabel( stat.alias );
                         }
                         if( userStatistics ) {
                             stat.machineName = DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS;
                         }
-                        stat.setChartData( chartData );
+                        stat.setChartData( chartDataCopy );
+                        break;
                     }
                 }
             }
@@ -503,10 +512,11 @@ public class ChartsPanel extends BaseStatisticsPanel {
                                                                                    stat.machineId, actionStatisticsPanel );
                                 if( chartData.getLabel().equals( statLabelName )
                                     && chartData.getTestcaseId() == stat.testcaseId ) {
+                                    ChartData chartDataCopy = chartData.newInstance();
                                     if( !stat.alias.equals( "null" ) && !stat.alias.isEmpty() ) {
-                                        chartData.setLabel( stat.alias );
+                                        chartDataCopy.setLabel( stat.alias );
                                     }
-                                    stat.setChartData( chartData );
+                                    stat.setChartData( chartDataCopy );
                                 }
                             }
                         }
@@ -744,23 +754,14 @@ public class ChartsPanel extends BaseStatisticsPanel {
         columns.add( new StatisticsTableCell( "<img class=\"arrowUD\" src=\"images/up.png\"> System statistic details",
                                               false ) );
 
-        // add machine aliases
+        // add machine value columns
         List<MachineDescription> mergedMachineDescriptions = getMergedMachineDescriptions();
-        for( MachineDescription machine : mergedMachineDescriptions ) {
-            columns.add( new StatisticsTableCell( true, getMachineAliasModel( machine.getMachineAlias() ) ) );
-        }
+        columns.add( new StatisticsTableCell( true, getMachineAliasModel( "Values" ) ) );
         rows.add( columns );
 
-        // add empty row
-        columns = new ArrayList<StatisticsTableCell>();
-        for( int i = -1; i < mergedMachineDescriptions.size(); i++ ) {
-            columns.add( new StatisticsTableCell( "&nbsp;", false ) );
-        }
-        rows.add( columns );
-
-        rows.addAll( systemStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions ) );
-        rows.addAll( userStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions ) );
-        rows.addAll( actionStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions ) );
+        rows.addAll( systemStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
+        rows.addAll( userStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
+        rows.addAll( actionStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
 
         ListView<List<StatisticsTableCell>> statisticDetailsTable = new ListView<List<StatisticsTableCell>>( "statDetailsRows",
                                                                                                              rows ) {
@@ -775,7 +776,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                     item.add( AttributeModifier.replace( "class", "statDetailsHeaderRow" ) );
                     item.add( AttributeModifier.replace( "onclick",
                                                          "showOrHideTableRows('statDetailsTable',1,false);" ) );
-                } else if( item.getIndex() > 2
+                } else if( item.getIndex() > 1
                            && item.getModelObject().get( 0 ).labelText.contains( "statUnit" ) ) {
                     item.add( AttributeModifier.replace( "class", "statDetailsStatNameRow" ) );
                 }
@@ -835,10 +836,10 @@ public class ChartsPanel extends BaseStatisticsPanel {
         for( MachineDescription machineDescription : machineDescriptions ) {
             boolean machineFound = false;
             for( MachineDescription mergedMachineDescription : mergedMachineDescriptions ) {
-                if( mergedMachineDescription.getMachineAlias()
-                                            .equals( machineDescription.getMachineAlias() ) ) {
+                if( mergedMachineDescription.getMachineAlias().equals( machineDescription.getMachineAlias() )
+                    && machineDescription.getTestcaseId() == mergedMachineDescription.getTestcaseId() ) {
                     machineFound = true;
-                    for( com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription statisticDescription : machineDescription.getStatDescriptionsList() ) {
+                    for( DbStatisticDescription statisticDescription : machineDescription.getStatDescriptionsList() ) {
                         mergedMachineDescription.addStatisticDescription( statisticDescription );
                     }
                 }
@@ -867,14 +868,10 @@ public class ChartsPanel extends BaseStatisticsPanel {
         allMachines.addAll( actionStatisticsPanel.getMachineDescriptions() );
 
         // first check if needed to deal with starttime deltas
-        boolean haveMoreThanOneTestcase = false;
         int firstTestcaseId = -1;
         for( MachineDescription machine : allMachines ) {
             if( firstTestcaseId == -1 ) {
                 firstTestcaseId = machine.getTestcaseId();
-            } else if( firstTestcaseId != machine.getTestcaseId() ) {
-                haveMoreThanOneTestcase = true;
-                break;
             }
         }
 

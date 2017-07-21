@@ -17,10 +17,12 @@ package com.axway.ats.testexplorer.pages.testcase.statistics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -35,7 +37,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.entities.Statistic;
+import com.axway.ats.log.autodb.DbReadAccess;
 
 /**
  * See the javadoc for ChartsPanel class to see how this class stays in the hierarchy
@@ -44,7 +46,7 @@ public class DataPanel implements Serializable {
 
     private static final long                   serialVersionUID                 = 1L;
 
-    private BaseStatisticsPanel                      globalPanel;
+    private BaseStatisticsPanel                 globalPanel;
 
     private String                              name;
     private String                              uiPrefix;
@@ -59,9 +61,6 @@ public class DataPanel implements Serializable {
     // we want to give a unique index for each statistic for the whole Data Panel
     // container indexes are every 1000, in between are the statistic indexes
     private static final int                    CONTAINER_INDEX_DELTAS           = 1000;
-
-    public static final String                  COMBINED_CONTAINER               = Statistic.COMBINED_STATISTICS_CONTAINER;
-    private static final int                    COMBINED_CONTAINER_INDEX         = 100 * CONTAINER_INDEX_DELTAS;
 
     private static final StatisticsTableCell    EMPTY_CELL                       = new StatisticsTableCell( "",
                                                                                                             false );
@@ -84,12 +83,6 @@ public class DataPanel implements Serializable {
 
         // list of regular statistic description containers
         statContainers = new TreeMap<Integer, StatisticContainer>();
-
-        // container for combined statistic descriptions
-        int containerIndexInDataPanel = getNewContainerIndexInDataPanel( COMBINED_CONTAINER );
-        statContainers.put( containerIndexInDataPanel,
-                            new CombinedStatisticContainer( containerIndexInDataPanel, COMBINED_CONTAINER ) );
-
         machineDescriptions = new TreeSet<MachineDescription>( new MachineDescriptionComparator() );
 
     }
@@ -122,12 +115,10 @@ public class DataPanel implements Serializable {
      * Adds a statistic description
      *
      * @param statDescription the statistic description to add
-     * @param combine if we will add to combined statistics as well
      * @param isComparing whether we are in Compare mode or not
      */
     public void addStatisticDescription(
                                          DbStatisticDescription statDescription,
-                                         boolean combine,
                                          boolean isComparing ) {
 
         if( isProcessStatistic( statDescription ) && !isParentProcessStatistic( statDescription ) ) {
@@ -142,7 +133,7 @@ public class DataPanel implements Serializable {
                 containerName = StatisticsPanel.SYSTEM_STATISTIC_CONTAINER;
             }
 
-            StatisticContainer container = getContainerForName( containerName );
+            StatisticContainer container = getContainerForName( statDescription );
             if( container == null ) {
                 int containerIndexInDataPanel = getNewContainerIndexInDataPanel( containerName );
                 container = new StatisticContainer( containerIndexInDataPanel, containerName );
@@ -152,15 +143,8 @@ public class DataPanel implements Serializable {
                 container.addStatisticDescription( statDescription );
             }
 
-			MachineDescription machine = addToRightMachine(statDescription, isComparing);
-
-			// add to combined statistics
-			if (combine) {
-                DbStatisticDescription combinedStatDescription = ( ( CombinedStatisticContainer ) this.statContainers.get( COMBINED_CONTAINER_INDEX ) ).addCombinedStatisticDescription( statDescription );
-
-				machine.addStatisticDescription(combinedStatDescription);
-			}
-		}
+            addToRightMachine( statDescription, isComparing );
+        }
     }
 
     private boolean isProcessStatistic(
@@ -176,7 +160,7 @@ public class DataPanel implements Serializable {
         // add to the right container
         String containerName = statDescription.parentName;
 
-        StatisticContainer container = getContainerForName( containerName );
+        StatisticContainer container = getContainerForName( statDescription );
         if( container == null ) {
 
             int containerIndexInDataPanel = getNewContainerIndexInDataPanel( containerName );
@@ -187,7 +171,7 @@ public class DataPanel implements Serializable {
             container.addStatisticDescription( statDescription );
         }
 
-    	addToRightMachine( statDescription, isComparing );
+        addToRightMachine( statDescription, isComparing );
     }
 
     private boolean isParentProcessStatistic(
@@ -225,21 +209,6 @@ public class DataPanel implements Serializable {
     }
 
     /**
-     * This method must be called after all statistic descriptions are added to the data panel.
-     * If this data panel contains statistics for no more than 1 regular container, we want to
-     * get rid of the combined container
-     */
-    public void removeCombinedContainerIfWeDoNotNeedIt() {
-
-        if( statContainers.size() <= 2 ) {
-            // We know we either have 1 normal and 1 combined container
-            // or just 1 combined container.
-            // In this case we do not need the combined one.
-            this.statContainers.remove( COMBINED_CONTAINER_INDEX );
-        }
-    }
-
-    /**
      * Display the collected
      * @param statsForm
      */
@@ -255,32 +224,16 @@ public class DataPanel implements Serializable {
         columns.add( new StatisticsTableCell( "<img class=\"arrowUD\" src=\"images/up.png\">", false ) );
         columns.add( new StatisticsTableCell( this.name, false ) );
         for( MachineDescription machine : machineDescriptions ) {
+            String machineName = machine.getMachineAlias();
+            if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( machineName ) ) {
+                machineName = "";
+            }
             StatisticsTableCell cell = new StatisticsTableCell( "<b style=\"padding: 0 5px;\">"
-                                                                        + machine.getMachineAlias() + "</b>",
+                                                                + machineName + "</b>",
                                                                 false,
                                                                 "centeredLabel" );
             cell.cssClass = "fixTableColumn";
             columns.add( cell );
-        }
-        rows.add( columns );
-
-        // add machine label row
-        columns = new ArrayList<StatisticsTableCell>();
-        columns.add( EMPTY_CELL );
-        columns.add( new StatisticsTableCell( "Machine alias", false ) );
-        for( MachineDescription machine : machineDescriptions ) {
-            columns.add( new StatisticsTableCell( true,
-            		globalPanel.getMachineAliasModel( machine.getMachineAlias() ) ) );
-        }
-
-        rows.add( columns );
-
-        // add measurements row
-        columns = new ArrayList<StatisticsTableCell>();
-        columns.add( EMPTY_CELL );
-        columns.add( new StatisticsTableCell( "Number of measurements", false ) );
-        for( MachineDescription machine : machineDescriptions ) {
-            columns.add( new StatisticsTableCell( machine.getNumberOfMeasurements(), false, "centeredLabel" ) );
         }
         rows.add( columns );
 
@@ -294,10 +247,16 @@ public class DataPanel implements Serializable {
         final Set<Integer> hiddenRowIndexes = new HashSet<Integer>();
         for( StatisticContainer statContainer : statContainers.values() ) {
 
-            List<DbStatisticDescription> statDescriptions = statContainer.getStatDescriptions();
+            List<DbStatisticDescription> statDescriptions = sortQueueItems( statContainer.getStatDescriptions() );
 
             String lastStatParent = "";
             for( DbStatisticDescription statDescription : statDescriptions ) {
+                
+                String statisticLabel = "<span class=\"statName\">" + statDescription.name + "</span><span class=\"statUnit\">(" + statDescription.unit + ")</span>";
+                
+                if( checkIfStatisticExist( rows, statisticLabel ) ){
+                    continue;
+                }
 
                 // add parent table line if needed
                 String statParent = statDescription.parentName;
@@ -324,12 +283,7 @@ public class DataPanel implements Serializable {
 
                 columns = new ArrayList<StatisticsTableCell>();
                 columns.add( new StatisticsTableCell( true ) );
-                StatisticsTableCell statName = new StatisticsTableCell( "<span class=\"statName\">"
-                                                                                + statDescription.name
-                                                                                + "</span><span class=\"statUnit\">("
-                                                                                + statDescription.unit
-                                                                                + ")</span>",
-                                                                        true );
+                StatisticsTableCell statName = new StatisticsTableCell( statisticLabel, true );
                 statName.title = statDescription.params;
                 columns.add( statName );
 
@@ -459,13 +413,51 @@ public class DataPanel implements Serializable {
         statisticsUIContainer.setVisible( isDataPanelVisible );
         statsForm.add( statisticsUIContainer );
     }
+    
+    /**
+     * Check if this statistic is already added, if this statistic present in more than one machine, there will be several occurrences of it 
+     */
+    private boolean checkIfStatisticExist( List<List<StatisticsTableCell>> rows, String statisticLabel ) {
 
-    private StatisticContainer getContainerForName(
-                                                    String containerName ) {
+        for( List<StatisticsTableCell> row : rows ) {
+            for( StatisticsTableCell cell : row ) {
+                if( statisticLabel.equals( cell.labelText ) ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    
+    private List<DbStatisticDescription> sortQueueItems( List<DbStatisticDescription> statDescriptions ) {
+
+        DbStatisticDescription[] orderderStatDescriptions = new DbStatisticDescription[statDescriptions.size()];
+        DbStatisticDescription lastElement = null;
+        int pos = 0; 
+        for( int el = 0; el < statDescriptions.size(); el++ ) {
+            DbStatisticDescription dbStatDesc = statDescriptions.get( el );
+            if( dbStatDesc.name != null && "Queue execution time".equals( dbStatDesc.name ) ) {
+                lastElement = dbStatDesc;
+            } else {
+                orderderStatDescriptions[pos++] = dbStatDesc;
+            }
+        }
+        if( lastElement != null ) {
+            orderderStatDescriptions[statDescriptions.size() - 1] = lastElement;
+        }
+
+        return new ArrayList<DbStatisticDescription>( Arrays.asList( orderderStatDescriptions ) );
+    }
+
+    private StatisticContainer getContainerForName( DbStatisticDescription newDbStatDesc ) {
 
         for( StatisticContainer container : statContainers.values() ) {
-            if( container.getName().equals( containerName ) ) {
-                return container;
+            if( container.getName().equals( newDbStatDesc.parentName ) ) {
+                for( DbStatisticDescription statDesc : container.getStatDescriptions() ) {
+                    if( statDesc.testcaseId == newDbStatDesc.testcaseId )
+                        return container;
+                }
             }
         }
 
@@ -475,84 +467,146 @@ public class DataPanel implements Serializable {
     private int getNewContainerIndexInDataPanel(
                                                  String containerName ) {
 
-        if( containerName.equals( COMBINED_CONTAINER ) ) {
-            return COMBINED_CONTAINER_INDEX;
-        } else {
             return ( statContainers.size() + 1 ) * CONTAINER_INDEX_DELTAS;
-        }
     }
 
-    public List<List<StatisticsTableCell>> generateStatisticDetailRows(
-                                                                        List<MachineDescription> uniqueMachinesList ) {
+    public List<List<StatisticsTableCell>>
+            generateStatisticDetailRows( List<MachineDescription> uniqueMachinesList,
+                                         Map<String, List<DbStatisticDescription>> diagramContent ) {
 
         List<List<StatisticsTableCell>> rows = new ArrayList<List<StatisticsTableCell>>();
-        List<StatisticsTableCell> columns;
 
         // add Min, Avg and Max values for all statistics of this container
         for( StatisticContainer systemStatisticContainer : statContainers.values() ) {
-            for( com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription statDescription : systemStatisticContainer.getStatDescriptions() ) {
-
-                if( !StringUtils.isNullOrEmpty( statDescription.parentName ) ) {
-                    columns = new ArrayList<StatisticsTableCell>();
-                    columns.add( new StatisticsTableCell( "<i>" + statDescription.parentName + "</i>", false ) );
-                    for( int i = 0; i < uniqueMachinesList.size(); i++ ) {
-                        columns.add( new StatisticsTableCell( "&nbsp;", false ) );
-                    }
-                    rows.add( columns );
+            String queueName = null;
+            for( DbStatisticDescription statDescription : systemStatisticContainer.getStatDescriptions() ) {
+                if( queueName == null ) {
+                    queueName = statDescription.parentName;
                 }
+                for( Entry<String, List<DbStatisticDescription>> diagramRow : diagramContent.entrySet() ) {
+                    for( DbStatisticDescription dbStatDesc : diagramRow.getValue() ) {
 
-                // row with statistic name in first column, the rest are empty
-                columns = new ArrayList<StatisticsTableCell>();
-                columns.add( new StatisticsTableCell( "<b>" + statDescription.name
-                                                      + "<span class=\"statUnit\">(" + statDescription.unit
-                                                      + ")</span></b>", false ) );
-                for( int i = 0; i < uniqueMachinesList.size(); i++ ) {
-                    columns.add( new StatisticsTableCell( "&nbsp;", false ) );
-                }
-                rows.add( columns );
-
-                // row with MIN value
-                columns = new ArrayList<StatisticsTableCell>();
-                columns.add( new StatisticsTableCell( "<div class=\"statDetailsMVal\">Min</div>", false ) );
-                for( MachineDescription machine : uniqueMachinesList ) {
-                    DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine( statDescription );
-                    if( actualStatDescription != null ) {
-                        columns.add( new StatisticsTableCell( String.valueOf( actualStatDescription.minValue ),
-                                                              false ) );
-                    } else {
-                        columns.add( EMPTY_CELL );
+                        if( dbStatDesc.statisticId != -1 && dbStatDesc.machineId == statDescription.machineId
+                            && dbStatDesc.testcaseId == statDescription.testcaseId
+                            && dbStatDesc.statisticId == statDescription.statisticId ) {
+                            if( !checkStatisticExist( rows, statDescription, dbStatDesc ) ) {
+                                addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
+                                                        queueName );
+                                queueName = "";
+                                break;
+                            }
+                        } else if( dbStatDesc.name != null && dbStatDesc.name.equals( statDescription.name )
+                                   && dbStatDesc.testcaseId == statDescription.testcaseId
+                                   && dbStatDesc.parentName != null
+                                   && dbStatDesc.parentName.equals( statDescription.parentName ) ) {
+                            if( !checkStatisticExist( rows, statDescription, dbStatDesc ) ) {
+                                addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
+                                                        queueName );
+                                queueName = "";
+                                break;
+                            }
+                        }
                     }
                 }
-                rows.add( columns );
-
-                columns = new ArrayList<StatisticsTableCell>();
-                columns.add( new StatisticsTableCell( "<div class=\"statDetailsMVal\">Avg</div>", false ) );
-                for( MachineDescription machine : uniqueMachinesList ) {
-                    DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine( statDescription );
-                    if( actualStatDescription != null ) {
-                        columns.add( new StatisticsTableCell( String.valueOf( actualStatDescription.avgValue ),
-                                                              false ) );
-                    } else {
-                        columns.add( EMPTY_CELL );
-                    }
-                }
-                rows.add( columns );
-
-                columns = new ArrayList<StatisticsTableCell>();
-                columns.add( new StatisticsTableCell( "<div class=\"statDetailsMVal\">Max</div>", false ) );
-                for( MachineDescription machine : uniqueMachinesList ) {
-                    DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine( statDescription );
-                    if( actualStatDescription != null ) {
-                        columns.add( new StatisticsTableCell( String.valueOf( actualStatDescription.maxValue ),
-                                                              false ) );
-                    } else {
-                        columns.add( EMPTY_CELL );
-                    }
-                }
-                rows.add( columns );
             }
         }
         return rows;
+    }
+
+    private boolean checkStatisticExist( List<List<StatisticsTableCell>> rows,
+                                         DbStatisticDescription statDescription,
+                                         DbStatisticDescription dbStatDesc ) {
+
+        for( int rowIndex = 0; rowIndex < rows.size(); rowIndex++ ) {
+            for( StatisticsTableCell cell : rows.get( rowIndex )) {
+                String statName = dbStatDesc.alias;
+                if( StringUtils.isNullOrEmpty( statName )  || "null".equals( statName ) ) {
+                    statName = statDescription.name;
+                }
+                String cellValue = "<b>" + statName + "<span class=\"statUnit\">(" + statDescription.unit
+                                   + ")</span></b>";
+                if( cellValue.equals( cell.labelText ) && rowIndex + 3 < rows.size() ) {
+                    String minValue = rows.get( rowIndex + 1 ).get( 1 ).labelText;
+                    String maxValue = rows.get( rowIndex + 2 ).get( 1 ).labelText;
+                    String avgValue = rows.get( rowIndex + 3 ).get( 1 ).labelText;
+                    if( statDescription.minValue == Float.parseFloat( minValue )
+                        && statDescription.maxValue == Float.parseFloat( maxValue )
+                        && statDescription.avgValue == Float.parseFloat( avgValue ) )
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void addStatisticDetailData( List<List<StatisticsTableCell>> rows,
+                                         DbStatisticDescription statDescription,
+                                         List<MachineDescription> uniqueMachinesList,
+                                         DbStatisticDescription dbStatDesc,
+                                         String queueName ) {
+
+        List<StatisticsTableCell> columns;
+        // add empty row before each new query
+        columns = new ArrayList<StatisticsTableCell>();
+        columns.add( new StatisticsTableCell( "&nbsp;", false ) );
+        rows.add( columns );
+        if( !StringUtils.isNullOrEmpty( queueName ) ) {
+            
+            columns = new ArrayList<StatisticsTableCell>();
+            columns.add( new StatisticsTableCell( "<i>" + queueName + "</i>", false ) );
+            columns.add( new StatisticsTableCell( "&nbsp;", false ) );
+            rows.add( columns );
+        }
+
+        StatisticsTableCell minCellLabel = new StatisticsTableCell( "<div class=\"statDetailsMVal\">Min</div>", false );
+        StatisticsTableCell maxCellLabel = new StatisticsTableCell( "<div class=\"statDetailsMVal\">Max</div>", false );
+        StatisticsTableCell avgCellLabel = new StatisticsTableCell( "<div class=\"statDetailsMVal\">Avg</div>", false );
+        
+        for( MachineDescription machine : uniqueMachinesList ) {
+            DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine( statDescription );
+            if( actualStatDescription != null
+                && ( actualStatDescription.machineId != dbStatDesc.machineId
+                     || actualStatDescription.testcaseId != dbStatDesc.testcaseId ) ) {
+                continue;
+            }
+            if( actualStatDescription != null ) {
+                // row with statistic name in first column, the rest are empty
+                columns = new ArrayList<StatisticsTableCell>();
+                
+                String statName = dbStatDesc.alias;
+                if( StringUtils.isNullOrEmpty( statName ) || "null".equals( statName ) ) {
+                    statName = statDescription.name;
+                }
+                columns.add( new StatisticsTableCell( "<b>" + statName + "<span class=\"statUnit\">("
+                                                      + statDescription.unit + ")</span></b>", false ) );
+                columns.add( new StatisticsTableCell( "&nbsp;", false ) );
+                rows.add( columns );
+                
+                StatisticsTableCell minCellValue = new StatisticsTableCell( String.valueOf( actualStatDescription.minValue ), false );
+                StatisticsTableCell avgCellValue = new StatisticsTableCell( String.valueOf( actualStatDescription.avgValue ), false );
+                StatisticsTableCell maxCellValue = new StatisticsTableCell( String.valueOf( actualStatDescription.maxValue ), false );
+                
+                addDetailedstatisticDataRows( rows, minCellLabel, minCellValue );
+                addDetailedstatisticDataRows( rows, maxCellLabel, maxCellValue );
+                addDetailedstatisticDataRows( rows, avgCellLabel, avgCellValue );
+            } else {
+                columns = new ArrayList<StatisticsTableCell>();
+                columns.add( EMPTY_CELL );
+                rows.add( columns );
+            }
+        }
+    }
+    
+    private void addDetailedstatisticDataRows( List<List<StatisticsTableCell>> rows,
+                                           StatisticsTableCell statTableCell, 
+                                           StatisticsTableCell cellValue ) {
+        
+        List<StatisticsTableCell> columns = new ArrayList<StatisticsTableCell>();
+        columns.add( statTableCell );
+        columns.add( cellValue );
+
+        rows.add( columns );
     }
 
     /**

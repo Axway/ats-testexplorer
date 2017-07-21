@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -40,28 +41,29 @@ import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescripti
 
 public class TestExplorerSession extends WebSession {
 
-    private static final long                                            serialVersionUID = 1L;
+    private static final long                                                      serialVersionUID = 1L;
 
-    private static final Logger                                          LOG              = Logger.getLogger( TestExplorerSession.class );
+    private static final Logger                                                    LOG              = Logger.getLogger( TestExplorerSession.class );
 
-    private transient TestExplorerDbReadAccessInterface                  dbReadConnection;
-    private transient TestExplorerDbWriteAccessInterface                 dbWriteConnection;
+    private transient TestExplorerDbReadAccessInterface                            dbReadConnection;
+    private transient TestExplorerDbWriteAccessInterface                           dbWriteConnection;
 
-    public CompareContainer                                              compareContainer = new CompareContainer();
+    public CompareContainer                                                        compareContainer = new CompareContainer();
     // <diagramName,<<testcase1,<stat1,stat2>>,<testcase2,<stat3,stat4>>>>
     private Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramContainer = new HashMap<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>>();
+    private Map<String, IModel<String>>                                            aliasModels      = new HashMap<String, IModel<String>>();
 
-    private int                                                          diagramNameIndex = 1;
-    
-    private String                                                       dbName           = "";
-    private String                                                       dbVersion        = null;
-    private String                                                       dbHost           = "127.0.0.1";
-    private String                                                       dbUser;
-    private String                                                       dbPassword;
-    private int                                                          rowsPerPage      = 50;
+    private int                                                                    diagramNameIndex = 1;
+
+    private String                                                                 dbName           = "";
+    private String                                                                 dbVersion        = null;
+    private String                                                                 dbHost           = "127.0.0.1";
+    private String                                                                 dbUser;
+    private String                                                                 dbPassword;
+    private int                                                                    rowsPerPage      = 50;
     // minimal message level for Messages Page filtering
-    private String                                                       minMessageLevel  = "info";
-    private String                                                       pdfExporterPath  = null;
+    private String                                                                 minMessageLevel  = "info";
+    private String                                                                 pdfExporterPath  = null;
 
     public TestExplorerSession( Request request ) {
 
@@ -265,6 +267,11 @@ public class TestExplorerSession extends WebSession {
     public Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> getDiagramContainer() {
 
         return this.diagramContainer;
+    }
+    
+    public Map<String, IModel<String>> getStatisticsAliasModels() {
+
+        return this.aliasModels;
     }
     
     public int getDiagramNameIndex() {

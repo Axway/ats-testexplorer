@@ -284,10 +284,8 @@ public abstract class CopyUtility {
                              dstActionQueueIds.get( iActionQueues ) );
         }
 
-        // FIXME LATER
-        
         // STATISTICS
-//        copyStatistics( srcTestcase.testcaseId, dstTestcaseId );
+        copyStatistics( srcTestcase.testcaseId, dstTestcaseId );
 
     }
 
@@ -429,63 +427,63 @@ public abstract class CopyUtility {
         }
     }
 
-//    private void copyStatistics( String srcTestcaseId, int dstTestcaseId ) throws DatabaseAccessException,
-//                                                                           DbEntityCopyException,
-//                                                                           ParseException {
-//
-//        List<StatisticDescription> srcStatisticDescriptions = this.srcDbRead.getSystemStatisticDescriptions( 0.0F,
-//                                                                                                             srcTestcaseId,
-//                                                                                                             new HashMap<String, String>() );
-//
-//        if( srcStatisticDescriptions.size() > 0 ) {
-//
-//            Set<Integer> srcMachineIds = new HashSet<Integer>();
-//            Map<Integer, String> srcStatisticTypeIds = new HashMap<Integer, String>();
-//            for( StatisticDescription srcStatisticDescription : srcStatisticDescriptions ) {
-//                srcMachineIds.add( srcStatisticDescription.machineId );
-//                if( !srcStatisticTypeIds.containsKey( srcStatisticDescription.statisticTypeId ) ) {
-//                    srcStatisticTypeIds.put( srcStatisticDescription.statisticTypeId,
-//                                             srcStatisticDescription.statisticName );
-//                }
-//            }
-//            log( INDENT_TEST_CONTENT,
-//                 "[STATISTIC] start copying of " + srcStatisticTypeIds.size() + " statistics" );
-//
-//            StringBuilder srcMachineIdsString = new StringBuilder();
-//            for( int srcMachineId : srcMachineIds ) {
-//                srcMachineIdsString.append( srcMachineId + "," );
-//            }
-//            if( srcMachineIdsString.length() > 0 ) {
-//                srcMachineIdsString = new StringBuilder(srcMachineIdsString.substring( 0, srcMachineIdsString.length() - 1 ));
-//            }
-//
-//            // load statistics by statistic type, not all at ones
-//            int statNumber = 0;
-//            for( int srcStatisticTypeId : srcStatisticTypeIds.keySet() ) {
-//
-//                List<Statistic> srcStatistics = this.srcDbRead.getSystemStatistics( 0.0F, srcTestcaseId,
-//                                                                                    srcMachineIdsString.toString(),
-//                                                                                    String.valueOf( srcStatisticTypeId ) );
-//                log( INDENT_TEST_CONTENT,
-//                     "[STATISTIC #" + ( ++statNumber ) + " of " + srcStatisticTypeIds.size() + "] '"
-//                                          + srcStatisticTypeIds.get( srcStatisticTypeId ) + "' copying "
-//                                          + srcStatistics.size() + " values" );
-//
-//                Map<Integer, Integer> srcToDestinationStatTypeIdsMapping = getMappingOfSrcToDestinationStatTypeIds( srcStatisticDescriptions );
-//                for( Statistic srcStatistic : srcStatistics ) {
-//
-//                    this.dstDbWrite.insertSystemStatistics( dstTestcaseId,
-//                                                            getMachineName( srcStatisticDescriptions,
-//                                                                            srcStatistic.machineId ),
-//                                                            String.valueOf( srcToDestinationStatTypeIdsMapping.get( srcStatistic.statisticTypeId ) ),
-//                                                            String.valueOf( srcStatistic.value ),
-//                                                            AbstractDbAccess.DATE_FORMAT.parse( srcStatistic.date )
-//                                                                                        .getTime(),
-//                                                            true );
-//                }
-//            }
-//        }
-//    }
+    private void copyStatistics( String srcTestcaseId, int dstTestcaseId ) throws DatabaseAccessException,
+                                                                           DbEntityCopyException,
+                                                                           ParseException {
+
+        List<StatisticDescription> srcStatisticDescriptions = this.srcDbRead.getSystemStatisticDescriptions( 0.0F,
+                                                                                                             "where ss.testcaseId in ( " + srcTestcaseId + " )",
+                                                                                                             new HashMap<String, String>() );
+
+        if( srcStatisticDescriptions.size() > 0 ) {
+
+            Set<Integer> srcMachineIds = new HashSet<Integer>();
+            Map<Integer, String> srcStatisticTypeIds = new HashMap<Integer, String>();
+            for( StatisticDescription srcStatisticDescription : srcStatisticDescriptions ) {
+                srcMachineIds.add( srcStatisticDescription.machineId );
+                if( !srcStatisticTypeIds.containsKey( srcStatisticDescription.statisticTypeId ) ) {
+                    srcStatisticTypeIds.put( srcStatisticDescription.statisticTypeId,
+                                             srcStatisticDescription.statisticName );
+                }
+            }
+            log( INDENT_TEST_CONTENT,
+                 "[STATISTIC] start copying of " + srcStatisticTypeIds.size() + " statistics" );
+
+            StringBuilder srcMachineIdsString = new StringBuilder();
+            for( int srcMachineId : srcMachineIds ) {
+                srcMachineIdsString.append( srcMachineId + "," );
+            }
+            if( srcMachineIdsString.length() > 0 ) {
+                srcMachineIdsString = new StringBuilder(srcMachineIdsString.substring( 0, srcMachineIdsString.length() - 1 ));
+            }
+
+            // load statistics by statistic type, not all at ones
+            int statNumber = 0;
+            for( int srcStatisticTypeId : srcStatisticTypeIds.keySet() ) {
+
+                List<Statistic> srcStatistics = this.srcDbRead.getSystemStatistics( 0.0F, srcTestcaseId,
+                                                                                    srcMachineIdsString.toString(),
+                                                                                    String.valueOf( srcStatisticTypeId ) );
+                log( INDENT_TEST_CONTENT,
+                     "[STATISTIC #" + ( ++statNumber ) + " of " + srcStatisticTypeIds.size() + "] '"
+                                          + srcStatisticTypeIds.get( srcStatisticTypeId ) + "' copying "
+                                          + srcStatistics.size() + " values" );
+
+                Map<Integer, Integer> srcToDestinationStatTypeIdsMapping = getMappingOfSrcToDestinationStatTypeIds( srcStatisticDescriptions );
+                for( Statistic srcStatistic : srcStatistics ) {
+
+                    this.dstDbWrite.insertSystemStatistics( dstTestcaseId,
+                                                            getMachineName( srcStatisticDescriptions,
+                                                                            srcStatistic.machineId ),
+                                                            String.valueOf( srcToDestinationStatTypeIdsMapping.get( srcStatistic.statisticTypeId ) ),
+                                                            String.valueOf( srcStatistic.value ),
+                                                            AbstractDbAccess.DATE_FORMAT.parse( srcStatistic.date )
+                                                                                        .getTime(),
+                                                            true );
+                }
+            }
+        }
+    }
 
     private Map<Integer, Integer> getMappingOfSrcToDestinationStatTypeIds( List<StatisticDescription> srcStatisticDescriptions ) throws DatabaseAccessException {
 

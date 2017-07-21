@@ -861,11 +861,15 @@ table.statDetailsTable {
     text-indent: 20px;
 }
 
-.chartGroup td {
-	border-top: 5px solid rgba(18, 19, 18, 0.17);
+.chartGroupHeader td {
+	border-top: 5px solid rgb(223, 235, 239);
 }
 
-tr.statDetailsHeaderRow, tr.statisticsHeaderRow, .chartGroup {
+.chartGroup td {
+	border-top: 2px solid rgba(18, 19, 18, 0.17);
+}
+
+tr.statDetailsHeaderRow, tr.statisticsHeaderRow, .chartGroup, .chartGroupHeader {
     font-weight:bold;
     background-color:white;
     background-image:url("../images/vista-bg-grey.png");
