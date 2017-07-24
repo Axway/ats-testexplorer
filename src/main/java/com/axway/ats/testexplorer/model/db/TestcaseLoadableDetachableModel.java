@@ -36,8 +36,7 @@ public class TestcaseLoadableDetachableModel extends LoadableDetachableModel<Tes
      * Otherwise if the model was changed in edit mode and the testcase is still
      * in progress then editable cell will disappear
      */
-    public TestcaseLoadableDetachableModel( Testcase testcase,
-                                            MainDataGrid grid ) {
+    public TestcaseLoadableDetachableModel( Testcase testcase, MainDataGrid grid ) {
 
         this.testcase = testcase;
         this.grid = grid;
@@ -50,8 +49,7 @@ public class TestcaseLoadableDetachableModel extends LoadableDetachableModel<Tes
     }
 
     @Override
-    public boolean equals(
-                           Object obj ) {
+    public boolean equals( Object obj ) {
 
         if( obj == this ) {
             return true;
@@ -65,7 +63,7 @@ public class TestcaseLoadableDetachableModel extends LoadableDetachableModel<Tes
             }
             return other.testcase.testcaseId.equals( this.testcase.testcaseId )
                    && other.testcase.state.equals( this.testcase.state )
-                   && other.testcase.duration.equals( this.testcase.duration )
+                   && other.testcase.getDurationAsString( 0 ).equals( this.testcase.getDurationAsString( 0 ) )
                    && other.testcase.result == this.testcase.result;
         }
         return false;

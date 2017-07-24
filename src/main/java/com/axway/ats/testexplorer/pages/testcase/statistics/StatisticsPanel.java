@@ -420,7 +420,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                         statisticNavigation.add( testcase.suiteName );
                         statisticNavigation.add( testcase.scenarioName );
                         statisticNavigation.add( testcase.name );
-                        statisticNavigation.add( dateFormatter.format( testcase.dateStart ) );
+                        statisticNavigation.add( dateFormatter.format( testcase.getDateStart() ) );
                     }
                 }
             }
@@ -701,10 +701,16 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
         }
         try {
             String whereClause = "where ss.testcaseId in ( " + testcaseId + " )";
+            /* 
+             * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+             * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+             * */
             List<StatisticDescription> statisticDescriptions = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
                                                                                                         .getSystemStatisticDescriptions( timeOffset,
                                                                                                                                          whereClause,
-                                                                                                                                         testcaseAliases );
+                                                                                                                                         testcaseAliases,
+                                                                                                                                         0,/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/
+                                                                                                                                         ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
             return statisticDescriptions;
         } catch( DatabaseAccessException e ) {
             LOG.error( "Error loading system statistic descriptions", e );
@@ -722,10 +728,16 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
         }
         try {
             String whereClause = " where tt.testcaseId in (" + testcaseId + ") ";
+            /* 
+             * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+             * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+             * */
             List<StatisticDescription> statisticDescriptions = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
                                                                                                         .getCheckpointStatisticDescriptions( timeOffset,
                                                                                                                                              whereClause,
-                                                                                                                                             new HashSet<String>() );
+                                                                                                                                             new HashSet<String>(),
+                                                                                                                                             0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
+                                                                                                                                             ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
             return statisticDescriptions;
         } catch( DatabaseAccessException e ) {
             LOG.error( "Error loading action response statistic descriptions", e );

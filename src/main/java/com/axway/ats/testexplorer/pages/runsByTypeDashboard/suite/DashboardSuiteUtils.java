@@ -35,15 +35,14 @@ import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
 public class DashboardSuiteUtils implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    private static Logger LOG = Logger.getLogger( DashboardSuiteUtils.class );
 
-    public void callJavaScript(
-                                Object responseOrTarget,
-                                String[] jsonDatas ) {
+    private static Logger     LOG              = Logger.getLogger( DashboardSuiteUtils.class );
+
+    public void callJavaScript( Object responseOrTarget, String[] jsonDatas ) {
 
         String script = ";setSuiteData(" + jsonDatas[0] + ");setTestcasesData(" + jsonDatas[1]
-                        + ");setDbName(\"" + ( ( TestExplorerSession ) Session.get() ).getDbName() + "\");resize();";
+                        + ");setDbName(\"" + ( ( TestExplorerSession ) Session.get() ).getDbName()
+                        + "\");resize();";
 
         if( responseOrTarget instanceof IHeaderResponse ) {
             ( ( IHeaderResponse ) responseOrTarget ).render( OnLoadHeaderItem.forScript( script ) );
@@ -51,38 +50,28 @@ public class DashboardSuiteUtils implements Serializable {
             ( ( AjaxRequestTarget ) responseOrTarget ).appendJavaScript( script );
         } else {
             LOG.error( "Argument is not of type '" + IHeaderResponse.class.getName() + "' or '"
-                    + AjaxRequestTarget.class.getName() + "', but '"
-                    + responseOrTarget.getClass().getName() + "'" );
+                       + AjaxRequestTarget.class.getName() + "', but '"
+                       + responseOrTarget.getClass().getName() + "'" );
         }
 
     }
 
-    public String[] initData(
-                              String whereClause,
-                              String suiteName,
-                              String type,
-                              String suiteBuild,
-                              String productName,
-                              String versionName ) {
+    public String[] initData( String whereClause, String suiteName, String type, String suiteBuild,
+                              String productName, String versionName ) {
 
         String testcasesWhereClause = whereClause
                                       + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
                                       + suiteName
                                       + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
-                                      + productName
-                                      + "' AND versionName ='"
-                                      + versionName
+                                      + productName + "' AND versionName ='" + versionName
                                       + "' AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
                                       + ( type ) + "')))";
 
-        if( "unspecified".equals( type  ) ) {
-            testcasesWhereClause = whereClause
-                                   + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
+        if( "unspecified".equals( type ) ) {
+            testcasesWhereClause = whereClause + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
                                    + suiteName
                                    + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
-                                   + productName
-                                   + "' AND versionName ='"
-                                   + versionName
+                                   + productName + "' AND versionName ='" + versionName
                                    + "' AND runId NOT IN (SELECT runId FROM tRunMetainfo WHERE name='type')))";
         }
 
@@ -101,9 +90,7 @@ public class DashboardSuiteUtils implements Serializable {
         return jsonDatas;
     }
 
-    private String initTestcasesData(
-                                      List<Testcase> testcases,
-                                      String suiteBuild ) {
+    private String initTestcasesData( List<Testcase> testcases, String suiteBuild ) {
 
         StringBuilder data = new StringBuilder();
 
@@ -141,10 +128,11 @@ public class DashboardSuiteUtils implements Serializable {
                                 lastRun = testcase.dateStart.substring( 0, testcase.dateStart.indexOf( " " ) );
                             }
                         }*/
-                        lastRun = testcase.dateStart.substring( 0, testcase.dateStart.indexOf( " " ) );
+                        lastRun = testcase.getDateStartLong()
+                                          .substring( 0, testcase.getDateStartLong().indexOf( " " ) );
                         thisRun = ( testcase.result == 1 )
-                                                          ? "100"
-                                                          : "0";
+                                                           ? "100"
+                                                           : "0";
                         id = testcase.testcaseId;
                         totalRuns++;
                         if( StringUtils.isNullOrEmpty( lastBuild ) ) {
@@ -152,7 +140,7 @@ public class DashboardSuiteUtils implements Serializable {
                         }
                         allRuns += Math.floor( Float.parseFloat( thisRun.replace( "%", "" ).trim() ) );
                     } catch( Exception e ) {
-                        LOG.error( "Unable to parse allRuns value to float.",e );
+                        LOG.error( "Unable to parse allRuns value to float.", e );
                     }
                 }
 
@@ -174,9 +162,7 @@ public class DashboardSuiteUtils implements Serializable {
         return data.toString();
     }
 
-    private String initSuiteData(
-                                  String suiteName,
-                                  String type ) {
+    private String initSuiteData( String suiteName, String type ) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -190,20 +176,15 @@ public class DashboardSuiteUtils implements Serializable {
         return sb.toString();
     }
 
-    private List<Testcase> getTestcases(
-                                         String whereClause ) {
+    private List<Testcase> getTestcases( String whereClause ) {
 
         try {
             TestExplorerSession session = ( TestExplorerSession ) Session.get();
             TestExplorerDbReadAccessInterface dbRead = session.getDbReadConnection();
-            return dbRead.getTestcases( 0,
-                                        dbRead.getTestcasesCount( whereClause ),
-                                        whereClause,
-                                        "dateStart",
-                                        true,
-                                        false );
+            return dbRead.getTestcases( 0, dbRead.getTestcasesCount( whereClause ), whereClause, "dateStart",
+                                        true, ((TestExplorerSession)Session.get()).getTimeOffset() );
         } catch( Exception e ) {
-            LOG.error( "Unable to get testcases with whereClause '"+whereClause+"'" );
+            LOG.error( "Unable to get testcases with whereClause '" + whereClause + "'" );
         }
         return null;
     }

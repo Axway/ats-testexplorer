@@ -294,17 +294,19 @@ public class TestExplorerDbWriteAccess extends DbWriteAccess implements TestExpl
 
         final String errMsg = "Unable to update suite with id " + suite.suiteId;
 
-        String sqlLog = new SqlRequestFormatter().add( "user note", suite.userNote )
+        String sqlLog = new SqlRequestFormatter().add( "suite name", suite.name )
+                                                 .add( "user note", suite.userNote )
                                                  .add( "where suite id", suite.suiteId )
                                                  .format();
-        final int indexRowsUpdated = 3;
+        final int indexRowsUpdated = 4;
         Connection connection = getConnection();
         CallableStatement callableStatement = null;
         try {
 
-            callableStatement = connection.prepareCall( "{ call sp_update_suite(?, ?, ?) }" );
-            callableStatement.setString( 1, suite.suiteId );
-            callableStatement.setString( 2, suite.userNote );
+            callableStatement = connection.prepareCall( "{ call sp_update_suite(?, ?, ?, ?) }" );
+            callableStatement.setInt( 1, Integer.parseInt( suite.suiteId ) );
+            callableStatement.setString( 2, suite.name );
+            callableStatement.setString( 3, suite.userNote );
             callableStatement.registerOutParameter( indexRowsUpdated, Types.INTEGER );
 
             callableStatement.execute();

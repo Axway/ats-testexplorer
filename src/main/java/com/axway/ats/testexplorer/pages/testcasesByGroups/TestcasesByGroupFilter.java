@@ -45,7 +45,7 @@ import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.pages.model.filtering.IFilter;
 
-public class TestcasesByGroupFilter extends Form<String> implements IFilter{
+public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
     private static final long          serialVersionUID     = 1L;
 
@@ -576,8 +576,10 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter{
             searchByAllGroups.setChoices( new ListModel<String>( groupNames ) );
 
             String[] lastRunDateStart = session.getDbReadConnection()
-                                               .getRuns( 0, 1, "WHERE 1=1", "dateStart", false )
-                                               .get( 0 ).dateStartLong.split( " " )[0].split( "-" );
+                                               .getRuns( 0, 1, "WHERE 1=1", "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() )
+                                               .get( 0 )
+                                               .getDateStartLong()
+                                               .split( " " )[0].split( "-" );
 
             searchByAfterDate.getModel()
                              .setObject( new SimpleDateFormat( "dd.MM.yyyy" ).parse( lastRunDateStart[2] + "."
@@ -592,7 +594,7 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter{
             LOG.error( "Unable to parse date start for last run", e );
         }
     }
-    
+
     @Override
     public boolean hasSelectedFields() {
 
@@ -619,13 +621,12 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter{
     }
 
     @Override
-    public void renderHead(
-                            IHeaderResponse response ) {
+    public void renderHead( IHeaderResponse response ) {
 
         super.renderHead( response );
         if( hasSelectedFields() ) {
             response.render( OnDomReadyHeaderItem.forScript( "$('.filterHeader').click()" ) );
         }
-   }
-    
+    }
+
 }

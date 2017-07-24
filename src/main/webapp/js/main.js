@@ -468,3 +468,13 @@ function populateFilterDataPanel(data){
 		startedBefore.innerHTML='Started Before: <b>'+data['StartedBefore']+'</b>'
 	}
 }
+
+// check whether daylight saving is on for the current browser timezone
+function isDayLightSavingOn(){
+	function stdTimezoneOffset() {
+		var jan = new Date(new Date().getFullYear(), 0, 1);
+		var jul = new Date(new Date().getFullYear(), 6, 1);
+		return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+	}
+	return new Date().getTimezoneOffset() < stdTimezoneOffset();
+}

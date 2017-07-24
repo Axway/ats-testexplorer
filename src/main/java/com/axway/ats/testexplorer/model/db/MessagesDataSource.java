@@ -44,16 +44,13 @@ public class MessagesDataSource implements IDataSource {
     }
 
     @Override
-    public IModel<Message> model(
-                                  final Object object ) {
+    public IModel<Message> model( final Object object ) {
 
         return new MessageLoadableDetachableModel( ( Message ) object );
     }
 
     @Override
-    public void query(
-                       IQuery query,
-                       IQueryResult result ) {
+    public void query( IQuery query, IQueryResult result ) {
 
         String sortProperty = "timestamp";
         boolean sortAsc = true;
@@ -73,24 +70,21 @@ public class MessagesDataSource implements IDataSource {
 
             if( "run".equals( checkMessageInstance() ) ) {
 
-                resultList = dbAccess.getRunMessages( (int)(query.getFrom() + 1),
-                                                      (int)(query.getFrom() + query.getCount() + 1),
-                                                      getWhereClause(),
-                                                      sortProperty,
-                                                      sortAsc );
+                resultList = dbAccess.getRunMessages( ( int ) ( query.getFrom() + 1 ),
+                                                      ( int ) ( query.getFrom() + query.getCount() + 1 ),
+                                                      getWhereClause(), sortProperty, sortAsc,
+                                                      ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
             } else if( "suite".equals( checkMessageInstance() ) ) {
-                resultList = dbAccess.getSuiteMessages( (int)(query.getFrom() + 1),
-                                                        (int)(query.getFrom() + query.getCount() + 1),
-                                                        getWhereClause(),
-                                                        sortProperty,
-                                                        sortAsc );
+                resultList = dbAccess.getSuiteMessages( ( int ) ( query.getFrom() + 1 ),
+                                                        ( int ) ( query.getFrom() + query.getCount() + 1 ),
+                                                        getWhereClause(), sortProperty, sortAsc,
+                                                        ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
             } else {
 
-                resultList = dbAccess.getMessages( (int)(query.getFrom() + 1),
-                                                   (int)(query.getFrom() + query.getCount() + 1),
-                                                   getWhereClause(),
-                                                   sortProperty,
-                                                   sortAsc );
+                resultList = dbAccess.getMessages( ( int ) ( query.getFrom() + 1 ),
+                                                   ( int ) ( query.getFrom() + query.getCount() + 1 ),
+                                                   getWhereClause(), sortProperty, sortAsc,
+                                                   ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
             }
 
             result.setItems( resultList.iterator() );
@@ -99,8 +93,8 @@ public class MessagesDataSource implements IDataSource {
         }
     }
 
-    protected int getMessagesCount(
-                                    TestExplorerDbReadAccessInterface dbAccess ) throws DatabaseAccessException {
+    protected int
+            getMessagesCount( TestExplorerDbReadAccessInterface dbAccess ) throws DatabaseAccessException {
 
         return dbAccess.getMessagesCount( getWhereClause() );
 

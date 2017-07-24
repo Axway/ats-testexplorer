@@ -39,8 +39,7 @@ public class SuitesDataSource implements IDataSource {
     private String              runId;
     private String              suiteId;
 
-    public SuitesDataSource( String runId,
-                             String suiteId ) {
+    public SuitesDataSource( String runId, String suiteId ) {
 
         this.runId = runId;
         this.suiteId = suiteId;
@@ -52,16 +51,13 @@ public class SuitesDataSource implements IDataSource {
     }
 
     @Override
-    public IModel<Suite> model(
-                                final Object object ) {
+    public IModel<Suite> model( final Object object ) {
 
         return new SuiteLoadableDetachableModel( ( Suite ) object );
     }
 
     @Override
-    public void query(
-                       IQuery query,
-                       IQueryResult result ) {
+    public void query( IQuery query, IQueryResult result ) {
 
         String sortProperty = "suiteId";
         boolean sortAsc = true;
@@ -86,11 +82,8 @@ public class SuitesDataSource implements IDataSource {
             result.setTotalCount( dbAccess.getSuitesCount( whereClause ) );
 
             resultList = dbAccess.getSuites( ( int ) ( query.getFrom() + 1 ),
-                                             ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                             whereClause,
-                                             sortProperty,
-                                             sortAsc,
-                                             true );
+                                             ( int ) ( query.getFrom() + query.getCount() + 1 ), whereClause,
+                                             sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
             String[] packageNames = new String[resultList.size()];
 
@@ -127,8 +120,7 @@ public class SuitesDataSource implements IDataSource {
      * @param packages  List with all full package names 
      * @return  List with all parsed package names
      */
-    static String[] parsePackages(
-                                   String[] packages ) {
+    static String[] parsePackages( String[] packages ) {
 
         String[][] packageTokens = new String[packages.length][];
 
@@ -181,7 +173,7 @@ public class SuitesDataSource implements IDataSource {
         for( int iPackage = 0; iPackage < packageTokens.length; iPackage++ ) {
             StringBuilder resultPackage = new StringBuilder();
             for( int iToken = startToken; iToken < packageTokens[iPackage].length; iToken++ ) {
-                resultPackage.append(packageTokens[iPackage][iToken] + ".");
+                resultPackage.append( packageTokens[iPackage][iToken] + "." );
             }
             resultPackages.add( resultPackage.substring( 0, resultPackage.length() - 1 ) );
         }
@@ -193,8 +185,7 @@ public class SuitesDataSource implements IDataSource {
         return runId;
     }
 
-    public void setRunId(
-                          String runId ) {
+    public void setRunId( String runId ) {
 
         this.runId = runId;
     }

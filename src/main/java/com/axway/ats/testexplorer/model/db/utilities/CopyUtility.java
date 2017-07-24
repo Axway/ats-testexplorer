@@ -26,7 +26,6 @@ import java.util.Set;
 
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.AbstractDbAccess;
 import com.axway.ats.log.autodb.DbWriteAccess;
 import com.axway.ats.log.autodb.entities.Checkpoint;
 import com.axway.ats.log.autodb.entities.CheckpointSummary;
@@ -124,7 +123,7 @@ public abstract class CopyUtility {
     protected Run loadRunById( int srcRunId ) throws DatabaseAccessException, DbEntityCopyException {
 
         Run run = null;
-        List<Run> srcRuns = this.srcDbRead.getRuns( 0, 1, "where runId=" + srcRunId, "runId", true );
+        List<Run> srcRuns = this.srcDbRead.getRuns( 0, 1, "where runId=" + srcRunId, "runId", true, 0 );
         if( srcRuns.size() > 0 ) {
             run = srcRuns.get( 0 );
         }
@@ -134,7 +133,7 @@ public abstract class CopyUtility {
 
     protected List<Suite> loadSuites( int srcRunId ) throws DatabaseAccessException {
 
-        return this.srcDbRead.getSuites( 0, 10000, "where runId=" + srcRunId, "suiteId", true, false );
+        return this.srcDbRead.getSuites( 0, 10000, "where runId=" + srcRunId, "suiteId", true, 0 );
     }
 
     protected Scenario loadScenarioById( int scenarioId, int suiteId ) throws DatabaseAccessException {
@@ -143,7 +142,7 @@ public abstract class CopyUtility {
         List<Scenario> scenarios = this.srcDbRead.getScenarios( 0, 1,
                                                                 "where scenarioId=" + scenarioId
                                                                       + "and suiteId=" + suiteId,
-                                                                "scenarioId", true, false );
+                                                                "scenarioId", true, 0 );
         if( scenarios.size() > 0 ) {
             scenario = scenarios.get( 0 );
         }
@@ -153,14 +152,14 @@ public abstract class CopyUtility {
 
     protected List<Scenario> loadScenarios( int suiteId ) throws DatabaseAccessException {
 
-        return this.srcDbRead.getScenarios( 0, 10000, "where suiteId=" + suiteId, "scenarioId", true, false );
+        return this.srcDbRead.getScenarios( 0, 10000, "where suiteId=" + suiteId, "scenarioId", true, 0 );
     }
 
     protected Testcase loadTestcaseById( int testcaseId ) throws DatabaseAccessException {
 
         Testcase testcase = null;
         List<Testcase> testcases = this.srcDbRead.getTestcases( 0, 1, "where testcaseId=" + testcaseId,
-                                                                "testcaseId", true, false );
+                                                                "testcaseId", true, 0 );
         if( testcases.size() > 0 ) {
             testcase = testcases.get( 0 );
         }
@@ -170,7 +169,7 @@ public abstract class CopyUtility {
 
     protected List<Testcase> loadTestcases( String whereClause ) throws DatabaseAccessException {
 
-        return this.srcDbRead.getTestcases( 0, 10000, whereClause, "testcaseId", true, false );
+        return this.srcDbRead.getTestcases( 0, 10000, whereClause, "testcaseId", true, 0 );
     }
 
     protected int copyRun( Run srcRun ) throws DatabaseAccessException, ParseException {
@@ -179,13 +178,11 @@ public abstract class CopyUtility {
 
         int dstRunId = this.dstDbWrite.startRun( srcRun.runName, srcRun.os, srcRun.productName,
                                                  srcRun.versionName, srcRun.buildName,
-                                                 AbstractDbAccess.DATE_FORMAT.parse( srcRun.dateStartLong )
-                                                                             .getTime(),
+                                                 srcRun.getStartTimestamp(),
                                                  srcRun.hostName, true );
 
-        if( !StringUtils.isNullOrEmpty( srcRun.dateEnd ) ) {
-            this.dstDbWrite.endRun( AbstractDbAccess.DATE_FORMAT.parse( srcRun.dateEndLong ).getTime(),
-                                    dstRunId, true );
+        if( !StringUtils.isNullOrEmpty( srcRun.getDateEnd() ) ) {
+            this.dstDbWrite.endRun( srcRun.getEndTimestamp(), dstRunId, true );
         }
 
         // update the user note
@@ -204,13 +201,11 @@ public abstract class CopyUtility {
         log( INDENT_SUITE, "[SUITE #" + numberSuites + "] copying suite '" + srcSuite.name + "'" );
 
         int dstSuiteId = this.dstDbWrite.startSuite( srcSuite.packageName, srcSuite.name,
-                                                     AbstractDbAccess.DATE_FORMAT.parse( srcSuite.dateStart )
-                                                                                 .getTime(),
+                                                     srcSuite.getStartTimestamp(),
                                                      dstRunId, true );
 
-        if( !StringUtils.isNullOrEmpty( srcSuite.dateEnd ) ) {
-            this.dstDbWrite.endSuite( AbstractDbAccess.DATE_FORMAT.parse( srcSuite.dateEnd ).getTime(),
-                                      dstSuiteId, true );
+        if( !StringUtils.isNullOrEmpty( srcSuite.getDateEnd() ) ) {
+            this.dstDbWrite.endSuite( srcSuite.getEndTimestamp(), dstSuiteId, true );
         }
 
         // update the user note
@@ -249,14 +244,12 @@ public abstract class CopyUtility {
         log( INDENT_TEST, "[TESTCASE #" + numberTestcases + "] copying testcase '" + srcTestcase.name + "'" );
         int dstTestcaseId = this.dstDbWrite.startTestCase( srcTestcase.suiteName, srcTestcase.scenarioName,
                                                            "", srcTestcase.name,
-                                                           AbstractDbAccess.DATE_FORMAT.parse( srcTestcase.dateStart )
-                                                                                       .getTime(),
+                                                           srcTestcase.getStartTimestamp(),
                                                            dstSuiteId, true );
 
-        if( !StringUtils.isNullOrEmpty( srcTestcase.dateEnd ) ) {
-            this.dstDbWrite.endTestCase( srcTestcase.result,
-                                         AbstractDbAccess.DATE_FORMAT.parse( srcTestcase.dateEnd ).getTime(),
-                                         dstTestcaseId, true );
+        if( !StringUtils.isNullOrEmpty( srcTestcase.getDateEnd() ) ) {
+            this.dstDbWrite.endTestCase( srcTestcase.result, srcTestcase.getEndTimestamp(), dstTestcaseId,
+                                         true );
         }
 
         // update the user note
@@ -271,7 +264,7 @@ public abstract class CopyUtility {
         // ACTION QUEUES
         List<LoadQueue> srcActionQueues = this.srcDbRead.getLoadQueues( "testcaseId="
                                                                         + srcTestcase.testcaseId,
-                                                                        "loadQueueId", true, false );
+                                                                        "loadQueueId", true, 0 );
 
         if( srcActionQueues.size() > 0 ) {
             log( INDENT_TEST_CONTENT,
@@ -309,7 +302,7 @@ public abstract class CopyUtility {
                 log( INDENT_TEST_CONTENT, "[MESSAGES] copying from " + startRecord + " to " + recordsCount );
                 srcMessages = this.srcDbRead.getMessages( startRecord, recordsCount,
                                                           "where testcaseId=" + srcTestcaseId, "messageId",
-                                                          true );
+                                                          true, 0 );
                 startRecord = recordsCount + 1;
 
                 for( Message srcMsg : srcMessages ) {
@@ -317,8 +310,7 @@ public abstract class CopyUtility {
                     this.dstDbWrite.insertMessage( srcMsg.messageContent,
                                                    convertMsgLevel( srcMsg.messageType ), srcMsg.escapeHtml,
                                                    srcMsg.machineName, srcMsg.threadName,
-                                                   AbstractDbAccess.TIME_FORMAT.parse( srcMsg.time )
-                                                                               .getTime(),
+                                                   srcMsg.getStartTimestamp(),
                                                    dstTestcaseId, true );
                 }
             }
@@ -340,16 +332,13 @@ public abstract class CopyUtility {
                                                                    srcActionQueue.hostsList,
                                                                    srcActionQueue.threadingPattern,
                                                                    srcActionQueue.numberThreads, "not_used",
-                                                                   AbstractDbAccess.DATE_FORMAT.parse( srcActionQueue.dateStart )
-                                                                                               .getTime(),
+                                                                   srcActionQueue.getStartTimestamp(),
                                                                    dstTestcaseId, true );
 
             dstActionQueueIds.add( dstActionQueueId );
 
-            if( !StringUtils.isNullOrEmpty( srcActionQueue.dateEnd ) ) {
-                this.dstDbWrite.endLoadQueue( srcActionQueue.result,
-                                              AbstractDbAccess.DATE_FORMAT.parse( srcActionQueue.dateEnd )
-                                                                          .getTime(),
+            if( !StringUtils.isNullOrEmpty( srcActionQueue.getDateEnd() ) ) {
+                this.dstDbWrite.endLoadQueue( srcActionQueue.result, srcActionQueue.getEndTimestamp(),
                                               dstActionQueueId, true );
             }
         }
@@ -375,7 +364,7 @@ public abstract class CopyUtility {
             // there are detailed statistics
             // we will insert the statistics, the summary table will be filled by the stored procedure
             List<Checkpoint> detailedActions = this.srcDbRead.getCheckpoints( srcTestcaseId,
-                                                                              summaryAction.name );
+                                                                              summaryAction.name, 0, false );
             if( !hasDetailedStatistics && detailedActions.size() > 0 ) {
                 hasDetailedStatistics = true;
             }
@@ -388,7 +377,7 @@ public abstract class CopyUtility {
                 for( Checkpoint checkpoint : detailedActions ) {
                     this.dstDbWrite.insertCheckpoint( checkpoint.name,
                                                       "not used in the startCheckpoint procedure",
-                                                      ( checkpoint.endTime - checkpoint.responseTime ) * 1000,
+                                                      ( checkpoint.getEndTimestamp() - checkpoint.responseTime ) * 1000,
                                                       checkpoint.responseTime,
                                                       // this calculation is required to fix a calculation in sp_end_checkpoint db procedure
                                                       ( long ) ( ( checkpoint.transferRate
@@ -433,7 +422,7 @@ public abstract class CopyUtility {
 
         List<StatisticDescription> srcStatisticDescriptions = this.srcDbRead.getSystemStatisticDescriptions( 0.0F,
                                                                                                              "where ss.testcaseId in ( " + srcTestcaseId + " )",
-                                                                                                             new HashMap<String, String>() );
+                                                                                                             new HashMap<String, String>(), 0, false );
 
         if( srcStatisticDescriptions.size() > 0 ) {
 
@@ -463,7 +452,7 @@ public abstract class CopyUtility {
 
                 List<Statistic> srcStatistics = this.srcDbRead.getSystemStatistics( 0.0F, srcTestcaseId,
                                                                                     srcMachineIdsString.toString(),
-                                                                                    String.valueOf( srcStatisticTypeId ) );
+                                                                                    String.valueOf( srcStatisticTypeId ), 0, false );
                 log( INDENT_TEST_CONTENT,
                      "[STATISTIC #" + ( ++statNumber ) + " of " + srcStatisticTypeIds.size() + "] '"
                                           + srcStatisticTypeIds.get( srcStatisticTypeId ) + "' copying "
@@ -477,8 +466,7 @@ public abstract class CopyUtility {
                                                                             srcStatistic.machineId ),
                                                             String.valueOf( srcToDestinationStatTypeIdsMapping.get( srcStatistic.statisticTypeId ) ),
                                                             String.valueOf( srcStatistic.value ),
-                                                            AbstractDbAccess.DATE_FORMAT.parse( srcStatistic.date )
-                                                                                        .getTime(),
+                                                            srcStatistic.getStartTimestamp(),
                                                             true );
                 }
             }

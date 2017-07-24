@@ -38,8 +38,7 @@ public class ScenariosDataSource implements IDataSource {
     private String              suiteId;
     private String              scenarioId;
 
-    public ScenariosDataSource( String suiteId,
-                                String scenarioId ) {
+    public ScenariosDataSource( String suiteId, String scenarioId ) {
 
         this.suiteId = suiteId;
         this.scenarioId = scenarioId;
@@ -51,16 +50,13 @@ public class ScenariosDataSource implements IDataSource {
     }
 
     @Override
-    public IModel<Scenario> model(
-                                   final Object object ) {
+    public IModel<Scenario> model( final Object object ) {
 
         return new ScenarioLoadableDetachableModel( ( Scenario ) object );
     }
 
     @Override
-    public void query(
-                       IQuery query,
-                       IQueryResult result ) {
+    public void query( IQuery query, IQueryResult result ) {
 
         String sortProperty = "scenarioId";
         boolean sortAsc = true;
@@ -86,10 +82,7 @@ public class ScenariosDataSource implements IDataSource {
 
             resultList = dbAccess.getScenarios( ( int ) ( query.getFrom() + 1 ),
                                                 ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                whereClause,
-                                                sortProperty,
-                                                sortAsc,
-                                                true );
+                                                whereClause, sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
             result.setItems( resultList.iterator() );
         } catch( DatabaseAccessException e ) {
@@ -102,8 +95,7 @@ public class ScenariosDataSource implements IDataSource {
 
     }
 
-    public void setSuiteId(
-                            String suiteId ) {
+    public void setSuiteId( String suiteId ) {
 
         this.suiteId = suiteId;
     }

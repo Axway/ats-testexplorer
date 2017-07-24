@@ -25,13 +25,18 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -39,6 +44,8 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.IRequestParameters;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -69,31 +76,42 @@ import com.inmethod.grid.datagrid.DataGrid;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
 
-    private static final long     serialVersionUID                = 1L;
+    private static final long         serialVersionUID                = 1L;
 
-    protected static transient Logger       LOG;
+    protected static transient Logger LOG;
 
-    private String                pageSuffix;
+    private String                    pageSuffix;
 
-    private Label                 itemsCountLabel;
+    private Label                     itemsCountLabel;
 
-    private DataGrid              runGrid;
-    private DataGrid              suiteGrid;
-    private DataGrid              scenarioGrid;
-    private Class<?>              currentClass;
+    private DataGrid                  runGrid;
+    private DataGrid                  suiteGrid;
+    private DataGrid                  scenarioGrid;
+    private Class<?>                  currentClass;
 
-    private List<PagePojo>        navigationList                  = new ArrayList<PagePojo>();
+    private List<PagePojo>            navigationList                  = new ArrayList<PagePojo>();
 
-    protected Map<String, String> singleTestIds                   = new HashMap<String, String>();
+    protected Map<String, String>     singleTestIds                   = new HashMap<String, String>();
 
-    private IModel<String>        runCopyLinkModel                = new Model<String>( "" );
-    private IModel<String>        testcasesCopyLinkModel          = new Model<String>( "" );
-    private IModel<String>        representationLinkModel            = new Model<String>( "" );
+    private IModel<String>            runCopyLinkModel                = new Model<String>( "" );
+    private IModel<String>            testcasesCopyLinkModel          = new Model<String>( "" );
+    private IModel<String>            representationLinkModel         = new Model<String>( "" );
 
-    public boolean                showTestcaseStatusChangeButtons = false;
+    public boolean                    showTestcaseStatusChangeButtons = false;
 
     // we remember the current grid we work with
-    private MainDataGrid          mainGrid;
+    private MainDataGrid              mainGrid;
+
+    // preserves the timeOffset for the current session
+    private HiddenField<String>       timeOffsetField                 = new HiddenField<>( "timeOffset",
+                                                                                           new Model<String>( "" ) );
+    // preserves the time offset (from UTC) for the current session
+    private HiddenField<String>       currentTimestampField           = new HiddenField<>( "currentTimestamp",
+                                                                                           new Model<String>( "" ) );
+    
+    // preserves whether when calculating all time stamps, requested by the current session, into consideration must be taken day-light saving
+    private HiddenField<String>       dayLightSavingOnField           = new HiddenField<>( "dayLightSavingOn",
+                                                                                           new Model<String>( "" ) );
 
     public BasePage( PageParameters parameters ) {
 
@@ -114,8 +132,10 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             topRightContent.add( new Label( "dbName", "" ).setVisible( false ) );
             topRightContent.add( new Label( "machinesLink", "" ).setVisible( false ) );
             topRightContent.add( new Label( "runCopyLink", runCopyLinkModel ).setVisible( false ) );
-            topRightContent.add( new Label( "testcasesCopyLink", testcasesCopyLinkModel ).setVisible( false ) );
-            topRightContent.add( new Label( "representationLink", representationLinkModel ).setVisible( false ) );
+            topRightContent.add( new Label( "testcasesCopyLink",
+                                            testcasesCopyLinkModel ).setVisible( false ) );
+            topRightContent.add( new Label( "representationLink",
+                                            representationLinkModel ).setVisible( false ) );
         } else {
             String dbNameAndVersion = dbName;
             String dbVersion = getTESession().getDbVersion();
@@ -124,13 +144,14 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             }
             topRightContent.add( new Label( "dbName",
                                             "<div class=\"dbName\"><span style=\"color:#C8D5DF;\">Exploring database:</span>&nbsp; "
-                                                    + dbNameAndVersion + "</div>" ).setEscapeModelStrings( false ) );
-            topRightContent.add( new Label( "machinesLink",
-                                            "<a href=\"machines?dbname=" + dbName
-                                                    + "\" class=\"machinesLink\" target=\"_blank\"></a>" ).setEscapeModelStrings( false ) );
+                                                      + dbNameAndVersion
+                                                      + "</div>" ).setEscapeModelStrings( false ) );
+            topRightContent.add( new Label( "machinesLink", "<a href=\"machines?dbname=" + dbName
+                                                            + "\" class=\"machinesLink\" target=\"_blank\"></a>" ).setEscapeModelStrings( false ) );
             runCopyLinkModel.setObject( "<a href=\"runCopy?dbname=" + dbName
                                         + "\" class=\"runCopyLink\" target=\"_blank\"></a>" );
-            topRightContent.add( new Label( "runCopyLink", runCopyLinkModel ).setEscapeModelStrings( false ) );
+            topRightContent.add( new Label( "runCopyLink",
+                                            runCopyLinkModel ).setEscapeModelStrings( false ) );
 
             testcasesCopyLinkModel.setObject( "<a href=\"testcasesCopy?dbname=" + dbName
                                               + "\" class=\"testcasesCopyLink\" target=\"_blank\"></a>" );
@@ -138,7 +159,8 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
 
             representationLinkModel.setObject( createRepresentationLinkModelObject() );
 
-            topRightContent.add( new Label( "representationLink", representationLinkModel ).setEscapeModelStrings( false ) );
+            topRightContent.add( new Label( "representationLink",
+                                            representationLinkModel ).setEscapeModelStrings( false ) );
 
         }
 
@@ -166,8 +188,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void populateItem(
-                                         ListItem<PagePojo> item ) {
+            protected void populateItem( ListItem<PagePojo> item ) {
 
                 final PagePojo pp = item.getModelObject();
 
@@ -208,6 +229,51 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         if( TestExplorerUtils.extractPageParameter( parameters, "hacks" ) != null ) {
             showTestcaseStatusChangeButtons = true;
         }
+
+        add( timeOffsetField );
+        add( currentTimestampField );
+        add( dayLightSavingOnField );
+
+        // AJAX handler for obtaining browser's time offset from UTC and current browser timestamp
+        add( new AbstractDefaultAjaxBehavior() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void respond( AjaxRequestTarget target ) {
+
+                IRequestParameters request = RequestCycle.get().getRequest().getRequestParameters();
+                int timeOffset = request.getParameterValue( "timeOffset" ).toInt();
+                TestExplorerSession teSession = ( TestExplorerSession ) Session.get();
+                teSession.setTimeOffset( timeOffset );
+                teSession.setCurrentTimestamp( request.getParameterValue( "currentTimestamp" ).toLong() );
+                teSession.setDayLightSavingOn( request.getParameterValue( "dayLightSavingOn" ).toBoolean() );
+            }
+
+            @Override
+            protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
+
+                super.updateAjaxAttributes( attributes );
+                attributes.getDynamicExtraParameters()
+                          .add( "return {'timeOffset': $('#timeOffset').val(), "
+                                + "'currentTimestamp': $('#currentTimestamp').val(),"
+                                + "'dayLightSavingOn': $('#dayLightSavingOn').val() }" );
+            }
+
+            @Override
+            public void renderHead( Component component, IHeaderResponse response ) {
+
+                // Date.prototype.getTimezoneOffset() returns negative value if the local time is ahead of UTC,
+                // so we invert the result, before sending it to Wicket
+                String getTimeOffsetScript = ";var timeOffset = $('#timeOffset');timeOffset.val(new Date().getTimezoneOffset()*60*1000*-1);"
+                                             + ";var currentTimestamp = $('#currentTimestamp');currentTimestamp.val(new Date().getTime());"
+                                             + ";var dayLightSavingOn = $('#dayLightSavingOn');dayLightSavingOn.val(isDayLightSavingOn());";
+                response.render( OnLoadHeaderItem.forScript( getCallbackScript().toString() ) );
+                response.render( OnLoadHeaderItem.forScript( getTimeOffsetScript ) );
+            }
+
+        } );
+
     }
 
     private String createRepresentationLinkModelObject() {
@@ -217,15 +283,15 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         String groupsLinkStyle = "style=background-color:#transparent;";
 
         if( "Runs".equals( this.getPageName() ) ) {
-            tableLinkStyle="style=background-color:#598196;color:#FFFFFF";
+            tableLinkStyle = "style=background-color:#598196;color:#FFFFFF";
         }
 
         if( "Groups".equals( this.getPageName() ) ) {
-            groupsLinkStyle="style=background-color:#598196;color:#FFFFFF";
+            groupsLinkStyle = "style=background-color:#598196;color:#FFFFFF";
         }
 
         if( "Dashboard Home".equals( this.getPageName() ) ) {
-            dashboardLinkStyle="style=background-color:#598196;color:#FFFFFF";
+            dashboardLinkStyle = "style=background-color:#598196;color:#FFFFFF";
         }
 
         StringBuilder sb = new StringBuilder();
@@ -261,8 +327,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         suiteGrid.setVisible( false );
         testDetails.add( suiteGrid );
 
-        scenarioGrid = new DataGrid( "singleScenario",
-                                     new SuitesDataSource( "0" ),
+        scenarioGrid = new DataGrid( "singleScenario", new SuitesDataSource( "0" ),
                                      new ArrayList<IGridColumn>() );
         scenarioGrid.setOutputMarkupId( true );
         scenarioGrid.setVisible( false );
@@ -273,8 +338,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void onClick(
-                                 AjaxRequestTarget target ) {
+            public void onClick( AjaxRequestTarget target ) {
 
                 boolean isRunVisible = runGrid.isVisible();
                 String runId = singleTestIds.get( "runId" );
@@ -284,23 +348,16 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
                 if( !isRunVisible ) {
                     RunsPanel runs = new RunsPanel( runId );
 
-                    createSingleGrid( testDetails,
-                                      runGrid,
-                                      "singleRun",
-                                      new RunsDataSource( runId ),
-                                      runs.getColumns( null ),
-                                      runs.getTableColumnDefinitions() );
+                    createSingleGrid( testDetails, runGrid, "singleRun", new RunsDataSource( runId ),
+                                      runs.getColumns( null ), runs.getTableColumnDefinitions() );
                 }
 
                 if( currentClass != SuitesPage.class ) {
                     if( !isRunVisible ) {
                         SuitesPanel suites = new SuitesPanel( suiteId );
 
-                        createSingleGrid( testDetails,
-                                          suiteGrid,
-                                          "singleSuite",
-                                          new SuitesDataSource( runId, suiteId ),
-                                          suites.getColumns(),
+                        createSingleGrid( testDetails, suiteGrid, "singleSuite",
+                                          new SuitesDataSource( runId, suiteId ), suites.getColumns(),
                                           suites.getTableColumnDefinitions() );
                     }
                     suiteGrid.setVisible( !isRunVisible );
@@ -310,12 +367,9 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
                         if( !isRunVisible ) {
                             ScenariosPanel scenarios = new ScenariosPanel( scenarioId );
 
-                            createSingleGrid( testDetails,
-                                              scenarioGrid,
-                                              "singleScenario",
+                            createSingleGrid( testDetails, scenarioGrid, "singleScenario",
                                               new ScenariosDataSource( suiteId, scenarioId ),
-                                              scenarios.getColumns(),
-                                              scenarios.getTableColumnDefinitions() );
+                                              scenarios.getColumns(), scenarios.getTableColumnDefinitions() );
                         }
                         scenarioGrid.setVisible( !isRunVisible );
                         target.add( scenarioGrid );
@@ -335,12 +389,8 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     }
 
-    private void createSingleGrid(
-                                   WebMarkupContainer testDetails,
-                                   DataGrid grid,
-                                   String instance,
-                                   IDataSource dataSource,
-                                   List<IGridColumn> columns,
+    private void createSingleGrid( WebMarkupContainer testDetails, DataGrid grid, String instance,
+                                   IDataSource dataSource, List<IGridColumn> columns,
                                    List<TableColumn> columnDetails ) {
 
         List<IGridColumn> cc = new ArrayList<IGridColumn>( columns.subList( 1, columns.size() ) );
@@ -360,8 +410,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         grid.setColumnState( cs );
     }
 
-    public void setMainGrid(
-                             MainDataGrid mainGrid ) {
+    public void setMainGrid( MainDataGrid mainGrid ) {
 
         this.mainGrid = mainGrid;
     }
@@ -389,8 +438,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void onClick(
-                                 AjaxRequestTarget target ) {
+            public void onClick( AjaxRequestTarget target ) {
 
                 if( mainGrid.getSelectedItems().size() == 0 ) {
                     target.appendJavaScript( "alert('Please select one or more items to copy');" );
@@ -451,8 +499,7 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         return this.pageSuffix;
     }
 
-    public void setPageSuffix(
-                               String pageSuffix ) {
+    public void setPageSuffix( String pageSuffix ) {
 
         this.pageSuffix = pageSuffix;
     }
@@ -475,18 +522,14 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
     }
 
     @Override
-    protected void configureResponse(
-                                      WebResponse response ) {
+    protected void configureResponse( WebResponse response ) {
 
         response.disableCaching();
         super.configureResponse( response );
     }
 
-    public void addNavigationLink(
-                                   Class<? extends BasePage> pageClass,
-                                   PageParameters parameters,
-                                   String pageName,
-                                   String pageSuffix ) {
+    public void addNavigationLink( Class<? extends BasePage> pageClass, PageParameters parameters,
+                                   String pageName, String pageSuffix ) {
 
         navigationList.add( new PagePojo( pageClass, parameters, pageName, pageSuffix ) );
     }
@@ -504,12 +547,12 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         return sb.toString();
     }
 
-    public void setRunIdToRunCopyLink(
-                                       String runId ) {
+    public void setRunIdToRunCopyLink( String runId ) {
 
         if( !runCopyLinkModel.getObject().isEmpty() ) {
-            runCopyLinkModel.setObject( runCopyLinkModel.getObject().replace( "?dbname=",
-                                                                              "?runId=" + runId + "&dbname=" ) );
+            runCopyLinkModel.setObject( runCopyLinkModel.getObject()
+                                                        .replace( "?dbname=",
+                                                                  "?runId=" + runId + "&dbname=" ) );
         }
     }
 }
@@ -522,9 +565,7 @@ class PagePojo implements Serializable {
     public String                    pageName;
     public String                    pageSuffix;
 
-    public PagePojo( Class<? extends BasePage> pageClass,
-                     PageParameters parameters,
-                     String pageName,
+    public PagePojo( Class<? extends BasePage> pageClass, PageParameters parameters, String pageName,
                      String pageSuffix ) {
 
         this.pageClass = pageClass;

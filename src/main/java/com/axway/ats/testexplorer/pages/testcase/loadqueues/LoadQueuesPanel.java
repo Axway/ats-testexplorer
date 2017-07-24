@@ -124,10 +124,10 @@ public class LoadQueuesPanel extends Panel {
         try {
             // load all load queues 
             List<LoadQueue> loadQueues = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                        .getLoadQueues( "testcaseId="
-                                                                                        + testcaseId,
-                                                                                        "dateStart", true,
-                                                                                        true );
+                                                                                  .getLoadQueues( "testcaseId="
+                                                                                                  + testcaseId,
+                                                                                                  "dateStart",
+                                                                                                  true, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
             // merge all load queues into complex load queues(i.e. structure combining load queues with same names)
             List<ComplexLoadQueue> complexLoadQueues = new ArrayList<ComplexLoadQueue>();
@@ -224,16 +224,18 @@ public class LoadQueuesPanel extends Panel {
             return actualLoadQueueResult;
         }
 
-        String getDateStart() {
+        @Override
+        public String getDateStart() {
 
             // return the state of the first load queue
-            return loadQueues.get( 0 ).dateStart;
+            return loadQueues.get( 0 ).getDateStart();
         }
 
-        String getDateEnd() {
+        @Override
+        public String getDateEnd() {
 
             // return the state of the last load queue
-            return loadQueues.get( loadQueues.size() - 1 ).dateEnd;
+            return loadQueues.get( loadQueues.size() - 1 ).getDateEnd();
         }
 
         String getDuration() {
@@ -241,7 +243,7 @@ public class LoadQueuesPanel extends Panel {
             // return the sum of all durations
             int durationSeconds = 0;
             for( LoadQueue loadQueue : loadQueues ) {
-                durationSeconds += AbstractDbAccess.formatTimeDiffereceFromStringToSeconds( loadQueue.duration );
+                durationSeconds += AbstractDbAccess.formatTimeDiffereceFromStringToSeconds( loadQueue.getDurationAsString( ( ( TestExplorerSession ) Session.get() ).getCurrentTimestamp() ) );
             }
 
             return AbstractDbAccess.formatTimeDiffereceFromSecondsToString( durationSeconds );
@@ -254,10 +256,10 @@ public class LoadQueuesPanel extends Panel {
 
                 for( LoadQueue loadQueue : loadQueues ) {
                     List<CheckpointSummary> checkpointsSummaries = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                                  .getCheckpointsSummary( "loadQueueId="
-                                                                                                                          + loadQueue.loadQueueId,
-                                                                                                                          "checkpointSummaryId",
-                                                                                                                          true );
+                                                                                                            .getCheckpointsSummary( "loadQueueId="
+                                                                                                                                    + loadQueue.loadQueueId,
+                                                                                                                                    "checkpointSummaryId",
+                                                                                                                                    true );
 
                     // merge all action queues(i.e. checkpoint summaries) with same queue names
                     for( CheckpointSummary checkpointsSummary : checkpointsSummaries ) {
@@ -288,11 +290,11 @@ public class LoadQueuesPanel extends Panel {
             StringBuilder result = new StringBuilder();
             for( LoadQueue loadQueue : loadQueues ) {
                 result.append( "\n" )
-                      .append(loadQueue.name) 
-                      .append(", seq ")
-                      .append( loadQueue.sequence)
-                      .append(", pattern ")
-                      .append(loadQueue.threadingPattern );
+                      .append( loadQueue.name )
+                      .append( ", seq " )
+                      .append( loadQueue.sequence )
+                      .append( ", pattern " )
+                      .append( loadQueue.threadingPattern );
             }
 
             return result.toString();

@@ -52,8 +52,7 @@ public class CompareContainer implements Serializable {
         return testcases;
     }
 
-    public void setTestcases(
-                              Map<Testcase, Model<Boolean>> testcases ) {
+    public void setTestcases( Map<Testcase, Model<Boolean>> testcases ) {
 
         this.testcases = testcases;
     }
@@ -68,9 +67,7 @@ public class CompareContainer implements Serializable {
         return new ArrayList<Testcase>( testcases.keySet() );
     }
 
-    public void addObject(
-                           Object obj,
-                           String currentPath ) {
+    public void addObject( Object obj, String currentPath ) {
 
         if( obj instanceof Run ) {
             if( !runs.containsKey( obj ) ) {
@@ -89,12 +86,8 @@ public class CompareContainer implements Serializable {
                 String whereClause = "WHERE suiteId=" + scenario.suiteId + " and scenarioId="
                                      + scenario.scenarioId;
                 int testcasesCount = dbAccess.getTestcasesCount( whereClause );
-                List<Testcase> testcasesList = dbAccess.getTestcases( 0,
-                                                                      testcasesCount,
-                                                                      whereClause,
-                                                                      "testcaseId",
-                                                                      true,
-                                                                      true );
+                List<Testcase> testcasesList = dbAccess.getTestcases( 0, testcasesCount, whereClause,
+                                                                      "testcaseId", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
                 for( Testcase testcase : testcasesList ) {
                     if( !testcases.containsKey( testcase ) ) {
                         testcase.setPath( currentPath + "/" + scenario.name );
@@ -107,8 +100,7 @@ public class CompareContainer implements Serializable {
         }
     }
 
-    public void removeObject(
-                              Object obj ) {
+    public void removeObject( Object obj ) {
 
         if( obj instanceof Run ) {
 

@@ -25,7 +25,6 @@ import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 
 import com.axway.ats.log.autodb.entities.Suite;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
@@ -49,30 +48,25 @@ public class SuitesPanel extends Panel {
     public static final String DB_TABLE_NAME    = "tSuite";
     private String             runId;
 
-    List<TableColumn> columnDefinitions;
+    List<TableColumn>          columnDefinitions;
 
-    public SuitesPanel( String id) {
+    public SuitesPanel( String id ) {
         super( id );
 
         columnDefinitions = getTableColumnDefinitions();
     }
 
-    public SuitesPanel( BasePage parentPage,
-                        String id,
-                        String runId ) {
+    public SuitesPanel( BasePage parentPage, String id, String runId ) {
 
         super( id );
         this.runId = runId;
         // Add Suites table
         columnDefinitions = getTableColumnDefinitions();
 
-        MainDataGrid grid = new MainDataGrid( "suitesTable",
-                                              new SuitesDataSource( runId ),
-                                              getColumns(),
-                                              columnDefinitions,
-                                              "Suites",
+        MainDataGrid grid = new MainDataGrid( "suitesTable", new SuitesDataSource( runId ), getColumns(),
+                                              columnDefinitions, "Suites",
                                               MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
-                                                        | MainDataGrid.OPERATION_GET_LOG );
+                                                                           | MainDataGrid.OPERATION_GET_LOG );
         grid.setGridColumnsState( columnDefinitions );
         grid.setAllowSelectMultiple( true );
         grid.setSelectToEdit( false );
@@ -99,11 +93,8 @@ public class SuitesPanel extends Panel {
                 col = new SuiteScenarioLinkColumn( cd );
             } else if( cd.isEditable() ) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(),
-                                                  //            new Model<String>( cd.getColumnName() ),      //maybe we should use this
-                                                  new PropertyModel<TableColumn>( cd, "columnName" ),
-                                                  cd.getPropertyExpression(),
-                                                  cd.getSortProperty()) {
+                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -115,9 +106,7 @@ public class SuitesPanel extends Panel {
 
                     // Set cell tooltips
                     @Override
-                    protected Object getProperty(
-                                                  Object object,
-                                                  String propertyExpression ) {
+                    protected Object getProperty( Object object, String propertyExpression ) {
 
                         Object value = PropertyResolver.getValue( propertyExpression, object );
                         if( "userNote".equals( propertyExpression ) && value != null ) {
@@ -130,17 +119,13 @@ public class SuitesPanel extends Panel {
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(),
-                                          new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(),
-                                          cd.getSortProperty() ) {
+                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    public String getCellCssClass(
-                                                   IModel rowModel,
-                                                   int rowNum ) {
+                    public String getCellCssClass( IModel rowModel, int rowNum ) {
 
                         if( "duration".equals( getId() ) ) {
                             return "durationCell";
@@ -162,7 +147,7 @@ public class SuitesPanel extends Panel {
                             } else {
                                 return null;
                             }
-                        }else {
+                        } else {
                             return null;
                         }
                     }
@@ -173,6 +158,27 @@ public class SuitesPanel extends Panel {
 
                         return cd.getHeaderCssClass();
                     }
+
+                    @Override
+                    protected Object getProperty( Object object, String propertyExpression ) {
+
+                        Suite suiteObject = ( Suite ) object;
+                        if( "dateStart".equals( propertyExpression ) && suiteObject.getDateStart() != null ) {
+                            setEscapeMarkup( false );
+                            return "<span>" + suiteObject.getDateStart() + "</span>";
+                        } else if( "dateEnd".equals( propertyExpression )
+                                   && suiteObject.getDateEnd() != null ) {
+                            setEscapeMarkup( false );
+                            return "<span>" + suiteObject.getDateEnd() + "</span>";
+                        } else if( "duration".equals( propertyExpression ) ) {
+                            setEscapeMarkup( false );
+                            return "<span>"
+                                   + suiteObject.getDurationAsString( getTESession().getCurrentTimestamp() )
+                                   + "</span>";
+                        }
+                        return PropertyResolver.getValue( propertyExpression, object );
+                    }
+
                 };
             }
 
@@ -191,6 +197,11 @@ public class SuitesPanel extends Panel {
         }
 
         return columns;
+    }
+
+    protected TestExplorerSession getTESession() {
+
+        return ( TestExplorerSession ) Session.get();
     }
 
     public String getRun() {
@@ -220,8 +231,7 @@ public class SuitesPanel extends Panel {
      * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
-    private List<TableColumn> setTableColumnsProperties(
-                                                         List<TableColumn> dbColumnDefinitionList ) {
+    private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
         int arraySize = listSize( dbColumnDefinitionList );
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
@@ -234,16 +244,13 @@ public class SuitesPanel extends Panel {
             boolean isVisible = element.isVisible();
 
             if( "Suite".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getSuite( DB_TABLE_NAME,
-                                                                                 length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getSuite( DB_TABLE_NAME, length,
                                                                                  isVisible );
             } else if( "Total".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME,
-                                                                                 length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME, length,
                                                                                  isVisible );
             } else if( "Failed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME,
-                                                                                  length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME, length,
                                                                                   isVisible );
             } else if( "Skipped".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped( DB_TABLE_NAME,
@@ -275,8 +282,7 @@ public class SuitesPanel extends Panel {
                                                                                               length,
                                                                                               isVisible );
             } else if( "Package".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getPackage( DB_TABLE_NAME,
-                                                                                   length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getPackage( DB_TABLE_NAME, length,
                                                                                    isVisible );
             }
         }
@@ -287,8 +293,7 @@ public class SuitesPanel extends Panel {
      * @param dbColumnDefinitionList  column definitions List
      * @return size of the list for the concrete columns
      */
-    private int listSize(
-                          List<TableColumn> dbColumnDefinitionList ) {
+    private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
         for( TableColumn col : dbColumnDefinitionList ) {

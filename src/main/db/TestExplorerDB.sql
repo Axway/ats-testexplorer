@@ -648,6 +648,7 @@ CREATE                PROCEDURE [dbo].[sp_get_system_statistics]
 AS
 
 DECLARE @sql varchar(8000)
+-- timestamp conversion note: 20 means yyyy-mm-dd hh:mi:ss
 SET     @sql = 'SELECT  st.name as statsName,
                         st.parentName as statsParent,
                         st.units as statsUnit,

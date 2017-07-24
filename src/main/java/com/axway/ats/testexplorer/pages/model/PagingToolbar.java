@@ -84,8 +84,7 @@ public class PagingToolbar extends AbstractToolbar {
      * @param grid
      *      data grid
      */
-    public PagingToolbar( MainDataGrid grid,
-                          List<TableColumn> columnDefinitions ) {
+    public PagingToolbar( MainDataGrid grid, List<TableColumn> columnDefinitions ) {
 
         this( grid, columnDefinitions, null, MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT );
     }
@@ -96,9 +95,7 @@ public class PagingToolbar extends AbstractToolbar {
      * @param grid
      *      data grid
      */
-    public PagingToolbar( final MainDataGrid grid,
-                          List<TableColumn> columnDefinitions,
-                          String whatIsShowing,
+    public PagingToolbar( final MainDataGrid grid, List<TableColumn> columnDefinitions, String whatIsShowing,
                           int supportedOperations ) {
 
         super( grid, null );
@@ -113,8 +110,7 @@ public class PagingToolbar extends AbstractToolbar {
         add( newNavigationLabel( "navigatorLabel", whatIsShowing ) );
     }
 
-    private void addColumnsDialog(
-                                   final List<TableColumn> dbColumnDefinitions ) {
+    private void addColumnsDialog( final List<TableColumn> dbColumnDefinitions ) {
 
         final MainDataGrid grid = getDataGrid();
 
@@ -131,8 +127,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void updateAjaxAttributes(
-                                                 AjaxRequestAttributes attributes ) {
+            protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
 
                 super.updateAjaxAttributes( attributes );
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
@@ -141,9 +136,7 @@ public class PagingToolbar extends AbstractToolbar {
             }
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 // get column definitions from the JavaScript
                 String columnDefinitionString = form.getRequest()
@@ -178,7 +171,7 @@ public class PagingToolbar extends AbstractToolbar {
                     cs.setColumnWidth( col.getColumnId(), col.getInitialWidth() );
                 }
                 grid.setColumnState( cs );
-                
+
                 //reload grid
                 target.add( grid );
 
@@ -190,8 +183,7 @@ public class PagingToolbar extends AbstractToolbar {
 
     }
 
-    private void addToolbarButtons(
-                                    int supportedOperations ) {
+    private void addToolbarButtons( int supportedOperations ) {
 
         final MainDataGrid grid = getDataGrid();
 
@@ -216,8 +208,7 @@ public class PagingToolbar extends AbstractToolbar {
 
             // Add user confirmation dialog on the delete event
             @Override
-            protected void updateAjaxAttributes(
-                                                 AjaxRequestAttributes attributes ) {
+            protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
 
                 super.updateAjaxAttributes( attributes );
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
@@ -231,9 +222,7 @@ public class PagingToolbar extends AbstractToolbar {
             }
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 // collect the objects to delete
                 List<Object> objectsToDelete = new ArrayList<Object>();
@@ -258,9 +247,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 if( grid.getSelectedItems().size() > 0 ) {
                     for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
@@ -280,9 +267,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 PageParameters parameters = new PageParameters();
                 // pass database name
@@ -301,11 +286,9 @@ public class PagingToolbar extends AbstractToolbar {
             }
         };
         if( dataSource instanceof ScenariosDataSource ) {
-            messageButton.add( new Label( "button_label",
-                                          "Suite messages" ) );
+            messageButton.add( new Label( "button_label", "Suite messages" ) );
         } else if( dataSource instanceof SuitesDataSource ) {
-            messageButton.add( new Label( "button_label",
-                                          "Run messages" ) );
+            messageButton.add( new Label( "button_label", "Run messages" ) );
         }
         messageButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_GET_LOG ) > 0 );
         defaultMode.add( messageButton );
@@ -316,15 +299,13 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
 
                     ( ( TestExplorerSession ) Session.get() ).getCompareContainer()
-                                                   .addObject( model.getObject(),
-                                                               ( ( BasePage ) getPage() ).getCurrentPath() );
+                                                             .addObject( model.getObject(),
+                                                                         ( ( BasePage ) getPage() ).getCurrentPath() );
                 }
                 target.add( ( ( BasePage ) getPage() ).getItemsCountLabel() );
 
@@ -344,9 +325,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 TestExplorerSession session = ( TestExplorerSession ) Session.get();
 
@@ -356,7 +335,9 @@ public class PagingToolbar extends AbstractToolbar {
                     return;
                 }
 
-                boolean workingWithScenarios = selectedItems.iterator().next().getObject() instanceof Scenario;
+                boolean workingWithScenarios = selectedItems.iterator()
+                                                            .next()
+                                                            .getObject() instanceof Scenario;
 
                 String testcaseId = null;
 
@@ -376,13 +357,9 @@ public class PagingToolbar extends AbstractToolbar {
                     try {
                         // get the ID of the first testcase
                         List<Testcase> testcases = session.getDbReadConnection()
-                                                          .getTestcases( 0,
-                                                                         1,
-                                                                         "where suiteId="
-                                                                                 + firstSuiteId,
-                                                                         "testcaseId",
-                                                                         true,
-                                                                         true );
+                                                          .getTestcases( 0, 1,
+                                                                         "where suiteId=" + firstSuiteId,
+                                                                         "testcaseId", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
                         if( testcases.size() < 1 ) {
                             error( "Could not find testcase(s) for scenario with name '" + firstScenarioName
                                    + "'and suite id " + firstSuiteId + "." );
@@ -406,15 +383,13 @@ public class PagingToolbar extends AbstractToolbar {
         createReportButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT ) > 0 );
         defaultMode.add( createReportButton );
 
-        // add DELETE button for EDIT mode
+        // add APPLY button for EDIT mode
         AjaxButton applyButton = new AjaxButton( "applyButton", grid.getForm() ) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 boolean hasError = false;
                 for( IModel<?> model : ( Collection<IModel<?>> ) grid.getSelectedItems() ) {
@@ -437,15 +412,13 @@ public class PagingToolbar extends AbstractToolbar {
         applyButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_EDIT ) > 0 );
         editMode.add( applyButton );
 
-        // add CANCEL button for EFAULT mode
+        // add CANCEL button for DEFAULT mode
         AjaxButton cancelButton = new AjaxButton( "cancelButton" ) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
                     grid.setItemEdit( model, false );
@@ -465,9 +438,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 // collect the objects to change state to PASS
                 List<Object> objectsToPass = new ArrayList<Object>();
@@ -482,7 +453,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add( grid );
             }
         };
-        statusChangePassButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
+        statusChangePassButton.setVisible( ( supportedOperations
+                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
         defaultMode.add( statusChangePassButton );
 
         AjaxButton statusChangeFailButton = new AjaxButton( "statusChangeFailButton" ) {
@@ -490,9 +462,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 // collect the objects to change state to FAIL
                 List<Object> objectsToFail = new ArrayList<Object>();
@@ -507,7 +477,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add( grid );
             }
         };
-        statusChangeFailButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
+        statusChangeFailButton.setVisible( ( supportedOperations
+                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
         defaultMode.add( statusChangeFailButton );
 
         AjaxButton statusChangeSkipButton = new AjaxButton( "statusChangeSkipButton" ) {
@@ -515,9 +486,7 @@ public class PagingToolbar extends AbstractToolbar {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 // collect the objects to change state to SKIP
                 List<Object> objectsToSkip = new ArrayList<Object>();
@@ -532,7 +501,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add( grid );
             }
         };
-        statusChangeSkipButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
+        statusChangeSkipButton.setVisible( ( supportedOperations
+                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
         defaultMode.add( statusChangeSkipButton );
     }
 
@@ -548,9 +518,7 @@ public class PagingToolbar extends AbstractToolbar {
      * @param state state int value
      * @return <code>true</code> if the update operation is successful
      */
-    private boolean changeTestcaseStatus(
-                                          List<Object> objects,
-                                          int state ) {
+    private boolean changeTestcaseStatus( List<Object> objects, int state ) {
 
         if( objects.size() > 0 ) {
 
@@ -577,9 +545,9 @@ public class PagingToolbar extends AbstractToolbar {
     private Component getResultsPerPageDropDown() {
 
         SelectOption[] options = new SelectOption[]{ new SelectOption( "20", "20" ),
-                new SelectOption( "50", "50" ),
-                new SelectOption( "100", "100" ),
-                new SelectOption( "500", "500" ) };
+                                                     new SelectOption( "50", "50" ),
+                                                     new SelectOption( "100", "100" ),
+                                                     new SelectOption( "500", "500" ) };
         ChoiceRenderer<SelectOption> choiceRenderer = new ChoiceRenderer<SelectOption>( "value", "key" );
         DropDownChoice<SelectOption> dropDown = new DropDownChoice<SelectOption>( "resultsPerPage",
                                                                                   getDataGrid().getRowsPerPageModel(),
@@ -589,8 +557,7 @@ public class PagingToolbar extends AbstractToolbar {
 
             private static final long serialVersionUID = 1L;
 
-            protected void onUpdate(
-                                     AjaxRequestTarget target ) {
+            protected void onUpdate( AjaxRequestTarget target ) {
 
                 SelectOption newSelectOption = ( SelectOption ) getComponent().getDefaultModel().getObject();
                 MainDataGrid grid = getDataGrid();
@@ -602,8 +569,7 @@ public class PagingToolbar extends AbstractToolbar {
         return dropDown;
     }
 
-    private boolean deleteObjects(
-                                   List<Object> objectsToDelete ) {
+    private boolean deleteObjects( List<Object> objectsToDelete ) {
 
         if( objectsToDelete.size() > 0 ) {
 
@@ -632,8 +598,7 @@ public class PagingToolbar extends AbstractToolbar {
         return false;
     }
 
-    private boolean updateObject(
-                                  Object object ) {
+    private boolean updateObject( Object object ) {
 
         TestExplorerDbWriteAccessInterface dbWriter = ( ( TestExplorerSession ) Session.get() ).getDbWriteConnection();
         try {
@@ -689,15 +654,12 @@ public class PagingToolbar extends AbstractToolbar {
         return false;
     }
 
-    protected Component newNavigationLabel(
-                                            String id,
-                                            String whatIsShowing ) {
+    protected Component newNavigationLabel( String id, String whatIsShowing ) {
 
         return new NavigatorLabel( id, getDataGrid(), whatIsShowing );
     }
 
-    protected Component newPagingNavigator(
-                                            String id ) {
+    protected Component newPagingNavigator( String id ) {
 
         return new PagingNavigator( id, getDataGrid() );
     }
@@ -734,7 +696,7 @@ public class PagingToolbar extends AbstractToolbar {
 
     public void reloadButtons() {
 
-        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        AjaxRequestTarget target = RequestCycle.get().find( AjaxRequestTarget.class );
         target.add( buttonsForm );
     }
 }

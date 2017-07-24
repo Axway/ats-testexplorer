@@ -81,8 +81,8 @@ public class TestExplorerApplication extends WebApplication {
         getApplicationSettings().setPageExpiredErrorPage( PageExpiredErrorPage.class );
         getApplicationSettings().setInternalErrorPage( InternalErrorPage.class );
         // show internal error page rather than default developer page
-        //TODO: use this line in PRODUCTION mode, by default in development mode is used IExceptionSettings.SHOW_EXCEPTION_PAGE
-        //        getExceptionSettings().setUnexpectedExceptionDisplay( IExceptionSettings.SHOW_INTERNAL_ERROR_PAGE );
+        //TODO: use this line in PRODUCTION mode, by default in development mode is used ExceptionSettings.SHOW_EXCEPTION_PAGE
+        //        getExceptionSettings().setUnexpectedExceptionDisplay( ExceptionSettings.SHOW_INTERNAL_ERROR_PAGE );
 
         mountPage( "/runs", RunsPage.class );
         mountPage( "/suites", SuitesPage.class );

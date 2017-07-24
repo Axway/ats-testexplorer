@@ -44,30 +44,25 @@ public class TestcasesDataSource implements IDataSource {
 
     private MainDataGrid        grid;
 
-    public TestcasesDataSource( String suiteId,
-                                String scenarioId ) {
+    public TestcasesDataSource( String suiteId, String scenarioId ) {
 
         this.suiteId = suiteId;
         this.scenarioId = scenarioId;
     }
 
-    public void setDataGrid(
-                             MainDataGrid grid ) {
+    public void setDataGrid( MainDataGrid grid ) {
 
         this.grid = grid;
     }
 
     @Override
-    public IModel<Testcase> model(
-                                   final Object object ) {
+    public IModel<Testcase> model( final Object object ) {
 
         return new TestcaseLoadableDetachableModel( ( Testcase ) object, grid );
     }
 
     @Override
-    public void query(
-                       IQuery query,
-                       IQueryResult result ) {
+    public void query( IQuery query, IQueryResult result ) {
 
         String sortProperty = "testcaseId";
         boolean sortAsc = true;
@@ -89,10 +84,7 @@ public class TestcasesDataSource implements IDataSource {
 
             resultList = dbAccess.getTestcases( ( int ) ( query.getFrom() + 1 ),
                                                 ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                whereClause,
-                                                sortProperty,
-                                                sortAsc,
-                                                true );
+                                                whereClause, sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
             // if there is only one testcase - redirect to its Testcase page
             if( resultList.size() == 1 ) {

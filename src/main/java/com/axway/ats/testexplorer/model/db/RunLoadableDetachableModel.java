@@ -41,8 +41,7 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
     }
 
     @Override
-    public boolean equals(
-                           Object obj ) {
+    public boolean equals( Object obj ) {
 
         if( obj == this ) {
             return true;
@@ -62,10 +61,10 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
              *  because the Selected object doesn't exist any more in the model/cached list.
              */
             if( other.run.runId.equals( this.run.runId )
-                && other.run.durationSeconds != this.run.durationSeconds ) {
+                && other.run.getDuration( 0 ) != this.run.getDuration( 0 ) ) {
 
                 // copy dynamic details from the most recent run version to the other
-                if( other.run.durationSeconds > this.run.durationSeconds ) {
+                if( other.run.getDuration( 0 ) > this.run.getDuration( 0 ) ) {
                     updateRunDynamicDetails( other.run, this.run );
                 } else {
                     updateRunDynamicDetails( this.run, other.run );
@@ -83,13 +82,11 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
         return this.run.runId.hashCode();
     }
 
-    private void updateRunDynamicDetails(
-                                          Run from,
-                                          Run to ) {
+    private void updateRunDynamicDetails( Run from, Run to ) {
 
-        to.dateEnd = from.dateEnd;
-        to.duration = from.duration;
-        to.durationSeconds = from.durationSeconds;
+        if( from.getEndTimestamp() != -1 ) {
+            to.setEndTimestamp( from.getEndTimestamp() );
+        }
         to.failed = from.failed;
         to.scenariosFailed = from.scenariosFailed;
         to.scenariosSkipped = from.scenariosSkipped;

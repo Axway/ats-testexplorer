@@ -104,9 +104,9 @@ public class ComparePage extends LightweightBasePage {
                 item.add( new Label( "build",
                                      item.getModelObject().buildName ).setEscapeModelStrings( false ) );
                 item.add( new Label( "startDate",
-                                     item.getModelObject().dateStart ).setEscapeModelStrings( false ) );
+                                     item.getModelObject().getDateStart() ).setEscapeModelStrings( false ) );
                 item.add( new Label( "endDate",
-                                     item.getModelObject().dateEnd ).setEscapeModelStrings( false ) );
+                                     item.getModelObject().getDateEnd() ).setEscapeModelStrings( false ) );
                 item.add( new AjaxButton( "removeIcon" ) {
 
                     private static final long serialVersionUID = 1L;
@@ -178,7 +178,7 @@ public class ComparePage extends LightweightBasePage {
                 item.add( new Label( "testcaseName",
                                      item.getModelObject().name ).setEscapeModelStrings( false ) );
                 item.add( new Label( "dateStart",
-                                     item.getModelObject().dateStart ).setEscapeModelStrings( false ) );
+                                     item.getModelObject().getDateStart() ).setEscapeModelStrings( false ) );
                 item.add( new TextField<String>( "testcaseAlias",
                                                  new PropertyModel<String>( item.getModelObject(),
                                                                             "alias" ) ) );

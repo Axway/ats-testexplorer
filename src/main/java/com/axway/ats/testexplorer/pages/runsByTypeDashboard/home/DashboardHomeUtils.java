@@ -18,6 +18,7 @@ package com.axway.ats.testexplorer.pages.runsByTypeDashboard.home;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -29,8 +30,9 @@ import com.axway.ats.testexplorer.model.TestExplorerSession;
 
 public class DashboardHomeUtils {
 
-    public List<String> initJsonData(
-                                      List<String[]> productAndVersionNames,
+    private static Logger LOG = Logger.getLogger( DashboardHomeUtils.class );
+
+    public List<String> initJsonData( List<String[]> productAndVersionNames,
                                       List<String> buildTypes ) throws DatabaseAccessException {
 
         List<String> jsonData = new ArrayList<String>( 1 );
@@ -74,28 +76,18 @@ public class DashboardHomeUtils {
                                                              + " AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
                                                              + ( buildType ) + "')" );
                 List<Run> runs = getRuns( currentBuildWhereClause );
-                if(runs == null || runs.size() == 0){
+                if( runs == null || runs.size() == 0 ) {
                     continue;
                 }
-                addData( runs,
-                          chartData,
-                          runsData,
-                          statusData,
-                          productAndVersion[0],
-                          productAndVersion[1],
-                          buildType );
+                addData( runs, chartData, runsData, statusData, productAndVersion[0], productAndVersion[1],
+                         buildType );
             }
 
             String unspecifiedRunsWhereClause = whereClause
                                                 + " AND runId NOT IN (SELECT runId from tRunMetainfo WHERE name='type')";
             List<Run> unspecifiedRuns = getRuns( unspecifiedRunsWhereClause );
-            addData( unspecifiedRuns,
-                      chartData,
-                      runsData,
-                      statusData,
-                      productAndVersion[0],
-                      productAndVersion[1],
-                      "unspecified" );
+            addData( unspecifiedRuns, chartData, runsData, statusData, productAndVersion[0],
+                     productAndVersion[1], "unspecified" );
 
             chartData.append( "]," );
             runsData.append( "]," );
@@ -114,23 +106,18 @@ public class DashboardHomeUtils {
         return jsonData;
     }
 
-    private List<Run> getRuns(
-                               String whereClause ) throws DatabaseAccessException {
+    private List<Run> getRuns( String whereClause ) throws DatabaseAccessException {
 
         TestExplorerSession session = ( TestExplorerSession ) Session.get();
 
-        List<Run> runs = session.getDbReadConnection().getRuns( 0,
-                                                                session.getDbReadConnection()
-                                                                       .getRunsCount( whereClause ),
-                                                                whereClause,
-                                                                "dateStart",
-                                                                false );
+        List<Run> runs = session.getDbReadConnection()
+                                .getRuns( 0, session.getDbReadConnection().getRunsCount( whereClause ),
+                                          whereClause, "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
         return runs;
     }
 
-    private String initRunJsonDatum(
-                                     Run run ) {
+    private String initRunJsonDatum( Run run ) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -139,20 +126,17 @@ public class DashboardHomeUtils {
           .append( "\"Build\":\"" + run.buildName + "\"," )
           .append( "\"Status\":\"" + "OK" + "\"," )
           .append( "\"Result\":\"" + ( ( run.testcasesFailed >= 1 )
-                                                                   ? "FAIL"
-                                                                   : "PASS" ) + "\"" )
+                                                                    ? "FAIL"
+                                                                    : "PASS" )
+                   + "\"" )
           .append( "}," );
 
         return sb.toString();
 
     }
 
-    private String initChartJsonDatum(
-                                       String productName,
-                                       String versionName,
-                                       String type,
-                                       int totalIterations,
-                                       double passingRate ) {
+    private String initChartJsonDatum( String productName, String versionName, String type,
+                                       int totalIterations, double passingRate ) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -167,14 +151,8 @@ public class DashboardHomeUtils {
         return sb.toString();
     }
 
-    private void addData(
-                           List<Run> runs,
-                           StringBuilder chartData,
-                           StringBuilder runsData,
-                           StringBuilder statusData,
-                           String productName,
-                           String versionName,
-                           String type ) {
+    private void addData( List<Run> runs, StringBuilder chartData, StringBuilder runsData,
+                          StringBuilder statusData, String productName, String versionName, String type ) {
 
         StringBuilder runsBuilder = new StringBuilder( "[" );
 
@@ -185,7 +163,7 @@ public class DashboardHomeUtils {
         if( runs != null && runs.size() > 0 ) {
 
             for( Run run : runs ) {
-                if( run.testcasesFailed == 0 && run.testcasesSkipped == 0) {
+                if( run.testcasesFailed == 0 && run.testcasesSkipped == 0 ) {
                     passedRuns++;
                 }
                 runsBuilder.append( initRunJsonDatum( run ) );
@@ -206,26 +184,24 @@ public class DashboardHomeUtils {
 
     }
 
-    private String initStatusData(
-                                   List<Run> runs ) {
+    private String initStatusData( List<Run> runs ) {
 
         if( runs == null || runs.size() < 1 ) {
             return "{},";
         }
 
         return "{'Last Run Status':'" + ( ( runs.get( 0 ).testcasesFailed >= 1 )
-                                                                                ? "FAIL"
-                                                                                : "PASS" ) + "'},";
+                                                                                 ? "FAIL"
+                                                                                 : "PASS" )
+               + "'},";
     }
 
-    public void callJavaScript(
-                                Object source,
-                                List<String> jsonData ) {
-        
+    public void callJavaScript( Object source, List<String> jsonData ) {
+
         if( source == null || jsonData == null ) {
             return;
         }
-        
+
         String script = ";setChartData(" + jsonData.get( 0 ) + ")" + ";setRunsData(" + jsonData.get( 1 )
                         + ");setStatusData(" + jsonData.get( 2 ) + ")" + ";resize();";
 
@@ -234,7 +210,9 @@ public class DashboardHomeUtils {
         } else if( source instanceof IHeaderResponse ) {
             ( ( IHeaderResponse ) source ).render( OnLoadHeaderItem.forScript( script ) );
         } else {
-            // maybe it is good to throw some Exception here
+            LOG.error( "Argument is not of type '" + IHeaderResponse.class.getName() + "' or '"
+                       + AjaxRequestTarget.class.getName() + "', but '"
+                       + source.getClass().getName() + "'" );
         }
     }
 

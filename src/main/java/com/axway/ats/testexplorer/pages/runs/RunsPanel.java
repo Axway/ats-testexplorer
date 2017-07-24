@@ -56,17 +56,13 @@ public class RunsPanel extends Panel {
         columnDefinitions = getTableColumnDefinitions();
     }
 
-    public RunsPanel( String id,
-                      final BasePage parentPage,
-                      PageParameters parameters) {
+    public RunsPanel( String id, final BasePage parentPage, PageParameters parameters ) {
 
         super( id );
 
         columnDefinitions = getTableColumnDefinitions();
-        MainDataGrid grid = new MainDataGrid( "runsTable",
-                                              new RunsDataSource( this ),
-                                              getColumns( parentPage ),
-                                              columnDefinitions,
+        MainDataGrid grid = new MainDataGrid( "runsTable", new RunsDataSource( this ),
+                                              getColumns( parentPage ), columnDefinitions,
                                               "Runs",
                                               MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
                                                       | MainDataGrid.OPERATION_ADD_TO_COMPARE );
@@ -86,8 +82,7 @@ public class RunsPanel extends Panel {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<IGridColumn> getColumns(
-                                         final BasePage parentPage ) {
+    public List<IGridColumn> getColumns( final BasePage parentPage ) {
 
         // Add Runs table
         List<IGridColumn> columns = new ArrayList<IGridColumn>();
@@ -98,18 +93,14 @@ public class RunsPanel extends Panel {
             AbstractColumn col;
             if( cd.isEditable() ) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(),
-                                                  new Model<String>( cd.getColumnName() ),
-                                                  cd.getPropertyExpression(),
-                                                  cd.getSortProperty() ) {
+                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
                     // Build cell tooltips and links
                     @Override
-                    protected Object getProperty(
-                                                  Object object,
-                                                  String propertyExpression ) {
+                    protected Object getProperty( Object object, String propertyExpression ) {
 
                         Run runObject = ( Run ) object;
                         if( "userNote".equals( propertyExpression ) && runObject.userNote != null ) {
@@ -128,7 +119,8 @@ public class RunsPanel extends Panel {
                                 // pass database name
                                 parameters.add( "dbname", parentPage.getTESession().getDbName() );
                             } else if( ( ( TestExplorerSession ) Session.get() ) != null ) {
-                                parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
+                                parameters.add( "dbname",
+                                                ( ( TestExplorerSession ) Session.get() ).getDbName() );
                             }
                             String href = urlFor( SuitesPage.class, parameters ).toString();
                             String title = "Started from " + runObject.hostName;
@@ -160,36 +152,36 @@ public class RunsPanel extends Panel {
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(),
-                                          new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(),
-                                          cd.getSortProperty() ) {
+                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    protected Object getProperty(
-                                                  Object object,
-                                                  String propertyExpression ) {
+                    protected Object getProperty( Object object, String propertyExpression ) {
 
                         // we provide tooltip with full data and time
                         Run runObject = ( Run ) object;
-                        if( "dateStart".equals( propertyExpression ) && runObject.dateStart != null ) {
+                        if( "dateStart".equals( propertyExpression ) && runObject.getDateStart() != null ) {
                             setEscapeMarkup( false );
-                            return "<span title=\"" + runObject.dateStartLong + "\">" + runObject.dateStart
-                                   + "</span>";
-                        } else if( "dateEnd".equals( propertyExpression ) && runObject.dateEnd != null ) {
+                            return "<span title=\"" + runObject.getDateStartLong() + "\">"
+                                   + runObject.getDateStart() + "</span>";
+                        } else if( "dateEnd".equals( propertyExpression )
+                                   && runObject.getDateEnd() != null ) {
                             setEscapeMarkup( false );
-                            return "<span title=\"" + runObject.dateEndLong + "\">" + runObject.dateEnd
+                            return "<span title=\"" + runObject.getDateEndLong() + "\">"
+                                   + runObject.getDateEnd() + "</span>";
+                        } else if( "duration".equals( propertyExpression ) ) {
+                            setEscapeMarkup( false );
+                            return "<span>"
+                                   + runObject.getDurationAsString( getTESession().getCurrentTimestamp() )
                                    + "</span>";
                         }
                         return PropertyResolver.getValue( propertyExpression, object );
                     }
 
                     @Override
-                    public String getCellCssClass(
-                                                   IModel rowModel,
-                                                   int rowNum ) {
+                    public String getCellCssClass( IModel rowModel, int rowNum ) {
 
                         if( "duration".equals( getId() ) ) {
                             return "durationCell";
@@ -243,6 +235,11 @@ public class RunsPanel extends Panel {
         return columns;
     }
 
+    protected TestExplorerSession getTESession() {
+
+        return ( TestExplorerSession ) Session.get();
+    }
+
     public RunsFilter getRunsFilter() {
 
         return this.runsFilter;
@@ -270,8 +267,7 @@ public class RunsPanel extends Panel {
      * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
-    private List<TableColumn> setTableColumnsProperties(
-                                                         List<TableColumn> dbColumnDefinitionList ) {
+    private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
         int arraySize = listSize( dbColumnDefinitionList );
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
@@ -285,31 +281,25 @@ public class RunsPanel extends Panel {
             boolean isVisible = element.isVisible();
 
             if( "Run".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getRun( DB_TABLE_NAME,
-                                                                               length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getRun( DB_TABLE_NAME, length,
                                                                                isVisible );
             } else if( "Product".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getProduct( DB_TABLE_NAME,
-                                                                                   length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getProduct( DB_TABLE_NAME, length,
                                                                                    isVisible );
             } else if( "Version".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getVersion( DB_TABLE_NAME,
-                                                                                   length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getVersion( DB_TABLE_NAME, length,
                                                                                    isVisible );
             } else if( "Build".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getBuildName( DB_TABLE_NAME,
-                                                                                     length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getBuildName( DB_TABLE_NAME, length,
                                                                                      isVisible );
             } else if( "OS".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getOS( "tRuns", length, isVisible );
 
             } else if( "Total".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME,
-                                                                                 length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME, length,
                                                                                  isVisible );
             } else if( "Failed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME,
-                                                                                  length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME, length,
                                                                                   isVisible );
             } else if( "Skipped".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped( DB_TABLE_NAME,
@@ -350,8 +340,7 @@ public class RunsPanel extends Panel {
      * @param dbColumnDefinitionList  column definitions List
      * @return size of the list for the concrete columns
      */
-    private int listSize(
-                          List<TableColumn> dbColumnDefinitionList ) {
+    private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
         for( TableColumn col : dbColumnDefinitionList ) {

@@ -44,17 +44,9 @@ public class TestcasesCopyUtility extends CopyUtility {
     public static final String OVERWRITE_TESTCASES_MSG_OVERWRITE            = "Overwrite all existing testcases";
     public static final String OVERWRITE_TESTCASES_MSG_OVERWRITE_NOT_PASSED = "Overwrite all existing testcases without the passed ones";
 
-    public TestcasesCopyUtility( String srcDbHost,
-                                 String srcDbName,
-                                 String dstDbHost,
-                                 String dstDbName,
-                                 String dbUser,
-                                 String dbPassword,
-                                 int srcSuiteId,
-                                 int[] srcEntityIds,
-                                 ENTITY_TYPES srcEntityTypes,
-                                 boolean overwriteAllTestcases,
-                                 int dstRunId,
+    public TestcasesCopyUtility( String srcDbHost, String srcDbName, String dstDbHost, String dstDbName,
+                                 String dbUser, String dbPassword, int srcSuiteId, int[] srcEntityIds,
+                                 ENTITY_TYPES srcEntityTypes, boolean overwriteAllTestcases, int dstRunId,
                                  List<String> webConsole ) throws DatabaseAccessException {
 
         super( srcDbHost, srcDbName, dstDbHost, dstDbName, dbUser, dbPassword, webConsole );
@@ -91,8 +83,7 @@ public class TestcasesCopyUtility extends CopyUtility {
         }
     }
 
-    private void userCopyingSuite(
-                                   int srcSuiteId ) throws DatabaseAccessException, ParseException,
+    private void userCopyingSuite( int srcSuiteId ) throws DatabaseAccessException, ParseException,
                                                     DbEntityCopyException {
 
         // load the source suite
@@ -120,9 +111,7 @@ public class TestcasesCopyUtility extends CopyUtility {
         }
     }
 
-    private int userCopyingScenario(
-                                     int srcScenarioId,
-                                     int srcSuiteId,
+    private int userCopyingScenario( int srcScenarioId, int srcSuiteId,
                                      int dstSuiteId ) throws DatabaseAccessException, ParseException,
                                                       DbEntityCopyException {
 
@@ -151,8 +140,7 @@ public class TestcasesCopyUtility extends CopyUtility {
         return dstSuiteId;
     }
 
-    private void userCopyingTestcase(
-                                      int srcTestcaseId ) throws DatabaseAccessException, ParseException,
+    private void userCopyingTestcase( int srcTestcaseId ) throws DatabaseAccessException, ParseException,
                                                           DbEntityCopyException {
 
         // load the source testcase
@@ -175,16 +163,11 @@ public class TestcasesCopyUtility extends CopyUtility {
         copyTestcaseIfNeeded( srcTestcase, dstSuiteId );
     }
 
-    private Suite loadMatchingSourceSuite(
-                                           String suiteId ) throws DatabaseAccessException {
+    private Suite loadMatchingSourceSuite( String suiteId ) throws DatabaseAccessException {
 
         Suite srcSuite = null;
-        List<Suite> srcSuites = this.srcDbRead.getSuites( 0,
-                                                          1,
-                                                          "where suiteId=" + suiteId,
-                                                          "suiteId",
-                                                          true,
-                                                          false );
+        List<Suite> srcSuites = this.srcDbRead.getSuites( 0, 1, "where suiteId=" + suiteId, "suiteId", true,
+                                                          0 );
 
         if( srcSuites.size() > 0 ) {
             srcSuite = srcSuites.get( 0 );
@@ -193,19 +176,15 @@ public class TestcasesCopyUtility extends CopyUtility {
         return srcSuite;
     }
 
-    private int createAndLoadMatchingDestinationSuite(
-                                                       Suite srcSuite ) throws DatabaseAccessException,
+    private int createAndLoadMatchingDestinationSuite( Suite srcSuite ) throws DatabaseAccessException,
                                                                         ParseException {
 
         int dstSuiteId;
-        List<Suite> dstSuites = this.dstDbRead.getSuites( 0,
-                                                          1,
+        List<Suite> dstSuites = this.dstDbRead.getSuites( 0, 1,
                                                           "where runId=" + this.dstRunId + " AND name ='"
-                                                             + StringEscapeUtils.escapeSql( srcSuite.name )
-                                                             + "'",
-                                                          "suiteId",
-                                                          true,
-                                                          false );
+                                                                + StringEscapeUtils.escapeSql( srcSuite.name )
+                                                                + "'",
+                                                          "suiteId", true, 0 );
 
         if( dstSuites.size() > 0 ) {
             // this suite already exists
@@ -220,20 +199,16 @@ public class TestcasesCopyUtility extends CopyUtility {
         return dstSuiteId;
     }
 
-    private void copyTestcaseIfNeeded(
-                                       Testcase srcTestcase,
-                                       int dstSuiteId ) throws DatabaseAccessException, ParseException,
-                                                        DbEntityCopyException {
+    private void copyTestcaseIfNeeded( Testcase srcTestcase, int dstSuiteId ) throws DatabaseAccessException,
+                                                                              ParseException,
+                                                                              DbEntityCopyException {
 
-        List<Testcase> dstTestcases = this.dstDbRead.getTestcases( 0,
-                                                                   1,
+        List<Testcase> dstTestcases = this.dstDbRead.getTestcases( 0, 1,
                                                                    "where suiteId=" + dstSuiteId
-                                                                      + " AND name='"
-                                                                      + StringEscapeUtils.escapeSql( srcTestcase.name )
-                                                                      + "'",
-                                                                   "testcaseId",
-                                                                   true,
-                                                                   false );
+                                                                         + " AND name='"
+                                                                         + StringEscapeUtils.escapeSql( srcTestcase.name )
+                                                                         + "'",
+                                                                   "testcaseId", true, 0 );
 
         // check if this testcase already exists
         if( dstTestcases.size() == 0 ) {

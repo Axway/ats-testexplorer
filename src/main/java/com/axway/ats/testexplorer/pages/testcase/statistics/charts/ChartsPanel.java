@@ -31,6 +31,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -46,6 +47,7 @@ import com.axway.ats.log.autodb.entities.Statistic;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.log.autodb.model.StatisticAggregatedType;
+import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.pages.testcase.statistics.BaseStatisticsPanel;
 import com.axway.ats.testexplorer.pages.testcase.statistics.ChartData;
 import com.axway.ats.testexplorer.pages.testcase.statistics.CsvWriter;
@@ -57,30 +59,30 @@ import com.axway.ats.testexplorer.pages.testcase.statistics.StatisticsTableCell;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChartsPanel extends BaseStatisticsPanel {
 
-    private static final long                         serialVersionUID            = 1L;
+    private static final long                         serialVersionUID        = 1L;
 
-    private static final Logger                       LOG                         = Logger.getLogger( ChartsPanel.class );
+    private static final Logger                       LOG                     = Logger.getLogger( ChartsPanel.class );
 
-    private static final String                       NBSP                        = "&nbsp;";
-    private static final int                          MAX_LABEL_LENGTH            = 130;
+    private static final String                       NBSP                    = "&nbsp;";
+    private static final int                          MAX_LABEL_LENGTH        = 130;
 
-    private static final String                       NO_DATA_HTML                = "<div id=\"chartid\"><span class=\"nodata\">No data to display</span></div>";
+    private static final String                       NO_DATA_HTML            = "<div id=\"chartid\"><span class=\"nodata\">No data to display</span></div>";
 
     private Form<Object>                              chartsPanelContent;
 
     private float                                     timeOffSet;
-    private Set<Integer>                              testcaseIds                 = new HashSet<Integer>();
-    private Set<String>                               actionNames                 = new HashSet<String>();
+    private Set<Integer>                              testcaseIds             = new HashSet<Integer>();
+    private Set<String>                               actionNames             = new HashSet<String>();
 
-    private int                                       chartId                     = 0;
+    private int                                       chartId                 = 0;
 
     // the deltas for each testcase's start time and the earliest start time
     protected Map<Integer, Long>                      testcaseStarttimeDeltas;
 
-    private Map<String, List<DbStatisticDescription>> userAndSystemStatistics     = new LinkedHashMap<String, List<DbStatisticDescription>>();
-    private Map<String, List<DbStatisticDescription>> actionStatistics            = new LinkedHashMap<String, List<DbStatisticDescription>>();
+    private Map<String, List<DbStatisticDescription>> userAndSystemStatistics = new LinkedHashMap<String, List<DbStatisticDescription>>();
+    private Map<String, List<DbStatisticDescription>> actionStatistics        = new LinkedHashMap<String, List<DbStatisticDescription>>();
 
-    private Map<String, List<DbStatisticDescription>> diagramContent              = new LinkedHashMap<String, List<DbStatisticDescription>>();
+    private Map<String, List<DbStatisticDescription>> diagramContent          = new LinkedHashMap<String, List<DbStatisticDescription>>();
 
     public ChartsPanel( String id, PageParameters parameters ) {
 
@@ -165,10 +167,16 @@ public class ChartsPanel extends BaseStatisticsPanel {
             try {
                 String whereClause = "where ss.testcaseId in ( " + uniqueTestcaseIds
                                      + " ) and ss.statsTypeId in ( " + uniqueStatisticIds + " )";
+                /* 
+                 * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+                 * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+                 * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
                                                                                  .getSystemStatisticDescriptions( timeOffSet,
                                                                                                                   whereClause,
-                                                                                                                  new HashMap<String, String>() );
+                                                                                                                  new HashMap<String, String>(),
+                                                                                                                  0/* ( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                                                  ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
                 return statisticDescriptions;
             } catch( DatabaseAccessException e ) {
                 LOG.error( "Error loading system statistic descriptions", e );
@@ -208,10 +216,16 @@ public class ChartsPanel extends BaseStatisticsPanel {
             try {
                 String whereClause = " where tt.testcaseId in (" + uniqueTestcaseIds + ") AND chs.name in ( "
                                      + actions + " ) AND c.name in ( " + actionParents + " ) ";
+                /* 
+                 * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+                 * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+                 * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
                                                                                  .getCheckpointStatisticDescriptions( this.timeOffSet,
                                                                                                                       whereClause,
-                                                                                                                      expectedActions );
+                                                                                                                      expectedActions,
+                                                                                                                      0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                                                      ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
                 return statisticDescriptions;
             } catch( DatabaseAccessException e ) {
                 LOG.error( "Error loading action response statistic descriptions", e );
@@ -412,11 +426,17 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 String uniqueMachineIds = StringUtils.join( machineIds, "," );
                 String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
 
+                /* 
+                 * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+                 * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+                 * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
                                                            .getSystemStatistics( timeOffSet,
                                                                                  uniqueTestcaseIds,
                                                                                  uniqueMachineIds,
-                                                                                 uniqueStatisticIds );
+                                                                                 uniqueStatisticIds,
+                                                                                 0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
+                                                                                 ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
                 if( statistics.size() > 0 ) {
                     // convert statistics data into chart data
                     setChartData( systemStatisticsDataToChart( statistics, false, systemStatisticsPanel ),
@@ -437,11 +457,17 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 String uniqueMachineIds = StringUtils.join( machineIds, "," );
                 String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
 
+                /* 
+                 * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+                 * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+                 * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
                                                            .getSystemStatistics( timeOffSet,
                                                                                  uniqueTestcaseIds,
                                                                                  uniqueMachineIds,
-                                                                                 uniqueStatisticIds );
+                                                                                 uniqueStatisticIds,
+                                                                                 0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                 ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
                 if( statistics.size() > 0 ) {
                     // convert statistics data into chart data
                     setChartData( systemStatisticsDataToChart( statistics, true, userStatisticsPanel ),
@@ -489,13 +515,19 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 actions.setLength( actions.length() - 1 );
                 actionParents.setLength( actionParents.length() - 1 );
 
+                /* 
+                 * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
+                 * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
+                 * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
                                                            .getCheckpointStatistics( timeOffSet,
                                                                                      uniqueTestcaseIds,
                                                                                      actions.toString(),
                                                                                      actionParents.toString(),
                                                                                      expectedActions,
-                                                                                     new HashSet<String>() );
+                                                                                     new HashSet<String>(),
+                                                                                     0/*((TestExplorerSession)Session.get()).getTimeOffset() */,
+                                                                                     ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
                 if( statistics.size() > 0 ) {
                     List<ChartData> statisticsChartData = new ArrayList<ChartData>();
                     // convert statistics data into chart data
@@ -579,7 +611,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
             data.addAxisValues( stat.value, stat.avgValue, stat.sumValue, stat.totalValue, stat.countValue,
                                 displayValuesMode );
 
-            long statisticTimestamp = stat.timestamp;
+            long statisticTimestamp = stat.getStartTimestamp();
             if( testcaseStarttimeDeltas.containsKey( stat.testcaseId ) ) {
                 // we are doing time synchronization
                 statisticTimestamp = statisticTimestamp - testcaseStarttimeDeltas.get( stat.testcaseId );

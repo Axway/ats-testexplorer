@@ -47,7 +47,7 @@ public class SuiteLoadableDetachableModel extends LoadableDetachableModel<Suite>
         } else if( obj instanceof SuiteLoadableDetachableModel ) {
             SuiteLoadableDetachableModel other = ( SuiteLoadableDetachableModel ) obj;
             return other.suite.suiteId.equals( this.suite.suiteId )
-                   && other.suite.duration.equals( this.suite.duration );
+                   && other.suite.getDurationAsString( 0 ).equals( this.suite.getDurationAsString( 0 ) );
         }
         return false;
     }

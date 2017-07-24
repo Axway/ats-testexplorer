@@ -121,10 +121,10 @@ public class CompareRunsPage extends LightweightBasePage {
         columns = new ArrayList<TestcasesTableCell>();
         for( Run run : runs ) {
             String duration = "";
-            if( !StringUtils.isNullOrEmpty( run.dateStart ) ) {
-                duration += run.dateStart + " - ";
-                if( !StringUtils.isNullOrEmpty( run.dateEnd ) ) {
-                    duration += run.dateEnd;
+            if( !StringUtils.isNullOrEmpty( run.getDateStart() ) ) {
+                duration += run.getDateStart() + " - ";
+                if( !StringUtils.isNullOrEmpty( run.getDateEnd() ) ) {
+                    duration += run.getDateEnd();
                 }
             }
             columns.add( new TestcasesTableCell( duration ) );
@@ -168,11 +168,11 @@ public class CompareRunsPage extends LightweightBasePage {
                 StringBuilder testResultCondition = new StringBuilder();
                 for( String status : filteredStates.get( run.runId ).getObject() ) {
                     if( "FAILED".equalsIgnoreCase( status ) ) {
-                        testResultCondition.append(" or tt.result=0");
+                        testResultCondition.append( " or tt.result=0" );
                     } else if( "PASSED".equalsIgnoreCase( status ) ) {
-                        testResultCondition.append(" or tt.result=1");
+                        testResultCondition.append( " or tt.result=1" );
                     } else if( "SKIPPED".equalsIgnoreCase( status ) ) {
-                        testResultCondition.append(" or tt.result=2");
+                        testResultCondition.append( " or tt.result=2" );
                     }
                 }
                 if( !testResultCondition.toString().isEmpty() ) {
@@ -267,7 +267,8 @@ public class CompareRunsPage extends LightweightBasePage {
                                                                                         getPageParameters().get( "dbname" ) ) ).toString() ) );
     }
 
-    private ListView<List<TestcasesTableCell>> getTestcasesTable( List<List<TestcasesTableCell>> testcasesTableModel ) {
+    private ListView<List<TestcasesTableCell>>
+            getTestcasesTable( List<List<TestcasesTableCell>> testcasesTableModel ) {
 
         ListView<List<TestcasesTableCell>> statisticDetailsTable = new ListView<List<TestcasesTableCell>>( "runsDetailsRows",
                                                                                                            testcasesTableModel ) {
@@ -416,7 +417,7 @@ public class CompareRunsPage extends LightweightBasePage {
                                                                       .getRuns( 0, 100,
                                                                                 "where runId in (" + runIds
                                                                                         + ")",
-                                                                                "runId", true );
+                                                                                "runId", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
             return runs;
         } catch( DatabaseAccessException e ) {
             LOG.error( "Error loading runs (runIds = " + runIds + ")", e );
@@ -424,9 +425,8 @@ public class CompareRunsPage extends LightweightBasePage {
         }
     }
 
-    private Map<String, Map<String, TestcaseCompareDetails>> loadTestsDetails( String whereClause,
-                                                                               boolean onlyTestsPresentInAllRuns,
-                                                                               int numberOfRuns ) {
+    private Map<String, Map<String, TestcaseCompareDetails>>
+            loadTestsDetails( String whereClause, boolean onlyTestsPresentInAllRuns, int numberOfRuns ) {
 
         // <test_key, <run_id, test_details>>
         Map<String, Map<String, TestcaseCompareDetails>> tests = new LinkedHashMap<String, Map<String, TestcaseCompareDetails>>();

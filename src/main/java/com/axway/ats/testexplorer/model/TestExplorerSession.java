@@ -64,6 +64,14 @@ public class TestExplorerSession extends WebSession {
     // minimal message level for Messages Page filtering
     private String                                                                 minMessageLevel  = "info";
     private String                                                                 pdfExporterPath  = null;
+    
+    // the current session time offset from UTC
+    private int                                                                    timeOffset       = 0;
+
+    // the current session timestamp
+    private long                                                                   currentTimestamp = 0;
+    
+    private boolean                                                                dayLightSavingOn = false;
 
     public TestExplorerSession( Request request ) {
 
@@ -297,6 +305,36 @@ public class TestExplorerSession extends WebSession {
     public String getPdfExporterpath() {
 
         return pdfExporterPath;
+    }
+    
+    public void setTimeOffset( int timeOffset ) {
+
+        this.timeOffset = timeOffset;
+    }
+
+    public int getTimeOffset() {
+
+        return timeOffset;
+    }
+
+    public void setCurrentTimestamp( long timestamp ) {
+
+        this.currentTimestamp = timestamp;
+    }
+
+    public long getCurrentTimestamp() {
+
+        return currentTimestamp;
+    }
+    
+    public void setDayLightSavingOn( boolean dayLightSavingOn ) {
+
+        this.dayLightSavingOn = dayLightSavingOn;
+    }
+
+    public boolean isDayLightSavingOn() {
+
+        return dayLightSavingOn;
     }
 
     private TestExplorerDbReadAccessInterface loadDbReadAccessClass( String dbName ) throws DatabaseAccessException {

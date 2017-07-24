@@ -106,8 +106,7 @@ public class DashboardRunUtils implements Serializable {
 
         TestExplorerSession session = ( TestExplorerSession ) Session.get();
         TestExplorerDbReadAccessInterface dbRead = session.getDbReadConnection();
-        return dbRead.getSuites( 0, dbRead.getSuitesCount( whereClause ), whereClause, "dateStart", true,
-                                 false );
+        return dbRead.getSuites( 0, dbRead.getSuitesCount( whereClause ), whereClause, "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
     }
 
     private String initSuitesData( List<Suite> suites, List<Run> runs ) {
@@ -152,7 +151,8 @@ public class DashboardRunUtils implements Serializable {
                             }
                         }*/
                         runId = suite.runId;
-                        lastRun = suite.dateStart.substring( 0, suite.dateStart.indexOf( " " ) );
+                        lastRun = suite.getDateStartLong()
+                                       .substring( 0, suite.getDateStartLong().indexOf( " " ) );
                         thisRun = suite.testcasesPassedPercent;
                         id = suite.suiteId;
                         totalRuns++;
@@ -269,7 +269,7 @@ public class DashboardRunUtils implements Serializable {
 
         List<Run> runs = session.getDbReadConnection()
                                 .getRuns( 0, session.getDbReadConnection().getRunsCount( whereClause ),
-                                          whereClause, "dateStart", true );
+                                          whereClause, "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
 
         return runs;
     }

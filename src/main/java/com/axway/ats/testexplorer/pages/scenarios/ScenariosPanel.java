@@ -25,7 +25,6 @@ import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 
 import com.axway.ats.log.autodb.entities.Scenario;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
@@ -56,9 +55,7 @@ public class ScenariosPanel extends Panel {
         columnDefinitions = getTableColumnDefinitions();
     }
 
-    public ScenariosPanel( BasePage parentPage,
-                           String id,
-                           String suiteId ) {
+    public ScenariosPanel( BasePage parentPage, String id, String suiteId ) {
 
         super( id );
 
@@ -71,11 +68,8 @@ public class ScenariosPanel extends Panel {
             supportedGridOperations |= MainDataGrid.OPERATION_STATUS_CHANGE;
         }
 
-        MainDataGrid grid = new MainDataGrid( "scenariosTable",
-                                              new ScenariosDataSource( suiteId ),
-                                              getColumns(),
-                                              columnDefinitions,
-                                              "Scenarios",
+        MainDataGrid grid = new MainDataGrid( "scenariosTable", new ScenariosDataSource( suiteId ),
+                                              getColumns(), columnDefinitions, "Scenarios",
                                               supportedGridOperations );
         grid.setGridColumnsState( columnDefinitions );
         grid.setAllowSelectMultiple( true );
@@ -111,8 +105,7 @@ public class ScenariosPanel extends Panel {
      * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
-    private List<TableColumn> setTableColumnsProperties(
-                                                         List<TableColumn> dbColumnDefinitionList ) {
+    private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
         int arraySize = listSize( dbColumnDefinitionList );
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
@@ -125,25 +118,20 @@ public class ScenariosPanel extends Panel {
             boolean isVisible = element.isVisible();
 
             if( "Scenario".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getScenario( DB_TABLE_NAME,
-                                                                                    length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getScenario( DB_TABLE_NAME, length,
                                                                                     isVisible );
             } else if( "Description".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDescription( DB_TABLE_NAME,
-                                                                                       length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDescription( DB_TABLE_NAME, length,
                                                                                        isVisible );
             } else if( "State".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getState( DB_TABLE_NAME,
-                                                                                 length,
+                dbColumnDefinitionArray[--position] = TableDefinitions.getState( DB_TABLE_NAME, length,
                                                                                  isVisible );
             } else if( "TestcasesTotal".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getTotalTestcase( DB_TABLE_NAME,
-                                                                                         length,
-                                                                                         isVisible );
+                                                                                         length, isVisible );
             } else if( "TestcasesFailed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getFailedTestcase( DB_TABLE_NAME,
-                                                                                          length,
-                                                                                          isVisible );
+                                                                                          length, isVisible );
             } else if( "Passed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getTestcasesPassedPercent( DB_TABLE_NAME,
                                                                                                   length,
@@ -187,19 +175,14 @@ public class ScenariosPanel extends Panel {
                 col = new ScenarioTestcasesLinkColumn( cd );
             } else if( cd.isEditable() ) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(),
-                                                  //            new Model<String>( cd.getColumnName() ),      //maybe we should use this
-                                                  new PropertyModel<TableColumn>( cd, "columnName" ),
-                                                  cd.getPropertyExpression(),
-                                                  cd.getSortProperty() ) {
+                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
                     // Set cell tooltips
                     @Override
-                    protected Object getProperty(
-                                                  Object object,
-                                                  String propertyExpression ) {
+                    protected Object getProperty( Object object, String propertyExpression ) {
 
                         Object value = PropertyResolver.getValue( propertyExpression, object );
                         if( "userNote".equals( propertyExpression ) && value != null ) {
@@ -218,17 +201,29 @@ public class ScenariosPanel extends Panel {
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(),
-                                          new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(),
-                                          cd.getSortProperty() ) {
+                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
+                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    protected Object getProperty(
-                                                  Object object,
-                                                  String propertyExpression ) {
+                    protected Object getProperty( Object object, String propertyExpression ) {
+
+                        Scenario scenarioObject = ( Scenario ) object;
+                        if( "dateStart".equals( propertyExpression )
+                            && scenarioObject.getDateStart() != null ) {
+                            setEscapeMarkup( false );
+                            return "<span>" + scenarioObject.getDateStart() + "</span>";
+                        } else if( "dateEnd".equals( propertyExpression )
+                                   && scenarioObject.getDateEnd() != null ) {
+                            setEscapeMarkup( false );
+                            return "<span>" + scenarioObject.getDateEnd() + "</span>";
+                        } else if( "duration".equals( propertyExpression ) ) {
+                            setEscapeMarkup( false );
+                            return "<span>"
+                                   + scenarioObject.getDurationAsString( getTESession().getCurrentTimestamp() )
+                                   + "</span>";
+                        }
 
                         Object value = PropertyResolver.getValue( propertyExpression, object );
                         if( "description".equals( propertyExpression ) && value != null ) {
@@ -240,9 +235,7 @@ public class ScenariosPanel extends Panel {
                     }
 
                     @Override
-                    public String getCellCssClass(
-                                                   IModel rowModel,
-                                                   int rowNum ) {
+                    public String getCellCssClass( IModel rowModel, int rowNum ) {
 
                         Scenario scenario = ( Scenario ) rowModel.getObject();
                         if( "state".equals( getId() ) ) {
@@ -288,12 +281,16 @@ public class ScenariosPanel extends Panel {
         return columns;
     }
 
+    protected TestExplorerSession getTESession() {
+
+        return ( TestExplorerSession ) Session.get();
+    }
+
     /**
      * @param dbColumnDefinitionList  column definitions List
      * @return size of the list for the concrete columns
      */
-    private int listSize(
-                          List<TableColumn> dbColumnDefinitionList ) {
+    private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
         for( TableColumn col : dbColumnDefinitionList ) {

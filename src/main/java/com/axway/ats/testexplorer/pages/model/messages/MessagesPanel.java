@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.Session;
+import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -49,8 +50,7 @@ public class MessagesPanel extends Panel {
     public static boolean     isSuite          = false;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public MessagesPanel( String wicketId,
-                          String idColumnValue ) {
+    public MessagesPanel( String wicketId, String idColumnValue ) {
 
         super( wicketId );
 
@@ -62,15 +62,12 @@ public class MessagesPanel extends Panel {
 
             PropertyColumn col = new PropertyColumn( cd.getColumnId(),
                                                      new Model<String>( cd.getColumnName() ),
-                                                     cd.getPropertyExpression(),
-                                                     cd.getSortProperty() ) {
+                                                     cd.getPropertyExpression(), cd.getSortProperty() ) {
 
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                public String getCellCssClass(
-                                               IModel rowModel,
-                                               int rowNum ) {
+                public String getCellCssClass( IModel rowModel, int rowNum ) {
 
                     if( "messageType".equals( getId() ) ) {
                         return ( ( Message ) rowModel.getObject() ).messageType.toLowerCase() + " logLevel";
@@ -92,6 +89,28 @@ public class MessagesPanel extends Panel {
 
                     return cd.getHeaderCssClass();
                 }
+
+                @Override
+                protected Object getProperty( Object object, String propertyExpression ) {
+
+                    Message messageObject = ( Message ) object;
+                    if( "time".equals( propertyExpression ) && messageObject.getTime() != null ) {
+                        setEscapeMarkup( false );
+                        return "<span>" + messageObject.getTime() + "</span>";
+                    } else if( "date".equals( propertyExpression ) && messageObject.getDate() != null ) {
+                        setEscapeMarkup( false );
+                        return "<span>" + messageObject.getDate() + "</span>";
+                    }
+
+                    Object value = PropertyResolver.getValue( propertyExpression, object );
+                    if( "description".equals( propertyExpression ) && value != null ) {
+
+                        value = "<span title=\"" + value + "\">" + value + "</span>";
+                        setEscapeMarkup( false );
+                    }
+                    return value;
+                }
+
             };
 
             col.setEscapeMarkup( true );
@@ -106,32 +125,23 @@ public class MessagesPanel extends Panel {
         String idColumnName;
 
         if( isRun ) {
-            grid = new MainDataGrid( "messagesTable",
-                                     new RunMessagesDataSource( this ),
-                                     columns,
-                                     columnDefinitions,
-                                     "Run Messages" );
+            grid = new MainDataGrid( "messagesTable", new RunMessagesDataSource( this ), columns,
+                                     columnDefinitions, "Run Messages" );
             idColumnName = "runId";
             isRun = false;
             add( new Label( "messages_table_title", "Run messages" ) );
 
         } else if( isSuite ) {
 
-            grid = new MainDataGrid( "messagesTable",
-                                     new SuiteMessagesDataSource( this ),
-                                     columns,
-                                     columnDefinitions,
-                                     "Suite Messages" );
+            grid = new MainDataGrid( "messagesTable", new SuiteMessagesDataSource( this ), columns,
+                                     columnDefinitions, "Suite Messages" );
             idColumnName = "suiteId";
             isSuite = false;
             add( new Label( "messages_table_title", "Suite messages" ) );
 
         } else {
-            grid = new MainDataGrid( "messagesTable",
-                                     new MessagesDataSource( this ),
-                                     columns,
-                                     columnDefinitions,
-                                     "Messages" );
+            grid = new MainDataGrid( "messagesTable", new MessagesDataSource( this ), columns,
+                                     columnDefinitions, "Messages" );
             idColumnName = "testcaseId";
             add( new Label( "messages_table_title", "Messages" ) );
         }
@@ -145,6 +155,11 @@ public class MessagesPanel extends Panel {
         add( grid );
         messageFilter = new MessageFilter( "messages_search_form", grid, idColumnName, idColumnValue );
         add( messageFilter );
+    }
+
+    protected TestExplorerSession getTESession() {
+
+        return ( TestExplorerSession ) Session.get();
     }
 
     public MessageFilter getMessageFilter() {
@@ -174,8 +189,7 @@ public class MessagesPanel extends Panel {
      * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
-    private List<TableColumn> setTableColumnsProperties(
-                                                         List<TableColumn> dbColumnDefinitionList ) {
+    private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
         int arraySize = listSize( dbColumnDefinitionList );
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
@@ -190,32 +204,26 @@ public class MessagesPanel extends Panel {
 
             if( "Date".equals( name ) && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getDate( TestcasePanel.DB_TABLE_NAME,
-                                                                                length,
-                                                                                isVisible );
+                                                                                length, isVisible );
             } else if( "Time".equals( name ) && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getTime( TestcasePanel.DB_TABLE_NAME,
-                                                                                length,
-                                                                                isVisible );
+                                                                                length, isVisible );
             } else if( "Thread".equals( name )
                        && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getThread( TestcasePanel.DB_TABLE_NAME,
-                                                                                  length,
-                                                                                  isVisible );
+                                                                                  length, isVisible );
             } else if( "Machine".equals( name )
                        && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getMachine( TestcasePanel.DB_TABLE_NAME,
-                                                                                   length,
-                                                                                   isVisible );
+                                                                                   length, isVisible );
             } else if( "Level".equals( name ) && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getMessageType( TestcasePanel.DB_TABLE_NAME,
-                                                                                       length,
-                                                                                       isVisible );
+                                                                                       length, isVisible );
 
             } else if( "Message".equals( name )
                        && TestcasePanel.DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
                 dbColumnDefinitionArray[--position] = TableDefinitions.getMessageContent( TestcasePanel.DB_TABLE_NAME,
-                                                                                          length,
-                                                                                          isVisible );
+                                                                                          length, isVisible );
             }
 
         }
@@ -226,8 +234,7 @@ public class MessagesPanel extends Panel {
      * @param dbColumnDefinitionList  column definitions List
      * @return size of the list for the concrete columns
      */
-    private int listSize(
-                          List<TableColumn> dbColumnDefinitionList ) {
+    private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
         for( TableColumn col : dbColumnDefinitionList ) {

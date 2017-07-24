@@ -48,7 +48,7 @@ public class ScenarioLoadableDetachableModel extends LoadableDetachableModel<Sce
             ScenarioLoadableDetachableModel other = ( ScenarioLoadableDetachableModel ) obj;
             return other.scenario.scenarioId.equals( this.scenario.scenarioId )
                    && other.scenario.result == this.scenario.result
-                   && other.scenario.duration == this.scenario.duration;
+                   && other.scenario.getDuration( 0 ) == this.scenario.getDuration( 0 );
         }
         return false;
     }

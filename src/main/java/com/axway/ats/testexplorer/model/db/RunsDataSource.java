@@ -91,7 +91,7 @@ public class RunsDataSource implements IDataSource {
                                            totalCount,
                                            whereClause,
                                            sortProperty,
-                                           sortAsc );
+                                           sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
             result.setItems( resultList.iterator() );
         } catch( DatabaseAccessException e ) {
             LOG.error( "Can't get runs", e );
