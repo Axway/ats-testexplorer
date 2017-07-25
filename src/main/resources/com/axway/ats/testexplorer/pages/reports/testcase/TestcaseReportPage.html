@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    lang="en" >
+    <head>
+        <title wicket:id="page_title">[VALUE]</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <script type="text/javascript" src="js/jquery-1.7.2.custom.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.9.min.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body>
+    
+        <div wicket:id="feedback" ></div>
+        
+        <input type="hidden" wicket:id="timeOffset" id="timeOffset" />
+        <input type="hidden" wicket:id="currentTimestamp" id="currentTimestamp" />
+        <input type="hidden" wicket:id="dayLightSavingOn" id="dayLightSavingOn" />
+        
+        <div wicket:id="page_wrapper">
+            <wicket:child />
+        </div>
+        
+    </body>
+</html>

@@ -21,11 +21,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.IRequestParameters;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.axway.ats.common.system.OperatingSystemType;
 import com.axway.ats.core.utils.IoUtils;
+import com.axway.ats.testexplorer.model.TestExplorerSession;
 
 /**
  * Base class for custom testcase reports
@@ -35,6 +47,17 @@ public abstract class TestcaseReportPage extends WebPage {
     private static final long serialVersionUID = 1L;
 
     protected String          reportHomeFolder;
+    
+    // preserves the timeOffset for the current session
+    private HiddenField<String>       timeOffsetField                 = new HiddenField<>( "timeOffset",
+                                                                                           new Model<String>( "" ) );
+    // preserves the time offset (from UTC) for the current session
+    private HiddenField<String>       currentTimestampField           = new HiddenField<>( "currentTimestamp",
+                                                                                           new Model<String>( "" ) );
+    
+    // preserves whether when calculating all time stamps, requested by the current session, into consideration must be taken day-light saving
+    private HiddenField<String>       dayLightSavingOnField           = new HiddenField<>( "dayLightSavingOn",
+                                                                                           new Model<String>( "" ) );
 
     public TestcaseReportPage( PageParameters parameters ) throws IOException {
 
@@ -51,6 +74,51 @@ public abstract class TestcaseReportPage extends WebPage {
                                                        reportHomeFolder.lastIndexOf( SYSTEM_FILE_SEPARATOR ) );
         // the current folder path is encoded (e.g. ' ' = '%20'). We need to decode it
         reportHomeFolder = URLDecoder.decode( reportHomeFolder, "UTF-8" );
+        
+        add( timeOffsetField );
+        add( currentTimestampField );
+        add( dayLightSavingOnField );
+
+        // AJAX handler for obtaining browser's time offset from UTC and current browser timestamp
+        add( new AbstractDefaultAjaxBehavior() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void respond( AjaxRequestTarget target ) {
+
+                IRequestParameters request = RequestCycle.get().getRequest().getRequestParameters();
+                int timeOffset = request.getParameterValue( "timeOffset" ).toInt();
+                TestExplorerSession teSession = ( TestExplorerSession ) Session.get();
+                teSession.setTimeOffset( timeOffset );
+                teSession.setCurrentTimestamp( request.getParameterValue( "currentTimestamp" ).toLong() );
+                teSession.setDayLightSavingOn( request.getParameterValue( "dayLightSavingOn" ).toBoolean() );
+            }
+
+            @Override
+            protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
+
+                super.updateAjaxAttributes( attributes );
+                attributes.getDynamicExtraParameters()
+                          .add( "return {'timeOffset': $('#timeOffset').val(), "
+                                + "'currentTimestamp': $('#currentTimestamp').val(),"
+                                + "'dayLightSavingOn': $('#dayLightSavingOn').val() }" );
+            }
+
+            @Override
+            public void renderHead( Component component, IHeaderResponse response ) {
+
+                // Date.prototype.getTimezoneOffset() returns negative value if the local time is ahead of UTC,
+                // so we invert the result, before sending it to Wicket
+                String getTimeOffsetScript = ";var timeOffset = $('#timeOffset');timeOffset.val(new Date().getTimezoneOffset()*60*1000*-1);"
+                                             + ";var currentTimestamp = $('#currentTimestamp');currentTimestamp.val(new Date().getTime());"
+                                             + ";var dayLightSavingOn = $('#dayLightSavingOn');dayLightSavingOn.val(isDayLightSavingOn());";
+                response.render( OnLoadHeaderItem.forScript( getCallbackScript().toString() ) );
+                response.render( OnLoadHeaderItem.forScript( getTimeOffsetScript ) );
+            }
+
+        } );
+        
     }
 
     /**
