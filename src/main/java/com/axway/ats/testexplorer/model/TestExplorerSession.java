@@ -67,9 +67,6 @@ public class TestExplorerSession extends WebSession {
     
     // the current session time offset from UTC
     private int                                                                    timeOffset       = 0;
-
-    // the current session timestamp
-    private long                                                                   currentTimestamp = 0;
     
     private boolean                                                                dayLightSavingOn = false;
 
@@ -317,14 +314,11 @@ public class TestExplorerSession extends WebSession {
         return timeOffset;
     }
 
-    public void setCurrentTimestamp( long timestamp ) {
-
-        this.currentTimestamp = timestamp;
-    }
-
+    // call System.currentTimeMillis() via this method, 
+    // since implementation for obtaining current time stamp may change in future versions
     public long getCurrentTimestamp() {
 
-        return currentTimestamp;
+        return System.currentTimeMillis();
     }
     
     public void setDayLightSavingOn( boolean dayLightSavingOn ) {

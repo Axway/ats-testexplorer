@@ -105,9 +105,6 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
     // preserves the timeOffset for the current session
     private HiddenField<String>       timeOffsetField                 = new HiddenField<>( "timeOffset",
                                                                                            new Model<String>( "" ) );
-    // preserves the time offset (from UTC) for the current session
-    private HiddenField<String>       currentTimestampField           = new HiddenField<>( "currentTimestamp",
-                                                                                           new Model<String>( "" ) );
     
     // preserves whether when calculating all time stamps, requested by the current session, into consideration must be taken day-light saving
     private HiddenField<String>       dayLightSavingOnField           = new HiddenField<>( "dayLightSavingOn",
@@ -231,7 +228,6 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         add( timeOffsetField );
-        add( currentTimestampField );
         add( dayLightSavingOnField );
 
         // AJAX handler for obtaining browser's time offset from UTC and current browser timestamp
@@ -246,7 +242,6 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
                 int timeOffset = request.getParameterValue( "timeOffset" ).toInt();
                 TestExplorerSession teSession = ( TestExplorerSession ) Session.get();
                 teSession.setTimeOffset( timeOffset );
-                teSession.setCurrentTimestamp( request.getParameterValue( "currentTimestamp" ).toLong() );
                 teSession.setDayLightSavingOn( request.getParameterValue( "dayLightSavingOn" ).toBoolean() );
             }
 
@@ -256,7 +251,6 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
                 super.updateAjaxAttributes( attributes );
                 attributes.getDynamicExtraParameters()
                           .add( "return {'timeOffset': $('#timeOffset').val(), "
-                                + "'currentTimestamp': $('#currentTimestamp').val(),"
                                 + "'dayLightSavingOn': $('#dayLightSavingOn').val() }" );
             }
 
@@ -266,7 +260,6 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
                 // Date.prototype.getTimezoneOffset() returns negative value if the local time is ahead of UTC,
                 // so we invert the result, before sending it to Wicket
                 String getTimeOffsetScript = ";var timeOffset = $('#timeOffset');timeOffset.val(new Date().getTimezoneOffset()*60*1000*-1);"
-                                             + ";var currentTimestamp = $('#currentTimestamp');currentTimestamp.val(new Date().getTime());"
                                              + ";var dayLightSavingOn = $('#dayLightSavingOn');dayLightSavingOn.val(isDayLightSavingOn());";
                 response.render( OnLoadHeaderItem.forScript( getCallbackScript().toString() ) );
                 response.render( OnLoadHeaderItem.forScript( getTimeOffsetScript ) );
