@@ -321,7 +321,9 @@ public class TestExplorerSession extends WebSession {
 
         long currentTime = System.currentTimeMillis();
         currentTime = currentTime - TimeZone.getDefault().getOffset( currentTime ) + timeOffset;
-        LOG.debug( "current timestamp with offset from UTC ("+timeOffset+") is: "+currentTime );
+        if(LOG.isDebugEnabled()){
+            LOG.debug( "current timestamp with offset from UTC ("+timeOffset+") is: "+currentTime );
+        }
         return currentTime;
     }
     
