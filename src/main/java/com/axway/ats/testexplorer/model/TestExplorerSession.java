@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.model.IModel;
@@ -318,7 +319,10 @@ public class TestExplorerSession extends WebSession {
     // since implementation for obtaining current time stamp may change in future versions
     public long getCurrentTimestamp() {
 
-        return System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
+        currentTime = currentTime - TimeZone.getDefault().getOffset( currentTime ) + timeOffset;
+        LOG.debug( "current timestamp with offset from UTC ("+timeOffset+") is: "+currentTime );
+        return currentTime;
     }
     
     public void setDayLightSavingOn( boolean dayLightSavingOn ) {
