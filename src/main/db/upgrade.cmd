@@ -58,7 +58,7 @@ echo GO                                                                         
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%_draft' WHERE [key] = 'version' >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
 type TestExplorerDB-Upgrade.sql                                                    >> tempUpgradeDBScript.sql
-echo "  -- end of Upgrade script"                                                  >> tempUpgradeDBScript.sql
+echo -- end of Upgrade script                                                      >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%' WHERE [key] = 'version'       >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql

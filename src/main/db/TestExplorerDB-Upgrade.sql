@@ -6,9 +6,9 @@
 /****** Record the internal version ******/
 print '-- update internalVersion in [dbo].[tInternal]'
 GO
-UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
+UPDATE [dbo].[tInternal] SET [value]='8' WHERE [key]='internalVersion'
 GO
-INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_7', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_8', SYSDATETIME());
 GO
 
 -- updates for internal version 7
@@ -438,4 +438,71 @@ GO
 
 print 'end alter sp-get_checkpoint_statistic_description'
 GO
+
+
+-- updates for internal version 8
+
+ALTER PROCEDURE [dbo].[sp_start_testcase]
+
+@suiteId INT
+,@suiteFullName VARCHAR(255)
+,@scenarioName VARCHAR(255)
+,@scenarioDescription VARCHAR(4000)
+,@testcaseName VARCHAR(255)
+,@dateStart DATETIME
+
+,@RowsInserted INT =0 OUT
+,@tcId INT =0 OUT
+
+AS
+
+DECLARE
+@dateStartActual DATETIME
+EXECUTE [dbo].[getAutoDate]    @dateStart ,@dateStartActual  OUTPUT
+
+DECLARE @scenarioId INT
+DECLARE @result INT
+
+-- POSSIBLE TEST CASE RESULT VALUES
+-- 0 FAILED
+-- 1 PASSED
+-- 2 SKIPPED
+-- 4 RUNNING
+-- The test is RUNNING IN THE BEGGINNING
+SET @result = 4
+
+-- empty end time for the current Suite
+UPDATE  tSuites SET dateEnd = null WHERE  suiteId = @suiteId
+
+-- Construct full name. The format is <java package>.<java class>.<name>
+-- in case of data driven tests, the <name> contains java method name and values of input arguments: <java method name>(arg1, arg2)
+DECLARE @scenarioFullName VARCHAR(4000)
+SET @scenarioFullName =	@suiteFullName + '@' + @scenarioName
+
+-- Check if this scenario already exists. Insert a new one if needed
+DECLARE @existingScenarioId INT =0
+SET @existingScenarioId = (SELECT tScenarios.scenarioId FROM tScenarios WHERE tScenarios.fullName=@scenarioFullName)
+IF (@existingScenarioId > 0)
+    BEGIN
+        -- this is an already existing scenario
+        SET @scenarioId = @existingScenarioId
+        -- update scenario's description
+        UPDATE tScenarios SET [description] = @scenarioDescription WHERE scenarioId = @existingScenarioId
+    END
+ELSE
+    BEGIN
+        -- this is a new scenario
+        INSERT INTO  tScenarios (fullName, name, description)
+      VALUES				(@scenarioFullName, @scenarioName, @scenarioDescription)
+        SET @scenarioId = @@IDENTITY
+    END
+
+-- Insert a new testcase
+INSERT INTO  tTestcases	(suiteId, scenarioId, name, dateStart, result)
+    VALUES	        (@suiteId, @scenarioId, @testcaseName, @dateStartActual, @result)
+
+SET @tcId = @@IDENTITY
+SET @RowsInserted = @@ROWCOUNT
+GO
+
 

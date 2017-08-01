@@ -35,11 +35,11 @@ INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2_draft')
 GO
 
 /****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '8')
 GO
 
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '8')
 GO
 
 INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_7', SYSDATETIME());
@@ -2385,6 +2385,8 @@ IF (@existingScenarioId > 0)
     BEGIN
         -- this is an already existing scenario
         SET @scenarioId = @existingScenarioId
+        -- update scenario's description
+        UPDATE tScenarios SET [description] = @scenarioDescription WHERE scenarioId = @existingScenarioId
     END
 ELSE
     BEGIN
