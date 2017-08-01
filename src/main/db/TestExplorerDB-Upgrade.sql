@@ -442,6 +442,9 @@ GO
 
 -- updates for internal version 8
 
+print 'start alter sp_start_testcase'
+GO
+
 ALTER PROCEDURE [dbo].[sp_start_testcase]
 
 @suiteId INT
@@ -505,4 +508,6 @@ SET @tcId = @@IDENTITY
 SET @RowsInserted = @@ROWCOUNT
 GO
 
+print 'end alter sp_start_testcase'
+GO
 
