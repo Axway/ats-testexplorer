@@ -31,7 +31,7 @@ SET ANSI_PADDING ON
 GO
 
 /****** Record the version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2')
+INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2_draft')
 GO
 
 /****** Record the initial version ******/
@@ -40,6 +40,9 @@ GO
 
 /****** Record the internal version ******/
 INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+GO
+
+INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_7', SYSDATETIME());
 GO
 
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable] ******/
@@ -3602,5 +3605,8 @@ GO
      ('Level',5,80,'tTestcase',1),('Message',6,840,'tTestcase',1);
 GO
 
+/****** Record the version w/o _draft as complete installation ******/
+UPDATE tInternal SET [value]='4.0.2' WHERE [key] = 'version';
+GO
 
 

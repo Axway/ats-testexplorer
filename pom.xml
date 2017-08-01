@@ -22,6 +22,7 @@
         <apache.commons-lang.version>2.4</apache.commons-lang.version>
         <apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>
         <apache.commons-pool.version>1.5.5</apache.commons-pool.version>
+		<apache.commons-compress.version>1.10</apache.commons-compress.version>
         <apache.wicket.version>1.5.11</apache.wicket.version>
 
         <apache.wicket.version>7.3.0</apache.wicket.version>
@@ -125,6 +126,11 @@
                                     <groupId>commons-pool</groupId>
                                     <artifactId>commons-pool</artifactId>
                                     <version>${apache.commons-pool.version}</version>
+                                </artifactItem>
+								<artifactItem>
+                                    <groupId>org.apache.commons</groupId>
+                                    <artifactId>commons-compress</artifactId>
+                                    <version>${apache.commons-compress.version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wicketstuff</groupId>

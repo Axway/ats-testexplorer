@@ -55,12 +55,13 @@ echo ALTER DATABASE [%logdbname%] SET CONCAT_NULL_YIELDS_NULL ON                
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo ALTER DATABASE [%logdbname%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-
-type TestExplorerDB-Upgrade.sql                                                 >> tempUpgradeDBScript.sql
-
-echo GO                                                                         >> tempUpgradeDBScript.sql
-echo UPDATE tInternal SET value = '%NEW_DB_VERSION%' WHERE [key] = 'version'    >> tempUpgradeDBScript.sql
-echo GO                                                                         >> tempUpgradeDBScript.sql
+echo UPDATE tInternal SET value = '%NEW_DB_VERSION%_draft' WHERE [key] = 'version' >> tempUpgradeDBScript.sql
+echo GO                                                                            >> tempUpgradeDBScript.sql
+type TestExplorerDB-Upgrade.sql                                                    >> tempUpgradeDBScript.sql
+echo "  -- end of Upgrade script"                                                  >> tempUpgradeDBScript.sql
+echo GO                                                                            >> tempUpgradeDBScript.sql
+echo UPDATE tInternal SET value = '%NEW_DB_VERSION%' WHERE [key] = 'version'       >> tempUpgradeDBScript.sql
+echo GO                                                                            >> tempUpgradeDBScript.sql
 
 osql /b /E /d master /i tempUpgradeDBScript.sql /o upgrade.log
 IF %ERRORLEVEL% NEQ 0 goto upgradeFailed

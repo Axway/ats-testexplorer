@@ -1,13 +1,14 @@
 -- ***********************************************
--- Script for upgrade from version 4.0.1 to 4.0.2
+-- Script for upgrade from version 4.0.0 to 4.0.2.
+-- There is no 4.0.1 DB version
 -- ***********************************************
 
-/****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '7')
-GO
-
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '7')
+print '-- update internalVersion in [dbo].[tInternal]'
+GO
+UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_7', SYSDATETIME());
 GO
 
 -- updates for internal version 7
