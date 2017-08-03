@@ -15,9 +15,9 @@
  */
 package com.axway.ats.testexplorer.model.db;
 
-import java.io.Serializable;
+import com.axway.ats.log.autodb.entities.DbEntity;
 
-public class PageNavigation implements Serializable {
+public class PageNavigation extends DbEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,10 +36,6 @@ public class PageNavigation implements Serializable {
     private String            testcaseId;
 
     private String            testcaseName;
-
-    private String            startDate;
-
-    private String            endDate;
 
     public String getRunId() {
 
@@ -127,28 +123,6 @@ public class PageNavigation implements Serializable {
                                  String testcaseName ) {
 
         this.testcaseName = testcaseName;
-    }
-
-    public String getStartDate() {
-
-        return startDate;
-    }
-
-    public void setStartDate(
-                              String startDate ) {
-
-        this.startDate = startDate;
-    }
-
-    public String getEndDate() {
-
-        return endDate;
-    }
-
-    public void setEndDate(
-                            String endDate ) {
-
-        this.endDate = endDate;
     }
 
 }

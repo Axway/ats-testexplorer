@@ -60,7 +60,7 @@ public class TestcasePage extends BasePage {
         PageNavigation navigation = null;
         try {
             navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                        .getNavigationForTestcase( testcaseId );
+                                                        .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
         } catch( DatabaseAccessException e ) {
             LOG.error( "Can't get navigation data for testcase with id=" + testcaseId, e );
         }
@@ -84,8 +84,8 @@ public class TestcasePage extends BasePage {
                                "Testcases", testcaseName );
             setRunIdToRunCopyLink( navigation.getRunId() );
 
-            navigationSuffix.setObject( buildStartEndDateString( navigation.getStartDate(),
-                                                                 navigation.getEndDate() ) );
+            navigationSuffix.setObject( buildStartEndDateString( navigation.getDateStart(),
+                                                                 navigation.getDateEnd() ) );
             
             add( new TestcasePanel( "testcase_panel", testcaseId, parameters ) );
 

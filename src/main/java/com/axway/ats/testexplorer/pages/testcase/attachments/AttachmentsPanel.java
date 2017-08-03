@@ -213,7 +213,7 @@ public class AttachmentsPanel extends Panel {
 
         try {
             PageNavigation navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                       .getNavigationForTestcase( testcaseId );
+                                                                       .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
             String database = ( ( TestExplorerSession ) Session.get() ).getDbName();
             String runId = navigation.getRunId();
             String suiteId = navigation.getSuiteId();
@@ -229,5 +229,10 @@ public class AttachmentsPanel extends Panel {
             LOG.error( "There was problem getting testcase parameters, files attached to the current testcase will not be shown!" );
         }
         return null;
+    }
+    
+    public TestExplorerSession getTESession() {
+
+        return ( TestExplorerSession ) Session.get();
     }
 }

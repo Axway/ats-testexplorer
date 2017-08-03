@@ -44,7 +44,7 @@ public interface TestExplorerDbReadAccessInterface extends IDbReadAccess {
                                                      String scenarioId ) throws DatabaseAccessException;
 
     public PageNavigation getNavigationForTestcase(
-                                                    String testcaseId ) throws DatabaseAccessException;
+                                                    String testcaseId, int utcTimeOffset ) throws DatabaseAccessException;
 
     public String getMachineInformation(
                                          int machineId ) throws DatabaseAccessException;

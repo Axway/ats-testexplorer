@@ -402,12 +402,12 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
             if( getPage() instanceof BasePage ) {
                 try {
                     PageNavigation navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                         .getNavigationForTestcase( String.valueOf( statistic.testcaseId ) );
+                                                                                         .getNavigationForTestcase( String.valueOf( statistic.testcaseId ), getTESession().getTimeOffset() );
                     statisticNavigation.add( navigation.getRunName() );
                     statisticNavigation.add( navigation.getSuiteName() );
                     statisticNavigation.add( navigation.getScenarioName() );
                     statisticNavigation.add( navigation.getTestcaseName() );
-                    statisticNavigation.add( navigation.getStartDate() );
+                    statisticNavigation.add( navigation.getDateStart() );
                 } catch( DatabaseAccessException e ) {
                     LOG.error( "Navigation for element '" + statistic.name + "' cannot be get!" );
                 }

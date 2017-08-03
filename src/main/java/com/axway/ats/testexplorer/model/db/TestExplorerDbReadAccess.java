@@ -269,7 +269,7 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
     }
 
     @Override
-    public PageNavigation getNavigationForTestcase( String testcaseId ) throws DatabaseAccessException {
+    public PageNavigation getNavigationForTestcase( String testcaseId, int utcTimeOffset ) throws DatabaseAccessException {
 
         PageNavigation navigation = new PageNavigation();
         String sqlLog = new SqlRequestFormatter().add( "testcaseId", testcaseId ).format();
@@ -292,8 +292,13 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
                 navigation.setScenarioName( rs.getString( "scenarioName" ) );
                 navigation.setTestcaseId( testcaseId );
                 navigation.setTestcaseName( rs.getString( "testcaseName" ) );
-                navigation.setStartDate( formatDateNoYear( rs.getTimestamp( "dateStart" ) ) );
-                navigation.setEndDate( formatDateNoYear( rs.getTimestamp( "dateEnd" ) ) );
+                if( rs.getTimestamp( "dateStart" ) != null ) {
+                    navigation.setStartTimestamp(rs.getTimestamp( "dateStart" ).getTime() );
+                }
+                if( rs.getTimestamp( "dateEnd" ) != null ) {
+                    navigation.setEndTimestamp(rs.getTimestamp( "dateEnd" ).getTime() );
+                }
+                navigation.setTimeOffset( utcTimeOffset );
                 numberOfRecords++;
             }
 

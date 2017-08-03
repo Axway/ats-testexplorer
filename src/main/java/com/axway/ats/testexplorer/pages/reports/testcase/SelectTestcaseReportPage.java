@@ -62,7 +62,7 @@ public class SelectTestcaseReportPage extends BasePage {
         PageNavigation navigation;
         try {
             navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                  .getNavigationForTestcase( testcaseId );
+                                                                  .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
         } catch( DatabaseAccessException e ) {
             error( "Could not read info about testcase with id " + testcaseId + "; CAUSE: "
                    + e.getMessage() );

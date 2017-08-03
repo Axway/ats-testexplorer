@@ -51,7 +51,7 @@ public class ChartsPage extends BasePage {
         PageNavigation navigation = null;
         try {
             navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                  .getNavigationForTestcase( testcaseId );
+                                                                  .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
         } catch( DatabaseAccessException e ) {
             LOG.error( "Can't get navigation data for testcase with id=" + testcaseId, e );
         }
