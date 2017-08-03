@@ -18,6 +18,8 @@ package com.axway.ats.testexplorer.pages.testcase.attachments;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.log4j.Logger;
+
 import com.axway.ats.common.filesystem.FileSystemOperationException;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.IoUtils;
@@ -25,6 +27,8 @@ import com.axway.ats.core.utils.StringUtils;
 
 public class ContextListener implements ServletContextListener {
 
+    private static final Logger LOG = Logger.getLogger( ContextListener.class );
+    
     //set env var available for the current web app, where all attached filles will be stored
     private static final String ATTACHED_FILES_DIR = "ats-attached-files";
     
@@ -39,12 +43,14 @@ public class ContextListener implements ServletContextListener {
 
         LocalFileSystemOperations operations = new LocalFileSystemOperations();
         String tomcatDir = System.getenv( "CATALINA_BASE" );
+        if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
+            tomcatDir = System.getenv( "CATALINA_HOME" );
+        }
 
         if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
-            sce.getServletContext()
-               .log( "CATALINA_BASE was not set, no file would be attached to the current test case!" );
+            LOG.error( "Neither 'CATALINA_BASE' nor 'CATALINA_HOME' was set. No file would be displayed to the current test case." );
         } else {
-            String atsAttachedFiles = IoUtils.normalizeFilePath( tomcatDir + "\\" + ATTACHED_FILES_DIR );
+            String atsAttachedFiles = IoUtils.normalizeFilePath( tomcatDir + "/" + ATTACHED_FILES_DIR );
             if( !operations.doesFileExist( atsAttachedFiles ) ) {
                 try {
                     operations.createDirectory( atsAttachedFiles );

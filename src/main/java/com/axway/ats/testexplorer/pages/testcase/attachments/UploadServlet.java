@@ -57,7 +57,7 @@ public class UploadServlet extends HttpServlet {
                                               .getAttribute( ContextListener.getAttachedFilesDir() );
         // check if ats-attached-files property is set
         if( checkContextAttribute == null ) {
-            LOG.error( "Property \"" + ContextListener.getAttachedFilesDir() + "\" is not set!" );
+            LOG.error( "No attached files could be attached. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set." );
         } else {
             PrintWriter out = response.getWriter();
             response.setContentType( "text/html" );

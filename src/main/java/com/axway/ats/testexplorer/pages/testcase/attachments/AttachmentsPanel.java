@@ -47,7 +47,7 @@ public class AttachmentsPanel extends Panel {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger     LOG              = Logger.getLogger( AttachmentsPanel.class );
+    private static Logger     LOG               = Logger.getLogger( AttachmentsPanel.class );
 
     private Form<Object>      form;
     private MarkupContainer   buttonPanel;
@@ -60,7 +60,9 @@ public class AttachmentsPanel extends Panel {
     private TextArea<String>  fileContent;
 
     private List<String>      buttons;
-    private String            fileInfo         = "";
+    private String            fileInfo          = "";
+
+    private String            noButtonPanelInfo = "No attached files";
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public AttachmentsPanel( String id,
@@ -90,6 +92,8 @@ public class AttachmentsPanel extends Panel {
         buttonPanel.setVisible(!( buttons == null));
         fileContent.setVisible(!( buttons == null));
         noButtonPanel.setVisible( buttons == null );
+        
+        noButtonPanel.add( new Label("description", noButtonPanelInfo ) );
 
         final ListView lv = new ListView( "buttons", buttons ) {
 
@@ -205,8 +209,11 @@ public class AttachmentsPanel extends Panel {
 
         ServletContext context = ( ( WebApplication ) getApplication() ).getServletContext();
         if( context.getAttribute( ContextListener.getAttachedFilesDir() ) == null ) {
-            throw new RuntimeException( "No property \"" + ContextListener.getAttachedFilesDir()
-                                        + "\" was found. no files would be displayed!" );
+            String errorMsg = "No attached files can be displayed. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.";
+            LOG.error( errorMsg );
+            noButtonPanelInfo = errorMsg;
+
+            return null;
         }
 
         String attachedfilesDir = context.getAttribute( "ats-attached-files" ).toString();
