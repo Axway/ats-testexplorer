@@ -593,7 +593,7 @@ EXEC     (@sql_1)
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_testcases]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_testcases]    Script Date: 08/11/2017 17:30:48 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -609,31 +609,62 @@ CREATE  PROCEDURE [dbo].[sp_get_testcases]
 
 AS
 
-DECLARE @sql_1 varchar(8000)
-SET        @sql_1 =
-    ' SELECT * from
-                ( SELECT     tTestcases.testcaseId,
-              tTestcases.scenarioId,
-              tTestcases.suiteId,
-                            tTestcases.name,
+CREATE TABLE #tmpTestcases
+(
+    [testcaseId] [int] NOT NULL,
+	[scenarioId] [int] NOT NULL,
+    [suiteId] [int] NOT NULL,
+    [name] [varchar](255) NOT NULL,
+    [dateStart] [datetime] NOT NULL,
+    [dateEnd] [datetime] NULL,
+    [duration] [int] NOT NULL,
+	[result] [int] NOT NULL,
+    [userNote] [varchar](255) NULL
+)
 
---                                CONVERT( nvarchar, tTestcases.dateStart, 109) AS dateStart,
---                                CONVERT( nvarchar, tTestcases.dateEnd, 109) AS dateEnd,
-                            tTestcases.dateStart,
-                            tTestcases.dateEnd,
-                            CASE WHEN dateEnd IS NULL
-                                THEN datediff(second, tTestcases.dateStart, GETDATE() )
-                                ELSE datediff(second, tTestcases.dateStart, tTestcases.dateEnd )
-                            END AS duration,
+DECLARE @testcaseId INT
+DECLARE @fetchStatus INT = 0
 
-                            tTestcases.result,
-                            tTestcases.userNote,
-                            ROW_NUMBER() OVER (ORDER BY ' + @SortCol + ' ' + @SortType + ') AS Row
+EXEC ('DECLARE testcaseCursor CURSOR FOR
+            SELECT tr.testcaseId FROM (
+                SELECT testcaseId, ROW_NUMBER() OVER (ORDER BY testcaseId ) AS Row
+                FROM tTestcases ' + @WhereClause + ' ) as tr
+            WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount)
+            
+OPEN testcaseCursor
 
-                            FROM         tTestcases ' + @WhereClause + ') as SomeRows
-                    WHERE Row >= ' + @StartRecord + ' AND Row <= ' + @RecordsCount;
+WHILE 0 = @fetchStatus
+    BEGIN
+        FETCH NEXT FROM testcaseCursor INTO @testcaseId
+        SET @fetchStatus = @@FETCH_STATUS
+        IF 0 = @fetchStatus
+            BEGIN
 
-EXEC     (@sql_1)
+	INSERT INTO #tmpTestcases
+		SELECT	tTestcases.testcaseId,
+				tTestcases.scenarioId,
+				tTestcases.suiteId,
+				tTestcases.name,
+				tTestcases.dateStart,
+				tTestcases.dateEnd,
+				
+				CASE WHEN tTestcases.dateEnd IS NULL
+					THEN datediff(second, tTestcases.dateStart, GETDATE() )
+					ELSE datediff(second, tTestcases.dateStart, tTestcases.dateEnd )
+				END AS duration,
+	            
+				tTestcases.result,
+				tTestcases.userNote
+			FROM tTestcases 
+			WHERE testcaseId = @testcaseId
+			
+		END
+    END
+CLOSE testcaseCursor
+DEALLOCATE testcaseCursor
+
+EXEC('SELECT * FROM #tmpTestcases ORDER BY ' + @SortCol + ' ' + @SortType )
+drop table #tmpTestcases
 GO
 /****** Object:  StoredProcedure [dbo].[sp_get_system_statistics]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON
@@ -868,7 +899,7 @@ EXEC     ('SELECT COUNT(DISTINCT(scenarioId)) AS scenariosCount FROM tTestcases 
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_scenarios]    Script Date: 26/06/2012 10:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_scenarios]    Script Date: 08/10/2017 17:34:57 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -884,7 +915,7 @@ CREATE        PROCEDURE [dbo].[sp_get_scenarios]
 
 AS
 
-DECLARE @tmpScenarios TABLE
+CREATE TABLE #tmpScenarios 
 (
     [scenarioId] [int] NOT NULL,
     [suiteId] [int] NOT NULL,
@@ -925,14 +956,14 @@ DECLARE @fetchStatus INT = 0
 
 DECLARE @sql VARCHAR(8000)
 
-EXEC('INSERT INTO #tmpTestcases SELECT testcaseId, scenarioId, suiteId, dateStart, dateEnd, result FROM tTestcases '+@WhereClause+'')
+EXEC('INSERT INTO #tmpTestcases SELECT testcaseId, scenarioId, suiteId, dateStart, dateEnd, result FROM tTestcases '+@WhereClause )
 
 EXEC ('DECLARE scenariosCursor CURSOR FOR
             SELECT  tr.scenarioId FROM (
-                SELECT distinct scenarioId, rank() OVER (ORDER BY ' + @SortCol + ' ' + @SortType + ') AS Row
-                FROM #tmpTestcases
-                group by ' + @SortCol + ' ) as tr
-            WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount)
+                SELECT distinct scenarioId, rank() OVER (ORDER BY scenarioId ) AS Row
+                FROM #tmpTestcases ) as tr
+            WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount )
+            
 OPEN scenariosCursor
 
 WHILE 0 = @fetchStatus
@@ -960,8 +991,8 @@ WHILE 0 = @fetchStatus
         -- calculate scenario dates
         SET @scenarioDateStart	= (SELECT TOP 1 dateStart FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId ASC)
         SET @scenarioDateEnd	= (SELECT TOP 1 dateEnd   FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId DESC)
-
-                INSERT INTO @tmpScenarios
+    
+                INSERT INTO #tmpScenarios
                 SELECT  @scenarioId,
             (SELECT TOP 1 suiteId from #tmpTestcases WHERE scenarioId=@scenarioId),
                         tScenarios.name as name,
@@ -991,7 +1022,8 @@ DEALLOCATE scenariosCursor
 
 drop table #tmpTestcases
 
-select * from @tmpScenarios
+EXEC('SELECT * FROM #tmpScenarios ORDER BY ' + @SortCol + ' ' + @SortType)
+drop table #tmpScenarios
 GO
 /****** Object:  StoredProcedure [dbo].[sp_get_runs_count]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON

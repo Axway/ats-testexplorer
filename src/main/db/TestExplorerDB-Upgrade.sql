@@ -511,3 +511,214 @@ GO
 print 'end alter sp_start_testcase'
 GO
 
+
+print 'start alter sp_get_testcases'
+GO
+/****** Object:  StoredProcedure [dbo].[sp_get_testcases]    Script Date: 08/11/2017 17:30:48 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER  PROCEDURE [dbo].[sp_get_testcases]
+
+@StartRecord VARCHAR(100)
+, @RecordsCount VARCHAR(100)
+, @WhereClause VARCHAR(1000)
+, @SortCol VARCHAR(100)
+, @SortType VARCHAR(100)
+
+AS
+
+CREATE TABLE #tmpTestcases
+(
+    [testcaseId] [int] NOT NULL,
+	[scenarioId] [int] NOT NULL,
+    [suiteId] [int] NOT NULL,
+    [name] [varchar](255) NOT NULL,
+    [dateStart] [datetime] NOT NULL,
+    [dateEnd] [datetime] NULL,
+    [duration] [int] NOT NULL,
+	[result] [int] NOT NULL,
+    [userNote] [varchar](255) NULL
+)
+
+DECLARE @testcaseId INT
+DECLARE @fetchStatus INT = 0
+
+EXEC ('DECLARE testcaseCursor CURSOR FOR
+            SELECT tr.testcaseId FROM (
+                SELECT testcaseId, ROW_NUMBER() OVER (ORDER BY testcaseId ) AS Row
+                FROM tTestcases ' + @WhereClause + ' ) as tr
+            WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount)
+            
+OPEN testcaseCursor
+
+WHILE 0 = @fetchStatus
+    BEGIN
+        FETCH NEXT FROM testcaseCursor INTO @testcaseId
+        SET @fetchStatus = @@FETCH_STATUS
+        IF 0 = @fetchStatus
+            BEGIN
+
+	INSERT INTO #tmpTestcases
+		SELECT	tTestcases.testcaseId,
+				tTestcases.scenarioId,
+				tTestcases.suiteId,
+				tTestcases.name,
+				tTestcases.dateStart,
+				tTestcases.dateEnd,
+				
+				CASE WHEN tTestcases.dateEnd IS NULL
+					THEN datediff(second, tTestcases.dateStart, GETDATE() )
+					ELSE datediff(second, tTestcases.dateStart, tTestcases.dateEnd )
+				END AS duration,
+	            
+				tTestcases.result,
+				tTestcases.userNote
+			FROM tTestcases 
+			WHERE testcaseId = @testcaseId
+			
+		END
+    END
+CLOSE testcaseCursor
+DEALLOCATE testcaseCursor
+
+EXEC('SELECT * FROM #tmpTestcases ORDER BY ' + @SortCol + ' ' + @SortType )
+drop table #tmpTestcases
+
+print 'end alter sp_get_testcases'
+GO
+
+print 'start alter sp_get_scenarios'
+GO
+/****** Object:  StoredProcedure [dbo].[sp_get_scenarios]    Script Date: 08/10/2017 17:34:57 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER        PROCEDURE [dbo].[sp_get_scenarios]
+
+@StartRecord VARCHAR(100)
+, @RecordsCount VARCHAR(100)
+, @WhereClause VARCHAR(1000)
+, @SortCol VARCHAR(100)
+, @SortType VARCHAR(100)
+
+AS
+
+CREATE TABLE #tmpScenarios 
+(
+    [scenarioId] [int] NOT NULL,
+    [suiteId] [int] NOT NULL,
+    [name] [varchar](255) NOT NULL,
+    [description] [varchar](4000) NULL,
+    [result] [int] NOT NULL,
+    [testcasesTotal] [int] NOT NULL,
+    [testcasesFailed] [int] NOT NULL,
+    [testcasesPassedPercent] [float] NOT NULL,
+    [testcaseIsRunning] [bit] NOT NULL,
+    [dateStart] [datetime] NOT NULL,
+    [dateEnd] [datetime] NULL,
+    [duration] [int] NOT NULL,
+    [userNote] [varchar](255) NULL
+)
+
+CREATE TABLE #tmpTestcases(
+  [testcaseId] [int] NOT NULL,
+    [scenarioId] [int] NOT NULL,
+    [suiteId] [int] NOT NULL,
+    [dateStart] [datetime] NOT NULL,
+  [dateEnd] [datetime] NULL,
+    [result] [int] NOT NULL
+)
+
+DECLARE @testcasesTotal INT
+DECLARE @testcasesFailed INT
+DECLARE @testcasesSkipped INT
+DECLARE @testcaseIsRunning INT
+
+DECLARE @scenarioResult INT
+DECLARE @scenarioDateStart datetime
+DECLARE @scenarioDateEnd datetime
+DECLARE @scenarioDuration INT
+
+DECLARE @scenarioId INT
+DECLARE @fetchStatus INT = 0
+
+DECLARE @sql VARCHAR(8000)
+
+EXEC('INSERT INTO #tmpTestcases SELECT testcaseId, scenarioId, suiteId, dateStart, dateEnd, result FROM tTestcases '+@WhereClause )
+
+EXEC ('DECLARE scenariosCursor CURSOR FOR
+            SELECT  tr.scenarioId FROM (
+                SELECT distinct scenarioId, rank() OVER (ORDER BY scenarioId ) AS Row
+                FROM #tmpTestcases ) as tr
+            WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount )
+            
+OPEN scenariosCursor
+
+WHILE 0 = @fetchStatus
+    BEGIN
+        FETCH NEXT FROM scenariosCursor INTO @scenarioId
+        SET @fetchStatus = @@FETCH_STATUS
+        IF 0 = @fetchStatus
+            BEGIN
+
+        -- calculate testcase info
+                SET @testcasesTotal     = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId)
+                SET @testcasesFailed    = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=0)
+                SET @testcasesSkipped   = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=2)
+                SET @testcaseIsRunning  = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=4)
+
+        -- calculate scenario result
+        SET @scenarioResult = 1;
+        IF(@testcaseIsRunning > 0)
+          SET @scenarioResult = 4;
+        ELSE IF(@testcasesFailed > 0)
+          SET @scenarioResult = 0;
+        ELSE IF(@testcasesSkipped > 0)
+          SET @scenarioResult = 2;
+
+        -- calculate scenario dates
+        SET @scenarioDateStart	= (SELECT TOP 1 dateStart FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId ASC)
+        SET @scenarioDateEnd	= (SELECT TOP 1 dateEnd   FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId DESC)
+    
+                INSERT INTO #tmpScenarios
+                SELECT  @scenarioId,
+            (SELECT TOP 1 suiteId from #tmpTestcases WHERE scenarioId=@scenarioId),
+                        tScenarios.name as name,
+                        tScenarios.description,
+                        @scenarioResult,
+
+                        @testcasesTotal,
+                        @testcasesFailed,
+                        (@testcasesTotal - @testcasesFailed - @testcasesSkipped) * 100.00 / CASE WHEN @testcasesTotal=0 THEN 1 ELSE @testcasesTotal END AS testcasesPassedPercent,
+                        @testcaseIsRunning,
+
+                        @scenarioDateStart,
+                        @scenarioDateEnd,
+
+                        CASE WHEN @scenarioDateEnd IS NULL
+              THEN datediff(second, @scenarioDateStart, GETDATE() )
+              ELSE datediff(second, @scenarioDateStart, @scenarioDateEnd )
+            END AS duration,
+
+                        tScenarios.userNote
+                FROM    tScenarios
+                WHERE   scenarioId=@scenarioId
+            END
+    END
+CLOSE scenariosCursor
+DEALLOCATE scenariosCursor
+
+drop table #tmpTestcases
+
+EXEC('SELECT * FROM #tmpScenarios ORDER BY ' + @SortCol + ' ' + @SortType)
+drop table #tmpScenarios
+GO
+
+print 'end alter sp_get_scenarios '
+GO
+
