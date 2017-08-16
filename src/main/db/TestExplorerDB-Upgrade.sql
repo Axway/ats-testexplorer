@@ -645,73 +645,84 @@ DECLARE @scenarioDateEnd datetime
 DECLARE @scenarioDuration INT
 
 DECLARE @scenarioId INT
-DECLARE @fetchStatus INT = 0
-
-DECLARE @sql VARCHAR(8000)
 
 EXEC('INSERT INTO #tmpTestcases SELECT testcaseId, scenarioId, suiteId, dateStart, dateEnd, result FROM tTestcases '+@WhereClause )
 
 EXEC ('DECLARE scenariosCursor CURSOR FOR
-            SELECT  tr.scenarioId FROM (
-                SELECT distinct scenarioId, rank() OVER (ORDER BY scenarioId ) AS Row
-                FROM #tmpTestcases ) as tr
+            SELECT  distinct tr.scenarioId FROM (
+                SELECT scenarioId, rank() OVER (ORDER BY scenarioId ) AS Row
+                FROM #tmpTestcases GROUP BY scenarioId ) as tr
             WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount )
             
 OPEN scenariosCursor
+FETCH NEXT FROM scenariosCursor INTO @scenarioId
+WHILE @@FETCH_STATUS = 0
+    BEGIN   
+    -- calculate testcase info
+            SET @testcasesTotal     = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId)
+            SET @testcasesFailed    = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=0)
+            SET @testcasesSkipped   = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=2)
+            SET @testcaseIsRunning  = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=4)
 
-WHILE 0 = @fetchStatus
-    BEGIN
-        FETCH NEXT FROM scenariosCursor INTO @scenarioId
-        SET @fetchStatus = @@FETCH_STATUS
-        IF 0 = @fetchStatus
-            BEGIN
+    -- calculate scenario result
+    SET @scenarioResult = 1;
+    IF(@testcaseIsRunning > 0)
+      SET @scenarioResult = 4;
+    ELSE IF(@testcasesFailed > 0)
+      SET @scenarioResult = 0;
+    ELSE IF(@testcasesSkipped > 0)
+      SET @scenarioResult = 2;
 
-        -- calculate testcase info
-                SET @testcasesTotal     = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId)
-                SET @testcasesFailed    = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=0)
-                SET @testcasesSkipped   = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=2)
-                SET @testcaseIsRunning  = (SELECT COUNT(testcaseId) FROM #tmpTestcases WHERE scenarioId=@scenarioId AND result=4)
-
-        -- calculate scenario result
-        SET @scenarioResult = 1;
-        IF(@testcaseIsRunning > 0)
-          SET @scenarioResult = 4;
-        ELSE IF(@testcasesFailed > 0)
-          SET @scenarioResult = 0;
-        ELSE IF(@testcasesSkipped > 0)
-          SET @scenarioResult = 2;
-
-        -- calculate scenario dates
-        SET @scenarioDateStart	= (SELECT TOP 1 dateStart FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId ASC)
-        SET @scenarioDateEnd	= (SELECT TOP 1 dateEnd   FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId DESC)
+    -- calculate scenario dates
+    SET @scenarioDateStart	= (SELECT TOP 1 dateStart FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId ASC)
+    SET @scenarioDateEnd	= (SELECT TOP 1 dateEnd   FROM #tmpTestcases WHERE scenarioId=@scenarioId order by testcaseId DESC)
     
-                INSERT INTO #tmpScenarios
-                SELECT  @scenarioId,
-            (SELECT TOP 1 suiteId from #tmpTestcases WHERE scenarioId=@scenarioId),
-                        tScenarios.name as name,
-                        tScenarios.description,
-                        @scenarioResult,
+    DECLARE @currentScenarioDuration int = 0
+    DECLARE @testDuration int
+    DECLARE @dateEnd DATETIME
+    DECLARE @dateStart DATETIME
 
-                        @testcasesTotal,
-                        @testcasesFailed,
-                        (@testcasesTotal - @testcasesFailed - @testcasesSkipped) * 100.00 / CASE WHEN @testcasesTotal=0 THEN 1 ELSE @testcasesTotal END AS testcasesPassedPercent,
-                        @testcaseIsRunning,
+	EXEC('DECLARE dateCursor CURSOR FOR SELECT dateStart, dateEnd FROM #tmpTestcases WHERE scenarioId=' + @scenarioId )  
+	OPEN dateCursor;  
+	FETCH NEXT FROM dateCursor INTO @dateStart, @dateEnd;
+	WHILE @@FETCH_STATUS = 0  
+	   BEGIN  	  
+		  IF @dateEnd IS NULL
+				SET @testDuration = datediff(second, @dateStart, GETDATE() );
+          ELSE 
+				SET @testDuration = datediff(second, @dateStart, @dateEnd );
 
-                        @scenarioDateStart,
-                        @scenarioDateEnd,
+		  SET @currentScenarioDuration = @currentScenarioDuration + @testDuration
 
-                        CASE WHEN @scenarioDateEnd IS NULL
-              THEN datediff(second, @scenarioDateStart, GETDATE() )
-              ELSE datediff(second, @scenarioDateStart, @scenarioDateEnd )
-            END AS duration,
+		  FETCH NEXT FROM dateCursor INTO @dateStart, @dateEnd;
+	   END;  
+	CLOSE dateCursor;  
+	DEALLOCATE dateCursor;
 
-                        tScenarios.userNote
-                FROM    tScenarios
-                WHERE   scenarioId=@scenarioId
-            END
-    END
-CLOSE scenariosCursor
-DEALLOCATE scenariosCursor
+            INSERT INTO #tmpScenarios
+            SELECT  @scenarioId,
+        (SELECT TOP 1 suiteId from #tmpTestcases WHERE scenarioId=@scenarioId),
+                    tScenarios.name as name,
+                    tScenarios.description,
+                    @scenarioResult,
+
+                    @testcasesTotal,
+                    @testcasesFailed,
+                    (@testcasesTotal - @testcasesFailed - @testcasesSkipped) * 100.00 / CASE WHEN @testcasesTotal=0 THEN 1 ELSE @testcasesTotal END AS testcasesPassedPercent,
+                    @testcaseIsRunning,
+
+                    @scenarioDateStart,
+                    @scenarioDateEnd,
+
+                    @currentScenarioDuration AS duration,
+
+                    tScenarios.userNote
+            FROM    tScenarios
+            WHERE   scenarioId=@scenarioId
+      FETCH NEXT FROM scenariosCursor INTO @scenarioId;
+END;
+CLOSE scenariosCursor;
+DEALLOCATE scenariosCursor;
 
 drop table #tmpTestcases
 
