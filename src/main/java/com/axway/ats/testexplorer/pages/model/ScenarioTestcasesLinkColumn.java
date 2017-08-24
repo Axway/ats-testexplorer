@@ -102,6 +102,7 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
 
         };
         link.add( new AttributeAppender( "class", new Model( "link" ), " " ) );
+        link.add( new AttributeAppender( "class", new Model( "scenario-link" ), " " ) );
 
         return link;
     }

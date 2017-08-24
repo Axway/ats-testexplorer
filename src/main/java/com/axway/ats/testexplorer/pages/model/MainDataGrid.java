@@ -155,21 +155,5 @@ public class MainDataGrid extends DataGrid {
 
         topToolbar.reloadButtons();
         bottomToolbar.reloadButtons();
-
-        //on  click to the present element tooltip is added the default one, so we remove all tooltips and set the custom
-        if( getDataSource() instanceof ScenariosDataSource ) {
-            //@formatter:off
-            AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.appendJavaScript( "$(function() {"
-                                                      +" $('.ui-tooltip').remove();"
-                    + "$('.descriptionCell').tooltip({"
-                            + " track : true,"
-                                + " position : {"
-                                + " my : \"left top+20\","
-                                    + " at : \"right+50 top-50\""
-                            + " }"
-                        + " })"
-                + " });" );
-            }
-      }
+    }
 }

@@ -14,15 +14,39 @@
         </div>
 
         <script type="text/javascript">
-            $(function() {
-                $('.descriptionCell').tooltip( {
-                    track: true,
-                    position: {
-                        my: "left top+20",
-                        at: "right+50 top-50"
-                    }
-                });
-            });
+            // show modal popup with description info on click for each scenario
+			$(function() {
+				var $dialog = $('<div class="scenario-dialog"><pre></pre></div>').dialog({
+					autoOpen: false,
+					modal: true,
+					minWidth: 300,
+					minHeight: 400,
+					width: 'auto',
+					height: 'auto',
+					buttons: [{
+						text: 'Close',
+				        click: function() {
+				            $(this).dialog('close');
+				        }
+					}]
+				});
+				var $dialogContent = $dialog.find('pre');
+				$(document).on('click', '.descriptionCell', function() {
+					var $this = $(this);
+					var descr = $this.find('span').attr('data-description');
+					if (!descr) {
+						return false;
+					}
+					var title = $this.closest('tr').find('td a.scenario-link').text();
+					$dialogContent.html(descr);
+					$dialog
+						.dialog( 'option', 'title', title )
+						.dialog( 'option', 'width', 'auto' )
+						.dialog( 'option', 'height', 'auto' )
+						.dialog( 'option', 'position', { my: 'center', at: 'center', of: window} )
+						.dialog( 'open' );
+				});
+			});
         </script>
 
     </wicket:panel>
