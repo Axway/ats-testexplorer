@@ -228,7 +228,7 @@ public class ScenariosPanel extends Panel {
                         Object value = PropertyResolver.getValue( propertyExpression, object );
                         if( "description".equals( propertyExpression ) && value != null ) {
 
-                            value = "<span title=\"" + value + "\">" + value + "</span>";
+                            value = "<span title=\"Click for more details\" data-description=\"" + value + "\">" + value + "</span>";
                             setEscapeMarkup( false );
                         }
                         return value;
