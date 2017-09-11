@@ -66,17 +66,8 @@ public class RunsByTypeDashboardRunPage extends BasePage {
             String versionName = parameters.get( "versionName" ).toString();
             String buildType = parameters.get( "type" ).toString();
 
-            String whereClause = "WHERE productName = '" + productName + "' AND versionName = '" + versionName
-                                 + "' AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
-                                 + buildType + "')";
-
-            if( "unspecified".equals( buildType ) ) {
-                whereClause = "WHERE productName = '" + productName + "' AND versionName = '" + versionName
-                              + "' AND runId NOT IN (SELECT runId FROM tRunMetainfo WHERE name='type')";
-            }
-
             try {
-                jsonDatas = new DashboardRunUtils().initData( whereClause, buildType );
+                jsonDatas = new DashboardRunUtils().initData( productName, versionName, buildType );
             } catch( DatabaseAccessException e ) {
                 LOG.error( "Unable to get run and suites data.", e );
                 error( "Unable to get run and suites data." );

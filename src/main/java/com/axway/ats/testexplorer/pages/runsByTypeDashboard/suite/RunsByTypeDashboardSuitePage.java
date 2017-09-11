@@ -22,6 +22,7 @@ import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
+import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.pages.BasePage;
 import com.axway.ats.testexplorer.pages.WelcomePage;
 import com.axway.ats.testexplorer.pages.runsByTypeDashboard.home.RunsByTypeDashboardHomePage;
@@ -65,12 +66,17 @@ public class RunsByTypeDashboardSuitePage extends BasePage {
         add( modalTooltip );
 
         if( !parameters.isEmpty() ) {
-            jsonDatas = new DashboardSuiteUtils().initData( "WHERE 1=1",
-                                                            parameters.get( "suiteName" ).toString(),
-                                                            parameters.get( "type" ).toString(),
-                                                            parameters.get( "suiteBuild" ).toString(),
-                                                            parameters.get( "productName" ).toString(),
-                                                            parameters.get( "versionName" ).toString() );
+            try {
+                jsonDatas = new DashboardSuiteUtils().initData(
+                                                               parameters.get( "suiteName" ).toString(),
+                                                               parameters.get( "type" ).toString(),
+                                                               parameters.get( "suiteBuild" ).toString(),
+                                                               parameters.get( "productName" ).toString(),
+                                                               parameters.get( "versionName" ).toString() );
+            } catch( DatabaseAccessException e ) {
+                LOG.error( "Unable to get testcases data.", e );
+                error( "Unable to get testcases data." );
+            } 
 
         }
     }

@@ -32,7 +32,7 @@ import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.DbWriteAccess;
+import com.axway.ats.log.autodb.SQLServerDbWriteAccess;
 import com.axway.ats.log.autodb.SqlRequestFormatter;
 import com.axway.ats.log.autodb.entities.Machine;
 import com.axway.ats.log.autodb.entities.Run;
@@ -44,19 +44,13 @@ import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.pages.model.TableColumn;
 import com.axway.ats.testexplorer.pages.testcase.attachments.ContextListener;
 
-public class TestExplorerDbWriteAccess extends DbWriteAccess implements TestExplorerDbWriteAccessInterface {
+public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess implements TestExplorerDbWriteAccessInterface {
 
-    private static final Logger LOG = Logger.getLogger( TestExplorerDbWriteAccess.class );
+    private static final Logger LOG = Logger.getLogger( TestExplorerSQLServerDbWriteAccess.class );
 
-    public TestExplorerDbWriteAccess( DbConnSQLServer dbConnection ) throws DatabaseAccessException {
+    public TestExplorerSQLServerDbWriteAccess( DbConnSQLServer dbConnection ) throws DatabaseAccessException {
 
         super( dbConnection, false );
-    }
-
-    public TestExplorerDbWriteAccess( String host, String db, String user,
-                            String password ) throws DatabaseAccessException {
-
-        super( new DbConnSQLServer( host, db, user, password ), false );
     }
 
     public void deleteRuns( List<Object> objectsToDelete ) throws DatabaseAccessException {

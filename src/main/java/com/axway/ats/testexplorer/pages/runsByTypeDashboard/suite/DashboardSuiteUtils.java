@@ -29,8 +29,8 @@ import org.apache.wicket.markup.head.OnLoadHeaderItem;
 
 import com.axway.ats.core.utils.StringUtils;
 import com.axway.ats.log.autodb.entities.Testcase;
+import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
-import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
 
 public class DashboardSuiteUtils implements Serializable {
 
@@ -56,26 +56,20 @@ public class DashboardSuiteUtils implements Serializable {
 
     }
 
-    public String[] initData( String whereClause, String suiteName, String type, String suiteBuild,
-                              String productName, String versionName ) {
+    public String[] initData( String suiteName, String type, String suiteBuild,
+                              String productName, String versionName ) throws DatabaseAccessException {
 
-        String testcasesWhereClause = whereClause
-                                      + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
-                                      + suiteName
-                                      + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
-                                      + productName + "' AND versionName ='" + versionName
-                                      + "' AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
-                                      + ( type ) + "')))";
-
+        List<Testcase> testcases = null;
         if( "unspecified".equals( type ) ) {
-            testcasesWhereClause = whereClause + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
-                                   + suiteName
-                                   + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
-                                   + productName + "' AND versionName ='" + versionName
-                                   + "' AND runId NOT IN (SELECT runId FROM tRunMetainfo WHERE name='type')))";
+            testcases = ((TestExplorerSession)Session.get()).getDbReadConnection()
+                                                            .getUnspecifiedTestcases( suiteName, 
+                                                                                      type, 
+                                                                                      productName, 
+                                                                                      versionName );
+        } else {
+            testcases = ((TestExplorerSession)Session.get()).getDbReadConnection()
+                    .getSpecificProductVersionBuildSuiteNameTestcases( suiteName, type, productName, versionName );
         }
-
-        List<Testcase> testcases = getTestcases( testcasesWhereClause );
 
         String[] jsonDatas = new String[2];
 
@@ -174,19 +168,6 @@ public class DashboardSuiteUtils implements Serializable {
           .append( "]]" );
 
         return sb.toString();
-    }
-
-    private List<Testcase> getTestcases( String whereClause ) {
-
-        try {
-            TestExplorerSession session = ( TestExplorerSession ) Session.get();
-            TestExplorerDbReadAccessInterface dbRead = session.getDbReadConnection();
-            return dbRead.getTestcases( 0, dbRead.getTestcasesCount( whereClause ), whereClause, "dateStart",
-                                        true, ((TestExplorerSession)Session.get()).getTimeOffset() );
-        } catch( Exception e ) {
-            LOG.error( "Unable to get testcases with whereClause '" + whereClause + "'" );
-        }
-        return null;
     }
 
 }

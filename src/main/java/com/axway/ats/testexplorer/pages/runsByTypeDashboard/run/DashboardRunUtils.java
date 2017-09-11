@@ -32,7 +32,6 @@ import com.axway.ats.log.autodb.entities.Run;
 import com.axway.ats.log.autodb.entities.Suite;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
-import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
 
 public class DashboardRunUtils implements Serializable {
 
@@ -58,14 +57,22 @@ public class DashboardRunUtils implements Serializable {
 
     }
 
-    public String[] initData( String whereClause, String buildType ) throws DatabaseAccessException {
+    public String[] initData( String productName, String versionName, String buildType ) throws DatabaseAccessException {
 
         StringBuilder chartData = new StringBuilder( "[[" );
         StringBuilder runsData = new StringBuilder( "[[[" );
         StringBuilder statusData = new StringBuilder( "[[" );
         StringBuilder suitesData = new StringBuilder( "[[[" );
+        
+        List<Run> runs = null;
+        if( "unspecified".equals( buildType ) ) {
+            runs = (( TestExplorerSession ) Session.get() ).getDbReadConnection()
+                                                           .getUnspecifiedRuns( productName, versionName );
+        } else {
+            runs = (( TestExplorerSession ) Session.get() ).getDbReadConnection()
+                                                           .getSpecificProductVersionBuildRuns( productName, versionName, buildType );
+        }
 
-        List<Run> runs = getRuns( whereClause );
 
         if( runs == null || runs.size() == 0 ) {
             return new String[]{ "[[[]]]", "[[[]]]", "[[]]", "[[]]" };
@@ -75,7 +82,12 @@ public class DashboardRunUtils implements Serializable {
         runsData.append( initRunsData( runs ) );
         statusData.append( initStatusData( runs ) );
 
-        List<Suite> suites = getSuites( constructSuitesWhereClause( whereClause ) );
+        List<Suite> suites = null;
+        if( "unspecified".equals( buildType ) ) {
+            suites = (( TestExplorerSession ) Session.get() ).getDbReadConnection().getUnspecifiedSuites( productName, versionName );
+        } else {
+            suites = (( TestExplorerSession ) Session.get() ).getDbReadConnection().getSpecificProductVersionBuildSuites( productName, versionName, buildType );
+        }
 
         if( suites == null || suites.size() == 0 ) {
             suitesData.append( "" );
@@ -91,22 +103,6 @@ public class DashboardRunUtils implements Serializable {
         return new String[]{ runsData.toString(), suitesData.toString(), chartData.toString(),
                              statusData.toString() };
 
-    }
-
-    private String constructSuitesWhereClause( String whereClause ) {
-
-        StringBuilder where = new StringBuilder();
-
-        where.insert( 0, "WHERE runId in (SELECT runId from tRuns " ).append( whereClause ).append( ")" );
-
-        return where.toString();
-    }
-
-    private List<Suite> getSuites( String whereClause ) throws DatabaseAccessException {
-
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
-        TestExplorerDbReadAccessInterface dbRead = session.getDbReadConnection();
-        return dbRead.getSuites( 0, dbRead.getSuitesCount( whereClause ), whereClause, "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
     }
 
     private String initSuitesData( List<Suite> suites, List<Run> runs ) {
@@ -261,17 +257,6 @@ public class DashboardRunUtils implements Serializable {
 
         return data.toString();
 
-    }
-
-    private List<Run> getRuns( String whereClause ) throws DatabaseAccessException {
-
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
-
-        List<Run> runs = session.getDbReadConnection()
-                                .getRuns( 0, session.getDbReadConnection().getRunsCount( whereClause ),
-                                          whereClause, "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
-
-        return runs;
     }
 
 }

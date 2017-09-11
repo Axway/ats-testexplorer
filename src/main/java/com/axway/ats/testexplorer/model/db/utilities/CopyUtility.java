@@ -24,28 +24,42 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.axway.ats.core.dbaccess.DbConnection;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
+import com.axway.ats.core.dbaccess.postgresql.DbConnPostgreSQL;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.DbWriteAccess;
+import com.axway.ats.log.autodb.AbstractDbAccess;
+import com.axway.ats.log.autodb.PGDbReadAccess;
+import com.axway.ats.log.autodb.PGDbWriteAccess;
+import com.axway.ats.log.autodb.SQLServerDbReadAccess;
+import com.axway.ats.log.autodb.SQLServerDbWriteAccess;
 import com.axway.ats.log.autodb.entities.Checkpoint;
 import com.axway.ats.log.autodb.entities.CheckpointSummary;
 import com.axway.ats.log.autodb.entities.LoadQueue;
 import com.axway.ats.log.autodb.entities.Message;
 import com.axway.ats.log.autodb.entities.Run;
+import com.axway.ats.log.autodb.entities.RunMetaInfo;
 import com.axway.ats.log.autodb.entities.Scenario;
+import com.axway.ats.log.autodb.entities.ScenarioMetaInfo;
 import com.axway.ats.log.autodb.entities.Statistic;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.log.autodb.entities.Suite;
 import com.axway.ats.log.autodb.entities.Testcase;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
+import com.axway.ats.log.autodb.model.IDbReadAccess;
+import com.axway.ats.log.autodb.model.IDbWriteAccess;
 import com.axway.ats.log.model.CheckpointLogLevel;
 import com.axway.ats.testexplorer.TestExplorerUtils;
-import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccess;
-import com.axway.ats.testexplorer.model.db.TestExplorerDbWriteAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
+import com.axway.ats.testexplorer.model.db.TestExplorerDbWriteAccessInterface;
+import com.axway.ats.testexplorer.model.db.TestExplorerPGDbReadAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerPGDbWriteAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbReadAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbWriteAccess;
 import com.axway.ats.testexplorer.model.db.exceptions.DbEntityCopyException;
 
 public abstract class CopyUtility {
-
+    
     private static final int      MESSAGES_CHUNK_TO_COPY = 10000;
 
     protected static final String INDENT_SUITE           = "\t";
@@ -53,13 +67,15 @@ public abstract class CopyUtility {
     protected static final String INDENT_TEST            = "\t\t\t";
     protected static final String INDENT_TEST_CONTENT    = "\t\t\t\t";
 
-    protected TestExplorerDbReadAccess      srcDbRead;
-    protected TestExplorerDbReadAccess      dstDbRead;
-    protected TestExplorerDbWriteAccess     dstDbWrite;
+    protected TestExplorerDbReadAccessInterface   srcDbRead;
+    protected TestExplorerDbReadAccessInterface   dstDbRead;
+    protected TestExplorerDbWriteAccessInterface  dstDbWrite;
 
     private String                srcDbHost;
+    private int                   srcDbPort;
     private String                srcDbName;
     private String                dstDbHost;
+    private int                   dstDbPort;
     private String                dstDbName;
     private String                dbUser;
     private String                dbPassword;
@@ -68,15 +84,17 @@ public abstract class CopyUtility {
     private String                srcDbVersion;
     private String                dstDbVersion;
 
-    private int                   numberSuites           = 0;
-    private int                   numberTestcases        = 0;
+    private int                     numberSuites           = 0;
+    protected int                   numberTestcases        = 0;
 
-    public CopyUtility( String srcDbHost, String srcDbName, String dstDbHost, String dstDbName, String dbUser,
+    public CopyUtility( String srcDbHost, int srcDbPort, String srcDbName, String dstDbHost, int dstDbPort, String dstDbName, String dbUser,
                         String dbPassword, List<String> webConsole ) throws DatabaseAccessException {
 
         this.srcDbHost = srcDbHost;
+        this.srcDbPort = srcDbPort;
         this.srcDbName = srcDbName;
         this.dstDbHost = dstDbHost;
+        this.dstDbPort = dstDbPort;
         this.dstDbName = dstDbName;
         this.dbUser = dbUser;
         this.dbPassword = dbPassword;
@@ -92,22 +110,86 @@ public abstract class CopyUtility {
     private void initConnections() throws DatabaseAccessException {
 
         // source database
-        DbConnSQLServer srcConnection = new DbConnSQLServer( srcDbHost, srcDbName, dbUser, dbPassword );
+        DbConnection srcConnection = createDbConnection(srcDbHost, srcDbPort, srcDbName, dbUser, dbPassword);
         log( "Initialize source database connnection: " + srcConnection.getDescription() );
-        this.srcDbRead = new TestExplorerDbReadAccess( srcConnection );
-        srcDbVersion = this.srcDbRead.getDatabaseVersion();
+        if ( srcConnection instanceof DbConnSQLServer ) {
+            this.srcDbRead = new TestExplorerSQLServerDbReadAccess( ( DbConnSQLServer ) srcConnection );
+        } else if ( srcConnection instanceof DbConnPostgreSQL ) {
+            this.srcDbRead = new TestExplorerPGDbReadAccess( ( DbConnPostgreSQL ) srcConnection );
+        } else {
+            String errMsg = "Created read connection to source database is of unsuppoted class '" +  srcConnection.getClass().getName() + "'";
+            throw new DatabaseAccessException( errMsg );
+        }
+        srcDbVersion = ((AbstractDbAccess)this.srcDbRead).getDatabaseVersion();
         log( "Source database version is " + srcDbVersion );
 
         // destination database
-        DbConnSQLServer dstConnection = new DbConnSQLServer( dstDbHost, dstDbName, dbUser, dbPassword );
-        log( "Initialize destination database read connnection: " + dstConnection.getDescription() );
-        this.dstDbRead = new TestExplorerDbReadAccess( dstConnection );
+        DbConnection dstConnection = createDbConnection( dstDbHost, dstDbPort, dstDbName, dbUser, dbPassword );
+        log( "Initialize destination database read connnection: " + dstConnection.getDescription() ); 
+        if ( dstConnection instanceof DbConnSQLServer ) {
+            this.dstDbRead = new TestExplorerSQLServerDbReadAccess( ( DbConnSQLServer ) dstConnection );
+        } else if ( dstConnection instanceof DbConnPostgreSQL ) {
+            this.dstDbRead = new TestExplorerPGDbReadAccess( ( DbConnPostgreSQL ) dstConnection );
+        } else {
+            String errMsg = "Created read connection to destination database is of unsuppoted class '" +  dstConnection.getClass().getName() + "'";
+            throw new DatabaseAccessException( errMsg );
+        }
 
         log( "Initialize destination database write connnection: " + dstConnection.getDescription() );
-        this.dstDbWrite = new TestExplorerDbWriteAccess( dstConnection );
+        if ( dstConnection instanceof DbConnSQLServer ) {
+            this.dstDbWrite = new TestExplorerSQLServerDbWriteAccess( ( DbConnSQLServer ) dstConnection );
+            ((SQLServerDbWriteAccess)this.dstDbWrite).setSkipUTCConversion( true );
+        } else if ( dstConnection instanceof DbConnPostgreSQL ) {
+            this.dstDbWrite = new TestExplorerPGDbWriteAccess( ( DbConnPostgreSQL ) dstConnection );
+            ((PGDbWriteAccess)this.dstDbWrite).setSkipUTCConversion( true );
+        } else {
+            String errMsg = "Created write connection to source database is of unsuppoted class '" +  srcConnection.getClass().getName() + "'";
+            throw new DatabaseAccessException( errMsg );
+        }
+        
 
-        dstDbVersion = this.dstDbRead.getDatabaseVersion();
+        dstDbVersion = ((AbstractDbAccess)this.dstDbRead).getDatabaseVersion();
         log( "Destination database version is " + dstDbVersion );
+    }
+
+    private DbConnection createDbConnection(String host, int port, String name, String user, String password) throws DatabaseAccessException {
+
+        if (DbConnSQLServer.DEFAULT_PORT == port ) {
+            
+            return new DbConnSQLServer( host, name, user, password );
+            
+        } else if ( DbConnPostgreSQL.DEFAULT_PORT == port ) {
+            
+            return new DbConnPostgreSQL( host, name, user, password );
+            
+        } else {
+            
+            log("Port '" + port + "' is not a default one for either MSSQL or PostgreSQL databases.");
+            
+            try {
+                log("Trying to connect to a MSSQL database at '" + host + ":" + port + "'");
+                // try to connect to a MSSQL database on the specified port
+                DbConnection conn = new DbConnSQLServer( host, name, user, password );
+                new SQLServerDbReadAccess( conn ).getDatabaseVersion();
+                return conn;
+            } catch (Exception e) {
+                log("Unable to connect to a MSSQL database at '" + host + ":" + port + "'");
+            }
+            
+            try {
+                log("Trying to connect to a PostgreSQL database at '" + host + ":" + port + "'");
+                // try to connect to a POSTGRESQL database on the specified port
+                DbConnection conn = new DbConnPostgreSQL( host, name, user, password );
+                new PGDbReadAccess( conn ).getDatabaseVersion();
+                return conn;
+            } catch (Exception e) {
+                  log("Unable to connect to a PostgreSQL database at '" + host + ":" + port + "'");
+            }
+            
+            
+            throw new DatabaseAccessException( "Unable to connect to either MSSQL or PostgreSQL database at '" + host + ":" + port + "'" );
+        }
+        
     }
 
     public String getSrcDbVersion() {
@@ -190,6 +272,12 @@ public abstract class CopyUtility {
         dstRun.runId = String.valueOf( dstRunId );
         dstRun.userNote = srcRun.userNote;
         this.dstDbWrite.updateRun( dstRun );
+        
+        // copy Run metainfo
+        List<RunMetaInfo> runMetainfos = this.srcDbRead.getRunMetaInfo( Integer.parseInt( srcRun.runId ) );
+        for(RunMetaInfo rmi : runMetainfos) {
+            this.dstDbWrite.addRunMetainfo( dstRunId, rmi.name, rmi.value, true );
+        }
 
         return dstRunId;
     }
@@ -279,6 +367,12 @@ public abstract class CopyUtility {
 
         // STATISTICS
         copyStatistics( srcTestcase.testcaseId, dstTestcaseId );
+        
+        // SCENARIO META INFO
+        List<ScenarioMetaInfo> scenarioMetaInfos = this.srcDbRead.getScenarioMetaInfo( Integer.parseInt( srcTestcase.scenarioId ) );
+        for ( ScenarioMetaInfo smi : scenarioMetaInfos ) {
+            this.dstDbWrite.addScenarioMetainfo( dstTestcaseId, smi.name, smi.value, true );
+        }
 
     }
 
@@ -338,7 +432,7 @@ public abstract class CopyUtility {
             dstActionQueueIds.add( dstActionQueueId );
 
             if( !StringUtils.isNullOrEmpty( srcActionQueue.getDateEnd() ) ) {
-                this.dstDbWrite.endLoadQueue( srcActionQueue.result, srcActionQueue.getEndTimestamp(),
+                ((IDbWriteAccess)this.dstDbWrite).endLoadQueue( srcActionQueue.result, srcActionQueue.getEndTimestamp(),
                                               dstActionQueueId, true );
             }
         }
@@ -355,15 +449,18 @@ public abstract class CopyUtility {
                                                                                           true );
 
         // we enable the FULL checkpoint log level, so detailed checkpoints are copied
-        CheckpointLogLevel checkpointLogLevelBackup = DbWriteAccess.getCheckpointLogLevel();
-        DbWriteAccess.setCheckpointLogLevel( CheckpointLogLevel.FULL );
+        CheckpointLogLevel checkpointLogLevelBackup = SQLServerDbWriteAccess.getCheckpointLogLevel();
+        SQLServerDbWriteAccess.setCheckpointLogLevel( CheckpointLogLevel.FULL );
 
         boolean hasDetailedStatistics = false;
         for( CheckpointSummary summaryAction : srcSummaryActions ) {
+            
+            // populate checkpoint summary in destination database
+            this.dstDbWrite.populateCheckpointSummary( dstActionQueueId, summaryAction.name, summaryAction.transferRateUnit, true );
 
             // there are detailed statistics
             // we will insert the statistics, the summary table will be filled by the stored procedure
-            List<Checkpoint> detailedActions = this.srcDbRead.getCheckpoints( srcTestcaseId,
+            List<Checkpoint> detailedActions = ((IDbReadAccess)this.srcDbRead).getCheckpoints( srcTestcaseId,
                                                                               summaryAction.name, 0, false );
             if( !hasDetailedStatistics && detailedActions.size() > 0 ) {
                 hasDetailedStatistics = true;
@@ -376,8 +473,7 @@ public abstract class CopyUtility {
 
                 for( Checkpoint checkpoint : detailedActions ) {
                     this.dstDbWrite.insertCheckpoint( checkpoint.name,
-                                                      "not used in the startCheckpoint procedure",
-                                                      ( checkpoint.getEndTimestamp() - checkpoint.responseTime ) * 1000,
+                                                      ( checkpoint.copyEndTimestamp - checkpoint.responseTime ),
                                                       checkpoint.responseTime,
                                                       // this calculation is required to fix a calculation in sp_end_checkpoint db procedure
                                                       ( long ) ( ( checkpoint.transferRate
@@ -389,7 +485,7 @@ public abstract class CopyUtility {
             }
         }
 
-        DbWriteAccess.setCheckpointLogLevel( checkpointLogLevelBackup );
+        SQLServerDbWriteAccess.setCheckpointLogLevel( checkpointLogLevelBackup );
 
         if( !hasDetailedStatistics ) {
             // no detailed statistics, we need to copy the actions summary table
@@ -466,7 +562,7 @@ public abstract class CopyUtility {
                                                                             srcStatistic.machineId ),
                                                             String.valueOf( srcToDestinationStatTypeIdsMapping.get( srcStatistic.statisticTypeId ) ),
                                                             String.valueOf( srcStatistic.value ),
-                                                            srcStatistic.getStartTimestamp(),
+                                                            AbstractDbAccess.DATE_FORMAT.parse( srcStatistic.getDate() ).getTime(),
                                                             true );
                 }
             }

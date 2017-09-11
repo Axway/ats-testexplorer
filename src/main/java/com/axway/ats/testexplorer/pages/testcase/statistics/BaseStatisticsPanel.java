@@ -25,7 +25,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-import com.axway.ats.log.autodb.DbReadAccess;
+import com.axway.ats.log.autodb.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 
@@ -69,7 +69,7 @@ public abstract class BaseStatisticsPanel extends Panel {
                                                                                                                                                                                            dbStatDescription.maxValue,
                                                                                                                                                                                            dbStatDescription.numberMeasurements );
 
-            if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase( dbStatDescription.machineName ) ) {
+            if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase( dbStatDescription.machineName ) ) {
                 // this is a user activity statistic
                 this.userStatisticsPanel.addStatisticDescription( statDescription, isComparing );
             } else {

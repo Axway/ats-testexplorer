@@ -90,27 +90,7 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
                 if( StringUtils.isNullOrEmpty( searchByGroupContains.getModel().getObject() ) ) {
                     TestExplorerSession session = ( TestExplorerSession ) Session.get();
                     try {
-                        StringBuilder whereClause = new StringBuilder();
-
-                        whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases "
-                                            + "WHERE suiteId IN (SELECT suiteId FROM tSuites "
-                                            + "WHERE runId IN (SELECT runId FROM tRuns " );
-
-                        whereClause.append( "WHERE productName = '" + selectedProductName + "' " );
-
-                        for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                            if( i == 0 ) {
-                                whereClause.append( "AND versionName = '" + selectedVersionNames.get( i )
-                                                    + "' " );
-                            } else {
-                                whereClause.append( "OR versionName = '" + selectedVersionNames.get( i )
-                                                    + "' " );
-                            }
-
-                        }
-                        whereClause.append( ")))" );
-
-                        groupNames = session.getDbReadConnection().getAllGroupNames( whereClause.toString() );
+                        groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
                     } catch( DatabaseAccessException e ) {
                         LOG.error( "Unable to get all group names", e );
                         error( "Unable to get all group names" );
@@ -163,7 +143,12 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
                 TestcaseInfoPerGroupStorage perGroupStorage = null;
                 try {
                     perGroupStorage = session.getDbReadConnection()
-                                             .getTestcaseInfoPerGroupStorage( getWhereClause() );
+                                             .getTestcaseInfoPerGroupStorage( selectedProductName, 
+                                                                              selectedVersionNames, 
+                                                                              selectedGroupNames, 
+                                                                              searchByAfterDate.getValue(), 
+                                                                              searchByBeforeDate.getValue(),
+                                                                              searchByGroupContains.getModel().getObject() );
                 } catch( DatabaseAccessException e ) {
                     LOG.error( "Unable to get Testcases and groups data", e );
                     error( "Unable to get Testcases and groups data" );
@@ -236,6 +221,36 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
                                          + ");" );
             }
         } );
+    }
+    
+    public String getSelectedProductName() {
+    
+        return selectedProductName;
+    }
+
+    public List<String> getSelectedVersionNames() {
+    
+        return selectedVersionNames;
+    }
+
+    public List<String> getSelectedGroupNames() {
+    
+        return selectedGroupNames;
+    }
+
+    public String getSearchByAfterDate() {
+    
+        return searchByAfterDate.getValue();
+    }
+
+    public String getSearchByBeforeDate() {
+    
+        return searchByBeforeDate.getValue();
+    }
+
+    public String getSearchByGroupContains() {
+    
+        return searchByGroupContains.getModel().getObject();
     }
 
     public String getFilterData() {
@@ -326,24 +341,8 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
                 TestExplorerSession session = ( TestExplorerSession ) Session.get();
                 try {
-                    StringBuilder whereClause = new StringBuilder();
-                    whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases "
-                                        + "WHERE suiteId IN (SELECT suiteId FROM tSuites "
-                                        + "WHERE runId IN (SELECT runId FROM tRuns " );
-                    whereClause.append( "WHERE productName = '" + selectedProductName + "' " );
 
-                    for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                        if( i == 0 ) {
-                            whereClause.append( "AND versionName = '" + selectedVersionNames.get( i )
-                                                + "' " );
-                        } else {
-                            whereClause.append( "OR versionName = '" + selectedVersionNames.get( i ) + "' " );
-                        }
-
-                    }
-                    whereClause.append( ")))" );
-
-                    groupNames = session.getDbReadConnection().getAllGroupNames( whereClause.toString() );
+                    groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
 
                     selectedGroupNames = new ArrayList<String>( groupNames );
                     searchByAllGroups.setChoices( groupNames );
@@ -378,23 +377,8 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
                 TestExplorerSession session = ( TestExplorerSession ) Session.get();
                 try {
-                    StringBuilder whereClause = new StringBuilder();
-                    whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases "
-                                        + "WHERE suiteId IN (SELECT suiteId FROM tSuites "
-                                        + "WHERE runId IN (SELECT runId FROM tRuns " );
-                    whereClause.append( "WHERE productName = '" + selectedProductName + "' " );
-
-                    for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                        if( i == 0 ) {
-                            whereClause.append( "AND versionName = '" + selectedVersionNames.get( i )
-                                                + "' " );
-                        } else {
-                            whereClause.append( "OR versionName = '" + selectedVersionNames.get( i ) + "' " );
-                        }
-                    }
-                    whereClause.append( ")))" );
-
-                    groupNames = session.getDbReadConnection().getAllGroupNames( whereClause.toString() );
+                    
+                    groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
 
                     //selectedGroupNames = new ArrayList<String>( groupNames );
                     searchByAllGroups.setChoices( groupNames );
@@ -464,76 +448,6 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
         return searchByProduct;
     }
 
-    public String getWhereClause() {
-
-        StringBuilder where = new StringBuilder();
-
-        where.append( "WHERE name='group' " )
-             .append( "AND scenarioId IN " )
-             .append( "(SELECT scenarioId FROM tTestcases " )
-             .append( "WHERE suiteId " )
-             .append( "IN (SELECT suiteId FROM tSuites " )
-             .append( "WHERE runId IN (SELECT runId FROM tRuns " )
-             .append( "WHERE 1=1 " );
-
-        if( !StringUtils.isNullOrEmpty( selectedProductName ) ) {
-            where.append( "AND productName = '" + selectedProductName + "' " );
-        }
-
-        if( selectedVersionNames.size() > 0 ) {
-            where.append( "AND versionName = '" + selectedVersionNames.get( 0 ) + "' " );
-            for( int i = 1; i < selectedVersionNames.size(); i++ ) {
-                where.append( "OR versionName = '" + selectedVersionNames.get( i ) + "' " );
-            }
-        }
-
-        if( StringUtils.isNullOrEmpty( searchByGroupContains.getModel().getObject() ) ) {
-            if( selectedGroupNames.size() > 0 ) {
-                where.append( "AND value = '" + selectedGroupNames.get( 0 ) + "' " );
-                for( int i = 1; i < selectedGroupNames.size(); i++ ) {
-                    where.append( "OR value = '" + selectedGroupNames.get( i ) + "' " );
-                }
-            }
-        } else {
-            where.append( "AND value LIKE '%" + searchByGroupContains.getModel().getObject() + "%'" );
-        }
-
-        //to compare dates if it is valid SimpleDateFormat
-        String afterDate = searchByAfterDate.getValue();
-        String beforeDate = searchByBeforeDate.getValue();
-
-        // check whether start date is before end date
-        if( !StringUtils.isNullOrEmpty( afterDate ) && !StringUtils.isNullOrEmpty( beforeDate ) ) {
-
-            SimpleDateFormat dates = new SimpleDateFormat( "dd.MM.yyyy" );
-            try {
-                Date dateStartParse = dates.parse( afterDate );
-                Date dateEndParse = dates.parse( beforeDate );
-                if( dateStartParse.after( dateEndParse ) ) {
-
-                    error( "The provided value for 'Started before'(" + beforeDate
-                           + ") is before the value for 'Started after'(" + afterDate + ")" );
-                }
-            } catch( ParseException e ) {
-                // already catched by the DateValidator
-            }
-        }
-
-        // add start/end dates to the where clause
-        if( !StringUtils.isNullOrEmpty( afterDate ) ) {
-            String[] tokens = afterDate.split( "\\." );
-            where.append( " AND dateStart >= CONVERT(DATETIME,'" + tokens[2] + "-" + tokens[1] + "-"
-                          + tokens[0] + " 00:00:00',20)" );
-        }
-        if( !StringUtils.isNullOrEmpty( beforeDate ) ) {
-            String[] tokens = beforeDate.split( "\\." );
-            where.append( " AND dateStart <= CONVERT(DATETIME,'" + tokens[2] + "-" + tokens[1] + "-"
-                          + tokens[0] + " 23:59:59',20)" );
-        }
-        where.append( ")))" );
-
-        return where.toString();
-    }
 
     public void performSearchOnPageLoad() {
 
@@ -553,23 +467,7 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
             searchByVersion.getModel().setObject( selectedVersionNames );
             searchByVersion.setChoices( versionNames );
 
-            StringBuilder whereClause = new StringBuilder();
-            whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases " )
-                       .append( "WHERE suiteId IN (SELECT suiteId FROM tSuites " )
-                       .append( "WHERE runId IN (SELECT runId FROM tRuns " )
-                       .append( "WHERE productName = '" + selectedProductName + "' " );
-
-            for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                if( i == 0 ) {
-                    whereClause.append( "AND versionName = '" + selectedVersionNames.get( i ) + "' " );
-                } else {
-                    whereClause.append( "OR versionName = '" + selectedVersionNames.get( i ) + "' " );
-                }
-
-            }
-            whereClause.append( ")))" );
-
-            groupNames = session.getDbReadConnection().getAllGroupNames( whereClause.toString() );
+            groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
             selectedGroupNames = groupNames;
 
             searchByAllGroups.getModel().setObject( selectedGroupNames );

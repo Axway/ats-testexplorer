@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+DB_NAME=''
+
+read -p 'Enter Database name: ' DB_NAME
+
+# delete previous tmpInstallDbScript.sql if one exists
+rm -rf tmpInstallDbScript.sql
+touch tmpInstallDbScript.sql
+
+# delete previous install.log if one exists
+rm -rf install.log
+touch install.log
+
+# see if database exists
+# DATABASE_EXISTS=`psql -U AtsUser -h localhost -l | grep $DB_NAME | wc -l`
+DATABASE_EXISTS=`psql -U postgres -l | grep $DB_NAME | wc -l`
+if [[ "$DATABASE_EXISTS" == 1 ]]; then
+	echo "Database \"$DB_NAME\" already exists."
+	exit 1
+fi
+
+echo "Installing \"$DB_NAME ..."
+echo "CREATE DATABASE \"$DB_NAME\";" >> tmpInstallDbScript.sql
+echo " " >> tmpInstallDbScript.sql
+echo "\connect $DB_NAME" >> tmpInstallDbScript.sql
+echo " " >> tmpInstallDbScript.sql
+cat TestExplorerDb_PostgreSQL.sql >> tmpInstallDbScript.sql
+
+psql -U postgres -a -f tmpInstallDbScript.sql 2>&1 | grep ERROR > install.log
+NUM_OF_ERRORS=`cat install.log | grep ERROR | wc -l`
+echo "Errors during install: $NUM_OF_ERRORS"
+echo "Installing of \"$DB_NAME\" completed. See install.log file for errors"

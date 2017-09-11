@@ -18,6 +18,7 @@ package com.axway.ats.testexplorer.model.db.utilities;
 import java.text.ParseException;
 import java.util.List;
 
+import com.axway.ats.core.utils.StringUtils;
 import com.axway.ats.log.autodb.entities.Run;
 import com.axway.ats.log.autodb.entities.Scenario;
 import com.axway.ats.log.autodb.entities.Suite;
@@ -29,15 +30,17 @@ public class RunCopyUtility extends CopyUtility {
     private int srcRunId;
 
     public RunCopyUtility( String srcDbHost,
+                           int srcDbPort,
                            String srcDbName,
                            int srcRunId,
                            String dstDbHost,
+                           int dstDbPort,
                            String dstDbName,
                            String dbUser,
                            String dbPassword,
                            List<String> webConsole ) throws DatabaseAccessException {
 
-        super( srcDbHost, srcDbName, dstDbHost, dstDbName, dbUser, dbPassword, webConsole );
+        super( srcDbHost, srcDbPort, srcDbName, dstDbHost, dstDbPort, dstDbName, dbUser, dbPassword, webConsole );
 
         this.srcRunId = srcRunId;
     }
@@ -58,11 +61,23 @@ public class RunCopyUtility extends CopyUtility {
 
             Suite srcSuite = srcSuites.get( iSuites );
             int dstSuiteId = copySuite( srcSuite, dstRunId );
-
+            
+            // save the current number of testcases
+            int currentTestcasesCount = numberTestcases;
+            
             List<Scenario> srcScenarios = loadScenarios( Integer.parseInt( srcSuite.suiteId ) );
             log( INDENT_SCENARIO, "[SCENARIO] start copying of " + srcScenarios.size() + " scenarios" );
             for( Scenario srcScenario : srcScenarios ) {
                 copyScenarioWithItsTestcases( srcSuite, srcScenario, dstSuiteId );
+            }
+            
+            // check if the current suite has any testcases
+            if ( currentTestcasesCount < numberTestcases ) {
+                // when starting a testcase, we set null for end timestamp of the suite,
+                // so here endSuite is invoked again
+                if( !StringUtils.isNullOrEmpty( srcSuite.getDateEnd() ) ) {
+                    this.dstDbWrite.endSuite( srcSuite.getEndTimestamp(), dstSuiteId, true );
+                }
             }
         }
     }

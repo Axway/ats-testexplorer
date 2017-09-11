@@ -37,7 +37,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.DbReadAccess;
+import com.axway.ats.log.autodb.SQLServerDbReadAccess;
 
 /**
  * See the javadoc for ChartsPanel class to see how this class stays in the hierarchy
@@ -225,7 +225,7 @@ public class DataPanel implements Serializable {
         columns.add( new StatisticsTableCell( this.name, false ) );
         for( MachineDescription machine : machineDescriptions ) {
             String machineName = machine.getMachineAlias();
-            if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( machineName ) ) {
+            if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( machineName ) ) {
                 machineName = "";
             }
             StatisticsTableCell cell = new StatisticsTableCell( "<b style=\"padding: 0 5px;\">"

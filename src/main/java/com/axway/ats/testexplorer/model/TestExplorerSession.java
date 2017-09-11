@@ -31,12 +31,19 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 
+import com.axway.ats.core.dbaccess.DbConnection;
+import com.axway.ats.core.dbaccess.DbUtils;
+import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
+import com.axway.ats.core.dbaccess.postgresql.DbConnPostgreSQL;
 import com.axway.ats.log.autodb.AbstractDbAccess;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.TestExplorerApplication;
-import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbReadAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbWriteAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbWriteAccessInterface;
+import com.axway.ats.testexplorer.model.db.TestExplorerPGDbReadAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerPGDbWriteAccess;
 import com.axway.ats.testexplorer.pages.model.TableColumn;
 import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription;
 
@@ -122,11 +129,26 @@ public class TestExplorerSession extends WebSession {
 
         if( this.dbReadConnection == null || !this.dbName.equals( dbName ) ) {
 
-            // load the DB read connection access class
-            TestExplorerDbReadAccessInterface dbReadConnection = loadDbReadAccessClass( dbName );
+            TestExplorerDbReadAccessInterface dbReadConnection = null;
+            if ( DbUtils.isMSSQLDatabaseAvailable( dbHost, dbName, dbUser, dbPassword ) ) {
+                
+                // load the DB read connection access class
+                dbReadConnection = loadSQLServerDbReadAccessClass( dbName );
 
-            // if the next command do not fail, we have a working connection
-            ( ( AbstractDbAccess ) dbReadConnection ).checkConnection();
+                // if the next command do not fail, we have a working connection
+                ( ( AbstractDbAccess ) dbReadConnection ).checkConnection();
+                
+            } else if ( DbUtils.isPostgreSQLDatabaseAvailable( dbHost, dbName, dbUser, dbPassword ) ) {
+                
+                // load the DB read connection access class
+                dbReadConnection = loadPGDbReadAccessClass( dbName );
+
+                // if the next command do not fail, we have a working connection
+                ( ( AbstractDbAccess ) dbReadConnection ).checkConnection();
+                
+            } else {
+                throw new DatabaseAccessException( "Neither MSSQL, nor PostgreSQL database server at '" + dbHost +"' contains database with name '" + dbName +"'" );
+            }
 
             // we are able to connect, so keep this connection
             this.dbName = dbName;
@@ -152,13 +174,24 @@ public class TestExplorerSession extends WebSession {
 
     public final void initializeDbWriteConnection( String dbName ) throws DatabaseAccessException {
 
+        TestExplorerDbWriteAccessInterface dbWriteConnection = null;
         if( this.dbWriteConnection == null || !this.dbName.equals( dbName ) ) {
 
-            // load the DB write connection access class
-            TestExplorerDbWriteAccessInterface dbWriteConnection = loadDbWriteAccessClass( dbName );
+            if ( DbUtils.isMSSQLDatabaseAvailable( dbHost, dbName, dbUser, dbPassword ) ) {
+                // load the DB write connection access class
+                dbWriteConnection = loadSQLServerDbWriteAccessClass( dbName );
 
-            // if the next command do not fail, we have a working connection
-            ( ( AbstractDbAccess ) dbWriteConnection ).checkConnection();
+                // if the next command do not fail, we have a working connection
+                ( ( AbstractDbAccess ) dbWriteConnection ).checkConnection();
+            } else if ( DbUtils.isPostgreSQLDatabaseAvailable( dbHost, dbName, dbUser, dbPassword ) ) {
+               // load the DB write connection access class
+                dbWriteConnection = loadPGDbWriteAccessClass( dbName );
+
+                // if the next command do not fail, we have a working connection
+                ( ( AbstractDbAccess ) dbWriteConnection ).checkConnection();
+            } else {
+                throw new DatabaseAccessException( "Neither MSSQL, nor PostgreSQL database server at '" + dbHost +"' contains database with name '" + dbName +"'" );
+            }
 
             // we are able to connect, so keep this connection
             this.dbName = dbName;
@@ -337,15 +370,15 @@ public class TestExplorerSession extends WebSession {
         return dayLightSavingOn;
     }
 
-    private TestExplorerDbReadAccessInterface loadDbReadAccessClass( String dbName ) throws DatabaseAccessException {
+    private TestExplorerDbReadAccessInterface loadSQLServerDbReadAccessClass( String dbName ) throws DatabaseAccessException {
 
         // this is the default class
-        String dbAccessClassName = TestExplorerDbReadAccess.class.getName();
+        String dbAccessClassName = TestExplorerSQLServerDbReadAccess.class.getName();
 
         LOG.info( "Trying to load " + dbAccessClassName + " for DB Read Access class" );
         Properties configProperties = ( ( TestExplorerApplication ) getApplication() ).getConfigProperties();
-        if( configProperties.getProperty( "db.read.access.class" ) != null ) {
-            dbAccessClassName = configProperties.getProperty( "db.read.access.class" ).trim();
+        if( configProperties.getProperty( "mssql.db.read.access.class" ) != null ) {
+            dbAccessClassName = configProperties.getProperty( "mssql.db.read.access.class" ).trim();
         }
 
         TestExplorerDbReadAccessInterface dbConnection;
@@ -355,11 +388,9 @@ public class TestExplorerSession extends WebSession {
             // we use it through the interface
             Class<? extends TestExplorerDbReadAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass( TestExplorerDbReadAccessInterface.class );
             // make a new instance
-            Constructor<? extends TestExplorerDbReadAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( String.class,
-                                                                                                                                  String.class,
-                                                                                                                                  String.class,
-                                                                                                                                  String.class );
-            dbConnection = dbAccessConstructor.newInstance( dbHost, dbName, dbUser, dbPassword );
+            Constructor<? extends TestExplorerDbReadAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( DbConnSQLServer.class );
+            DbConnSQLServer mssqlConn = new DbConnSQLServer( dbHost, dbName, dbUser, dbPassword );
+            dbConnection = dbAccessConstructor.newInstance( mssqlConn );
         } catch( Exception e ) {
             throw new DatabaseAccessException( "Unable to load DB read access class '" + dbAccessClassName
                                                + "'", e );
@@ -370,15 +401,15 @@ public class TestExplorerSession extends WebSession {
         return dbConnection;
     }
 
-    private TestExplorerDbWriteAccessInterface loadDbWriteAccessClass( String dbName ) throws DatabaseAccessException {
+    private TestExplorerDbWriteAccessInterface loadSQLServerDbWriteAccessClass( String dbName ) throws DatabaseAccessException {
 
         // this is the default class
-        String dbAccessClassName = "com.axway.ats.testexplorer.model.db.TEDbWriteAccess";
+        String dbAccessClassName = TestExplorerSQLServerDbWriteAccess.class.getName();
 
         LOG.info( "Trying to load " + dbAccessClassName + " for DB Write Access class" );
         Properties configProperties = ( ( TestExplorerApplication ) getApplication() ).getConfigProperties();
-        if( configProperties.getProperty( "db.write.access.class" ) != null ) {
-            dbAccessClassName = configProperties.getProperty( "db.write.access.class" ).trim();
+        if( configProperties.getProperty( "mssql.db.write.access.class" ) != null ) {
+            dbAccessClassName = configProperties.getProperty( "mssql.db.write.access.class" ).trim();
         }
 
         TestExplorerDbWriteAccessInterface dbConnection;
@@ -388,11 +419,71 @@ public class TestExplorerSession extends WebSession {
             // we use it through the interface
             Class<? extends TestExplorerDbWriteAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass( TestExplorerDbWriteAccessInterface.class );
             // make a new instance
-            Constructor<? extends TestExplorerDbWriteAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( String.class,
-                                                                                                                                   String.class,
-                                                                                                                                   String.class,
-                                                                                                                                   String.class );
-            dbConnection = dbAccessConstructor.newInstance( dbHost, dbName, dbUser, dbPassword );
+            Constructor<? extends TestExplorerDbWriteAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( DbConnSQLServer.class );
+            DbConnSQLServer mssqlConn = new DbConnSQLServer( dbHost, dbName, dbUser, dbPassword );
+            dbConnection = dbAccessConstructor.newInstance( mssqlConn );
+        } catch( Exception e ) {
+            throw new DatabaseAccessException( "Unable to load DB write access class '" + dbAccessClassName
+                                               + "'", e );
+        }
+
+        LOG.info( "We will use " + dbAccessClassName
+                  + " for accesing the Test Explorer database for writing" );
+        return dbConnection;
+    }
+    
+    private TestExplorerDbReadAccessInterface loadPGDbReadAccessClass( String dbName ) throws DatabaseAccessException {
+
+        // this is the default class
+        String dbAccessClassName = TestExplorerPGDbReadAccess.class.getName();
+
+        LOG.info( "Trying to load " + dbAccessClassName + " for DB Read Access class" );
+        Properties configProperties = ( ( TestExplorerApplication ) getApplication() ).getConfigProperties();
+        if( configProperties.getProperty( "pg.db.read.access.class" ) != null ) {
+            dbAccessClassName = configProperties.getProperty( "pg.db.read.access.class" ).trim();
+        }
+
+        TestExplorerDbReadAccessInterface dbConnection;
+        try {
+            Class<?> dbAccessClass = Class.forName( dbAccessClassName );
+
+            // we use it through the interface
+            Class<? extends TestExplorerDbReadAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass( TestExplorerDbReadAccessInterface.class );
+            // make a new instance
+            Constructor<? extends TestExplorerDbReadAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( DbConnPostgreSQL.class );
+            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL( dbHost, dbName, dbUser, dbPassword );
+            dbConnection = dbAccessConstructor.newInstance( psqlConn );
+        } catch( Exception e ) {
+            throw new DatabaseAccessException( "Unable to load DB read access class '" + dbAccessClassName
+                                               + "'", e );
+        }
+
+        LOG.info( "We will use " + dbAccessClassName
+                  + " for accesing the Test Explorer database for reading" );
+        return dbConnection;
+    }
+    
+    private TestExplorerDbWriteAccessInterface loadPGDbWriteAccessClass( String dbName ) throws DatabaseAccessException {
+
+        // this is the default class
+        String dbAccessClassName = TestExplorerPGDbWriteAccess.class.getName();
+
+        LOG.info( "Trying to load " + dbAccessClassName + " for DB Write Access class" );
+        Properties configProperties = ( ( TestExplorerApplication ) getApplication() ).getConfigProperties();
+        if( configProperties.getProperty( "pg.db.write.access.class" ) != null ) {
+            dbAccessClassName = configProperties.getProperty( "pg.db.write.access.class" ).trim();
+        }
+
+        TestExplorerDbWriteAccessInterface dbConnection;
+        try {
+            Class<?> dbAccessClass = Class.forName( dbAccessClassName );
+
+            // we use it through the interface
+            Class<? extends TestExplorerDbWriteAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass( TestExplorerDbWriteAccessInterface.class );
+            // make a new instance
+            Constructor<? extends TestExplorerDbWriteAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor( DbConnPostgreSQL.class );
+            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL( dbHost, dbName, dbUser, dbPassword );
+            dbConnection = dbAccessConstructor.newInstance( psqlConn );
         } catch( Exception e ) {
             throw new DatabaseAccessException( "Unable to load DB write access class '" + dbAccessClassName
                                                + "'", e );

@@ -35,9 +35,11 @@ public class CopyTestcasesJobThread extends CopyJobThread {
     private String            copyDescription;
 
     public CopyTestcasesJobThread( String sourceHost,
+                                   int sourcePort,
                                    String sourceDbName,
                                    int destinationRunId,
                                    String destinationHost,
+                                   int destinationPort,
                                    String destinationDbName,
                                    String dbUsername,
                                    String dbPassword,
@@ -48,8 +50,10 @@ public class CopyTestcasesJobThread extends CopyJobThread {
                                    List<String> webConsole ) {
 
         super( sourceHost,
+               sourcePort,
                sourceDbName,
                destinationHost,
+               destinationPort,
                destinationDbName,
                dbUsername,
                dbPassword,
@@ -68,8 +72,10 @@ public class CopyTestcasesJobThread extends CopyJobThread {
 
         try {
             copyUtility = new TestcasesCopyUtility( sourceHost,
+                                                    sourcePort,
                                                     sourceDbName,
                                                     destinationHost,
+                                                    destinationPort,
                                                     destinationDbName,
                                                     dbUsername,
                                                     dbPassword,

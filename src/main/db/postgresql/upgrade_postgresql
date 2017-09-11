@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+DB_NAME=
+NEW_DB_VERSION="4.0.3"
+NEEDS_UPGRADE=false
+read -p 'Enter Database name: ' DB_NAME
+
+# delete previous tmpUpgradeDbScript.sql if one exists
+rm -rf tmpUpgradeDbScript.sql
+touch tmpUpgradeDbScript.sql
+
+# delete previous upgrade.log if one exists
+rm -rf upgrade.log
+touch upgrade.log
+
+# see if database exists
+# DATABASE_EXISTS=`psql -U AtsUser -h localhost -l | grep $DB_NAME | wc -l`
+DATABASE_EXISTS=`psql -U postgres -l | grep $DB_NAME | wc -l`
+if [[ "$DATABASE_EXISTS" == 0 ]]; then
+	echo "Database \"$DB_NAME\" does not exist."
+	exit 1
+fi
+# get database version and change NEEDS_UPGRADE flag if needed
+# DB_VERSION=`psql -U AtsUser -h localhost -d $DB_NAME -t -c "SELECT \"value\" FROM \"tInternal\" WHERE \"key\" = 'version'" | xargs` # | xargs is used to trim the db version string
+DB_VERSION=`psql -U postgres -d $DB_NAME -t -c "SELECT \"value\" FROM \"tInternal\" WHERE \"key\" = 'version'" | xargs` # | xargs is used to trim the db version string
+
+if [ "$DB_VERSION" = "$NEW_DB_VERSION"  ]; then
+	NEEDS_UPGRADE=false
+else
+	NEEDS_UPGRADE=true
+fi
+
+if [ "$NEEDS_UPGRADE" = true ]; then
+	echo "UPGRADING \"$DB_NAME\" from version \"$DB_VERSION\" to \"$NEW_DB_VERSION\""
+	echo "\connect $DB_NAME" >> tmpUpgradeDbScript.sql
+	echo " " >> tmpUpgradeDbScript.sql
+	cat TestExplorerDb_PostgreSQL_Upgrade.sql >> tmpUpgradeDbScript.sql
+
+	psql -U postgres -a -f tmpUpgradeDbScript.sql 2>&1 | grep ERROR > upgrade.log
+	echo "Upgrading of \"$DB_NAME\" completed. See upgrade.log file for errors"
+else
+	echo "Database \"$DB_NAME\" is the latest version \"$DB_VERSION\" and does not need upgrading."
+fi

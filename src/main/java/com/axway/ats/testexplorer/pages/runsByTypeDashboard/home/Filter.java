@@ -36,7 +36,7 @@ import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.pages.model.filtering.IFilter;
 
-public class Filter extends Form<String> implements IFilter{
+public class Filter extends Form<String> implements IFilter {
 
     private static final long          serialVersionUID = 1L;
 
@@ -216,21 +216,6 @@ public class Filter extends Form<String> implements IFilter{
             searchByVersion.getModel().setObject( selectedVersionNames );
             searchByVersion.setChoices( versionNames );
 
-            StringBuilder whereClause = new StringBuilder();
-            whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases " )
-                       .append( "WHERE suiteId IN (SELECT suiteId FROM tSuites " )
-                       .append( "WHERE runId IN (SELECT runId FROM tRuns " )
-                       .append( "WHERE productName = '" + selectedProductName + "' " );
-
-            for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                if( i == 0 ) {
-                    whereClause.append( "AND versionName = '" + selectedVersionNames.get( i ) + "' " );
-                } else {
-                    whereClause.append( "OR versionName = '" + selectedVersionNames.get( i ) + "' " );
-                }
-            }
-
-            whereClause.append( ")))" );
         } catch( DatabaseAccessException e ) {
             error( "Unable to perform initial search" );
             LOG.error( "Unable to perform initial search", e );

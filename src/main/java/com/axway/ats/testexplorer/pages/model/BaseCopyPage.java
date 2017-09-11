@@ -50,8 +50,11 @@ public abstract class BaseCopyPage extends LightweightBasePage {
     protected List<String>                webConsole              = new ArrayList<String>();
 
     protected IModel<String>              sourceHostModel         = new Model<String>();
+    protected IModel<String>              sourcePortModel         = new Model<String>();
     protected IModel<String>              sourceDbNameModel       = new Model<String>();
+    
     protected IModel<String>              destinationHostModel    = new Model<String>();
+    protected IModel<String>              destinationPortModel    = new Model<String>();
     protected IModel<String>              destinationDbNameModel  = new Model<String>();
 
     protected Form<Object>                form;

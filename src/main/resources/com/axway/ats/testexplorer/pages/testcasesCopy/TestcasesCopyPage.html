@@ -33,6 +33,7 @@
                                                 <th style="width: 200px;">Selection to copy</th>
                                                 <th style="width: 45px;">&nbsp;</th>
                                                 <th style="width: 150px;">Host</th>
+                                                <th style="width: 100px;">Port</th>
                                                 <th style="width: 150px;">Database</th>
                                                 <th style="width: 80px;">Run Id</th>
                                             </tr>
@@ -43,6 +44,7 @@
                                                 <td><textarea wicket:id="sourceSelectionToCopy"></textarea></td>
                                                 <td style="text-align: center;"><strong>TO:</strong></td>
                                                 <td><input type="text" wicket:id="destinationHost" value=""></td>
+                                                <td><input type="text" wicket:id="destinationPort" value="" title="Default port for MSSQL is 1433 and for PostgreSQL is 5432."></td>
                                                 <td><input type="text" wicket:id="destinationDbName" value=""></td>
                                                 <td><input type="text" wicket:id="destinationRunId" value=""></td>
                                             </tr>

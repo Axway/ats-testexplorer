@@ -30,27 +30,31 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.wicket.Session;
+
 import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.DbReadAccess;
+import com.axway.ats.log.autodb.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.SqlRequestFormatter;
+import com.axway.ats.log.autodb.entities.Run;
+import com.axway.ats.log.autodb.entities.Suite;
+import com.axway.ats.log.autodb.entities.Testcase;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
+import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.pages.model.TableColumn;
 import com.axway.ats.testexplorer.pages.testcasesByGroups.GroupInfo;
 import com.axway.ats.testexplorer.pages.testcasesByGroups.TestcaseInfo;
 import com.axway.ats.testexplorer.pages.testcasesByGroups.TestcaseInfoPerGroupStorage;
 
-public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplorerDbReadAccessInterface {
+/**
+ * Class used to read from a ATS log database, located on a MSSQL server
+ * */
+public class TestExplorerSQLServerDbReadAccess extends SQLServerDbReadAccess implements TestExplorerDbReadAccessInterface {
 
-    public TestExplorerDbReadAccess( DbConnSQLServer dbConnection ) {
+    public TestExplorerSQLServerDbReadAccess( DbConnSQLServer dbConnection ) {
 
         super( dbConnection );
-    }
-
-    public TestExplorerDbReadAccess( String host, String db, String user, String password ) {
-
-        super( new DbConnSQLServer( host, db, user, password ) );
     }
 
     @Override
@@ -88,6 +92,74 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
         }
 
         return messageFilterDetails;
+    }
+    
+    /**
+     * Simplified method to get run message details
+     * @param runId the run ID
+     * @return {@link MessageFilterDetails} for the specified run
+     * */
+    public MessageFilterDetails getRunMessageFilterDetails( String runId ) throws DatabaseAccessException {
+
+        String table = "tRunMessages";
+        String whereClause = "WHERE runMessageId IN (SELECT runMessageId FROM tRunMessages WHERE runId="
+                      + runId + ")";
+        
+        String sql = "SELECT DISTINCT mt.messageTypeId, mt.name as levelName, m.threadName, "
+                + "CASE WHEN mach.machineAlias is NULL OR DATALENGTH(mach.machineAlias) = 0 THEN mach.machineName "
+                + " ELSE mach.machineAlias END as machineName "
+                + "FROM " + table + " AS m "
+                + "LEFT JOIN tMessageTypes mt ON m.messageTypeId = mt.messageTypeId "
+                + "JOIN tMachines mach ON m.machineId = mach.machineId "
+                + whereClause + " ORDER BY mt.messageTypeId";
+        
+        return getMessageFilterDetails( sql );
+    }
+
+    /**
+     * Simplified method to get suite message details
+     * @param suiteId the suite ID
+     * @return {@link MessageFilterDetails} for the specified suite
+     * */
+    public MessageFilterDetails
+            getSuiteMessageFilterDetails( String suiteId ) throws DatabaseAccessException {
+
+        String table = "tSuiteMessages";
+        String whereClause = "WHERE suiteMessageId IN (SELECT suiteMessageId FROM tSuiteMessages WHERE suiteId="
+                      + suiteId + ")";
+        
+        String sql = "SELECT DISTINCT mt.messageTypeId, mt.name as levelName, m.threadName, "
+                + "CASE WHEN mach.machineAlias is NULL OR DATALENGTH(mach.machineAlias) = 0 THEN mach.machineName "
+                + " ELSE mach.machineAlias END as machineName "
+                + "FROM " + table + " AS m "
+                + "LEFT JOIN tMessageTypes mt ON m.messageTypeId = mt.messageTypeId "
+                + "JOIN tMachines mach ON m.machineId = mach.machineId "
+                + whereClause + " ORDER BY mt.messageTypeId";
+
+        return getMessageFilterDetails( sql );
+    }
+
+    /**
+     * Simplified method to get test case message details
+     * @param testcaseId the test case ID
+     * @return {@link MessageFilterDetails} for the specified test case
+     * */
+    public MessageFilterDetails
+            getTestcaseMessageFilterDetails( String testcaseId ) throws DatabaseAccessException {
+
+            String table = "tMessages";
+            String whereClause = "WHERE testcaseId=" + testcaseId;
+            
+            String sql = "SELECT DISTINCT mt.messageTypeId, mt.name as levelName, m.threadName, "
+                    + "CASE WHEN mach.machineAlias is NULL OR DATALENGTH(mach.machineAlias) = 0 THEN mach.machineName "
+                    + " ELSE mach.machineAlias END as machineName "
+                    + "FROM " + table + " AS m "
+                    + "LEFT JOIN tMessageTypes mt ON m.messageTypeId = mt.messageTypeId "
+                    + "JOIN tMachines mach ON m.machineId = mach.machineId "
+                    + whereClause + " ORDER BY mt.messageTypeId";
+            
+
+        return getMessageFilterDetails( sql );
     }
 
     @Override
@@ -408,7 +480,6 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
         try {
             connection = getConnection();
             statement = connection.prepareStatement( "SELECT * FROM tColumnDefinition" );
-
             ResultSet rs = statement.executeQuery();
             while( rs.next() ) {
                 TableColumn dbColumnDefinition = new TableColumn();
@@ -649,10 +720,32 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
             DbUtils.close( connection, statement );
         }
     }
-
+    
     @Override
-    public List<String> getAllGroupNames( String whereClause ) throws DatabaseAccessException {
+    public List<String> getAllGroupNames( String productName, List<String> versionNames ) throws DatabaseAccessException {
 
+        StringBuilder whereClause = new StringBuilder();
+
+        whereClause.append( "WHERE scenarioId IN (SELECT scenarioId FROM tTestcases "
+                            + "WHERE suiteId IN (SELECT suiteId FROM tSuites "
+                            + "WHERE runId IN (SELECT runId FROM tRuns " );
+
+        whereClause.append( "WHERE productName = '" + productName + "' " );
+
+        for( int i = 0; i < versionNames.size(); i++ ) {
+            if( i == 0 ) {
+                whereClause.append( "AND versionName = '" + versionNames.get( i )
+                                    + "' " );
+            } else {
+                whereClause.append( "OR versionName = '" + versionNames.get( i )
+                                    + "' " );
+            }
+
+        }
+        
+        whereClause.append( ")))" );
+        
+        
         String sql = "SELECT DISTINCT value as groupName FROM tScenarioMetainfo " + whereClause;
 
         Connection connection = null;
@@ -682,15 +775,84 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
     }
 
     @Override
-    public TestcaseInfoPerGroupStorage getTestcaseInfoPerGroupStorage( String whereClause ) throws DatabaseAccessException {
+    public TestcaseInfoPerGroupStorage getTestcaseInfoPerGroupStorage( String productName, 
+                                                                       List<String> versionNames, 
+                                                                       List<String> groupNames,
+                                                                       String afterDate,
+                                                                       String beforeDate,
+                                                                       String groupContains ) throws DatabaseAccessException {
+        
+        // construct where clause
+        StringBuilder where = new StringBuilder();
 
+        where.append( "WHERE name='group' " )
+             .append( "AND scenarioId IN " )
+             .append( "(SELECT scenarioId FROM tTestcases " )
+             .append( "WHERE suiteId " )
+             .append( "IN (SELECT suiteId FROM tSuites " )
+             .append( "WHERE runId IN (SELECT runId FROM tRuns " )
+             .append( "WHERE 1=1 " );
+
+        if( !StringUtils.isNullOrEmpty( productName ) ) {
+            where.append( "AND productName = '" + productName + "' " );
+        }
+
+        if( versionNames.size() > 0 ) {
+            where.append( "AND versionName = '" + versionNames.get( 0 ) + "' " );
+            for( int i = 1; i < versionNames.size(); i++ ) {
+                where.append( "OR versionName = '" + versionNames.get( i ) + "' " );
+            }
+        }
+
+        if( StringUtils.isNullOrEmpty( groupContains ) ) {
+            if( groupNames.size() > 0 ) {
+                where.append( "AND value = '" + groupNames.get( 0 ) + "' " );
+                for( int i = 1; i < groupNames.size(); i++ ) {
+                    where.append( "OR value = '" + groupNames.get( i ) + "' " );
+                }
+            }
+        } else {
+            where.append( "AND value LIKE '%" + groupContains + "%'" );
+        }
+
+        // check whether start date is before end date
+        if( !StringUtils.isNullOrEmpty( afterDate ) && !StringUtils.isNullOrEmpty( beforeDate ) ) {
+
+            SimpleDateFormat dates = new SimpleDateFormat( "dd.MM.yyyy" );
+            try {
+                Date dateStartParse = dates.parse( afterDate );
+                Date dateEndParse = dates.parse( beforeDate );
+                if( dateStartParse.after( dateEndParse ) ) {
+
+                    throw new DatabaseAccessException ( "The provided value for 'Started before'(" + beforeDate
+                           + ") is before the value for 'Started after'(" + afterDate + ")" );
+                }
+            } catch( ParseException e ) {
+                // already caught by the DateValidator
+            }
+        }
+
+        // add start/end dates to the where clause
+        if( !StringUtils.isNullOrEmpty( afterDate ) ) {
+            String[] tokens = afterDate.split( "\\." );
+            where.append( " AND dateStart >= CONVERT(DATETIME,'" + tokens[2] + "-" + tokens[1] + "-"
+                          + tokens[0] + " 00:00:00',20)" );
+        }
+        if( !StringUtils.isNullOrEmpty( beforeDate ) ) {
+            String[] tokens = beforeDate.split( "\\." );
+            where.append( " AND dateStart <= CONVERT(DATETIME,'" + tokens[2] + "-" + tokens[1] + "-"
+                          + tokens[0] + " 23:59:59',20)" );
+        }
+        where.append( ")))" );
+
+        // get results from db
         List<GroupInfo> groups = new ArrayList<GroupInfo>( 1 );
         List<TestcaseInfo> testcaseInfos = new ArrayList<TestcaseInfo>( 1 );
         try {
 
-            List<String> groupNames = getAllGroupNames( whereClause );
+            List<String> groupNamesList = getAllGroupNamesViaWhereClause( where.toString() );
 
-            for( String groupName : groupNames ) {
+            for( String groupName : groupNamesList ) {
 
                 GroupInfo group = new GroupInfo();
 
@@ -770,5 +932,138 @@ public class TestExplorerDbReadAccess extends DbReadAccess implements TestExplor
             DbUtils.close( connection, statement );
         }
     }
+
+    @Override
+    public List<Run> getSpecificProductVersionBuildRuns( String productName,
+                                                         String versionName, 
+                                                         String buildType ) throws DatabaseAccessException {
+
+        final String whereClause = "WHERE productName = '" + productName
+                + "' AND versionName = '" + versionName + "'";
+        
+        String finalWhereClause = new String( whereClause
+                                                     + " AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
+                                                     + ( buildType ) + "')" );
+        return getRuns( 0, getRunsCount( finalWhereClause ),
+                        finalWhereClause, "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    /**
+     * Get runs that are not from certain product and version name
+     * @param productName the product name
+     * @param productName the product name
+     * @return list of {@link Run} that do not have the specified product and version names
+     * */
+    @Override
+    public List<Run> getUnspecifiedRuns( String productName, String versionName ) throws DatabaseAccessException {
+
+        final String whereClause = "WHERE productName = '" + productName
+                + "' AND versionName = '" + versionName + "'";
+        
+        String finalWhereClause = whereClause
+                + " AND runId NOT IN (SELECT runId from tRunMetainfo WHERE name='type')";
+        
+        return getRuns( 0, getRunsCount( finalWhereClause ),
+                        finalWhereClause, "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    @Override
+    public List<Suite>
+            getSpecificProductVersionBuildSuites( String productName, 
+                                                  String versionName,
+                                                  String buildType ) throws DatabaseAccessException {
+
+        final String whereClause = "WHERE productName = '" + productName
+                + "' AND versionName = '" + versionName + "'";
+        
+        String finalWhereClause = new String( whereClause
+                                                     + " AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
+                                                     + ( buildType ) + "')" );
+        StringBuilder where = new StringBuilder();
+
+        where.insert( 0, "WHERE runId in ( SELECT runId from tRuns " ).append( finalWhereClause ).append( ")" );
+        
+        return getSuites( 0, getSuitesCount( where.toString() ), where.toString(), "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    @Override
+    public List<Suite> getUnspecifiedSuites( String productName,
+                                             String versionName ) throws DatabaseAccessException {
+
+        final String whereClause = "WHERE productName = '" + productName + "' AND versionName = '" + versionName
+                + "' AND runId NOT IN (SELECT runId FROM tRunMetainfo WHERE name='type')";
+        
+        StringBuilder where = new StringBuilder();
+
+        where.insert( 0, "WHERE runId in ( SELECT runId from tRuns " ).append( whereClause ).append( ")" );
+        
+        return getSuites( 0, getSuitesCount( where.toString() ), where.toString(), "dateStart", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    @Override
+    public List<Testcase>
+            getSpecificProductVersionBuildSuiteNameTestcases( String suiteName, 
+                                                              String type,
+                                                              String productName,
+                                                              String versionName ) throws DatabaseAccessException {
+
+        String whereClause = "WHERE 1=1"
+                + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
+                + suiteName
+                + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
+                + productName + "' AND versionName ='" + versionName
+                + "' AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
+                + ( type ) + "')))";
+        
+        return getTestcases( 0, getTestcasesCount( whereClause ), whereClause, "dateStart",
+                      true, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    @Override
+    public List<Testcase>
+            getUnspecifiedTestcases( String suiteName, String type, String productName,
+                                             String versionName ) throws DatabaseAccessException {
+
+        String whereClause = "WHERE 1=1" + " AND suiteId IN (SELECT suiteId FROM tSuites WHERE name ='"
+                + suiteName
+                + "' AND runId IN (SELECT runId FROM tRuns WHERE productName ='"
+                + productName + "' AND versionName ='" + versionName
+                + "' AND runId NOT IN (SELECT runId FROM tRunMetainfo WHERE name='type')))";
+        
+        return getTestcases( 0, getTestcasesCount( whereClause ), whereClause, "dateStart",
+                             true, ((TestExplorerSession)Session.get()).getTimeOffset() );
+    }
+
+    @Override
+    public List<String> getAllGroupNamesViaWhereClause( String whereClause ) throws DatabaseAccessException {
+
+        String sql = "SELECT DISTINCT value as groupName FROM tScenarioMetainfo " + whereClause;
+
+        Connection connection = null;
+        Statement statement = null;
+        try {
+
+            connection = getConnection();
+
+            statement = connection.createStatement();
+
+            ResultSet rs = statement.executeQuery( sql );
+
+            List<String> names = new ArrayList<String>( 1 );
+
+            while( rs.next() ) {
+                names.add( rs.getString( "groupName" ) );
+            }
+
+            return names;
+
+        } catch( SQLException e ) {
+            log.error( DbUtils.getFullSqlException( "Unable to get group names ", e ) );
+            throw new DatabaseAccessException( "Unable to get group names " + sql );
+        } finally {
+            DbUtils.close( connection, statement );
+        }
+    }
+    
 
 }

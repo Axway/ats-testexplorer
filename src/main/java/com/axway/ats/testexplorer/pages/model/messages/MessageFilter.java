@@ -84,30 +84,14 @@ public class MessageFilter extends Form<Object> implements IFilter{
         add( searchByMessage );
 
         TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
-        String table = "";
-        String whereClause = "";
         try {
             if( "runId".equals( idColumnName ) ) {
-                table = "tRunMessages";
-                whereClause = "WHERE runMessageId IN (SELECT runMessageId FROM tRunMessages WHERE runId="
-                              + idColumnValue + ")";
+                messageFilterDetails = dbAccess.getRunMessageFilterDetails( idColumnValue );
             } else if( "suiteId".equals( idColumnName ) ) {
-                table = "tSuiteMessages";
-                whereClause = "WHERE suiteMessageId IN (SELECT suiteMessageId FROM tSuiteMessages WHERE suiteId="
-                              + idColumnValue + ")";
+                messageFilterDetails = dbAccess.getSuiteMessageFilterDetails( idColumnValue );
             } else {
-                table = "tMessages";
-                whereClause = "WHERE testcaseId=" + idColumnValue;
+                messageFilterDetails = dbAccess.getTestcaseMessageFilterDetails( idColumnValue );
             }
-            String sqlQuery = "SELECT DISTINCT mt.messageTypeId, mt.name as levelName, m.threadName, "
-                    + "CASE WHEN mach.machineAlias is NULL OR DATALENGTH(mach.machineAlias) = 0 THEN mach.machineName "
-                    + " ELSE mach.machineAlias END as machineName "
-                    + "FROM " + table + " AS m "
-                    + "LEFT JOIN tMessageTypes mt ON m.messageTypeId = mt.messageTypeId "
-                    + "JOIN tMachines mach ON m.machineId = mach.machineId "
-                    + whereClause + " ORDER BY mt.messageTypeId";
-
-            messageFilterDetails = dbAccess.getMessageFilterDetails( sqlQuery );
         } catch( DatabaseAccessException e ) {
             LOG.error( "Can't get message filter details", e );
         }

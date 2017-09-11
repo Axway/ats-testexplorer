@@ -44,12 +44,12 @@ public class TestcasesCopyUtility extends CopyUtility {
     public static final String OVERWRITE_TESTCASES_MSG_OVERWRITE            = "Overwrite all existing testcases";
     public static final String OVERWRITE_TESTCASES_MSG_OVERWRITE_NOT_PASSED = "Overwrite all existing testcases without the passed ones";
 
-    public TestcasesCopyUtility( String srcDbHost, String srcDbName, String dstDbHost, String dstDbName,
-                                 String dbUser, String dbPassword, int srcSuiteId, int[] srcEntityIds,
+    public TestcasesCopyUtility( String srcDbHost, int srcDbPort, String srcDbName, String dstDbHost, int dstDbPort,
+                                 String dstDbName, String dbUser, String dbPassword, int srcSuiteId, int[] srcEntityIds,
                                  ENTITY_TYPES srcEntityTypes, boolean overwriteAllTestcases, int dstRunId,
                                  List<String> webConsole ) throws DatabaseAccessException {
 
-        super( srcDbHost, srcDbName, dstDbHost, dstDbName, dbUser, dbPassword, webConsole );
+        super( srcDbHost, srcDbPort, srcDbName, dstDbHost, dstDbPort, dstDbName, dbUser, dbPassword, webConsole );
 
         this.srcSuiteId = srcSuiteId;
         this.srcEntityIds = srcEntityIds;

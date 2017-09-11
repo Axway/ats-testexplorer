@@ -68,14 +68,9 @@ public class DashboardHomeUtils {
             runsData.append( "[" );
             statusData.append( "[" );
 
-            final String whereClause = "WHERE productName = '" + productAndVersion[0]
-                                       + "' AND versionName = '" + productAndVersion[1] + "'";
-
             for( String buildType : buildTypes ) {
-                String currentBuildWhereClause = new String( whereClause
-                                                             + " AND runId IN (SELECT runId FROM tRunMetainfo WHERE name='type' AND value='"
-                                                             + ( buildType ) + "')" );
-                List<Run> runs = getRuns( currentBuildWhereClause );
+                List<Run> runs = ((TestExplorerSession)Session.get()).getDbReadConnection()
+                                                                     .getSpecificProductVersionBuildRuns( productAndVersion[0], productAndVersion[1], buildType );
                 if( runs == null || runs.size() == 0 ) {
                     continue;
                 }
@@ -83,9 +78,7 @@ public class DashboardHomeUtils {
                          buildType );
             }
 
-            String unspecifiedRunsWhereClause = whereClause
-                                                + " AND runId NOT IN (SELECT runId from tRunMetainfo WHERE name='type')";
-            List<Run> unspecifiedRuns = getRuns( unspecifiedRunsWhereClause );
+            List<Run> unspecifiedRuns = ((TestExplorerSession)Session.get()).getDbReadConnection().getUnspecifiedRuns( productAndVersion[0], productAndVersion[1] );
             addData( unspecifiedRuns, chartData, runsData, statusData, productAndVersion[0],
                      productAndVersion[1], "unspecified" );
 
@@ -104,17 +97,6 @@ public class DashboardHomeUtils {
         jsonData.add( statusData.toString() );
 
         return jsonData;
-    }
-
-    private List<Run> getRuns( String whereClause ) throws DatabaseAccessException {
-
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
-
-        List<Run> runs = session.getDbReadConnection()
-                                .getRuns( 0, session.getDbReadConnection().getRunsCount( whereClause ),
-                                          whereClause, "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() );
-
-        return runs;
     }
 
     private String initRunJsonDatum( Run run ) {

@@ -58,11 +58,16 @@ public class TestcasesByGroupsPage extends BasePage {
         TestcaseInfoPerGroupStorage perGroupStorage = null;
         try {
             perGroupStorage = session.getDbReadConnection()
-                                     .getTestcaseInfoPerGroupStorage( filter.getWhereClause() );
+                                     .getTestcaseInfoPerGroupStorage( filter.getSelectedProductName(), 
+                                                                      filter.getSelectedVersionNames(), 
+                                                                      filter.getSelectedGroupNames(), 
+                                                                      filter.getSearchByAfterDate(), 
+                                                                      filter.getSearchByBeforeDate(), 
+                                                                      filter.getSearchByGroupContains() );
 
         } catch( DatabaseAccessException e ) {
-            LOG.error( "Unable to get Testcases and groups data", e );
-            error( "Unable to get Testcases and groups data" );
+            LOG.error( "Unable to get Testcases and Groups data", e );
+            error( "Unable to get Testcases and Groups data" );
         }
 
         if( perGroupStorage != null ) {

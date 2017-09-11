@@ -42,7 +42,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.mapper.parameter.INamedParameters.NamedPair;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-import com.axway.ats.log.autodb.DbReadAccess;
+import com.axway.ats.log.autodb.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.entities.Statistic;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
@@ -297,7 +297,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 // collect all the data from this diagram, so all statistics could be updated successfully
                 for( DbStatisticDescription dbStatDescription : dataToBeUpdated ) {
                     testcaseIds.add( dbStatDescription.testcaseId );
-                    if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( dbStatDescription.machineName ) ) {
+                    if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( dbStatDescription.machineName ) ) {
                         usrStatisticTypeIds.add( dbStatDescription.statisticId );
                         usrMachineIds.add( dbStatDescription.machineId );
                     } else if( dbStatDescription.machineId != 0 ) {
@@ -356,7 +356,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
         Set<Integer> sysMachineIds = new HashSet<Integer>();
         for( MachineDescription machDesc : systemStatisticsPanel.getMachineDescriptions() ) {
             for( DbStatisticDescription statDesc : machDesc.getStatDescriptionsList() ) {
-                if( !DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
+                if( !SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
                     for( Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet() ) {
                         for( DbStatisticDescription dbStatDescription : statsData.getValue() ) {
                             if( dbStatDescription.statisticId != -1
@@ -380,7 +380,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
         Set<Integer> userMachineIds = new HashSet<Integer>();
         for( MachineDescription machDesc : userStatisticsPanel.getMachineDescriptions() ) {
             for( DbStatisticDescription statDesc : machDesc.getStatDescriptionsList() ) {
-                if( DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
+                if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
                     for( Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet() ) {
                         for( DbStatisticDescription dbStatDescription : statsData.getValue() ) {
                             if( dbStatDescription.statisticId != -1
@@ -495,7 +495,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                             chartDataCopy.setLabel( stat.alias );
                         }
                         if( userStatistics ) {
-                            stat.machineName = DbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS;
+                            stat.machineName = SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS;
                         }
                         stat.setChartData( chartDataCopy );
                         break;

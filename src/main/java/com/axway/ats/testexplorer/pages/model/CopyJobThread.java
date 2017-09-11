@@ -32,8 +32,10 @@ public class CopyJobThread extends Thread implements Serializable {
     protected static Logger                     LOG                 = Logger.getLogger( CopyJobThread.class );
 
     private String                              sourceHost;
+    private int                                 sourcePort;
     private String                              sourceDbName;
     private String                              destinationHost;
+    private int                                 destinationPort;
     private String                              destinationDbName;
     private String                              dbUsername;
     private String                              dbPassword;
@@ -48,16 +50,20 @@ public class CopyJobThread extends Thread implements Serializable {
     protected boolean                           isInitSuccessful    = false;
 
     public CopyJobThread( String sourceHost,
+                          int sourcePort,
                           String sourceDbName,
                           String destinationHost,
+                          int destinationPort,
                           String destinationDbName,
                           String dbUsername,
                           String dbPassword,
                           List<String> webConsole ) {
 
         this.sourceHost = sourceHost;
+        this.sourcePort = sourcePort;
         this.sourceDbName = sourceDbName;
         this.destinationHost = destinationHost;
+        this.destinationPort = destinationPort;
         this.destinationDbName = destinationDbName;
         this.dbUsername = dbUsername;
         this.dbPassword = dbPassword;
@@ -98,6 +104,11 @@ public class CopyJobThread extends Thread implements Serializable {
 
         return sourceHost;
     }
+    
+    public int getSourcePort() {
+        
+        return sourcePort;
+    }
 
     public String getSourceDbName() {
 
@@ -107,6 +118,11 @@ public class CopyJobThread extends Thread implements Serializable {
     public String getDestinationHost() {
 
         return destinationHost;
+    }
+    
+    public int getDestinationPort() {
+        
+        return destinationPort;
     }
 
     public String getDestinationDbName() {
