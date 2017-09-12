@@ -177,7 +177,7 @@ public class TestcasesCopyUtility extends CopyUtility {
     }
 
     private int createAndLoadMatchingDestinationSuite( Suite srcSuite ) throws DatabaseAccessException,
-                                                                        ParseException {
+                                                                        ParseException, NumberFormatException, DbEntityCopyException {
 
         int dstSuiteId;
         List<Suite> dstSuites = this.dstDbRead.getSuites( 0, 1,

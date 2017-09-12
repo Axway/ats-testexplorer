@@ -254,7 +254,7 @@ public abstract class CopyUtility {
         return this.srcDbRead.getTestcases( 0, 10000, whereClause, "testcaseId", true, 0 );
     }
 
-    protected int copyRun( Run srcRun ) throws DatabaseAccessException, ParseException {
+    protected int copyRun( Run srcRun ) throws DatabaseAccessException, ParseException, NumberFormatException, DbEntityCopyException {
 
         log( "[RUN] '" + srcRun.runName + "' (id=" + srcRun.runId + ") start copying" );
 
@@ -273,6 +273,9 @@ public abstract class CopyUtility {
         dstRun.userNote = srcRun.userNote;
         this.dstDbWrite.updateRun( dstRun );
         
+        // copy Run messages
+        copyRunMessages(srcRun, dstRun);
+        
         // copy Run metainfo
         List<RunMetaInfo> runMetainfos = this.srcDbRead.getRunMetaInfo( Integer.parseInt( srcRun.runId ) );
         for(RunMetaInfo rmi : runMetainfos) {
@@ -282,7 +285,41 @@ public abstract class CopyUtility {
         return dstRunId;
     }
 
-    protected int copySuite( Suite srcSuite, int dstRunId ) throws DatabaseAccessException, ParseException {
+    protected void copyRunMessages( Run srcRun, Run dstRun ) throws DatabaseAccessException, NumberFormatException, DbEntityCopyException {
+
+        int srcRunMessagesCount = this.srcDbRead.getRunMessagesCount( "where runId=" + srcRun.runId );
+        log( "[RUN MESSAGES] start copying of " + srcRunMessagesCount + " run messages" );
+
+        if( srcRunMessagesCount > 0 ) {
+            List<Message> srcRunMessages;
+            boolean stillcopying = true;
+            int startRecord = 0;
+            for( int recordsCount = MESSAGES_CHUNK_TO_COPY; stillcopying; recordsCount += MESSAGES_CHUNK_TO_COPY ) {
+
+                if( recordsCount >= srcRunMessagesCount ) {
+                    recordsCount = srcRunMessagesCount;
+                    stillcopying = false;
+                }
+                log( "[RUN MESSAGES] copying from " + startRecord + " to " + recordsCount );
+                srcRunMessages = this.srcDbRead.getRunMessages( startRecord, recordsCount,
+                                                          "where runId=" + srcRun.runId, "runMessageId",
+                                                          true, 0 );
+                startRecord = recordsCount + 1;
+
+                for( Message srcMsg : srcRunMessages ) {
+
+                    this.dstDbWrite.insertRunMessage( srcMsg.messageContent,
+                                                      convertMsgLevel( srcMsg.messageType ), srcMsg.escapeHtml,
+                                                      srcMsg.machineName, srcMsg.threadName,
+                                                      srcMsg.getStartTimestamp(),
+                                                      Integer.parseInt( dstRun.runId ), true );
+                }
+            }
+        }
+        
+    }
+
+    protected int copySuite( Suite srcSuite, int dstRunId ) throws DatabaseAccessException, ParseException, NumberFormatException, DbEntityCopyException {
 
         ++numberSuites;
 
@@ -301,8 +338,45 @@ public abstract class CopyUtility {
         dstSuite.suiteId = String.valueOf( dstSuiteId );
         dstSuite.userNote = srcSuite.userNote;
         this.dstDbWrite.updateSuite( dstSuite );
+        
+        // copy Suite messages
+        copySuiteMessages(srcSuite, dstSuite);
 
         return dstSuiteId;
+    }
+
+    protected void copySuiteMessages( Suite srcSuite, Suite dstSuite ) throws DatabaseAccessException, NumberFormatException, DbEntityCopyException {
+
+        int srcSuiteMessagesCount = this.srcDbRead.getSuiteMessagesCount( "where suiteId=" + srcSuite.suiteId );
+        log( INDENT_SUITE, "[SUITE MESSAGES] start copying of " + srcSuiteMessagesCount + " suite messages" );
+
+        if( srcSuiteMessagesCount > 0 ) {
+            List<Message> srcSuiteMessages;
+            boolean stillcopying = true;
+            int startRecord = 0;
+            for( int recordsCount = MESSAGES_CHUNK_TO_COPY; stillcopying; recordsCount += MESSAGES_CHUNK_TO_COPY ) {
+
+                if( recordsCount >= srcSuiteMessagesCount ) {
+                    recordsCount = srcSuiteMessagesCount;
+                    stillcopying = false;
+                }
+                log( INDENT_SUITE, "[SUITE MESSAGES] copying from " + startRecord + " to " + recordsCount );
+                srcSuiteMessages = this.srcDbRead.getSuiteMessages( startRecord, recordsCount,
+                                                          "where suiteId=" + srcSuite.suiteId, "suiteMessageId",
+                                                          true, 0 );
+                startRecord = recordsCount + 1;
+
+                for( Message srcMsg : srcSuiteMessages ) {
+
+                    this.dstDbWrite.insertSuiteMessage( srcMsg.messageContent,
+                                                        convertMsgLevel( srcMsg.messageType ), srcMsg.escapeHtml,
+                                                        srcMsg.machineName, srcMsg.threadName,
+                                                        srcMsg.getStartTimestamp(),
+                                                        Integer.parseInt( dstSuite.suiteId ), true );
+                }
+            }
+        }
+        
     }
 
     protected void copyScenarioWithItsTestcases( Suite srcSuite, Scenario srcScenario,
@@ -328,10 +402,12 @@ public abstract class CopyUtility {
                                                                         DbEntityCopyException {
 
         ++numberTestcases;
+        
+        Scenario srcScenario = this.srcDbRead.getScenarios( 0, 1, "WHERE scenarioId = " + srcTestcase.scenarioId, "scenarioId", true, 0 ).get( 0 );
 
         log( INDENT_TEST, "[TESTCASE #" + numberTestcases + "] copying testcase '" + srcTestcase.name + "'" );
         int dstTestcaseId = this.dstDbWrite.startTestCase( srcTestcase.suiteName, srcTestcase.scenarioName,
-                                                           "", srcTestcase.name,
+                                                           srcScenario.description, srcTestcase.name,
                                                            srcTestcase.getStartTimestamp(),
                                                            dstSuiteId, true );
 
@@ -370,6 +446,8 @@ public abstract class CopyUtility {
         
         // SCENARIO META INFO
         List<ScenarioMetaInfo> scenarioMetaInfos = this.srcDbRead.getScenarioMetaInfo( Integer.parseInt( srcTestcase.scenarioId ) );
+        log( INDENT_TEST_CONTENT,
+             "[SCENARIO META INFO] start copying of " + scenarioMetaInfos.size() + " scenario metainfo pairs" );
         for ( ScenarioMetaInfo smi : scenarioMetaInfos ) {
             this.dstDbWrite.addScenarioMetainfo( dstTestcaseId, smi.name, smi.value, true );
         }
