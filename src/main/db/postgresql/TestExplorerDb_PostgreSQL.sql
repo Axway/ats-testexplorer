@@ -1817,7 +1817,7 @@ DECLARE
 BEGIN
     _sql := 'SELECT tt.testcaseId, 
                     tt.name as testcaseName,
-                    EXTRACT(EPOCH FROM (CAST( ''' || _fdate || ''' AS TIMESTAMP) - tt.dateStart)) as testcaseStarttime,
+                    EXTRACT(EPOCH FROM (tt.dateStart - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
                     m.machineId,
                     CASE
                         WHEN m.machineAlias is NULL OR LENGTH(m.machineAlias) = 0 THEN m.machineName
