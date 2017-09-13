@@ -38,6 +38,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
+import com.axway.ats.core.utils.IoUtils;
 import com.axway.ats.core.utils.StringUtils;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
@@ -228,9 +229,10 @@ public class AttachmentsPanel extends Panel {
             LocalFileSystemOperations fo = new LocalFileSystemOperations();
             // check if there is a directory for the current testcase and files attached to it
             String baseDir = attachedfilesDir + "\\" + database;
-            if( fo.doesFileExist( baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId ) ) {
-                return Arrays.asList( fo.findFiles( baseDir + "\\" + runId + "\\" + suiteId + "\\"
-                                                    + testcaseId, ".*", true, false, false ) );
+            String fullFilePath = baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId;
+            fullFilePath = IoUtils.normalizeFilePath( fullFilePath );
+            if( fo.doesFileExist( fullFilePath ) ) {
+                return Arrays.asList( fo.findFiles( fullFilePath, ".*", true, false, false ) );
             }
         } catch( DatabaseAccessException e ) {
             LOG.error( "There was problem getting testcase parameters, files attached to the current testcase will not be shown!" );
