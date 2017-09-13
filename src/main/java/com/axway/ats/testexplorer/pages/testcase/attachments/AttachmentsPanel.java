@@ -85,14 +85,18 @@ public class AttachmentsPanel extends Panel {
         form.add( fileContent );
         form.add( downloadFile );
         form.add( buttonPanel );
-        form.add( noButtonPanel );
         form.add( startingDisplayingMessage );
         form.add( endingDisplayingMessage );
+        
+        add( noButtonPanel );
         add( form );
-
+        
         buttonPanel.setVisible(!( buttons == null));
         fileContent.setVisible(!( buttons == null));
         noButtonPanel.setVisible( buttons == null );
+        
+        // if noButtonPanel is visible, do not show form and vice versa
+        form.setVisible( !noButtonPanel.isVisible() );
         
         noButtonPanel.add( new Label("description", noButtonPanelInfo ) );
 
