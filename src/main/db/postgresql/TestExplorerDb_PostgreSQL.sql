@@ -2232,7 +2232,7 @@ BEGIN
         AND   "tSystemStats".statsTypeId = _idToken::INTEGER 
         AND   to_char("tSystemStats".timestamp, 'yyyy-mm-dd hh24:mi:ss') = _timestampString;
         
-		IF performUpdate > 0 THEN
+		IF performUpdate IS NOT NULL THEN
 			_sql := 'UPDATE ' || $$"tSystemStats"$$ || ' SET value = value + ' || _valueToken::REAL || ' WHERE statsTypeId = ' || _idToken::INTEGER || ' AND timestamp = ''' || _timestampString || '''';
 			EXECUTE _sql;
 		ELSE
@@ -2245,6 +2245,7 @@ BEGIN
 				EXECUTE _sql;
 			END;
 		END IF;
+		performUpdate = NULL;
     END LOOP;
 	
 END;

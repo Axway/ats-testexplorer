@@ -2179,7 +2179,7 @@ BEGIN
         WHERE testcaseId = @testcaseId
         AND statsTypeId = @idToken
         AND timestamp = @timestampString
-		IF @performUpdate > 0
+		IF @performUpdate IS NOT NULL
 		    BEGIN
 			    SET @sql = 'UPDATE tSystemStats SET value = value + ' + @valueToken +
 					       'WHERE statsTypeId = ' + @idToken +
@@ -2197,6 +2197,7 @@ BEGIN
                            ')'
 				EXEC(@sql)
             END
+        SET @performUpdate = null
     END
     -- TODO we should return the number of inserted statistics and check this number in the calling java code
 END
