@@ -6,9 +6,9 @@
 /****** Record the internal version ******/
 print '-- update internalVersion in [dbo].[tInternal]'
 GO
-UPDATE [dbo].[tInternal] SET [value]='8' WHERE [key]='internalVersion'
+UPDATE [dbo].[tInternal] SET [value]='9' WHERE [key]='internalVersion'
 GO
-INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_8', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_9', SYSDATETIME());
 GO
 
 -- updates for internal version 7
@@ -732,5 +732,128 @@ drop table #tmpScenarios
 GO
 
 print 'end alter sp_get_scenarios '
+GO
+
+-- updates for internal version 9
+
+print 'start alter sp_populate_checkpoint_summary'
+GO
+/****** Object:  StoredProcedure [dbo].[sp_get_scenarios]    Script Date: 08/10/2017 17:34:57 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+CREATE PROCEDURE [dbo].[sp_populate_checkpoint_summary]
+
+@loadQueueId INT,
+@name VARCHAR(255),
+@transferRateUnit VARCHAR(50),
+@checkpointSummaryId INT =0 OUT
+
+AS
+BEGIN
+
+	INSERT INTO tCheckpointsSummary
+                    ( loadQueueId,  name, numRunning, numPassed, numFailed, minResponseTime, maxResponseTime, avgResponseTime, minTransferRate, maxTransferRate, avgTransferRate, transferRateUnit)
+    VALUES
+                    -- insert the max possible int value for minResponseTime, so on the first End Checkpoint event we will get a real min value
+                    -- insert the same value for maxTransferRate which is float
+                    (@loadQueueId, @name, 0, 0, 0, 2147483647, 0, 0, 2147483647, 0, 0, @transferRateUnit)
+
+    SET @checkpointSummaryId = @@IDENTITY
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_start_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+print 'end alter sp_populate_checkpoint_summary'
+GO
+
+print 'start alter sp_start_checkpoint'
+GO
+/****** Object:  StoredProcedure [dbo].[sp_start_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER   PROCEDURE [dbo].[sp_start_checkpoint]
+
+@loadQueueId INT
+,@name VARCHAR(255)
+,@mode INT
+,@transferRateUnit VARCHAR(50)
+
+,@checkpointSummaryId INT =0 OUT
+,@checkpointId INT =0 OUT
+
+AS
+
+-- 0 - FAILED
+-- 1 - PASSED
+-- 4 - RUNNING
+DECLARE @result INT =4
+
+-- As this procedure is usually called from more more than one thread (from 1 or more ATS agents)
+-- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,
+-- they all see the needed summary checkpoint is not present and they all create one. This is wrong!
+-- The fix is to make sure that only 1 thread at a time executes this stored procedure and all other threads are blocked.
+-- This is done by using a lock with exclusive mode. The lock is automatically released at the end of the transaction.
+
+BEGIN TRAN StartCheckpointTransaction
+DECLARE @get_app_lock_res INT
+EXEC @get_app_lock_res = sp_getapplock @Resource = 'StartCheckpointTransaction Lock ID', @LockMode = 'Exclusive';
+
+IF @get_app_lock_res < 0
+    -- error getting lock
+    -- client will see there was an error as @RowsInserted stays 0
+    RETURN;
+
+BEGIN
+
+    -- get an ID if already present
+    SET @checkpointSummaryId =( SELECT  checkpointSummaryId
+                                FROM    tCheckpointsSummary
+                                WHERE   loadQueueId = @loadQueueId AND name = @name   )
+
+    -- SUMMARY table - it keeps 1 row for ALL values of a checkpoint
+    IF (@checkpointSummaryId IS NOT NULL)
+        -- update existing entry
+        BEGIN
+            UPDATE tCheckpointsSummary
+            SET     numRunning = numRunning + 1
+            WHERE checkpointSummaryId = @checkpointSummaryId
+        END
+
+    -- insert in DETAILS table when running FULL mode - it keeps 1 row for EACH value of a checkpoint
+    --   @mode == 0 -> SHORT mode
+    --   @mode != 0 -> FULL mode
+    IF @mode != 0
+    BEGIN
+        INSERT INTO tCheckpoints
+            (checkpointSummaryId, name, responseTime, transferRate, transferRateUnit, result, endTime)
+        VALUES
+            (@checkpointSummaryId, @name, 0, 0, @transferRateUnit, @result, null)
+
+        SET @checkpointId = @@IDENTITY
+    END
+END
+
+IF @@ERROR <> 0 --error has happened
+    ROLLBACK
+ELSE
+    COMMIT
+GO
+/****** Object:  StoredProcedure [dbo].[sp_end_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+print 'end alter sp_start_checkpoint'
 GO
 
