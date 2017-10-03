@@ -6,9 +6,7 @@
 /****** Record the internal version ******/
 print '-- update internalVersion in [dbo].[tInternal]'
 GO
-UPDATE [dbo].[tInternal] SET [value]='9' WHERE [key]='internalVersion'
-GO
-INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_9', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_7', SYSDATETIME());
 GO
 
 -- updates for internal version 7
@@ -440,6 +438,20 @@ GO
 print 'end alter sp-get_checkpoint_statistic_description'
 GO
 
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occured while performing update to internal version 7', 16, 1) WITH LOG;
+    RETURN;
+END
+
+UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
+GO
+
+/****** Record the internal version ******/
+print '-- update internalVersion in [dbo].[tInternal]'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_8', SYSDATETIME());
+GO
 
 -- updates for internal version 8
 
@@ -734,6 +746,22 @@ GO
 print 'end alter sp_get_scenarios '
 GO
 
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occured while performing update to internal version 8', 16, 1) WITH LOG;
+    RETURN;
+END
+
+
+UPDATE [dbo].[tInternal] SET [value]='8' WHERE [key]='internalVersion'
+GO
+
+/****** Record the internal version ******/
+print '-- update internalVersion in [dbo].[tInternal]'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_9', SYSDATETIME());
+GO
+
 -- updates for internal version 9
 
 print 'start alter sp_populate_checkpoint_summary'
@@ -855,5 +883,14 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 print 'end alter sp_start_checkpoint'
+GO
+
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occured while performing update to internal version 9', 16, 1)  WITH LOG;
+    RETURN;
+END
+
+UPDATE [dbo].[tInternal] SET [value]='9' WHERE [key]='internalVersion'
 GO
 
