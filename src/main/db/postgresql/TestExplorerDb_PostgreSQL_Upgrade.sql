@@ -1,3 +1,14 @@
+\set ON_ERROR_STOP on
+
+/* Record the internal version */
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '-- update internalVersion in "tInternal" to 7';
+END
+$$;
+
+INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_7', NOW());
+
 DO language plpgsql $$
 BEGIN
   RAISE WARNING 'START ALTER procedure sp_insert_user_activity_statistic_by_ids';
@@ -86,3 +97,5 @@ BEGIN
   RAISE WARNING 'END ALTER procedure sp_insert_user_activity_statistic_by_ids';
 END
 $$;
+
+UPDATE "tInternal" SET value='7' WHERE key='internalVersion';

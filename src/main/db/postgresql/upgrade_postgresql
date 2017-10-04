@@ -34,9 +34,15 @@ if [ "$NEEDS_UPGRADE" = true ]; then
 	echo "UPGRADING \"$DB_NAME\" from version \"$DB_VERSION\" to \"$NEW_DB_VERSION\""
 	echo "\connect $DB_NAME" >> tmpUpgradeDbScript.sql
 	echo " " >> tmpUpgradeDbScript.sql
+	echo "UPDATE \"tInternal\" SET value = '${NEW_DB_VERSION}_draft' WHERE key = 'version';" >> tmpUpgradeDbScript.sql
+	echo " " >> tmpUpgradeDbScript.sql
 	cat TestExplorerDb_PostgreSQL_Upgrade.sql >> tmpUpgradeDbScript.sql
-
-	psql -U postgres -a -f tmpUpgradeDbScript.sql 2>&1 | grep ERROR > upgrade.log
+	psql -U postgres -a -f tmpUpgradeDbScript.sql 2>&1 | grep 'ERROR:\|WARNING:' > upgrade.log
+	NUM_OF_ERRORS=`cat upgrade.log | grep 'ERROR:' | wc -l`
+	if [[ "$NUM_OF_ERRORS" == 0 ]]; then
+		psql -U postgres -d $DB_NAME -t -c "UPDATE \"tInternal\" SET value = '$NEW_DB_VERSION' WHERE key = 'version'"
+	fi
+	echo "Errors during install: $NUM_OF_ERRORS"
 	echo "Upgrading of \"$DB_NAME\" completed. See upgrade.log file for errors"
 else
 	echo "Database \"$DB_NAME\" is the latest version \"$DB_VERSION\" and does not need upgrading."

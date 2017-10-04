@@ -22,7 +22,7 @@ if %errorlevel%==0 (
 	echo. >> tmpInstallDbScript.sql
 	echo \connect %DB_NAME% >> tmpInstallDbScript.sql
 	type TestExplorerDB_PostgreSQL.sql >> tmpInstallDbScript.sql
-	psql.exe -U postgres -a -f tmpInstallDbScript.sql 2>&1 | FINDSTR ERROR > install.log
+	psql.exe -U postgres -a -f tmpInstallDbScript.sql 2>&1 | FINDSTR 'ERROR:' > install.log
 	echo Installing of "%DB_NAME%" completed. See install.log file for errors
 )
 del /f /q db_list.txt
