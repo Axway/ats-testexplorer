@@ -1014,7 +1014,18 @@ div.itemsToCompare {
 div.itemsToCompare table {
     width:100%;
 }
-div.itemsToCompare table table {
+
+div.attachedItems {
+    background-color:#DFEBEF;
+    padding: 40px 20px 40px 20px;
+    -moz-border-radius:10px 10px 10px 10px;
+    border-radius: 10px;
+}
+div.attachedItems table {
+    width:30%;
+}
+
+div.itemsToCompare table table, div.attachedItems table {
     background-color:#FFFFFF;
     font-family:sans-serif;
     font-size:12px;
@@ -1032,19 +1043,19 @@ div.itemsToCompare table td {
     vertical-align:middle;
     text-align: left;
 }
-div.itemsToCompare table table td {
+div.itemsToCompare table table td, div.attachedItems table td {
     border-right:1px solid #DDDDDD;
     border-bottom:1px solid #DDDDDD;
     padding: 3px;
 }
-div.itemsToCompare table table tr.oddRow {
+div.itemsToCompare table table tr.oddRow, div.attachedItems table tr.oddRow {
     background-color:#FBFBFB;
 }
-    div.itemsToCompare table table tr:hover {
+    div.itemsToCompare table table tr:hover, div.attachedItems table tr:hover {
         background-color:#DFF1FF;
     }
 
-div.itemsToCompare table table th {
+div.itemsToCompare table table th, div.attachedItems table th {
     background-color:white;
     background-image:url("../images/vista-bg-grey.png");
     background-position:center bottom;
@@ -1129,6 +1140,14 @@ div.machinesPageHeader {
     background:url("../images/deleteAll.png") no-repeat scroll right top transparent;
     height:16px;
     width:16px;
+    color: transparent;
+    display:block;
+    text-decoration:none;
+}
+
+.downloadFile {
+    background:url("../images/download.png") no-repeat scroll center center transparent;
+    height:16px;
     color: transparent;
     display:block;
     text-decoration:none;
@@ -1263,7 +1282,6 @@ legend.customizations {
 textarea {
     resize:none;
 }
-
 
 .logsContainer {
 
@@ -1700,7 +1718,11 @@ div.testsComparison table a, div.testsComparison table a:visited {
 .attachedButtons {
 	margin: 5px !important;
 }
-
+.attachedButtonLabel {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /* The container <div> - needed to position the dropdown content */
 .dropdown {

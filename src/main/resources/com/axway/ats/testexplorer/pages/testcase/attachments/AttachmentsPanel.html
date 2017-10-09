@@ -11,32 +11,37 @@
         <span wicket:id="description"></span>
     </div>
     <form wicket:id="form">
-      <table>
-        <tr>
-          <td>
-            <div wicket:id="buttonPanel">
-              <span wicket:id="buttons">
-                <a href="#" class="button attachedButtons" wicket:id="alink">
-                  <span wicket:id="name"></span>
-                </a>
-              </span>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span wicket:id="startingDisplayingMessage"></span>
-            <a href="#"  wicket:id="download"><span wicket:id="downloadLabel"></span></a>
-            <span wicket:id="endingDisplayingMessage"></span>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <textarea readonly style="resize: both" rows="30" cols="100"
-              wicket:id="fileContent" spellcheck="false" wrap="off"></textarea>
-          </td>
-        </tr>
-      </table>
+	    <div wicket:id="buttonPanel" class="attachedItems">
+    		<table>
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th style="width:80px">Download</th>
+                        <th>Size</th>
+                    </tr>
+                </thead>
+    			<tr wicket:id="buttons">
+    				<td>
+    					<div>
+				            <a href="#" class="button attachedButtons" wicket:id="alink">
+				              <span class="attachedButtonLabel" wicket:id="name"></span>
+				            </a>
+		          		</div>
+    				</td>
+      				<td>
+			            <a href="#" wicket:id="download" class="downloadFile"></a>
+      				</td>
+      				<td>
+			            <span wicket:id="fileInfo" style="padding-left:10px"></span>
+      				</td>
+    			</tr>
+      		</table>
+        </div>
+    	<div style="padding:20px;">
+	    	<textarea class="textare_background" readonly style="resize: both" rows="30" cols="135"
+    		  wicket:id="textFile" spellcheck="false" wrap="off"></textarea>
+    		<img wicket:id="imageFile" style="width:1000px;"/>
+		</div>
     </form>
   </wicket:panel>
 </body>

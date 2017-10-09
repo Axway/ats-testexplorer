@@ -16,12 +16,16 @@
 package com.axway.ats.testexplorer.pages.testcase.attachments;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -36,95 +40,120 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.IoUtils;
 import com.axway.ats.core.utils.StringUtils;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
+import com.axway.ats.testexplorer.TestExplorerUtils;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.model.db.PageNavigation;
 
 public class AttachmentsPanel extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long  serialVersionUID  = 1L;
 
-    private static Logger     LOG               = Logger.getLogger( AttachmentsPanel.class );
+    private static Logger      LOG               = Logger.getLogger( AttachmentsPanel.class );
 
-    private Form<Object>      form;
-    private MarkupContainer   buttonPanel;
-    private MarkupContainer   noButtonPanel;
-    private Label             startingDisplayingMessage;
-    private Label             endingDisplayingMessage;
-    private Label             downloadLabel;
-    private DownloadLink      downloadFile;
-    private AjaxLink<?>       alink;
-    private TextArea<String>  fileContent;
+    private Form<Object>       form;
+    private MarkupContainer    buttonPanel;
+    private MarkupContainer    noButtonPanel;
 
-    private List<String>      buttons;
-    private String            fileInfo          = "";
+    private DownloadLink       downloadFile;
+    private AjaxLink<?>        alink;
+    private TextArea<String>   fileContentContainer;
+    private WebMarkupContainer imageContainer;
 
-    private String            noButtonPanelInfo = "No attached files";
+    private List<String>       buttons;
+
+    private String             noButtonPanelInfo = "No attached files";
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public AttachmentsPanel( String id,
-                             String testcaseId ) {
+    public AttachmentsPanel( String id, final String testcaseId, final PageParameters parameters ) {
         super( id );
 
         form = new Form<Object>( "form" );
         buttonPanel = new WebMarkupContainer( "buttonPanel" );
         noButtonPanel = new WebMarkupContainer( "noButtonPanel" );
-        downloadFile = new DownloadLink( "download", new File( " " ), "" );
-        downloadLabel = new Label( "downloadLabel", "" );
-        //        downloadFile.setVisible( false );
-        downloadFile.add( downloadLabel );
-        fileContent = new TextArea<String>( "fileContent", new Model<String>( "" ) );
+        fileContentContainer = new TextArea<String>( "textFile", new Model<String>( "" ) );
+        imageContainer = new WebMarkupContainer( "imageFile" );
         buttons = getAllAttachedFiles( testcaseId );
-        startingDisplayingMessage = new Label( "startingDisplayingMessage", "" );
-        endingDisplayingMessage = new Label( "endingDisplayingMessage", "" );
 
-        form.add( fileContent );
-        form.add( downloadFile );
+        form.add( fileContentContainer );
+        form.add( imageContainer );
         form.add( buttonPanel );
-        form.add( startingDisplayingMessage );
-        form.add( endingDisplayingMessage );
-        
+
         add( noButtonPanel );
         add( form );
-        
-        buttonPanel.setVisible(!( buttons == null));
-        fileContent.setVisible(!( buttons == null));
+
+        buttonPanel.setVisible( ! ( buttons == null ) );
+        fileContentContainer.setVisible( false );
+        imageContainer.setVisible( false );
         noButtonPanel.setVisible( buttons == null );
-        
+
         // if noButtonPanel is visible, do not show form and vice versa
         form.setVisible( !noButtonPanel.isVisible() );
-        
-        noButtonPanel.add( new Label("description", noButtonPanelInfo ) );
+
+        noButtonPanel.add( new Label( "description", noButtonPanelInfo ) );
 
         final ListView lv = new ListView( "buttons", buttons ) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void populateItem(
-                                         final ListItem item ) {
+            protected void populateItem( final ListItem item ) {
+                
+                if( item.getIndex() % 2 != 0 ) {
+                    item.add( AttributeModifier.replace( "class", "oddRow" ) );
+                }
+
+                final String viewedFile = buttons.get( item.getIndex() );
 
                 final String name = getFileSimpleName( buttons.get( item.getIndex() ) );
                 final Label buttonLabel = new Label( "name", name );
+
+                Label fileInfo = new Label( "fileInfo", getFileSize( viewedFile ) );
+
+                downloadFile = new DownloadLink( "download", new File( " " ), "" );
+                downloadFile.setModelObject( new File( viewedFile ) );
+                downloadFile.setVisible( true );
+
                 alink = new AjaxLink( "alink", item.getModel() ) {
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    public void onClick(
-                                         AjaxRequestTarget target ) {
+                    public void onClick( AjaxRequestTarget target ) {
 
-                        String viewedFile = buttons.get( item.getIndex() );
-                        fileContent.setModelObject( getFileContent( viewedFile ) );
-                        startingDisplayingMessage.setDefaultModelObject( fileInfo );
-                        downloadFile.setModelObject( new File( buttons.get( item.getIndex() ) ) );
-                        downloadFile.setVisible( true );
-                        downloadLabel.setDefaultModelObject( name );
-                        endingDisplayingMessage.setDefaultModelObject( " with size "
-                                                                       + getFileSize( viewedFile ) );
+                        String fileContent = new String();
+                        if( !isImage( viewedFile ) ) {
+                            fileContentContainer.setVisible( true );
+                            imageContainer.setVisible( false );
+                            fileContent = getFileContent( viewedFile );
+                            fileContentContainer.setModelObject( fileContent );
+                        } else {
+
+                            PageNavigation navigation = null;
+                            try {
+                                navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
+                                                                                      .getNavigationForTestcase( testcaseId,
+                                                                                                                 getTESession().getTimeOffset() );
+                            } catch( DatabaseAccessException e ) {
+                                LOG.error( "Can't get runId, suiteId and dbname for testcase with id="
+                                           + testcaseId, e );
+                            }
+
+                            String runId = navigation.getRunId();
+                            String suiteId = navigation.getSuiteId();
+                            String dbname = TestExplorerUtils.extractPageParameter( parameters, "dbname" );
+
+                            final String url = "AttachmentsServlet?&runId=" + runId + "&suiteId=" + suiteId
+                                               + "&testcaseId=" + testcaseId + "&dbname=" + dbname
+                                               + "&fileName=" + name;
+                            imageContainer.add( new AttributeModifier( "src", new Model<String>( url ) ) );
+                            imageContainer.setVisible( true );
+                            fileContentContainer.setVisible( false );
+                        }
 
                         // first setting all buttons with the same state
                         String reverseButtonsState = "var cusid_ele = document.getElementsByClassName('attachedButtons'); "
@@ -151,15 +180,29 @@ public class AttachmentsPanel extends Panel {
                         target.add( form );
                     }
                 };
+
                 alink.add( buttonLabel );
                 item.add( alink );
+                item.add( downloadFile );
+                item.add( fileInfo );
             }
         };
         buttonPanel.add( lv );
     }
 
-    private String getFileSimpleName(
-                                      String filePath ) {
+    private boolean isImage( String filePath ) {
+
+        try (FileInputStream fileStream = new FileInputStream( filePath )) {
+            if( ImageIO.read( fileStream ) == null ) {
+                return false;
+            }
+        } catch( IOException e ) {
+            LOG.error( "File '" + filePath + "' cannot be read." );
+        }
+        return true;
+    }
+
+    private String getFileSimpleName( String filePath ) {
 
         if( !StringUtils.isNullOrEmpty( filePath ) ) {
             String normalizedFilePath = filePath.replace( "\\", "/" );
@@ -169,8 +212,7 @@ public class AttachmentsPanel extends Panel {
         return null;
     }
 
-    private String getFileContent(
-                                   String filePath ) {
+    private String getFileContent( String filePath ) {
 
         StringBuilder fileContent = new StringBuilder();
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
@@ -181,17 +223,10 @@ public class AttachmentsPanel extends Panel {
             fileContent.append( "\n" );
         }
 
-        if( fileContentArray.length >= 1024 ) {
-            fileInfo = "Displaying content of last 1024 lines from file ";
-        } else {
-            fileInfo = "Displaying content of all " + fileContentArray.length + " lines from file ";
-        }
-
         return fileContent.toString();
     }
 
-    private String getFileSize(
-                                String filePath ) {
+    private String getFileSize( String filePath ) {
 
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
         double size = fo.getFileSize( filePath ) / 1024d; // calculating the file size in bytes
@@ -209,8 +244,7 @@ public class AttachmentsPanel extends Panel {
         return fixedSize.toString();
     }
 
-    private List<String> getAllAttachedFiles(
-                                              String testcaseId ) {
+    private List<String> getAllAttachedFiles( String testcaseId ) {
 
         ServletContext context = ( ( WebApplication ) getApplication() ).getServletContext();
         if( context.getAttribute( ContextListener.getAttachedFilesDir() ) == null ) {
@@ -225,7 +259,8 @@ public class AttachmentsPanel extends Panel {
 
         try {
             PageNavigation navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                       .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
+                                                                                 .getNavigationForTestcase( testcaseId,
+                                                                                                            getTESession().getTimeOffset() );
             String database = ( ( TestExplorerSession ) Session.get() ).getDbName();
             String runId = navigation.getRunId();
             String suiteId = navigation.getSuiteId();
@@ -243,7 +278,7 @@ public class AttachmentsPanel extends Panel {
         }
         return null;
     }
-    
+
     public TestExplorerSession getTESession() {
 
         return ( TestExplorerSession ) Session.get();

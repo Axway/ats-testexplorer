@@ -17,7 +17,9 @@ package com.axway.ats.testexplorer.pages.testcase.attachments;
 
 //Import required java libraries
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
@@ -35,14 +37,14 @@ import org.apache.log4j.Logger;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.StringUtils;
 
-public class UploadServlet extends HttpServlet {
+public class AttachmentsServlet extends HttpServlet {
 
     private static final long   serialVersionUID = 1L;
 
     // repo dir
     private static String       repoFilesDir;
     
-    private static final Logger LOG              = Logger.getLogger( UploadServlet.class );
+    private static final Logger LOG              = Logger.getLogger( AttachmentsServlet.class );
 
     public void init() throws ServletException {
 
@@ -171,30 +173,60 @@ public class UploadServlet extends HttpServlet {
                                         int testcaseId ) {
 
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
-        String baseDir = repoFilesDir + "\\" + database;
+        String baseDir = repoFilesDir + "/" + database;
         // check if there there is created folder for the current testcaseId
-        if( !fo.doesFileExist( baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId ) ) {
-            fo.createDirectory( baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId );
+        if( !fo.doesFileExist( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId ) ) {
+            fo.createDirectory( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId );
         }
 
-        return new File( baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId + "\\" + attachedFile );
+        return new File( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId + "/" + attachedFile );
     }
 
     private String getFileSimpleName(
                                       String file ) {
 
         if( !StringUtils.isNullOrEmpty( file ) ) {
-            return file.substring( file.lastIndexOf( '\\' ) + 1, file.length() );
+            return file.substring( file.lastIndexOf( '/' ) + 1, file.length() );
         }
         LOG.warn( "File \"" + file + "\" has no valid name!" );
 
         return null;
     }
 
-    public void doGet(
-                       HttpServletRequest request,
-                       HttpServletResponse response ) throws ServletException, IOException {
+    public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
+                                                                                  IOException {
 
-        response.getWriter().println( "Only POST method is accepted!" );
+        String runId = request.getParameter( "runId" );
+        String suiteId = request.getParameter( "suiteId" );
+        String testcaseId = request.getParameter( "testcaseId" );
+        String dbName = request.getParameter( "dbname" );
+        String fileName = request.getParameter( "fileName" );
+
+        String tomcatDir = System.getenv( "CATALINA_BASE" );
+        if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
+            tomcatDir = System.getenv( "CATALINA_HOME" );
+        }
+
+        LocalFileSystemOperations lfo = new LocalFileSystemOperations();
+        String attachedFilePath = tomcatDir + "/ats-attached-files" + "/" + dbName + "/" + runId + "/"
+                                  + suiteId + "/" + testcaseId + "/" + fileName;
+        if( !lfo.doesFileExist( attachedFilePath ) ) {
+            response.getWriter().println( "File '" + attachedFilePath
+                                          + "' does not exist. No attached filed could be showed." );
+        }
+
+        String mimeType = getServletContext().getMimeType( attachedFilePath );
+
+        response.addHeader( "mimeType", mimeType );
+        File attachedFile = new File( attachedFilePath );
+
+        byte[] buffer = new byte[10240];
+
+        try (OutputStream output = response.getOutputStream();
+                FileInputStream attachedFileIS = new FileInputStream( attachedFile )) {
+            for( int length = 0; ( length = attachedFileIS.read( buffer ) ) > 0; ) {
+                output.write( buffer, 0, length );
+            }
+        }
     }
 }

@@ -83,7 +83,7 @@ public class TestcasePanel extends Panel {
             public Panel getPanel(
                                    String panelId ) {
 
-                return new AttachmentsPanel( panelId, testcaseId );
+                return new AttachmentsPanel( panelId, testcaseId, parameters );
             }
         } );
 
