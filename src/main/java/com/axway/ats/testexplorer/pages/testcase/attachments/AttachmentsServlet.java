@@ -202,30 +202,37 @@ public class AttachmentsServlet extends HttpServlet {
         String dbName = request.getParameter( "dbname" );
         String fileName = request.getParameter( "fileName" );
 
-        String tomcatDir = System.getenv( "CATALINA_BASE" );
-        if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
-            tomcatDir = System.getenv( "CATALINA_HOME" );
-        }
+        if( StringUtils.isNullOrEmpty( runId ) || StringUtils.isNullOrEmpty( suiteId )
+            || StringUtils.isNullOrEmpty( testcaseId ) || StringUtils.isNullOrEmpty( dbName )
+            || StringUtils.isNullOrEmpty( fileName ) ) {
+            response.getWriter().println( "GET method cannot be executed due to missing parameters!" );
+        } else {
 
-        LocalFileSystemOperations lfo = new LocalFileSystemOperations();
-        String attachedFilePath = tomcatDir + "/ats-attached-files" + "/" + dbName + "/" + runId + "/"
-                                  + suiteId + "/" + testcaseId + "/" + fileName;
-        if( !lfo.doesFileExist( attachedFilePath ) ) {
-            response.getWriter().println( "File '" + attachedFilePath
-                                          + "' does not exist. No attached filed could be showed." );
-        }
+            String tomcatDir = System.getenv( "CATALINA_BASE" );
+            if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
+                tomcatDir = System.getenv( "CATALINA_HOME" );
+            }
 
-        String mimeType = getServletContext().getMimeType( attachedFilePath );
+            LocalFileSystemOperations lfo = new LocalFileSystemOperations();
+            String attachedFilePath = tomcatDir + "/ats-attached-files" + "/" + dbName + "/" + runId + "/"
+                                      + suiteId + "/" + testcaseId + "/" + fileName;
+            if( !lfo.doesFileExist( attachedFilePath ) ) {
+                response.getWriter().println( "File '" + attachedFilePath
+                                              + "' does not exist. No attached filed could be showed." );
+            }
 
-        response.addHeader( "mimeType", mimeType );
-        File attachedFile = new File( attachedFilePath );
+            String mimeType = getServletContext().getMimeType( attachedFilePath );
 
-        byte[] buffer = new byte[10240];
+            response.addHeader( "mimeType", mimeType );
+            File attachedFile = new File( attachedFilePath );
 
-        try (OutputStream output = response.getOutputStream();
-                FileInputStream attachedFileIS = new FileInputStream( attachedFile )) {
-            for( int length = 0; ( length = attachedFileIS.read( buffer ) ) > 0; ) {
-                output.write( buffer, 0, length );
+            byte[] buffer = new byte[10240];
+
+            try (OutputStream output = response.getOutputStream();
+                    FileInputStream attachedFileIS = new FileInputStream( attachedFile )) {
+                for( int length = 0; ( length = attachedFileIS.read( buffer ) ) > 0; ) {
+                    output.write( buffer, 0, length );
+                }
             }
         }
     }
