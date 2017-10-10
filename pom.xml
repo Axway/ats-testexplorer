@@ -17,7 +17,7 @@
         <maven.min.version>3.0.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <ats.framework.version>4.0.1-SNAPSHOT</ats.framework.version>
+        <ats.framework.version>4.0.2-SNAPSHOT</ats.framework.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <apache.commons-lang.version>2.4</apache.commons-lang.version>
         <apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>
