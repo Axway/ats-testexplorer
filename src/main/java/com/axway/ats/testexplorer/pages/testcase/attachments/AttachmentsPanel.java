@@ -64,6 +64,7 @@ public class AttachmentsPanel extends Panel {
     private AjaxLink<?>        alink;
     private TextArea<String>   fileContentContainer;
     private WebMarkupContainer imageContainer;
+    private Label              fileContentInfo;
 
     private List<String>       buttons;
 
@@ -78,10 +79,12 @@ public class AttachmentsPanel extends Panel {
         noButtonPanel = new WebMarkupContainer( "noButtonPanel" );
         fileContentContainer = new TextArea<String>( "textFile", new Model<String>( "" ) );
         imageContainer = new WebMarkupContainer( "imageFile" );
+        fileContentInfo = new Label("fileContentInfo" , new Model<String>( "" ));
         buttons = getAllAttachedFiles( testcaseId );
 
         form.add( fileContentContainer );
         form.add( imageContainer );
+        form.add( fileContentInfo );
         form.add( buttonPanel );
 
         add( noButtonPanel );
@@ -90,6 +93,7 @@ public class AttachmentsPanel extends Panel {
         buttonPanel.setVisible( ! ( buttons == null ) );
         fileContentContainer.setVisible( false );
         imageContainer.setVisible( false );
+        fileContentInfo.setVisible( false );
         noButtonPanel.setVisible( buttons == null );
 
         // if noButtonPanel is visible, do not show form and vice versa
@@ -113,7 +117,7 @@ public class AttachmentsPanel extends Panel {
                 final String name = getFileSimpleName( buttons.get( item.getIndex() ) );
                 final Label buttonLabel = new Label( "name", name );
 
-                Label fileInfo = new Label( "fileInfo", getFileSize( viewedFile ) );
+                Label fileSize = new Label( "fileSize", getFileSize( viewedFile ) );
 
                 downloadFile = new DownloadLink( "download", new File( " " ), "" );
                 downloadFile.setModelObject( new File( viewedFile ) );
@@ -125,11 +129,12 @@ public class AttachmentsPanel extends Panel {
                     @Override
                     public void onClick( AjaxRequestTarget target ) {
 
+                        fileContentInfo.setVisible( true ); 
                         String fileContent = new String();
                         if( !isImage( viewedFile ) ) {
                             fileContentContainer.setVisible( true );
                             imageContainer.setVisible( false );
-                            fileContent = getFileContent( viewedFile );
+                            fileContent = getFileContent( viewedFile, name );
                             fileContentContainer.setModelObject( fileContent );
                         } else {
 
@@ -146,6 +151,8 @@ public class AttachmentsPanel extends Panel {
                             String runId = navigation.getRunId();
                             String suiteId = navigation.getSuiteId();
                             String dbname = TestExplorerUtils.extractPageParameter( parameters, "dbname" );
+                            
+                            fileContentInfo.setDefaultModelObject( "Previewing '" + name + "' image" );
 
                             final String url = "AttachmentsServlet?&runId=" + runId + "&suiteId=" + suiteId
                                                + "&testcaseId=" + testcaseId + "&dbname=" + dbname
@@ -184,7 +191,7 @@ public class AttachmentsPanel extends Panel {
                 alink.add( buttonLabel );
                 item.add( alink );
                 item.add( downloadFile );
-                item.add( fileInfo );
+                item.add( fileSize );
             }
         };
         buttonPanel.add( lv );
@@ -212,17 +219,26 @@ public class AttachmentsPanel extends Panel {
         return null;
     }
 
-    private String getFileContent( String filePath ) {
+    private String getFileContent( String filePath, String name ) {
 
+        int maxLines = 1024;
         StringBuilder fileContent = new StringBuilder();
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
-        String[] fileContentArray = fo.getLastLinesFromFile( filePath, 1024 );
+        String[] fileContentArray = fo.getLastLinesFromFile( filePath, maxLines );
 
         for( String line : fileContentArray ) {
             fileContent.append( line );
             fileContent.append( "\n" );
         }
-
+        
+        if( fileContent.length() < maxLines ) {
+            fileContentInfo.setDefaultModelObject( "Showing the content of '" + name + "' in "
+                    + fileContentArray.length + " lines" );
+        } else {
+            fileContentInfo.setDefaultModelObject( "Showing the last " + maxLines + " lines of '" + name
+                                                   + "'" );
+        }
+        
         return fileContent.toString();
     }
 
@@ -271,7 +287,11 @@ public class AttachmentsPanel extends Panel {
             String fullFilePath = baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId;
             fullFilePath = IoUtils.normalizeFilePath( fullFilePath );
             if( fo.doesFileExist( fullFilePath ) ) {
-                return Arrays.asList( fo.findFiles( fullFilePath, ".*", true, false, false ) );
+                String[] attachedFiles = fo.findFiles( fullFilePath, ".*", true, false, false );
+                if( attachedFiles.length > 0 ) {
+                    return Arrays.asList( attachedFiles );
+                }
+                return null;
             }
         } catch( DatabaseAccessException e ) {
             LOG.error( "There was problem getting testcase parameters, files attached to the current testcase will not be shown!" );

@@ -15,6 +15,9 @@
  */
 package com.axway.ats.testexplorer.pages.testcase.attachments;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -31,6 +34,7 @@ public class ContextListener implements ServletContextListener {
     
     //set env var available for the current web app, where all attached filles will be stored
     private static final String ATTACHED_FILES_DIR = "ats-attached-files";
+    private static final String ATTACHED_FILES_PROPERTY = "ats.attached.files.dir";
     
     public static String getAttachedFilesDir(){
         
@@ -42,15 +46,29 @@ public class ContextListener implements ServletContextListener {
                                     ServletContextEvent sce ) {
 
         LocalFileSystemOperations operations = new LocalFileSystemOperations();
-        String tomcatDir = System.getenv( "CATALINA_BASE" );
-        if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
-            tomcatDir = System.getenv( "CATALINA_HOME" );
+
+        String attachmentsDir = System.getProperty( ATTACHED_FILES_PROPERTY );
+        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
+            attachmentsDir = System.getenv( ATTACHED_FILES_PROPERTY );
+        }
+        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
+            attachmentsDir = getProperties().getProperty( ATTACHED_FILES_PROPERTY );
+        }
+        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
+            attachmentsDir = System.getenv( "CATALINA_BASE" );
+        }
+        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
+            attachmentsDir = System.getenv( "CATALINA_HOME" );
         }
 
-        if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
-            LOG.error( "Neither 'CATALINA_BASE' nor 'CATALINA_HOME' was set. No file would be displayed to the current test case." );
+        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
+            LOG.error( "No directory for attached files was configured. "
+                       + "You can set such directory in one of the following ways: " + "key '"
+                       + ATTACHED_FILES_PROPERTY
+                       + "' as a system variable, environment variable or property in the WEB-INF/classes/ats.config.properties configuration file in the Test Explorer war file. "
+                       + "Last option is to set 'CATALINA_BASE' or 'CATALINA_HOME' when running on Tomcat." );
         } else {
-            String atsAttachedFiles = IoUtils.normalizeFilePath( tomcatDir + "/" + ATTACHED_FILES_DIR );
+            String atsAttachedFiles = IoUtils.normalizeFilePath( attachmentsDir + "/" + ATTACHED_FILES_DIR );
             if( !operations.doesFileExist( atsAttachedFiles ) ) {
                 try {
                     operations.createDirectory( atsAttachedFiles );
@@ -68,6 +86,21 @@ public class ContextListener implements ServletContextListener {
             sce.getServletContext()
                .log( "ATS attached files directory is set to \"" + atsAttachedFiles + "\"." );
         }
+    }
+    
+    private Properties getProperties() {
+
+        Properties configProperties = new Properties();
+
+        try {
+            configProperties.load( this.getClass()
+                                       .getClassLoader()
+                                       .getResourceAsStream( "ats.config.properties" ) );
+        } catch( IOException e ) {
+            LOG.error( "Can't load ats.config.properties file", e );
+        }
+
+        return configProperties;
     }
 
     @Override
