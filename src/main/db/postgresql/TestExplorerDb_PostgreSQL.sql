@@ -54,7 +54,7 @@ CREATE TABLE "tSuites" (
 CREATE TABLE "tScenarios" (
     scenarioId  serial        PRIMARY KEY,
     name        varchar(255)  NOT NULL,
-    fullName    varchar(1000) NOT NULL,
+    fullName    varchar(1000) NOT NULL UNIQUE,
     description varchar(4000) NULL,
     userNote    varchar(255)  NULL
 );
@@ -1170,16 +1170,6 @@ BEGIN
     
 END;
 $func$ LANGUAGE plpgsql;
-
-
-CREATE FUNCTION sp_update_testcase(_testcaseId VARCHAR(50), _userNote VARCHAR(255), OUT rowsUpdated INTEGER)
-RETURNS INTEGER AS $func$
-BEGIN
-    UPDATE "tTestcases" SET userNote = _userNote WHERE "tTestcases".testcaseId = _testcaseId::INTEGER;
-    GET DIAGNOSTICS rowsUpdated = ROW_COUNT;
-END;
-$func$ LANGUAGE plpgsql;
-
 
 CREATE FUNCTION sp_add_scenario_metainfo(_testcaseId INTEGER, metaKey VARCHAR(50), metaValue VARCHAR(50), OUT rowsInserted INTEGER)
 RETURNS INTEGER AS $$
@@ -2472,4 +2462,77 @@ BEGIN
 END;
 $func$ LANGUAGE plpgsql;
 
+CREATE FUNCTION sp_update_testcase( _testcaseId INTEGER, _suiteFullName VARCHAR(255), _scenarioName VARCHAR(255), 
+                                      _scenarioDescription VARCHAR(4000), _testcaseName VARCHAR(255), _userNote VARCHAR(255), 
+                                      _testcaseResult INTEGER, _timestamp timestamp, OUT rowsUpdated INTEGER )
+RETURNS INTEGER AS $func$
+DECLARE
+    currentDateEnd TIMESTAMP;
+    currentTestcaseName VARCHAR(255);
+    
+    currentScenarioName VARCHAR(255);
+    currentFullName VARCHAR(255);
+    currentScenarioDescription VARCHAR(4000);
+    
+    scenariosWithThisFullNameCount INTEGER DEFAULT 0;
+    -- the id of the scenario, that is already inserted and has the same full name as the one, provided as a fuction argument
+    alreadyInsertedScenarioId INTEGER DEFAULT -1;
+    -- save the current testcase' scenario ID
+    currentTestcaseScenarioId INTEGER;
+    currentTestcaseResult INTEGER;
+BEGIN
 
+    currentDateEnd := (SELECT dateEnd FROM "tTestcases" WHERE testcaseId = _testcaseId);
+    currentTestcaseName := (SELECT name FROM "tTestcases" WHERE testcaseId = _testcaseId);
+    currentTestcaseResult := (SELECT result FROM "tTestcases" WHERE testcaseId = _testcaseId);
+    
+    currentScenarioName := (SELECT name FROM "tScenarios" WHERE scenarioId = (SELECT scenarioId FROM "tTestcases" WHERE testcaseId = _testcaseId));
+    currentFullName := (SELECT fullName FROM "tScenarios" WHERE scenarioId = (SELECT scenarioId FROM "tTestcases" WHERE testcaseId = _testcaseId));
+    currentScenarioDescription := (SELECT description FROM "tScenarios" WHERE scenarioId = (SELECT scenarioId FROM "tTestcases" WHERE testcaseId = _testcaseId));
+
+    scenariosWithThisFullNameCount := (SELECT COUNT(*) FROM "tScenarios" WHERE fullName = (_suiteFullName || '@' || _scenarioName));
+    IF scenariosWithThisFullNameCount > 0 THEN
+        -- Since there already has scenario with fullName that is equal to the one, that this function will set,
+        -- simply change the current testcase's scenarioId to the already existing one and delete the unnecessary scenario (indicated by the currrent testcase ID)
+        currentTestcaseScenarioId := (SELECT scenarioId FROM "tTestcases" WHERE testcaseId = _testcaseId);
+        alreadyInsertedScenarioId := (SELECT scenarioId FROM "tScenarios" WHERE fullName = (_suiteFullName || '@' || _scenarioName));
+        UPDATE "tTestcases" 
+        SET scenarioId = (SELECT scenarioId FROM "tScenarios" WHERE fullName = (_suiteFullName || '@' || _scenarioName)) 
+        WHERE testcaseId = _testcaseId;
+        DELETE FROM "tScenarios" WHERE scenarioId = currentTestcaseScenarioId;
+    END IF;
+    
+    UPDATE "tTestcases" SET name = CASE
+                                       WHEN _testcaseName IS NULL THEN currentTestcaseName
+                                       ELSE _testcaseName
+                                   END,
+                            dateEnd = CASE
+                                          WHEN _timestamp IS NULL THEN currentDateEnd
+                                          ELSE _timestamp
+                                      END,
+                            result = CASE
+                                         WHEN _testcaseResult = -1 THEN currentTestcaseResult
+                                         ELSE _testcaseResult
+                                     END,
+                            userNote = _userNote
+    WHERE testcaseId = _testcaseId;
+    
+    UPDATE "tScenarios" SET name = CASE
+                                       WHEN _scenarioName IS NULL THEN currentScenarioName
+                                       ELSE _scenarioName
+                                   END, 
+                            description = CASE
+                                              WHEN _scenarioDescription IS NULL THEN currentScenarioDescription
+                                              ELSE _scenarioDescription
+                                          END,
+                            fullName = CASE 
+                                          WHEN (_suiteFullName IS NULL OR _scenarioName IS NULL) AND alreadyInsertedScenarioId = -1
+                                          THEN currentFullName
+                                          ELSE _suiteFullName || '@' || _scenarioName
+                                          END  
+    WHERE scenarioId = (SELECT scenarioId FROM "tTestcases" WHERE testcaseId = _testcaseId);
+    
+    GET DIAGNOSTICS rowsUpdated = ROW_COUNT;
+    
+END
+$func$ LANGUAGE plpgsql;

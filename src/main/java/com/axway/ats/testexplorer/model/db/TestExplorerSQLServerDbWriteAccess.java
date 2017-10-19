@@ -19,6 +19,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
@@ -353,14 +354,20 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess i
         String sqlLog = new SqlRequestFormatter().add( "user note", testcase.userNote )
                                                  .add( "where testcase id", testcase.testcaseId )
                                                  .format();
-        final int indexRowsUpdated = 3;
+        final int indexRowsUpdated = 9;
         Connection connection = getConnection();
         CallableStatement callableStatement = null;
         try {
 
-            callableStatement = connection.prepareCall( "{ call sp_update_testcase(?, ?, ?) }" );
-            callableStatement.setString( 1, testcase.testcaseId );
-            callableStatement.setString( 2, testcase.userNote );
+            callableStatement = connection.prepareCall( "{ call sp_update_testcase(?, ?, ?, ?, ?, ?, ?, ?, ?) }" );
+            callableStatement.setInt( 1, Integer.parseInt( testcase.testcaseId ) );
+            callableStatement.setString( 2, null );
+            callableStatement.setString( 3, null );
+            callableStatement.setString( 4, null );
+            callableStatement.setString( 5, null );
+            callableStatement.setString( 6, testcase.userNote );
+            callableStatement.setInt( 7, -1 );
+            callableStatement.setTimestamp( 8, null );
             callableStatement.registerOutParameter( indexRowsUpdated, Types.INTEGER );
 
             callableStatement.execute();

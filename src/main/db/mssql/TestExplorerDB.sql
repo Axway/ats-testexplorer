@@ -142,7 +142,7 @@ GO
 CREATE TABLE [dbo].[tScenarios](
     [scenarioId] [int] IDENTITY(1,1) NOT NULL,
     [name] [varchar](255) NOT NULL,
-    fullName VARCHAR(1000) NOT NULL,
+    fullName VARCHAR(1000) NOT NULL UNIQUE,
     [description] [varchar](4000) NULL,
     [userNote] [varchar](255) NULL,
  CONSTRAINT [PK_tPerformanceScenario] PRIMARY KEY CLUSTERED
@@ -2302,7 +2302,7 @@ WHERE    tScenarios.scenarioId=@scenarioId
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_testcase]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_testcase]    Script Date: 10/16/2017 13:26:39 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2311,15 +2311,74 @@ GO
 CREATE       PROCEDURE [dbo].[sp_update_testcase]
 
 @testcaseId INT,
+@suiteFullName VARCHAR(255),
+@scenarioName VARCHAR(255),
+@scenarioDescription VARCHAR(4000),
+@testcaseName VARCHAR(255),
 @userNote VARCHAR(255),
-
+@testcaseResult INT,
+@timestamp DATETIME,
 @RowsUpdated INT =0 OUT
 
 AS
 
-UPDATE    tTestcases
-SET        userNote=@userNote
-WHERE    tTestcases.testcaseId=@testcaseId
+DECLARE 
+@currentDateEnd DATETIME = (SELECT dateEnd FROM  tTestcases WHERE testcaseId = @testcaseId)
+,@currentTestcaseName VARCHAR(255) = (SELECT name FROM  tTestcases WHERE testcaseId = @testcaseId)
+,@currentTestcaseResult INT = (SELECT result FROM tTestcases WHERE testcaseId = @testcaseId)
+,@currentScenarioName VARCHAR(255) = (SELECT name FROM tScenarios WHERE scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId))
+,@currentFullName VARCHAR(255) = (SELECT fullName FROM tScenarios WHERE scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId))
+,@currentScenarioDescription VARCHAR(255) = (SELECT description FROM tScenarios WHERE scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId))
+,@scenariosWithThisFullNameCount INT = (SELECT COUNT(*) FROM tScenarios WHERE fullName = (@suiteFullName + '@' + @scenarioName))
+-- the id of the scenario, that is already inserted and has the same full name as the one, provided as a fuction argument
+,@alreadyInsertedScenarioId INT =-1
+-- save the current testcase' scenario ID
+,@currentTestcaseScenarioId INT
+
+IF (@scenariosWithThisFullNameCount > 0)
+    BEGIN
+    -- Since there already has scenario with fullName that is equal to the one, that this function will set,
+    -- simply change the current testcase's scenarioId to the already existing one and delete the unnecessary scenario (indicated by the currrent testcase ID)
+    SET @currentTestcaseScenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId)
+	SET @currentTestcaseScenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId)
+    SET @alreadyInsertedScenarioId = (SELECT scenarioId FROM tScenarios WHERE fullName = @suiteFullName + '@' + @scenarioName)
+    UPDATE tTestcases
+    SET scenarioId = (SELECT scenarioId FROM tScenarios WHERE fullName = @suiteFullName + '@' + @scenarioName) 
+    WHERE testcaseId = @testcaseId
+    DELETE FROM tScenarios WHERE scenarioId = @currentTestcaseScenarioId
+    END
+
+
+UPDATE tTestcases SET name = CASE
+                                 WHEN @testcaseName IS NULL THEN @currentTestcaseName
+                                 ELSE @testcaseName
+                             END,
+                      dateEnd = CASE
+                                    WHEN @timestamp IS NULL THEN @currentDateEnd
+                                    ELSE @timestamp
+                                END,
+                      result = CASE
+                                    WHEN @testcaseResult = -1 THEN @currentTestcaseResult
+                                    ELSE @testcaseResult
+                               END,
+                      userNote = @userNote
+WHERE testcaseId = @testcaseId;
+
+
+UPDATE tScenarios SET name = CASE
+                                   WHEN @scenarioName IS NULL THEN @currentScenarioName
+                                   ELSE @scenarioName
+                               END, 
+                        description = CASE
+                                          WHEN @scenarioDescription IS NULL THEN @currentScenarioDescription
+                                          ELSE @scenarioDescription
+                                      END,
+                        fullName = CASE 
+                                       WHEN (@suiteFullName IS NULL OR @scenarioName IS NULL) AND @alreadyInsertedScenarioId = -1
+                                       THEN @currentFullName
+                                       ELSE @suiteFullName + '@' + @scenarioName
+                                       END  
+WHERE scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testcaseId);
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
@@ -3459,3 +3518,4 @@ GO
 /****** Record the version w/o _draft as complete installation ******/
 UPDATE tInternal SET [value]='4.0.2' WHERE [key] = 'version';
 GO
+
