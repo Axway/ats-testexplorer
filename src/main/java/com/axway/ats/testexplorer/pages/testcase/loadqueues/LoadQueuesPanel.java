@@ -38,6 +38,7 @@ import com.axway.ats.log.autodb.entities.LoadQueue;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.log.model.LoadQueueResult;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
+import com.mysql.jdbc.StringUtils;
 
 public class LoadQueuesPanel extends Panel {
 
@@ -102,10 +103,20 @@ public class LoadQueuesPanel extends Panel {
                         item.add( new Label( "avgResponseTime", checkpointSummary.getAvgResponseTime() ) );
                         item.add( new Label( "maxResponseTime", checkpointSummary.getMaxResponseTime() ) );
 
-                        item.add( new Label( "minTransferRate", checkpointSummary.getMinTransferRate() ) );
-                        item.add( new Label( "avgTransferRate", checkpointSummary.getAvgTransferRate() ) );
-                        item.add( new Label( "maxTransferRate", checkpointSummary.getMaxTransferRate() ) );
-                        item.add( new Label( "transferRateUnit", checkpointSummary.getTransferRateUnit() ) );
+                        String transferRateUnit = checkpointSummary.getTransferRateUnit();
+                        if( StringUtils.isNullOrEmpty( transferRateUnit ) ) {
+                            // this action does not transfer data
+                            item.add( new Label( "minTransferRate", "" ) );
+                            item.add( new Label( "avgTransferRate", "" ) );
+                            item.add( new Label( "maxTransferRate", "" ) );
+                            item.add( new Label( "transferRateUnit", "" ) );
+                        } else {
+                            // this action transfers data
+                            item.add( new Label( "minTransferRate", checkpointSummary.getMinTransferRate() ) );
+                            item.add( new Label( "avgTransferRate", checkpointSummary.getAvgTransferRate() ) );
+                            item.add( new Label( "maxTransferRate", checkpointSummary.getMaxTransferRate() ) );
+                            item.add( new Label( "transferRateUnit", transferRateUnit ) );
+                        }
                     }
                 } );
             }
