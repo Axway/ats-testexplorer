@@ -621,7 +621,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
         return chartData.values();
     }
-
+    
     private String getActionLabelName( String statName, String statParentName, String statPrefix,
                                        String parentPrefix ) {
 
@@ -748,7 +748,6 @@ public class ChartsPanel extends BaseStatisticsPanel {
             markersScript.append( chartData.getJsMarkersScript() );
             markersCount.add( chartData.getJsMarkersCount() );
         } else {
-
             timestamps = chartData.getTimestampsAsString();
             values = chartData.getAxisValuesAsString( displayValueMode );
         }
@@ -764,7 +763,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
         if( label.length() > MAX_LABEL_LENGTH ) {
             label = label.substring( 0, MAX_LABEL_LENGTH ) + "...";
         }
-        data.append( "\t\t\"label\": \"" + label + "\",\n" );
+        data.append( "\t\t\"label\": \"" + label + " (" + unit + ") " + "\",\n" );
         data.append( "\t\t\"axis\": \"" + unit.replace( "&Delta;", "Δ" ) + "\", \n" );
         data.append( "\t\t\"domain\": [" + timestamps + "],\n" );
         data.append( "\t\t\"range\": [" + values + "],\n" );
@@ -914,7 +913,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
             if( testcaseStarttime == null ) {
                 testcaseStarttime = machine.getTestcaseStarttime();
                 testcaseStarttimeDeltas.put( machine.getTestcaseId(), testcaseStarttime );
-
+                
                 if( testcaseStarttime < earliestStarttime ) {
                     earliestStarttime = testcaseStarttime;
                 }
