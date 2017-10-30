@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.2_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '8');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '8');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_7', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '11');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '11');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_11', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -501,11 +501,16 @@ RETURNS TABLE (
 ) AS $func$
 BEGIN
     RETURN QUERY
-    SELECT tr.runId, tr.runName, tss.scenarioId, ts.name AS suiteName, tss.name AS scenarioName
-    FROM "tTestcases" tss
-    INNER JOIN "tSuites" ts ON (ts.suiteId = tss.suiteId)
-    INNER JOIN "tRuns" tr ON (ts.runId = tr.runId)
-    WHERE tss.suiteId = CAST(_suiteId AS INTEGER);
+    SELECT tRuns.runId, 
+           tRuns.runName, 
+           tScenarios.scenarioId, 
+           tSuites.name AS suiteName, 
+           tScenarios.name AS scenarioName
+    FROM "tTestcases"
+    INNER JOIN "tScenarios" ON (tScenarios.scenarioId = tTestcases.scenarioId)
+    INNER JOIN "tSuites"  ON (tSuites.suiteId = tTestcases.suiteId)
+    INNER JOIN "tRuns"  ON (tSuites.runId = tRuns.runId)
+    WHERE tTestcases.suiteId = CAST(_suiteId AS INTEGER);
 END;
 $func$ LANGUAGE plpgsql;
 

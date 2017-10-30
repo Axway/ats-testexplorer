@@ -35,14 +35,14 @@ INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.2_draft')
 GO
 
 /****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '8')
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '11')
 GO
 
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '8')
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '11')
 GO
 
-INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_7', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_11', SYSDATETIME());
 GO
 
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable] ******/
@@ -1197,11 +1197,12 @@ CREATE                 PROCEDURE [dbo].[sp_get_navigation_for_testcases]
 
 AS
 
-EXEC (	'select tr.runId, tr.runName, scenarioId, ts.name as suiteName, tss.name as scenarioName
-        from tTestcases tss
-    inner join tSuites ts on (ts.suiteId = tss.suiteId)
-    inner join tRuns tr on (ts.runId = tr.runId)
-    where tss.suiteId = ' + @suiteId)
+EXEC (	'select  tRuns.runId, tRuns.runName, tScenarios.scenarioId, tSuites.name as suiteName, tScenarios.name as scenarioName
+			from tTestcases
+			inner join tScenarios on (tScenarios.scenarioId = tTestcases.scenarioId)
+			inner join tSuites on (tSuites.suiteId = tTestcases.suiteId)
+			inner join tRuns on (tSuites.runId = tRuns.runId)
+			where tTestcases.suiteId = ' + @suiteId)
 GO
 /****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_testcase]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON

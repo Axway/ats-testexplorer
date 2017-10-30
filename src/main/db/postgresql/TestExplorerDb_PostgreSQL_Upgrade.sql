@@ -1,13 +1,16 @@
 \set ON_ERROR_STOP on
 
-/* Record the internal version */
 DO language plpgsql $$
 BEGIN
-  RAISE WARNING '-- update internalVersion in "tInternal" to 7';
+  RAISE WARNING '#7 INTERNAL VERSION UPGRADE HEADER - START';
 END
 $$;
-
 INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_7', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#7 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
 
 DO language plpgsql $$
 BEGIN
@@ -98,16 +101,29 @@ BEGIN
 END
 $$;
 
-UPDATE "tInternal" SET value='8' WHERE key='internalVersion';
-
-/* Record the internal version */
 DO language plpgsql $$
 BEGIN
-  RAISE WARNING '-- update internalVersion in "tInternal" to 8';
+  RAISE WARNING '#7 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='7' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#7 INTERNAL VERSION UPGRADE FOOTER - END';
 END
 $$;
 
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#8 INTERNAL VERSION UPGRADE HEADER - START';
+END
+$$;
 INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_8', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#7 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
 
 DO language plpgsql $$
 BEGIN
@@ -196,4 +212,62 @@ BEGIN
 END
 $$;
 
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#8 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
 UPDATE "tInternal" SET value='8' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#8 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#9 INTERNAL VERSION UPGRADE HEADER - START';
+END
+$$;
+INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_9', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#9 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'START CREATE OR REPLACE procedure sp_get_navigation_for_testcases';
+END
+$$;
+
+CREATE OR REPLACE FUNCTION sp_get_navigation_for_testcases(_suiteId varchar(30))
+RETURNS TABLE (
+    runId INTEGER,
+    runName VARCHAR(50),
+    scenarioId INTEGER,
+    suiteName VARCHAR(50),
+    scenarioName VARCHAR(50)
+) AS $func$
+BEGIN
+    RETURN QUERY
+    SELECT tRuns.runId, 
+           tRuns.runName, 
+           tScenarios.scenarioId, 
+           tSuites.name AS suiteName, 
+           tScenarios.name AS scenarioName
+    FROM "tTestcases"
+    INNER JOIN "tScenarios" ON (tScenarios.scenarioId = tTestcases.scenarioId)
+    INNER JOIN "tSuites"  ON (tSuites.suiteId = tTestcases.suiteId)
+    INNER JOIN "tRuns"  ON (tSuites.runId = tRuns.runId)
+    WHERE tTestcases.suiteId = CAST(_suiteId AS INTEGER);
+END;
+$func$ LANGUAGE plpgsql;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'END CREATE OR REPLACE procedure sp_get_navigation_for_testcases';
+END
+$$;

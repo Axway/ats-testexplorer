@@ -3,13 +3,13 @@
 -- There is no 4.0.1 DB version
 -- ***********************************************
 
-/****** Record the internal version ******/
-print '-- update internalVersion in [dbo].[tInternal]'
+
+print '#7 INTERNAL VERSION UPGRADE HEADER - START'
 GO
 INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_7', SYSDATETIME());
 GO
-
--- updates for internal version 7
+print '#7 INTERNAL VERSION UPGRADE HEADER - END'
+GO
 
 print 'start alter sp_insert_user_activity_statistic_by_ids '
 GO
@@ -438,22 +438,25 @@ GO
 print 'end alter sp-get_checkpoint_statistic_description'
 GO
 
+print '#7 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
 IF (@@ERROR != 0)
 BEGIN
-    RAISERROR(N'Error occured while performing update to internal version 7', 16, 1) WITH LOG;
+    RAISERROR(N'Error occurred while performing update to internal version 7', 16, 1)  WITH LOG;
     RETURN;
 END
-
-UPDATE [dbo].[tInternal] SET [value]='7' WHERE [key]='internalVersion'
+UPDATE tInternal SET [value]='7' WHERE [key]='internalVersion'
+GO
+print '#7 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
 
-/****** Record the internal version ******/
-print '-- update internalVersion in [dbo].[tInternal]'
+
+print '#8 INTERNAL VERSION UPGRADE HEADER - START'
 GO
 INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_8', SYSDATETIME());
 GO
-
--- updates for internal version 8
+print '#8 INTERNAL VERSION UPGRADE HEADER - END'
+GO
 
 print 'start alter sp_start_testcase'
 GO
@@ -746,23 +749,25 @@ GO
 print 'end alter sp_get_scenarios '
 GO
 
+print '#8 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
 IF (@@ERROR != 0)
 BEGIN
-    RAISERROR(N'Error occured while performing update to internal version 8', 16, 1) WITH LOG;
+    RAISERROR(N'Error occurred while performing update to internal version 8', 16, 1)  WITH LOG;
     RETURN;
 END
-
-
-UPDATE [dbo].[tInternal] SET [value]='8' WHERE [key]='internalVersion'
+UPDATE tInternal SET [value]='8' WHERE [key]='internalVersion'
+GO
+print '#8 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
 
-/****** Record the internal version ******/
-print '-- update internalVersion in [dbo].[tInternal]'
+
+print '#9 INTERNAL VERSION UPGRADE HEADER - START'
 GO
 INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_9', SYSDATETIME());
 GO
-
--- updates for internal version 9
+print '#9 INTERNAL VERSION UPGRADE HEADER - END'
+GO
 
 print 'start alter sp_populate_checkpoint_summary'
 GO
@@ -885,22 +890,25 @@ GO
 print 'end alter sp_start_checkpoint'
 GO
 
+print '#9 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
 IF (@@ERROR != 0)
 BEGIN
-    RAISERROR(N'Error occured while performing update to internal version 9', 16, 1)  WITH LOG;
+    RAISERROR(N'Error occurred while performing update to internal version 9', 16, 1)  WITH LOG;
     RETURN;
 END
-
-UPDATE [dbo].[tInternal] SET [value]='9' WHERE [key]='internalVersion'
+UPDATE tInternal SET [value]='9' WHERE [key]='internalVersion'
+GO
+print '#9 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
 
-/****** Record the internal version ******/
-print '-- update internalVersion in [dbo].[tInternal]'
+
+print '#10 INTERNAL VERSION UPGRADE HEADER - START'
 GO
 INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_10', SYSDATETIME());
 GO
-
--- updates for internal version 10
+print '#10 INTERNAL VERSION UPGRADE HEADER - END'
+GO
 
 print 'start alter procedure sp_update_testcase'
 GO
@@ -1007,12 +1015,58 @@ GO
 print 'end alter table tScenarios '
 GO
 
+print '#10 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
 IF (@@ERROR != 0)
 BEGIN
-    RAISERROR(N'Error occured while performing update to internal version 10', 16, 1)  WITH LOG;
+    RAISERROR(N'Error occurred while performing update to internal version 10', 16, 1)  WITH LOG;
     RETURN;
 END
-
-UPDATE [dbo].[tInternal] SET [value]='10' WHERE [key]='internalVersion'
+UPDATE tInternal SET [value]='10' WHERE [key]='internalVersion'
+GO
+print '#10 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
 
+
+print '#11 INTERNAL VERSION UPGRADE HEADER - START'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_11', SYSDATETIME());
+GO
+print '#11 INTERNAL VERSION UPGRADE HEADER - END'
+GO
+
+print 'start alter procedure sp_get_navigation_for_testcases'
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER       PROCEDURE [dbo].[sp_get_navigation_for_testcases]
+
+@suiteId varchar(30)
+
+AS
+
+EXEC (	'select  tRuns.runId, tRuns.runName, tScenarios.scenarioId, tSuites.name as suiteName, tScenarios.name as scenarioName
+			from tTestcases
+			inner join tScenarios on (tScenarios.scenarioId = tTestcases.scenarioId)
+			inner join tSuites on (tSuites.suiteId = tTestcases.suiteId)
+			inner join tRuns on (tSuites.runId = tRuns.runId)
+			where tTestcases.suiteId = ' + @suiteId)
+GO
+
+print 'end alter procedure sp_get_navigation_for_testcases'
+GO
+
+print '#11 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occurred while performing update to internal version 11', 16, 1)  WITH LOG;
+    RETURN;
+END
+UPDATE tInternal SET [value]='11' WHERE [key]='internalVersion'
+GO
+print '#11 INTERNAL VERSION UPGRADE FOOTER - END'
+GO
