@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-DB_NAME=''
+DB_NAME=$1
 
-read -p 'Enter Database name: ' DB_NAME
+if [ "$DB_NAME" = "" ]; then
+	read -p 'Enter Database name: ' DB_NAME
+fi
 
 # delete previous tmpInstallDbScript.sql if one exists
 rm -rf tmpInstallDbScript.sql
