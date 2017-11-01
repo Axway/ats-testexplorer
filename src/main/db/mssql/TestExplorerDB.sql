@@ -710,7 +710,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 --*********************************************************
-CREATE                 PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
+CREATE       PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
+
 
 @fdate varchar(150),
 @WhereClause varchar(1000)
@@ -720,7 +721,7 @@ AS
 DECLARE @sql varchar(8000)
 
 SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
-                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), tt.dateStart) as testcaseStarttime,
+                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ss.timestamp) as testcaseStarttime,
                         m.machineId,
                         CASE
                             WHEN m.machineAlias is NULL OR DATALENGTH(m.machineAlias) = 0 THEN m.machineName
@@ -735,12 +736,42 @@ SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
                      INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
                      INNER JOIN tMachines m on (ss.machineId = m.machineId)
                      INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
-                ' + @WhereClause + '
-                GROUP BY tt.testcaseId, tt.dateStart, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+                     ' + @WhereClause + '  and ss.timestamp in ( SELECT MIN(ss.timestamp)
+																	from tSystemStats ss
+																	' + @WhereClause + '
+																	GROUP BY ss.testcaseId)
+                GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
                 ORDER BY st.name';
 
 EXEC (@sql)
 GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_number_of_checkpoints_per_queue]    Script Date: 10/30/2017 11:19:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+CREATE   PROCEDURE [dbo].[sp_get_number_of_checkpoints_per_queue]
+
+@testcaseIds varchar(150)
+
+AS
+
+DECLARE @sql varchar(8000)
+-- this procedure returns map with queue name as a key and number of checkpoints as a value
+SET @sql = 
+'SELECT
+	 tLoadQueues.name,
+     COUNT(tLoadQueues.name)
+     FROM tCheckpoints
+     INNER JOIN tCheckpointsSummary on (tCheckpointsSummary.checkpointSummaryId = tCheckpoints.checkpointSummaryId)
+     INNER JOIN tLoadQueues on (tLoadQueues.loadQueueId = tCheckpointsSummary.loadQueueId)
+WHERE tLoadQueues.testcaseId in ( '+@testcaseIds+' )
+group by tLoadQueues.testcaseId, tLoadQueues.name';
+EXEC (@sql)
+GO
+
 /****** Object:  StoredProcedure [dbo].[sp_get_suites_count]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON
 GO

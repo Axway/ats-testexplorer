@@ -722,10 +722,25 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      * Load action response statistics
      */
     protected List<StatisticDescription> loadChechpointStatisticDescriptions( float timeOffset ) {
-
+        
         if( testcaseId == null ) {
             return new ArrayList<StatisticDescription>();
         }
+
+        Map<String, Integer> numberOfCheckpointsPerQueueMap = null;
+        try {
+            numberOfCheckpointsPerQueueMap = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
+                                                                                      .getNumberOfCheckpointsPerQueue( testcaseId );
+        } catch( DatabaseAccessException e ) {
+            LOG.error( "Error getting the number of checkpoints per queue", e );
+            return new ArrayList<StatisticDescription>();
+        }
+        
+        // no checkpoints
+        if( numberOfCheckpointsPerQueueMap == null ) {
+            return new ArrayList<StatisticDescription>();
+        }
+
         try {
             String whereClause = " where tt.testcaseId in (" + testcaseId + ") ";
             /* 
@@ -737,12 +752,29 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                                                                                                                                              whereClause,
                                                                                                                                              new HashSet<String>(),
                                                                                                                                              0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
-                                                                                                                                             ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
-            return statisticDescriptions;
+                                                                                                                                             ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
+            return getStatisticDescriptionWithCheckpoints( statisticDescriptions,
+                                                           numberOfCheckpointsPerQueueMap );
         } catch( DatabaseAccessException e ) {
             LOG.error( "Error loading action response statistic descriptions", e );
             return new ArrayList<StatisticDescription>();
         }
+    }
+    
+    private List<StatisticDescription>
+            getStatisticDescriptionWithCheckpoints( List<StatisticDescription> statisticDescriptions,
+                                                    Map<String, Integer> numberOfCheckpointsPerQueueMap ) {
+
+        List<StatisticDescription> statisticDescriptionsWithCheckpoints = new ArrayList<StatisticDescription>();
+
+        for( StatisticDescription statDesc : statisticDescriptions ) {
+            if( numberOfCheckpointsPerQueueMap.containsKey( statDesc.queueName )
+                && numberOfCheckpointsPerQueueMap.get( statDesc.queueName ) > 0 ) {
+                statisticDescriptionsWithCheckpoints.add( statDesc );
+            }
+        }
+
+        return statisticDescriptionsWithCheckpoints;
     }
 
     @Override

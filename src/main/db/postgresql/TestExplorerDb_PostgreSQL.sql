@@ -501,16 +501,16 @@ RETURNS TABLE (
 ) AS $func$
 BEGIN
     RETURN QUERY
-    SELECT tRuns.runId, 
-           tRuns.runName, 
-           tScenarios.scenarioId, 
-           tSuites.name AS suiteName, 
-           tScenarios.name AS scenarioName
+    SELECT "tRuns".runId, 
+           "tRuns".runName, 
+           "tTestcases".scenarioId, 
+           "tSuites".name AS suiteName, 
+           "tScenarios".name AS scenarioName
     FROM "tTestcases"
-    INNER JOIN "tScenarios" ON (tScenarios.scenarioId = tTestcases.scenarioId)
-    INNER JOIN "tSuites"  ON (tSuites.suiteId = tTestcases.suiteId)
-    INNER JOIN "tRuns"  ON (tSuites.runId = tRuns.runId)
-    WHERE tTestcases.suiteId = CAST(_suiteId AS INTEGER);
+    INNER JOIN "tScenarios" ON ("tScenarios".scenarioId = "tTestcases".scenarioId)
+    INNER JOIN "tSuites"  ON ("tSuites".suiteId = "tTestcases".suiteId)
+    INNER JOIN "tRuns"  ON ("tSuites".runId = "tRuns".runId)
+    WHERE "tTestcases".suiteId = CAST(_suiteId AS INTEGER);
 END;
 $func$ LANGUAGE plpgsql;
 
@@ -1812,7 +1812,7 @@ DECLARE
 BEGIN
     _sql := 'SELECT tt.testcaseId, 
                     tt.name as testcaseName,
-                    EXTRACT(EPOCH FROM (tt.dateStart - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
+                    EXTRACT(EPOCH FROM (ss.timestamp - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
                     m.machineId,
                     CASE
                         WHEN m.machineAlias is NULL OR LENGTH(m.machineAlias) = 0 THEN m.machineName
@@ -1832,13 +1832,36 @@ BEGIN
              INNER JOIN ' || $$"tStatsTypes"$$ || ' st on (ss.statsTypeId = st.statsTypeId)
              INNER JOIN ' || $$"tMachines"$$ || ' m on (ss.machineId = m.machineId)
              INNER JOIN ' || $$"tTestcases"$$ || ' tt on (ss.testcaseId = tt.testcaseId)
-             ' || whereClause || '
-             GROUP BY tt.testcaseId, tt.dateStart, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+             ' || whereClause || ' AND ss.timestamp in ( SELECT MIN(ss.timestamp)
+																	from "tSystemStats" ss
+																	' || whereClause || '
+																	GROUP BY ss.testcaseId)
+             GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
              ORDER BY st.name';
     RETURN QUERY EXECUTE _sql;
 END;
+
 $func$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION sp_get_number_of_checkpoints_per_queue(testcaseIds VARCHAR(100))
+RETURNS TABLE (
+    name VARCHAR(255),
+    queue_number BIGINT
+) AS $func$
+DECLARE
+    _sql VARCHAR(8000);
+BEGIN
+    _sql := 'SELECT tLoadQueues".name,
+             count("tLoadQueues".name) as queue_number
+             FROM ' || $$"tCheckpoints"$$ || '
+             INNER JOIN ' || $$"tCheckpointsSummary"$$ || ' on ("tCheckpointsSummary".checkpointSummaryId = "tCheckpoints".checkpointSummaryId)
+             INNER JOIN ' || $$"tLoadQueues"$$ || ' on ("tLoadQueues".loadQueueId = "tCheckpointsSummary".loadQueueId)
+             WHERE "tLoadQueues".testcaseId in ( ' || testcaseIds || ' )
+             GROUP BY "tLoadQueues".testcaseId, "tLoadQueues".name';
+    RETURN QUERY EXECUTE _sql;
+END;
+$func$ LANGUAGE plpgsql;
 
 
 CREATE FUNCTION sp_get_specific_testcase_id(_currentTestcaseId VARCHAR(30) , _runName VARCHAR(300), _suiteName VARCHAR(300), _scenarioName VARCHAR(300), _testName VARCHAR(500), _mode INTEGER)

@@ -214,7 +214,7 @@ public class DataPanel implements Serializable {
      */
     public void displayStatisticDescriptions(
                                               Form<Object> statsForm ) {
-
+        
         boolean isDataPanelVisible = machineDescriptions.size() > 0;
 
         List<List<StatisticsTableCell>> rows = new ArrayList<List<StatisticsTableCell>>();
@@ -251,13 +251,9 @@ public class DataPanel implements Serializable {
 
             String lastStatParent = "";
             for( DbStatisticDescription statDescription : statDescriptions ) {
-                
+
                 String statisticLabel = "<span class=\"statName\">" + statDescription.name + "</span><span class=\"statUnit\">(" + statDescription.unit + ")</span>";
                 
-                if( checkIfStatisticExist( rows, statisticLabel ) ){
-                    continue;
-                }
-
                 // add parent table line if needed
                 String statParent = statDescription.parentName;
                 if( !StringUtils.isNullOrEmpty( statParent ) && !lastStatParent.equals( statParent ) ) {
@@ -307,7 +303,7 @@ public class DataPanel implements Serializable {
                 rows.add( columns );
             }
         }
-
+        
         statisticsUIContainer = new ListView<List<StatisticsTableCell>>( uiPrefix + "StatsRows", rows ) {
 
             private static final long serialVersionUID = 1L;
@@ -412,22 +408,6 @@ public class DataPanel implements Serializable {
 
         statisticsUIContainer.setVisible( isDataPanelVisible );
         statsForm.add( statisticsUIContainer );
-    }
-    
-    /**
-     * Check if this statistic is already added, if this statistic present in more than one machine, there will be several occurrences of it 
-     */
-    private boolean checkIfStatisticExist( List<List<StatisticsTableCell>> rows, String statisticLabel ) {
-
-        for( List<StatisticsTableCell> row : rows ) {
-            for( StatisticsTableCell cell : row ) {
-                if( statisticLabel.equals( cell.labelText ) ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
     
     private List<DbStatisticDescription> sortQueueItems( List<DbStatisticDescription> statDescriptions ) {

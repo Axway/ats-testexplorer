@@ -1070,3 +1070,104 @@ UPDATE tInternal SET [value]='11' WHERE [key]='internalVersion'
 GO
 print '#11 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
+
+
+print '#12 INTERNAL VERSION UPGRADE HEADER - START'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_12', SYSDATETIME());
+GO
+print '#12 INTERNAL VERSION UPGRADE HEADER - END'
+GO
+
+print 'start alter procedure sp_get_system_statistic_descriptions'
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_system_statistic_descriptions]    Script Date: 10/25/2017 20:06:58 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                 PROCEDURE [dbo].[sp_get_system_statistic_descriptions]
+
+
+@fdate varchar(150),
+@WhereClause varchar(1000)
+
+AS
+
+DECLARE @sql varchar(8000)
+
+SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
+                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ss.timestamp) as testcaseStarttime,
+                        m.machineId,
+                        CASE
+                            WHEN m.machineAlias is NULL OR DATALENGTH(m.machineAlias) = 0 THEN m.machineName
+                            ELSE m.machineAlias
+                        END as machineName,
+                        ss.statsTypeId, st.name, st.params, st.parentName, st.internalName, st.units,
+                        COUNT(ss.value) as statsNumberMeasurements,
+                        CAST( MIN(ss.value) AS Decimal(20,2) ) as statsMinValue,
+                        CAST( AVG(ss.value) AS Decimal(20,2) ) as statsAvgValue,
+                        CAST( MAX(ss.value) AS Decimal(20,2) ) as statsMaxValue
+                     FROM tSystemStats ss
+                     INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
+                     INNER JOIN tMachines m on (ss.machineId = m.machineId)
+                     INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
+                     ' + @WhereClause + '  and ss.timestamp in ( SELECT MIN(ss.timestamp)
+																	from tSystemStats ss
+																	' + @WhereClause + '
+																	GROUP BY ss.testcaseId)
+                GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+                ORDER BY st.name';
+
+EXEC (@sql)
+GO
+
+print 'end alter procedure sp_get_system_statistic_descriptions'
+GO
+
+print 'start alter procedure sp_get_number_of_checkpoints_per_queue'
+GO
+
+/****** Object:  StoredProcedure [dbo].[sp_get_number_of_checkpoints_per_queue]    Script Date: 10/30/2017 11:19:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+CREATE   PROCEDURE [dbo].[sp_get_number_of_checkpoints_per_queue]
+
+@testcaseIds varchar(150)
+
+AS
+
+DECLARE @sql varchar(8000)
+-- this procedure returns map with queue name as a key and number of checkpoints as a value
+SET @sql = 
+'SELECT
+	 tLoadQueues.name,
+     COUNT(tLoadQueues.name)
+     FROM tCheckpoints
+     INNER JOIN tCheckpointsSummary on (tCheckpointsSummary.checkpointSummaryId = tCheckpoints.checkpointSummaryId)
+     INNER JOIN tLoadQueues on (tLoadQueues.loadQueueId = tCheckpointsSummary.loadQueueId)
+WHERE tLoadQueues.testcaseId in ( '+@testcaseIds+' )
+group by tLoadQueues.testcaseId, tLoadQueues.name';
+EXEC (@sql)
+GO
+
+print 'end alter procedure sp_get_number_of_checkpoints_per_queue'
+GO
+
+print '#12 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occurred while performing update to internal version 12', 16, 1)  WITH LOG;
+    RETURN;
+END
+UPDATE tInternal SET [value]='12' WHERE [key]='internalVersion'
+GO
+print '#12 INTERNAL VERSION UPGRADE FOOTER - END'
+GO
+

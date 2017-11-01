@@ -271,3 +271,154 @@ BEGIN
   RAISE WARNING 'END CREATE OR REPLACE procedure sp_get_navigation_for_testcases';
 END
 $$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#10 INTERNAL VERSION UPGRADE HEADER - START';
+END
+$$;
+INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_10', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#10 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'START CREATE OR REPLACE procedure sp_get_number_of_checkpoints_per_queue';
+END
+$$;
+
+
+CREATE OR REPLACE FUNCTION sp_get_number_of_checkpoints_per_queue(testcaseIds VARCHAR(100))
+RETURNS TABLE (
+    name VARCHAR(255),
+    queue_number BIGINT
+) AS $func$
+DECLARE
+    _sql VARCHAR(8000);
+BEGIN
+    _sql := 'SELECT "tLoadQueues".name,
+             count("tLoadQueues".name) as queue_number
+             FROM ' || $$"tCheckpoints"$$ || '
+             INNER JOIN ' || $$"tCheckpointsSummary"$$ || ' on ("tCheckpointsSummary".checkpointSummaryId = "tCheckpoints".checkpointSummaryId)
+             INNER JOIN ' || $$"tLoadQueues"$$ || ' on ("tLoadQueues".loadQueueId = "tCheckpointsSummary".loadQueueId)
+             WHERE "tLoadQueues".testcaseId in ( ' || testcaseIds || ' )
+             GROUP BY "tLoadQueues".testcaseId, "tLoadQueues".name';
+    RETURN QUERY EXECUTE _sql;
+END;
+$func$ LANGUAGE plpgsql;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'END CREATE OR REPLACE procedure sp_get_number_of_checkpoints_per_queue';
+END
+$$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'START CREATE OR REPLACE procedure sp_get_system_statistic_descriptions';
+END
+$$;
+
+
+CREATE OR REPLACE FUNCTION sp_get_system_statistic_descriptions(_fdate varchar(150), whereClause varchar(1000))
+RETURNS TABLE (
+    testcaseId INTEGER,
+    testcaseName VARCHAR(255),
+    testcaseStarttime DOUBLE PRECISION,
+    machineId INTEGER,
+    machineName VARCHAR(255),
+    statsTypeId INTEGER,
+    name VARCHAR(255),
+    params TEXT,
+    parentName VARCHAR(255),
+    internalName VARCHAR(255),
+    units VARCHAR(255),
+    statsNumberMeasurements BIGINT,
+    statsMinValue Decimal(20,2),
+    statsAvgValue Decimal(20,2),
+    statsMaxValue Decimal(20,2)
+) AS $func$
+DECLARE
+    _sql VARCHAR(8000);
+BEGIN
+    _sql := 'SELECT tt.testcaseId, 
+                    tt.name as testcaseName,
+                    EXTRACT(EPOCH FROM (ss.timestamp - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
+                    m.machineId,
+                    CASE
+                        WHEN m.machineAlias is NULL OR LENGTH(m.machineAlias) = 0 THEN m.machineName
+                        ELSE m.machineAlias
+                    END as machineName,
+                    ss.statsTypeId,
+                    st.name,
+                    st.params,
+                    st.parentName,
+                    st.internalName,
+                    st.units,
+                    COUNT(ss.value) as statsNumberMeasurements,
+                    CAST( MIN(ss.value) AS Decimal(20,2) ) as statsMinValue,
+                    CAST( AVG(ss.value) AS Decimal(20,2) ) as statsAvgValue,
+                    CAST( MAX(ss.value) AS Decimal(20,2) ) as statsMaxValue
+             FROM ' || $$"tSystemStats"$$ || ' ss
+             INNER JOIN ' || $$"tStatsTypes"$$ || ' st on (ss.statsTypeId = st.statsTypeId)
+             INNER JOIN ' || $$"tMachines"$$ || ' m on (ss.machineId = m.machineId)
+             INNER JOIN ' || $$"tTestcases"$$ || ' tt on (ss.testcaseId = tt.testcaseId)
+             ' || whereClause || ' AND ss.timestamp in ( SELECT MIN(ss.timestamp)
+																	from "tSystemStats" ss
+																	' || whereClause || '
+																	GROUP BY ss.testcaseId)
+             GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+             ORDER BY st.name';
+    RETURN QUERY EXECUTE _sql;
+END;
+$func$ LANGUAGE plpgsql;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'END CREATE OR REPLACE procedure sp_get_system_statistic_descriptions';
+END
+$$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'START CREATE OR REPLACE procedure sp_get_navigation_for_testcases';
+END
+$$;
+
+CREATE OR REPLACE FUNCTION sp_get_navigation_for_testcases(_suiteId varchar(30))
+RETURNS TABLE (
+    runId INTEGER,
+    runName VARCHAR(50),
+    scenarioId INTEGER,
+    suiteName VARCHAR(50),
+    scenarioName VARCHAR(50)
+) AS $func$
+BEGIN
+    RETURN QUERY
+    SELECT "tRuns".runId, 
+           "tRuns".runName, 
+           "tTestcases".scenarioId, 
+           "tSuites".name AS suiteName, 
+           "tScenarios".name AS scenarioName
+    FROM "tTestcases"
+    INNER JOIN "tScenarios" ON ("tScenarios".scenarioId = "tTestcases".scenarioId)
+    INNER JOIN "tSuites"  ON ("tSuites".suiteId = "tTestcases".suiteId)
+    INNER JOIN "tRuns"  ON ("tSuites".runId = "tRuns".runId)
+    WHERE "tTestcases".suiteId = CAST(_suiteId AS INTEGER);
+END;
+$func$ LANGUAGE plpgsql;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'END CREATE OR REPLACE procedure sp_get_navigation_for_testcases';
+END
+$$
+
