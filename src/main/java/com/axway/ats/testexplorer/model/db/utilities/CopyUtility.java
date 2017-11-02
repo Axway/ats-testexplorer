@@ -538,8 +538,11 @@ public abstract class CopyUtility {
 
             // there are detailed statistics
             // we will insert the statistics, the summary table will be filled by the stored procedure
-            List<Checkpoint> detailedActions = ((IDbReadAccess)this.srcDbRead).getCheckpoints( srcTestcaseId,
-                                                                              summaryAction.name, 0, false );
+            List<Checkpoint> detailedActions = ( ( IDbReadAccess ) this.srcDbRead ).getCheckpoints( srcTestcaseId,
+                                                                                                    srcActionQueue.loadQueueId,
+                                                                                                    summaryAction.name,
+                                                                                                    0,
+                                                                                                    false );
             if( !hasDetailedStatistics && detailedActions.size() > 0 ) {
                 hasDetailedStatistics = true;
             }
