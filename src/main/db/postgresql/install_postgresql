@@ -15,8 +15,8 @@ rm -rf install.log
 touch install.log
 
 # see if database exists
-# DATABASE_EXISTS=`psql -U AtsUser -h localhost -l | grep $DB_NAME | wc -l`
-DATABASE_EXISTS=`psql -U postgres -l | grep $DB_NAME | wc -l`
+# psql -U AtsUser -h localhost -l | grep $DB_NAME | wc -l`
+DATABASE_EXISTS=`psql -U postgres -h localhost -l | grep $DB_NAME | wc -l`
 if [[ "$DATABASE_EXISTS" == 1 ]]; then
 	echo "Database \"$DB_NAME\" already exists."
 	exit 1
