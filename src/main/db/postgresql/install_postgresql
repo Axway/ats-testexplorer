@@ -29,7 +29,7 @@ echo "\connect $DB_NAME" >> tmpInstallDbScript.sql
 echo " " >> tmpInstallDbScript.sql
 cat TestExplorerDb_PostgreSQL.sql >> tmpInstallDbScript.sql
 
-psql -U postgres -a -f tmpInstallDbScript.sql 2>&1 | grep 'ERROR:' > install.log
+psql -U postgres -h localhost -a -f tmpInstallDbScript.sql 2>&1 | grep 'ERROR:' > install.log
 NUM_OF_ERRORS=`cat install.log | grep 'ERROR:' | wc -l`
 echo "Errors during install: $NUM_OF_ERRORS"
 echo "Installing of \"$DB_NAME\" completed. See install.log file for errors"
