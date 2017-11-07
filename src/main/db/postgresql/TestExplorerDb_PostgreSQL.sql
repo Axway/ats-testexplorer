@@ -1847,13 +1847,13 @@ $func$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION sp_get_number_of_checkpoints_per_queue(testcaseIds VARCHAR(100))
 RETURNS TABLE (
     name VARCHAR(255),
-    queue_number BIGINT
+    numberOfQueue BIGINT
 ) AS $func$
 DECLARE
     _sql VARCHAR(8000);
 BEGIN
     _sql := 'SELECT tLoadQueues".name,
-             count("tLoadQueues".name) as queue_number
+             count("tLoadQueues".name) as numberOfQueue
              FROM ' || $$"tCheckpoints"$$ || '
              INNER JOIN ' || $$"tCheckpointsSummary"$$ || ' on ("tCheckpointsSummary".checkpointSummaryId = "tCheckpoints".checkpointSummaryId)
              INNER JOIN ' || $$"tLoadQueues"$$ || ' on ("tLoadQueues".loadQueueId = "tCheckpointsSummary".loadQueueId)

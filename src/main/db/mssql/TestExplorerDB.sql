@@ -763,7 +763,7 @@ DECLARE @sql varchar(8000)
 SET @sql = 
 'SELECT
 	 tLoadQueues.name,
-     COUNT(tLoadQueues.name) as queue_number
+     COUNT(tLoadQueues.name) as numberOfQueue
      FROM tCheckpoints
      INNER JOIN tCheckpointsSummary on (tCheckpointsSummary.checkpointSummaryId = tCheckpoints.checkpointSummaryId)
      INNER JOIN tLoadQueues on (tLoadQueues.loadQueueId = tCheckpointsSummary.loadQueueId)
