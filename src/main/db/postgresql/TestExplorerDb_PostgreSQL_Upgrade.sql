@@ -272,6 +272,17 @@ BEGIN
 END
 $$;
 
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#9 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='9' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#9 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;
 
 DO language plpgsql $$
 BEGIN
@@ -422,3 +433,14 @@ BEGIN
 END
 $$
 
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#10 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='10' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#10 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;

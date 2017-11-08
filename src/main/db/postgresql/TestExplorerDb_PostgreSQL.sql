@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.2_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '11');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '11');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_11', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '13');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '13');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_13', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
