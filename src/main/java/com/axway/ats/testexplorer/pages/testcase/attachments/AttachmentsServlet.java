@@ -35,6 +35,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
+import com.axway.ats.core.utils.ExceptionUtils;
 import com.axway.ats.core.utils.StringUtils;
 
 public class AttachmentsServlet extends HttpServlet {
@@ -61,8 +62,8 @@ public class AttachmentsServlet extends HttpServlet {
         if( checkContextAttribute == null ) {
             LOG.error( "No attached files could be attached. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set." );
         } else {
+            response.setContentType( "text/html;charset=UTF-8" );
             PrintWriter out = response.getWriter();
-            response.setContentType( "text/html" );
             // Check that we have a file upload request
             if( !ServletFileUpload.isMultipartContent( request ) ) {
                 out.println( "<html>" );
@@ -122,22 +123,28 @@ public class AttachmentsServlet extends HttpServlet {
                     fileItem.write( file );
                     out.println("File uploaded to testcase " + testcaseId);
                 } else {
+                    StringBuilder sb = new StringBuilder();
                     if( StringUtils.isNullOrEmpty( attachedFile ) ) {
-                        out.println( "Attached file name is null or empty!" );
+                        sb.append( "Attached file name is null or empty!" );
+                        out.println( sb.toString() );
                     }
                     if( StringUtils.isNullOrEmpty( dbName ) ) {
-                        out.println( "Database name is null of empty!" );
+                        sb.append( "Database name is null of empty!" );
+                        out.println( sb.toString() );
                     }
                     if( runId <= 0 ) {
-                        out.println( "RunId \"" + runId + "\" is not valid!" );
+                        sb.append( "RunId \"" + runId + "\" is not valid!" );
+                        out.println( sb.toString() );
                     }
                     if( suiteId <= 0 ) {
-                        out.println( "SuiteId \"" + suiteId + "\" is not valid!" );
+                        sb.append( "SuiteId \"" + suiteId + "\" is not valid!" );
+                        out.println( sb.toString() );
                     }
                     if( testcaseId <= 0 ) {
-                        out.println( "TestcaseId \"" + testcaseId + "\" is not valid!" );
+                        sb.append( "TestcaseId \"" + testcaseId + "\" is not valid!" );
+                        out.println( sb.toString() );
                     }
-                    response.setStatus( 400 );
+                    response.sendError( HttpServletResponse.SC_CONFLICT, sb.toString() );
                     LOG.error( "The file could not be attached to the test!" );
                 }
             } catch( Exception ex ) {
@@ -145,7 +152,7 @@ public class AttachmentsServlet extends HttpServlet {
                 if( errMsg == null){
                     errMsg = ex.getClass().getSimpleName();
                 }
-                response.sendError( HttpServletResponse.SC_CONFLICT);
+                response.sendError( HttpServletResponse.SC_CONFLICT, ExceptionUtils.getExceptionMsg( ex ) );
                 LOG.error( "The file was unable to be attached to the testcase! ", ex );
             }finally {
                 out.close();
