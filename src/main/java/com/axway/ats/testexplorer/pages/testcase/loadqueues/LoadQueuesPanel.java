@@ -32,13 +32,13 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 
+import com.axway.ats.core.utils.StringUtils;
 import com.axway.ats.log.autodb.AbstractDbAccess;
 import com.axway.ats.log.autodb.entities.CheckpointSummary;
 import com.axway.ats.log.autodb.entities.LoadQueue;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.log.model.LoadQueueResult;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
-import com.mysql.jdbc.StringUtils;
 
 public class LoadQueuesPanel extends Panel {
 

@@ -430,11 +430,47 @@
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-core</artifactId>
             <version>${ats.framework.version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>javax.mail</groupId>
+            		<artifactId>mail</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>com.axway.ats.expectj</groupId>
+            		<artifactId>ats-expectj</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>com.datastax.cassandra</groupId>
+            		<artifactId>cassandra-driver-core</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.bouncycastle</groupId>
+            		<artifactId>bcprov-jdk15on</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>com.jcraft</groupId>
+            		<artifactId>jsch</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>mysql</groupId>
+            		<artifactId>mysql-connector-java</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>dom4j</groupId>
+            		<artifactId>dom4j</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-log</artifactId>
             <version>${ats.framework.version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>javax.mail</groupId>
+            		<artifactId>mail</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
