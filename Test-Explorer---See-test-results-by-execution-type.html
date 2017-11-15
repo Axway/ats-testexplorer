@@ -1,61 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <title>ATS : Test Explorer - See test results by execution type</title>
-        <link rel="stylesheet" href="styles/site.css" type="text/css" />
-        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
+ <head> 
+  <title>ATS : Test Explorer - See test results by execution type</title> 
+  <link rel="stylesheet" href="styles/site.css" type="text/css"> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+ </head> 
+ <body class="theme-default aui-theme-default"> 
+  <div id="page"> 
+   <div id="main" class="aui-page-panel"> 
+    <div id="main-header"> 
+     <a><img class="axway_logo" src="images/AxwayLogo.png" alt="Axway Inc"></a> 
+     <div id="breadcrumb-section"> 
+      <ol id="breadcrumbs"> 
+       <li class="first"> <span><a href="index.html">ATS</a></span> </li> 
+       <li> <span><a href="ATS-Test-Explorer-Guide.html">ATS Test Explorer Guide</a></span> </li> 
+      </ol> 
+     </div> 
+     <h1 id="title-heading" class="pagetitle"> <span id="title-text"> ATS : Test Explorer - See test results by execution type </span> </h1> 
+    </div> 
+    <div id="content" class="view"> 
+     <div id="main-content" class="wiki-content group"> 
+      <p>By default when select a database, Test Explorer displays all Runs listed by their execution time as <a href="Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">here</a>.</p>
+      <p>Another possible view is to get merged info about executions of same type. For example, if you tagged some of your test executions as "Build Validation" or "Regression" or something similar, then you can see the test results divided by such execution type.</p>
+      <p>&nbsp;</p>
+      <hr>
+      <h1 id="TestExplorer-Seetestresultsbyexecutiontype-NavigatingtothisviewfromthemainTestExplorerpage.">Navigating to this view from the main Test Explorer page.</h1>
+      <p>Select the "<em>Validation/Regression runs</em>" perspective:</p>
+      <p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118038.png" data-image-src="attachments/111118026/111118038.png" data-unresolved-comment-count="0" data-linked-resource-id="111118038" data-linked-resource-version="3" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic1.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="13"></span></p>
+      <p>&nbsp;</p>
+      <hr>
+      <h1 id="TestExplorer-Seetestresultsbyexecutiontype-Selectexecutionstobedisplayed">Select executions to be displayed</h1>
+      <p>Use the filter and click <em>Submit</em>.</p>
+      <p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118059.png" data-image-src="attachments/111118026/111118059.png" data-unresolved-comment-count="0" data-linked-resource-id="111118059" data-linked-resource-version="3" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic3.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="13"></span></p>
+      <p>&nbsp;</p>
+      <hr>
+      <h1 id="TestExplorer-Seetestresultsbyexecutiontype-Viewaboutaparticularexecutiontype">View about a particular execution type</h1>
+      <p>This is what you get after clickin a particular execution type</p>
+      <p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118073.png" data-image-src="attachments/111118026/111118073.png" data-unresolved-comment-count="0" data-linked-resource-id="111118073" data-linked-resource-version="2" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic4.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="13"></span></p>
+      <p>&nbsp;</p>
+      <hr>
+      <h1 id="TestExplorer-Seetestresultsbyexecutiontype-ViewaboutaparticularSuite">View about a particular Suite</h1>
+      <p>This is what you get after clicking a particular Suite</p>
+      <p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118081.png" data-image-src="attachments/111118026/111118081.png" data-unresolved-comment-count="0" data-linked-resource-id="111118081" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic5.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="13"></span></p>
+      <p>&nbsp;</p>
+      <hr>
+      <h1 id="TestExplorer-Seetestresultsbyexecutiontype-Howtotagyourtestexecutions">How to tag your test executions</h1>
+      <p>Somewhere in your code after a Run is create, you need to call code like the following:</p>
+      <div class="code panel pdl" style="border-width: 1px;">
+       <div class="codeContent panelContent pdl"> 
+        <pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: java; gutter: false; theme: Confluence" data-theme="Confluence">import com.axway.ats.log.AtsDbLogger;
 
-    <body class="theme-default aui-theme-default">
-        <div id="page">
-            <div id="main" class="aui-page-panel">
-                <div id="main-header">
-<a><img class="axway_logo" src="images/AxwayLogo.png" alt="Axway Inc"></a>
-
-                    <div id="breadcrumb-section">
-                        <ol id="breadcrumbs">
-                            <li class="first">
-                                <span><a href="index.html">ATS</a></span>
-                            </li>
-                                                    <li>
-                                <span><a href="ATS-Test-Explorer-Guide.html">ATS Test Explorer Guide</a></span>
-                            </li>
-                                                </ol>
-                    </div>
-                    <h1 id="title-heading" class="pagetitle">
-                                                <span id="title-text">
-                            ATS : Test Explorer - See test results by execution type
-                        </span>
-                    </h1>
-                </div>
-
-                <div id="content" class="view">
-                    <div class="page-metadata">
-                        
-        
-    
-        
-    
-        
-        
-            Created by <span class='author'> Nikolay Gogovski</span>, last modified on Apr 05, 2017
-                        </div>
-                    <div id="main-content" class="wiki-content group">
-                    <p>By default when select a database, Test Explorer displays all Runs listed by their execution time as <a href="Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">here</a>.</p><p>Another possible view is to get merged info about executions of same type. For example, if you tagged some of your test executions as &quot;Build Validation&quot; or &quot;Regression&quot; or something similar, then you can see the test results divided by such execution type.</p><p> </p><hr/><h1 id="TestExplorer-Seetestresultsbyexecutiontype-NavigatingtothisviewfromthemainTestExplorerpage.">Navigating to this view from the main Test Explorer page.</h1><p>Select the &quot;<em>Validation/Regression runs</em>&quot; perspective:</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118038.png" data-image-src="attachments/111118026/111118038.png" data-unresolved-comment-count="0" data-linked-resource-id="111118038" data-linked-resource-version="3" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic1.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="11"></span></p><p> </p><hr/><h1 id="TestExplorer-Seetestresultsbyexecutiontype-Selectexecutionstobedisplayed">Select executions to be displayed</h1><p>Use the filter and click <em>Submit</em>.</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118059.png" data-image-src="attachments/111118026/111118059.png" data-unresolved-comment-count="0" data-linked-resource-id="111118059" data-linked-resource-version="3" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic3.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="11"></span></p><p> </p><hr/><h1 id="TestExplorer-Seetestresultsbyexecutiontype-Viewaboutaparticularexecutiontype">View about a particular execution type</h1><p>This is what you get after clickin a particular execution type</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118073.png" data-image-src="attachments/111118026/111118073.png" data-unresolved-comment-count="0" data-linked-resource-id="111118073" data-linked-resource-version="2" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic4.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="11"></span></p><p> </p><hr/><h1 id="TestExplorer-Seetestresultsbyexecutiontype-ViewaboutaparticularSuite">View about a particular Suite</h1><p>This is what you get after clicking a particular Suite</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image confluence-content-image-border" src="attachments/111118026/111118081.png" data-image-src="attachments/111118026/111118081.png" data-unresolved-comment-count="0" data-linked-resource-id="111118081" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="pic5.png" data-base-url="https://techweb.axway.com/confluence" data-linked-resource-content-type="image/png" data-linked-resource-container-id="111118026" data-linked-resource-container-version="11"></span></p><p> </p><hr/><h1 id="TestExplorer-Seetestresultsbyexecutiontype-Howtotagyourtestexecutions">How to tag your test executions</h1><p>Somewhere in your code after a Run is create, you need to call code like the following:</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
-<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: java; gutter: false; theme: Confluence" data-theme="Confluence">import com.axway.ats.log.AtsDbLogger;
-
-AtsDbLogger	.addRunMetainfo( &quot;type&quot;, &quot;Regression&quot; );</pre>
-</div></div><p>This says i am running <em>Regression</em> tests.</p><div class="confluence-information-macro has-no-icon confluence-information-macro-note"><div class="confluence-information-macro-body"><p>A reasonable place for using this code is a method annotated with the TestNG's <em>@BeforeSuite</em> annotation.</p><p>This way it will be executed just once before the very first test.</p></div></div><p> </p><hr/><p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a></p><hr/>
-                    </div>
-
-                </div>             </div> 
-            <div id="footer" role="contentinfo">
-                <section class="footer-body">
-                    <p>Document generated by Confluence on Apr 05, 2017 10:55</p>
-                    <div id="footer-logo"></div>
-                </section>
-            </div>
-        </div>     </body>
+public class Test_Foo {
+ ...
+    AtsDbLogger.getLogger( Test_Foo.class.getName() ).addRunMetainfo( "type", "Regression" );
+ ...
+}</pre> 
+       </div>
+      </div>
+      <p>This says i am running <em>Regression</em> tests.</p>
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
+       <div class="confluence-information-macro-body">
+        <p>A reasonable place for using this code is a method annotated with the TestNG's <em>@BeforeSuite</em> annotation.</p>
+        <p>This way it will be executed just once before the very first test.</p>
+       </div>
+      </div>
+      <p>&nbsp;</p>
+      <hr>
+      <p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a><p>Go to <a href="./toc.html">Table of Contents</a></p></p>
+      <hr> 
+     </div> 
+    </div> 
+   </div> 
+  </div>
+ </body>
 </html>
-
-

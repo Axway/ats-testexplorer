@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>ATS : Test Explorer - FAQ</title> 
+  <link rel="stylesheet" href="styles/site.css" type="text/css"> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+ </head> 
+ <body class="theme-default aui-theme-default"> 
+  <div id="page"> 
+   <div id="main" class="aui-page-panel"> 
+    <div id="main-header"> 
+     <a><img class="axway_logo" src="images/AxwayLogo.png" alt="Axway Inc"></a> 
+     <div id="breadcrumb-section"> 
+      <ol id="breadcrumbs"> 
+       <li class="first"> <span><a href="index.html">ATS</a></span> </li> 
+       <li> <span><a href="ATS-Test-Explorer-Guide.html">ATS Test Explorer Guide</a></span> </li> 
+      </ol> 
+     </div> 
+     <h1 id="title-heading" class="pagetitle"> <span id="title-text"> ATS : Test Explorer - FAQ </span> </h1> 
+    </div> 
+    <div id="content" class="view"> 
+     <div id="main-content" class="wiki-content group"> 
+      <h2 id="TestExplorer-FAQ-HowshouldIcreateDBbackup?">How should I create DB backup?</h2>
+      <p>You may use MsSQL Management Studio. Right click on DB name on the left. Then choose <em>Tasks-&gt;Backup&nbsp;..</em>. On the dialog you may check and change destination of the file. Also you may enable compression in <em>Backup options</em> section.</p>
+      <p><br></p>
+      <hr>
+      <h2 id="TestExplorer-FAQ-HowshouldIrestoreDB?">How should I restore DB?</h2>
+      <p>There are 2 options.</p>
+      <ul style="list-style-type: square;">
+       <li>From DB files taken from <strong>existing DB</strong><br>In such case you have existing <strong>MDF</strong> file and <strong>LOG</strong> file with same name. In SQL Management Studio right click on <em>Databases</em> and choose <em>Attach</em>.</li>
+       <li>From <strong>DB backup</strong> (<strong>BAK</strong> file). Here you should initially create new TestExplorer DB. Then right click it, choose <em>Tasks</em>&nbsp;→ <em>Restore</em>&nbsp;→ <em>Database</em></li>
+      </ul>
+      <p>In both cases mentioned above you may need to <strong>re-associate AtsUser</strong> (check your user name) in DB file to the AtsUser created in SQL Server. This is needed when you restore DB to another SQL Server installation. Open query editor in SQL Server Management Studio - right click on DB and then select "New Query". Then paste and execute this statement:</p>
+      <blockquote>
+       <p>EXEC sp_change_users_login 'update_one', 'AtsUser', 'AtsUser'</p>
+      </blockquote>
+      <p>&nbsp;</p>
+      <hr>
+      <h2 id="TestExplorer-FAQ-Howtoremovedatabasefromthelistofknowndatabases?">How to remove database from the list of known databases?</h2>
+      <p>TestExplorer automatically remembers new databases when they are entered in home page. This way you may easily browse it without need to type it again and again.</p>
+      <p>Currently if you want to drop some DB or remove it from the list you should directly remove the corresponding line from the <em>WEB-INF/classes/<strong>databases.txt</strong></em> file.&nbsp;</p>
+      <p><br></p>
+      <hr>
+      <p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a><p>Go to <a href="./toc.html">Table of Contents</a></p></p>
+      <hr> 
+     </div> 
+    </div> 
+   </div> 
+  </div>
+ </body>
+</html>
