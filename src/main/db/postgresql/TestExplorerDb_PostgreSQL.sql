@@ -1812,7 +1812,7 @@ DECLARE
 BEGIN
     _sql := 'SELECT tt.testcaseId, 
                     tt.name as testcaseName,
-                    EXTRACT(EPOCH FROM (ss.timestamp - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
+                    EXTRACT(EPOCH FROM (MIN(ss.timestamp) - CAST( ''' || _fdate || ''' AS TIMESTAMP))) as testcaseStarttime,
                     m.machineId,
                     CASE
                         WHEN m.machineAlias is NULL OR LENGTH(m.machineAlias) = 0 THEN m.machineName
@@ -1832,11 +1832,8 @@ BEGIN
              INNER JOIN ' || $$"tStatsTypes"$$ || ' st on (ss.statsTypeId = st.statsTypeId)
              INNER JOIN ' || $$"tMachines"$$ || ' m on (ss.machineId = m.machineId)
              INNER JOIN ' || $$"tTestcases"$$ || ' tt on (ss.testcaseId = tt.testcaseId)
-             ' || whereClause || ' AND ss.timestamp in ( SELECT MIN(ss.timestamp)
-																	from "tSystemStats" ss
-																	' || whereClause || '
-																	GROUP BY ss.testcaseId)
-             GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+             ' || whereClause || '
+             GROUP BY tt.testcaseId, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
              ORDER BY st.name';
     RETURN QUERY EXECUTE _sql;
 END;
