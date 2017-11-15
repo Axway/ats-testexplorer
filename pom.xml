@@ -47,6 +47,7 @@
         <!-- Travis CI plugin versions -->
         <org.sonatype.plugins.nexus.staging.maven.plugin.version>1.6.7</org.sonatype.plugins.nexus.staging.maven.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
+        <org.apache.maven.plugins.maven.javadoc.plugin.version>2.9.1</org.apache.maven.plugins.maven.javadoc.plugin.version>
         <org.apache.maven.scm>1.8.1</org.apache.maven.scm>
         <!-- Maven GPG plugin properties -->
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
@@ -396,6 +397,25 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-javadoc-plugin</artifactId>
+               <version>${org.apache.maven.plugins.maven.javadoc.plugin.version}</version>
+               <configuration>
+                   <!-- disables JDK 8 doclint javadoc feature, so all javadoc errors are treated as warnings -->
+                   <!-- due to being not available in JDK 7, building it via it, will cause build error -->
+                   <additionalparam>-Xdoclint:none</additionalparam>
+                   <quiet>true</quiet> <!-- Travis-related: reduce size of console log -->
+               </configuration>
+               <executions>
+                   <execution>
+                       <id>attach-javadocs</id>
+                       <goals>
+                           <goal>jar</goal>
+                       </goals>
+                   </execution>
+               </executions>
+           </plugin>
             <!-- Used only when deploying new release version -->
            <plugin>
                <groupId>org.apache.maven.plugins</groupId>
