@@ -1099,7 +1099,7 @@ AS
 DECLARE @sql varchar(8000)
 
 SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
-                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ss.timestamp) as testcaseStarttime,
+						DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), MIN(ss.timestamp)) as testcaseStarttime,
                         m.machineId,
                         CASE
                             WHEN m.machineAlias is NULL OR DATALENGTH(m.machineAlias) = 0 THEN m.machineName
@@ -1114,13 +1114,9 @@ SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
                      INNER JOIN tStatsTypes st on (ss.statsTypeId = st.statsTypeId)
                      INNER JOIN tMachines m on (ss.machineId = m.machineId)
                      INNER JOIN tTestcases tt on (ss.testcaseId = tt.testcaseId)
-                     ' + @WhereClause + '  and ss.timestamp in ( SELECT MIN(ss.timestamp)
-																	from tSystemStats ss
-																	' + @WhereClause + '
-																	GROUP BY ss.testcaseId)
-                GROUP BY tt.testcaseId, ss.timestamp, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
+                     ' + @WhereClause + '
+                GROUP BY tt.testcaseId, tt.name, m.machineId, m.machineName, m.machineAlias, st.name, st.params, st.parentName, st.internalName, ss.statsTypeId, st.units
                 ORDER BY st.name';
-
 EXEC (@sql)
 GO
 

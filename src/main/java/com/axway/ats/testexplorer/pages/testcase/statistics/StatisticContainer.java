@@ -22,13 +22,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * this is:
- *  - the parent process when working with system processes
- *  - the action queue name when working with agent actions
- *
- * it contains statistic descriptions
- */
-/**
  * See the javadoc for ChartsPanel class to see how this class stays in the hierarchy 
  * 
  * This class is
