@@ -19,81 +19,81 @@
     </div> 
     <div id="content" class="view"> 
      <div id="main-content" class="wiki-content group"> 
-      <h1 id="ATSTestExplorerGuide-Introduction">Introduction</h1>
-      <p>Having a good and even the best automated testing is useless if you do not have a good way to evaluate the test results.</p>
-      <p>The Axway Test Explorer is the answer of the ATS team to this crucial need. Test Explorer is a web application used to review and analyze the results of automated tests executed with the ATS framework.</p>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-Mainfeatures">Main features</h1>
-      <p>The number of features is constantly growing. Here we list just the most important ones:</p>
-      <ul>
-       <li>Web application to explore all the collected test execution data</li>
-       <li>Neat user friendly interface</li>
-       <li>Supports multiple database instances. A single application can work with many databases as needed</li>
-       <li>Lots of details
-        <ul>
-         <li>Messages<br>They help you understand how the test flow was going. They can come from the test case, from the Tested Application, from used third party libraries</li>
-         <li>System statistical information<br>Various statistical information about one or more hosts like CPU, Memory, Network, IO usage etc.<br>You can also compare this info among different test executions</li>
-         <li>User activity information<br>When running performance tests, you can see how many times some test step was taken, how long time it took to execute, how much data it transferred(if it transfers data) etc.</li>
-        </ul></li>
-       <li>Multi-layer test organization</li>
-       <li>Easy comparison between different test cases.</li>
-       <li>Bookmarkable pages. This allows you to send web links to particular test views</li>
-       <li>Real time behavior<br>ATS logging system fills the logging database in a real time, the Test Explorer is able to show this data in real time as well</li>
-       <li>Good performance</li>
-       <li>Easy to install</li>
-      </ul>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-Whatisitandhowdoesitwork?">What is it and how does it work?</h1>
-      <p>The concept is a kind of simple and it is separated in two parts</p>
-      <h3 id="ATSTestExplorerGuide-TestExplorerdatabase">Test Explorer database</h3>
-      <p>All the data is kept into one or more databases.</p>
-      <p>Currently these are MS SQL or PostgreSQL databases, but nobody needs to know this as it is not seen in any way while working with Test Explorer.</p>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>Usually it is preferred to have just one database host in your network</p>
-       </div>
-      </div>
-      <h3 id="ATSTestExplorerGuide-TestExplorerviewer">Test Explorer viewer</h3>
-      <p>This is the web application you use to analyze the test results. It just reads the data you want from its database and displays it in an appropriate way</p>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>Simply said the tests fill the Test Explorer database with data about some test executions while the Test Explorer UI reads and presents that data.</p>
-        <p>All this works in real time.</p>
-       </div>
-      </div>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-Usageexamples">Usage examples</h1>
-      <p>You can have a look at this <a class="external-link" href="https://www.youtube.com/watch?v=TWT9abSTVk8" rel="nofollow">short Test Explorer video presentation</a></p>
-      <p>Following are page with screenshots give some more details:</p>
-      <h3 id="ATSTestExplorerGuide-Basicintroduction">Basic introduction</h3>
-      <p><a href="Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">Here</a> you can see useful info about many of the Test Explorer views</p>
-      <h3 id="ATSTestExplorerGuide-Otherusefulexamples">Other useful examples</h3>
-      <p><a href="Test-Explorer---Compare-testcase-system-statistics.html">Compare testcase system statistics</a></p>
-      <p><a href="Test-Explorer---Navigate-to-another-execution-of-same-testcase.html">Navigate to another execution of same testcase</a></p>
-      <p><a href="Test-Explorer---Copy-runs-between-databases.html">Copy runs between databases</a></p>
-      <p><a href="Test-Explorer---Copy-testcases-between-runs.html">Copy testcases between runs</a></p>
-      <p><a href="Test-Explorer---See-test-results-by-execution-type.html">See test results by execution type</a></p>
-      <p><a href="Test-Explorer---See-test-results-by-testcase-groups.html">See test results by testcase groups</a></p>
-      <p><a href="Test-Explorer---Manage-used-machines.html">Manage used machines</a></p>
-      <p><a href="Test-Explorer---Advanced-test-scenario-description.html">Advanced test scenario description</a></p>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-Installation">Installation</h1>
-      <p><a href="Test-Explorer---Install-guide.html">Here</a> we list the steps to install a Test Explorer database and web application.</p>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-UsingtheDockerImage">Using the Docker Image</h1>
-      <p><a href="Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html">Here</a> you can see how to use the official Test Explorer Docker Image</p>
-      <hr>
-      <h1 id="ATSTestExplorerGuide-Releasenotes"><span style="color: rgb(120,0,0);">Release notes</span></h1>
-      <p><a href="Test-Explorer-Release-Notes.html">Here</a> they are</p>
-      <hr>
-      <p>See more about the <a class="external-link" href="https://github.com/Axway/ats-framework" rel="nofollow">ATS framework</a></p>
+      <h1 id="ATSTestExplorerGuide-Introduction">Introduction</h1> 
+      <p>Having a good and even the best automated testing is useless if you do not have a good way to evaluate the test results.</p> 
+      <p>The Axway Test Explorer is the answer of the ATS team to this crucial need. Test Explorer is a web application used to review and analyze the results of automated tests executed with the ATS framework.</p> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-Mainfeatures">Main features</h1> 
+      <p>The number of features is constantly growing. Here we list just the most important ones:</p> 
+      <ul> 
+       <li>Web application to explore all the collected test execution data</li> 
+       <li>Neat user friendly interface</li> 
+       <li>Supports multiple database instances. A single application can work with many databases as needed</li> 
+       <li>Lots of details 
+        <ul> 
+         <li>Messages<br>They help you understand how the test flow was going. They can come from the test case, from the Tested Application, from used third party libraries</li> 
+         <li>System statistical information<br>Various statistical information about one or more hosts like CPU, Memory, Network, IO usage etc.<br>You can also compare this info among different test executions</li> 
+         <li>User activity information<br>When running performance tests, you can see how many times some test step was taken, how long time it took to execute, how much data it transferred(if it transfers data) etc.</li> 
+        </ul></li> 
+       <li>Multi-layer test organization</li> 
+       <li>Easy comparison between different test cases.</li> 
+       <li>Bookmarkable pages. This allows you to send web links to particular test views</li> 
+       <li>Real time behavior<br>ATS logging system fills the logging database in a real time, the Test Explorer is able to show this data in real time as well</li> 
+       <li>Good performance</li> 
+       <li>Easy to install</li> 
+      </ul> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-Whatisitandhowdoesitwork?">What is it and how does it work?</h1> 
+      <p>The concept is a kind of simple and it is separated in two parts</p> 
+      <h3 id="ATSTestExplorerGuide-TestExplorerdatabase">Test Explorer database</h3> 
+      <p>All the data is kept into one or more databases.</p> 
+      <p>Currently these are MS SQL or PostgreSQL databases, but nobody needs to know this as it is not seen in any way while working with Test Explorer.</p> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>Usually it is preferred to have just one database host in your network</p> 
+       </div> 
+      </div> 
+      <h3 id="ATSTestExplorerGuide-TestExplorerviewer">Test Explorer viewer</h3> 
+      <p>This is the web application you use to analyze the test results. It just reads the data you want from its database and displays it in an appropriate way</p> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>Simply said the tests fill the Test Explorer database with data about some test executions while the Test Explorer UI reads and presents that data.</p> 
+        <p>All this works in real time.</p> 
+       </div> 
+      </div> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-Usageexamples">Usage examples</h1> 
+      <p>You can have a look at this <a class="external-link" href="https://www.youtube.com/watch?v=TWT9abSTVk8" rel="nofollow">short Test Explorer video presentation</a></p> 
+      <p>Following are page with screenshots give some more details:</p> 
+      <h3 id="ATSTestExplorerGuide-Basicintroduction">Basic introduction</h3> 
+      <p><a href="Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">Here</a> you can see useful info about many of the Test Explorer views</p> 
+      <h3 id="ATSTestExplorerGuide-Otherusefulexamples">Other useful examples</h3> 
+      <p><a href="Test-Explorer---Compare-testcase-system-statistics.html">Compare testcase system statistics</a></p> 
+      <p><a href="Test-Explorer---Navigate-to-another-execution-of-same-testcase.html">Navigate to another execution of same testcase</a></p> 
+      <p><a href="Test-Explorer---Copy-runs-between-databases.html">Copy runs between databases</a></p> 
+      <p><a href="Test-Explorer---Copy-testcases-between-runs.html">Copy testcases between runs</a></p> 
+      <p><a href="Test-Explorer---See-test-results-by-execution-type.html">See test results by execution type</a></p> 
+      <p><a href="Test-Explorer---See-test-results-by-testcase-groups.html">See test results by testcase groups</a></p> 
+      <p><a href="Test-Explorer---Manage-used-machines.html">Manage used machines</a></p> 
+      <p><a href="Test-Explorer---Advanced-test-scenario-description.html">Advanced test scenario description</a></p> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-Installation">Installation</h1> 
+      <p><a href="Test-Explorer---Install-guide.html">Here</a> we list the steps to install a Test Explorer database and web application.</p> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-UsingtheDockerImage">Using the Docker Image</h1> 
+      <p><a href="Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html">Here</a> you can see how to use the official Test Explorer Docker Image</p> 
+      <hr> 
+      <h1 id="ATSTestExplorerGuide-Releasenotes"><span style="color: rgb(120,0,0);">Release notes</span></h1> 
+      <p><a href="Test-Explorer-Release-Notes.html">Here</a> they are</p> 
+      <hr> 
+      <p>See more about the <a class="external-link" href="https://github.com/Axway/ats-framework" rel="nofollow">ATS framework</a></p> 
       <hr> 
      </div> 
     </div> 
    </div> 
-  </div>
+  </div>   
   <hr>
   <p>Go to <a href="./index.html">parent page</a></p>
   <p>Go to <a href="./toc.html">Table of Contents</a></p>

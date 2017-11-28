@@ -1,57 +1,78 @@
+<!doctype html>
 <html>
- <head>
-  <title>ATS Test Explorer Table of Content</title>
- </head>
- <body>
-  <ul>
-   <ul>
-    <li><a href=".//ATS-Test-Explorer-Guide.html">ATS-Test-Explorer-Guide.html</a>
+ <head> 
+  <title>ATS : Table of Contents</title> 
+  <link rel="stylesheet" href="styles/site.css" type="text/css"> 
+  <link rel="stylesheet" href="styles/ats.css" type="text/css"> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+  <script src="scripts/ats.js"></script> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+ </head> 
+ <body class="theme-default aui-theme-default" onload="toggle_ul_elements()"> 
+  <div id="page"> 
+   <div id="main" class="aui-page-panel"> 
+    <div id="main-header"> 
+     <a><img class="axway_logo" src="images/AxwayLogo.png" alt="Axway Inc"></a> 
+     <div id="breadcrumb-section"> 
+      <ol id="breadcrumbs"> 
+       <li class="first"><span><a href="index.html">ATS</a></span></li> 
+      </ol> 
+     </div> 
+     <h1 id="title-heading" class="pagetitle"> <span id="title-text"> ATS : Table of Contents </span> </h1> 
+    </div> 
+    <div id="content" class="view">
      <ul>
-      <li><a href=".//Test-Explorer---Copy-testcases-between-runs.html">Test-Explorer---Copy-testcases-between-runs.html</a></li>
+      <ul level="0">
+       <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//ATS-Test-Explorer-Guide.html">ATS-Test-Explorer-Guide.html</a>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Copy-testcases-between-runs.html">Test-Explorer---Copy-testcases-between-runs.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---See-test-results-by-execution-type.html">Test-Explorer---See-test-results-by-execution-type.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer-Release-Notes.html">Test-Explorer-Release-Notes.html</a>
+          <ul level="2">
+           <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer-Release-Notes-4.0.2.html">Test-Explorer-Release-Notes-4.0.2.html</a></li>
+          </ul></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Navigate-to-another-execution-of-same-testcase.html">Test-Explorer---Navigate-to-another-execution-of-same-testcase.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html">Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Copy-runs-between-databases.html">Test-Explorer---Copy-runs-between-databases.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Install-guide.html">Test-Explorer---Install-guide.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Introduction-for-Testcase.html">Test-Explorer---Introduction-for-Testcase.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Compare-testcase-system-statistics.html">Test-Explorer---Compare-testcase-system-statistics.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Manage-used-machines.html">Test-Explorer---Manage-used-machines.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---Advanced-test-scenario-description.html">Test-Explorer---Advanced-test-scenario-description.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---FAQ.html">Test-Explorer---FAQ.html</a></li>
+        </ul>
+        <ul level="1">
+         <li><p class="expand_sign" onmouseover="show_tooltip_for_expand_element(this)" onclick="expand_or_collapse_ul_element(this)">-</p><p style="margin-left: 10px;"></p><a href=".//Test-Explorer---See-test-results-by-testcase-groups.html">Test-Explorer---See-test-results-by-testcase-groups.html</a></li>
+        </ul></li>
+      </ul>
      </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---See-test-results-by-execution-type.html">Test-Explorer---See-test-results-by-execution-type.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer-Release-Notes.html">Test-Explorer-Release-Notes.html</a>
-       <ul>
-        <li><a href=".//Test-Explorer-Release-Notes-4.0.2.html">Test-Explorer-Release-Notes-4.0.2.html</a></li>
-       </ul></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Navigate-to-another-execution-of-same-testcase.html">Test-Explorer---Navigate-to-another-execution-of-same-testcase.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html">Test-Explorer---Using-the-ATS-Test-Explorer-Docker-Image.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Copy-runs-between-databases.html">Test-Explorer---Copy-runs-between-databases.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Install-guide.html">Test-Explorer---Install-guide.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Introduction-for-Testcase.html">Test-Explorer---Introduction-for-Testcase.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html">Test-Explorer---Introduction-for-Run-Suite-and-Scenario.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Compare-testcase-system-statistics.html">Test-Explorer---Compare-testcase-system-statistics.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Manage-used-machines.html">Test-Explorer---Manage-used-machines.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---Advanced-test-scenario-description.html">Test-Explorer---Advanced-test-scenario-description.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---FAQ.html">Test-Explorer---FAQ.html</a></li>
-     </ul>
-     <ul>
-      <li><a href=".//Test-Explorer---See-test-results-by-testcase-groups.html">Test-Explorer---See-test-results-by-testcase-groups.html</a></li>
-     </ul></li>
-   </ul>
-  </ul>
+    </div> 
+   </div> 
+  </div>  
  </body>
 </html>

@@ -20,107 +20,107 @@
     </div> 
     <div id="content" class="view"> 
      <div id="main-content" class="wiki-content group"> 
-      <p>Introduction</p>
-      <p>We list here all steps needed to install and setup Test Explorer database and web application</p>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-InstallationPrerequisites">Installation Prerequisites</h1>
-      <p>You must comply with the following prerequisites prior to installation:</p>
-      <ul>
-       <li>Microsoft SQL Server 2008 R2 or later</li>
-       <li>JRE 7 or later</li>
-       <li>Tomcat 7 or 8</li>
-       <li>The latest ATS Test Explorer release from <a class="external-link" href="https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/" rel="nofollow">here</a> <br> <em> <span class="icon-link jar">&nbsp;</span> </em></li>
-      </ul>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-SQLServersetup">SQL Server setup</h1>
-      <h3 id="TestExplorer-Installguide-Installation">Installation</h3>
-      <p>During installation make sure to choose <em>mixed authentication mode</em>. This is done in order to allow user authenticating through both JDBC and Windows. This can also be done after the install is over by going to SQL Server Management Studio, context menu on Server tree to open Server properties and then go to Security tab.</p>
-      <h3 id="TestExplorer-Installguide-Setup">Setup</h3>
-      <p>Go to SQL Server Management Studio. In Object Explorer view, right click the server and go to "Properties", go to "Connections", check the following:</p>
-      <ul>
-       <li>ANSI warnings</li>
-       <li>Arithmetic abort</li>
-       <li>Quoted identifier</li>
-      </ul>
-      <p>Go to SQL Server Configuration Manager. In SQL Server Network Configuration go to Protocols for MSSQLSERVER and enable TCP/IP connections</p>
-      <p>Create a new user called <em><strong>AtsUser</strong></em> with password <em><strong>AtsPassword</strong></em>. Assign all privileges except <em><strong>denydata*</strong></em></p>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-PostgreSQLserversetup">PostgreSQL server setup</h1>
-      <h3 id="TestExplorer-Installguide-Installation.1">Installation</h3>
-      <p>For Windows, download the latest version from&nbsp;<a class="external-link" href="https://www.postgresql.org/download/" rel="nofollow">here</a></p>
-      <p>For Linux, install it via your distribution package manager:</p>
-      <ul style="list-style-type: square;">
-       <li>using aptitute - apt-get install postgresql-&lt;some_version&gt;</li>
-       <li>using yum - yum install postgresql&lt;some_version&gt;-server</li>
-       <li>using dnf - dnf install postgresql&lt;some_version&gt;-server</li>
-      </ul>
-      <p>You can also install pgAdmin, which is GUI application for managing PostgreSQL databases and servers, similar to Microsoft SQL Server Management Studio</p>
-      <h3 id="TestExplorer-Installguide-Setup.1">Setup</h3>
-      <p>You don't have to make any additional steps.</p>
-      <p>By default PostgreSQL comes with a user called postgres. This is the user that is both used to create ATS Test Explorer databases and optionally to connect to the server via pgAdmin application.</p>
-      <p>There is also psql and psql.exe that are command-line applications, installed by default with PostgreSQL, that can be used to manipulate, backup and restore databases.</p>
-      <p>Note that when executing psql or psql.exe, the username of the current user (e.g. those logged into the operating system) will be used, so you have to execute <strong>psql -U postgres</strong> to connect to the server.</p>
-      <p>If you add additional users, the command syntax is <strong>psql -U &lt;some_user_name&gt; -h localhost</strong>.</p>
-      <p>The user, used by ATS framework, to log test execution data, called AtsUser (password: AtsPassword) is created automatically, when you execute the install script from either</p>
-      <p><em>&lt;Test Explorer Zip&gt;/db/postgresql/install_postgresql</em>&nbsp; or&nbsp;<em>&lt;Test Explorer Zip&gt;/db/postgresql/install_postgresql.bat</em>.</p>
-      <p>This user also can be used to connect to the server, so in this case the command will be:&nbsp;<strong>psql -U AtsUser -h localhost</strong>.</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-InstallingtheTestExplorerdatabase">Installing the Test Explorer database</h1>
-      <p>Unzip the Test Explorer zip archive.</p>
-      <p>Run the <em>&lt;Test Explorer Zip&gt;/db/mssql/install.cmd</em> script. You will be asked for a database name - give the one you want. In a few seconds you have your new database ready to operate.</p>
-      <p>You can run this step as many times as needed to create the number of databases you want.</p>
-      <p>&nbsp;</p>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>The username is expected to be <em> <strong>AtsUser</strong> </em> and the password - <strong> <em>AtsPassword</em> </strong></p>
-        <p>&nbsp;If this is not your case - edit the <em>&lt;Test Explorer Zip&gt;/db/mssql/generateCreateDBScript.cmd</em> as needed</p>
-       </div>
-      </div>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>It is expected to have the SQL Server installed in "<em>C:\Program Files\Microsoft SQL Server</em>".</p>
-        <p>If this is not your case -edit the <em>&lt;Test Explorer Zip&gt;/db/mssql/install.cmd</em> as needed</p>
-       </div>
-      </div>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-StartingtheTestExplorerapplication">Starting the Test Explorer application</h1>
-      <p>Place the <em>&lt;Test Explorer Zip&gt;/</em> <em>ats-explorer-x.x.x.war</em> in the web application folder of Tomcat. Test Explorer should work OK with any modern servlet container, but we have tested it on Tomcat only.</p>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>Rename the <em>ats-testexplorer-x.x.x.war</em> to some more appropriate name like "TestExplorer" as this will affect your URL.</p>
-       </div>
-      </div>
-      <p>&nbsp;</p>
-      <p>Start a browser and go to <em>http://&lt;your_server_ip&gt;:8080/TestExplorer</em></p>
-      <div class="confluence-information-macro has-no-icon confluence-information-macro-note">
-       <div class="confluence-information-macro-body">
-        <p>Of course you can make it run on port 80 (edit <em>conf/server.xml</em>), so the URL will become in the form of <em>http://&lt;your_server_ip&gt;/TestExplorer</em></p>
-       </div>
-      </div>
-      <h3 id="TestExplorer-Installguide-RunningTestExplorerapplicationwithdatabaseonaremotehost">&nbsp;Running Test Explorer application with database on a remote host</h3>
-      <p>The usual case is to host both database and web application on same host using default username and password. If you want to change it, you need to open the <em><strong>war</strong></em> file and edit its <em><strong>\WEB-INF\classes\ats.config.properties</strong></em> file.</p>
-      <p><br></p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-Upgradingthedatabase">Upgrading the database</h1>
-      <ul>
-       <li>Just run <em>&lt;Test Explorer Zip&gt;/db/mssql/upgrade.cmd</em> script and then specify the DB name you want to upgrade.<br> <strong>Note</strong> that upgrades are only applied for consecutive versions. I.e. in order to upgrade from version 3.8.0 to 3.10.0 you must first upgrade to version 3.9.0 and then to 3.10.0.</li>
-      </ul>
-      <p>&nbsp;</p>
-      <hr>
-      <h1 id="TestExplorer-Installguide-Resources">Resources</h1>
-      <p>Ports used by MSSQL Server - <a class="external-link" href="http://support.microsoft.com/kb/287932" rel="nofollow">http://support.microsoft.com/kb/287932</a></p>
-      <p>Register Tomcat as a Windows service - Run service.bat install - for more info: <a class="external-link" href="http://tomcat.apache.org/tomcat-7.0-doc/windows-service-howto.html" rel="nofollow">here</a></p>
-      <p>&nbsp;</p>
-      <hr>
-      <p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a><p>Go to <a href="./toc.html">Table of Contents</a></p></p>
+      <p>Introduction</p> 
+      <p>We list here all steps needed to install and setup Test Explorer database and web application</p> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-InstallationPrerequisites">Installation Prerequisites</h1> 
+      <p>You must comply with the following prerequisites prior to installation:</p> 
+      <ul> 
+       <li>Microsoft SQL Server 2008 R2 or later</li> 
+       <li>JRE 7 or later</li> 
+       <li>Tomcat 7 or 8</li> 
+       <li>The latest ATS Test Explorer release from <a class="external-link" href="https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/" rel="nofollow">here</a> <br> <em> <span class="icon-link jar">&nbsp;</span> </em></li> 
+      </ul> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-SQLServersetup">SQL Server setup</h1> 
+      <h3 id="TestExplorer-Installguide-Installation">Installation</h3> 
+      <p>During installation make sure to choose <em>mixed authentication mode</em>. This is done in order to allow user authenticating through both JDBC and Windows. This can also be done after the install is over by going to SQL Server Management Studio, context menu on Server tree to open Server properties and then go to Security tab.</p> 
+      <h3 id="TestExplorer-Installguide-Setup">Setup</h3> 
+      <p>Go to SQL Server Management Studio. In Object Explorer view, right click the server and go to "Properties", go to "Connections", check the following:</p> 
+      <ul> 
+       <li>ANSI warnings</li> 
+       <li>Arithmetic abort</li> 
+       <li>Quoted identifier</li> 
+      </ul> 
+      <p>Go to SQL Server Configuration Manager. In SQL Server Network Configuration go to Protocols for MSSQLSERVER and enable TCP/IP connections</p> 
+      <p>Create a new user called <em><strong>AtsUser</strong></em> with password <em><strong>AtsPassword</strong></em>. Assign all privileges except <em><strong>denydata*</strong></em></p> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-PostgreSQLserversetup">PostgreSQL server setup</h1> 
+      <h3 id="TestExplorer-Installguide-Installation.1">Installation</h3> 
+      <p>For Windows, download the latest version from&nbsp;<a class="external-link" href="https://www.postgresql.org/download/" rel="nofollow">here</a></p> 
+      <p>For Linux, install it via your distribution package manager:</p> 
+      <ul style="list-style-type: square;"> 
+       <li>using aptitute - apt-get install postgresql-&lt;some_version&gt;</li> 
+       <li>using yum - yum install postgresql&lt;some_version&gt;-server</li> 
+       <li>using dnf - dnf install postgresql&lt;some_version&gt;-server</li> 
+      </ul> 
+      <p>You can also install pgAdmin, which is GUI application for managing PostgreSQL databases and servers, similar to Microsoft SQL Server Management Studio</p> 
+      <h3 id="TestExplorer-Installguide-Setup.1">Setup</h3> 
+      <p>You don't have to make any additional steps.</p> 
+      <p>By default PostgreSQL comes with a user called postgres. This is the user that is both used to create ATS Test Explorer databases and optionally to connect to the server via pgAdmin application.</p> 
+      <p>There is also psql and psql.exe that are command-line applications, installed by default with PostgreSQL, that can be used to manipulate, backup and restore databases.</p> 
+      <p>Note that when executing psql or psql.exe, the username of the current user (e.g. those logged into the operating system) will be used, so you have to execute <strong>psql -U postgres</strong> to connect to the server.</p> 
+      <p>If you add additional users, the command syntax is <strong>psql -U &lt;some_user_name&gt; -h localhost</strong>.</p> 
+      <p>The user, used by ATS framework, to log test execution data, called AtsUser (password: AtsPassword) is created automatically, when you execute the install script from either</p> 
+      <p><em>&lt;Test Explorer Zip&gt;/db/postgresql/install_postgresql</em>&nbsp; or&nbsp;<em>&lt;Test Explorer Zip&gt;/db/postgresql/install_postgresql.bat</em>.</p> 
+      <p>This user also can be used to connect to the server, so in this case the command will be:&nbsp;<strong>psql -U AtsUser -h localhost</strong>.</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-InstallingtheTestExplorerdatabase">Installing the Test Explorer database</h1> 
+      <p>Unzip the Test Explorer zip archive.</p> 
+      <p>Run the <em>&lt;Test Explorer Zip&gt;/db/mssql/install.cmd</em> script. You will be asked for a database name - give the one you want. In a few seconds you have your new database ready to operate.</p> 
+      <p>You can run this step as many times as needed to create the number of databases you want.</p> 
+      <p>&nbsp;</p> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>The username is expected to be <em> <strong>AtsUser</strong> </em> and the password - <strong> <em>AtsPassword</em> </strong></p> 
+        <p>&nbsp;If this is not your case - edit the <em>&lt;Test Explorer Zip&gt;/db/mssql/generateCreateDBScript.cmd</em> as needed</p> 
+       </div> 
+      </div> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>It is expected to have the SQL Server installed in "<em>C:\Program Files\Microsoft SQL Server</em>".</p> 
+        <p>If this is not your case -edit the <em>&lt;Test Explorer Zip&gt;/db/mssql/install.cmd</em> as needed</p> 
+       </div> 
+      </div> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-StartingtheTestExplorerapplication">Starting the Test Explorer application</h1> 
+      <p>Place the <em>&lt;Test Explorer Zip&gt;/</em> <em>ats-explorer-x.x.x.war</em> in the web application folder of Tomcat. Test Explorer should work OK with any modern servlet container, but we have tested it on Tomcat only.</p> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>Rename the <em>ats-testexplorer-x.x.x.war</em> to some more appropriate name like "TestExplorer" as this will affect your URL.</p> 
+       </div> 
+      </div> 
+      <p>&nbsp;</p> 
+      <p>Start a browser and go to <em>http://&lt;your_server_ip&gt;:8080/TestExplorer</em></p> 
+      <div class="confluence-information-macro has-no-icon confluence-information-macro-note"> 
+       <div class="confluence-information-macro-body"> 
+        <p>Of course you can make it run on port 80 (edit <em>conf/server.xml</em>), so the URL will become in the form of <em>http://&lt;your_server_ip&gt;/TestExplorer</em></p> 
+       </div> 
+      </div> 
+      <h3 id="TestExplorer-Installguide-RunningTestExplorerapplicationwithdatabaseonaremotehost">&nbsp;Running Test Explorer application with database on a remote host</h3> 
+      <p>The usual case is to host both database and web application on same host using default username and password. If you want to change it, you need to open the <em><strong>war</strong></em> file and edit its <em><strong>\WEB-INF\classes\ats.config.properties</strong></em> file.</p> 
+      <p><br></p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-Upgradingthedatabase">Upgrading the database</h1> 
+      <ul> 
+       <li>Just run <em>&lt;Test Explorer Zip&gt;/db/mssql/upgrade.cmd</em> script and then specify the DB name you want to upgrade.<br> <strong>Note</strong> that upgrades are only applied for consecutive versions. I.e. in order to upgrade from version 3.8.0 to 3.10.0 you must first upgrade to version 3.9.0 and then to 3.10.0.</li> 
+      </ul> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <h1 id="TestExplorer-Installguide-Resources">Resources</h1> 
+      <p>Ports used by MSSQL Server - <a class="external-link" href="http://support.microsoft.com/kb/287932" rel="nofollow">http://support.microsoft.com/kb/287932</a></p> 
+      <p>Register Tomcat as a Windows service - Run service.bat install - for more info: <a class="external-link" href="http://tomcat.apache.org/tomcat-7.0-doc/windows-service-howto.html" rel="nofollow">here</a></p> 
+      <p>&nbsp;</p> 
+      <hr> 
+      <p>Go to <a href="ATS-Test-Explorer-Guide.html">parent page</a><p>Go to <a href="./toc.html">Table of Contents</a></p></p> 
       <hr> 
      </div> 
     </div> 
    </div> 
-  </div>
+  </div>   
  </body>
 </html>
