@@ -27,7 +27,6 @@ import com.axway.ats.testexplorer.pages.WelcomePage;
 import com.axway.ats.testexplorer.pages.runs.RunsPage;
 import com.axway.ats.testexplorer.pages.scenarios.ScenariosPage;
 import com.axway.ats.testexplorer.pages.suites.SuitesPage;
-import com.axway.ats.testexplorer.pages.testcase.TestcasePanel;
 import com.axway.ats.testexplorer.pages.testcases.TestcasesPage;
 
 public class ChartsPage extends BasePage {
@@ -74,8 +73,6 @@ public class ChartsPage extends BasePage {
                                                            navigation.getScenarioId() ),
                                "Testcases", testcaseName );
             setRunIdToRunCopyLink( navigation.getRunId() );
-
-            add( new TestcasePanel( "testcase_panel", testcaseId, parameters ) );
 
             singleTestIds.put( "runId", navigation.getRunId() );
             singleTestIds.put( "suiteId", navigation.getSuiteId() );

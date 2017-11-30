@@ -131,6 +131,7 @@ public class DataPanel implements Serializable {
             String containerName = statDescription.parentName;
             if( StringUtils.isNullOrEmpty( containerName ) ) {
                 containerName = StatisticsPanel.SYSTEM_STATISTIC_CONTAINER;
+                statDescription.parentName = StatisticsPanel.SYSTEM_STATISTIC_CONTAINER;
             }
 
             StatisticContainer container = getContainerForName( statDescription );
@@ -434,10 +435,10 @@ public class DataPanel implements Serializable {
 
         for( StatisticContainer container : statContainers.values() ) {
             if( container.getName().equals( newDbStatDesc.parentName ) ) {
-                for( DbStatisticDescription statDesc : container.getStatDescriptions() ) {
-                    if( statDesc.testcaseId == newDbStatDesc.testcaseId )
+//                for( DbStatisticDescription statDesc : container.getStatDescriptions() ) {
+//                    if( statDesc.testcaseId == newDbStatDesc.testcaseId )
                         return container;
-                }
+//                }
             }
         }
 
@@ -469,55 +470,24 @@ public class DataPanel implements Serializable {
                         if( dbStatDesc.statisticId != -1 && dbStatDesc.machineId == statDescription.machineId
                             && dbStatDesc.testcaseId == statDescription.testcaseId
                             && dbStatDesc.statisticId == statDescription.statisticId ) {
-                            if( !checkStatisticExist( rows, statDescription, dbStatDesc ) ) {
-                                addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
-                                                        queueName );
-                                queueName = "";
-                                break;
-                            }
+                            addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
+                                                    queueName );
+                            queueName = "";
+                            break;
                         } else if( dbStatDesc.name != null && dbStatDesc.name.equals( statDescription.name )
                                    && dbStatDesc.testcaseId == statDescription.testcaseId
                                    && dbStatDesc.parentName != null
                                    && dbStatDesc.parentName.equals( statDescription.parentName ) ) {
-                            if( !checkStatisticExist( rows, statDescription, dbStatDesc ) ) {
-                                addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
-                                                        queueName );
-                                queueName = "";
-                                break;
-                            }
+                            addStatisticDetailData( rows, statDescription, uniqueMachinesList, dbStatDesc,
+                                                    queueName );
+                            queueName = "";
+                            break;
                         }
                     }
                 }
             }
         }
         return rows;
-    }
-
-    private boolean checkStatisticExist( List<List<StatisticsTableCell>> rows,
-                                         DbStatisticDescription statDescription,
-                                         DbStatisticDescription dbStatDesc ) {
-
-        for( int rowIndex = 0; rowIndex < rows.size(); rowIndex++ ) {
-            for( StatisticsTableCell cell : rows.get( rowIndex )) {
-                String statName = dbStatDesc.alias;
-                if( StringUtils.isNullOrEmpty( statName )  || "null".equals( statName ) ) {
-                    statName = statDescription.name;
-                }
-                String cellValue = "<b>" + statName + "<span class=\"statUnit\">(" + statDescription.unit
-                                   + ")</span></b>";
-                if( cellValue.equals( cell.labelText ) && rowIndex + 3 < rows.size() ) {
-                    String minValue = rows.get( rowIndex + 1 ).get( 1 ).labelText;
-                    String maxValue = rows.get( rowIndex + 2 ).get( 1 ).labelText;
-                    String avgValue = rows.get( rowIndex + 3 ).get( 1 ).labelText;
-                    if( statDescription.minValue == Float.parseFloat( minValue )
-                        && statDescription.maxValue == Float.parseFloat( maxValue )
-                        && statDescription.avgValue == Float.parseFloat( avgValue ) )
-                        return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private void addStatisticDetailData( List<List<StatisticsTableCell>> rows,
