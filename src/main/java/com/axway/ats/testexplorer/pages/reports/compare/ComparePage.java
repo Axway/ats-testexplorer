@@ -338,9 +338,13 @@ public class ComparePage extends LightweightBasePage {
                 for( Testcase t : testcases.keySet() ) {
                     if( testcases.get( t ).getObject() ) {
                         sb.append( String.valueOf( t.testcaseId ) );
+                        if( !t.name.equals( t.getAlias() ) ) {
+                            sb.append( "=" + t.getAlias().replace( "_", "-" ) );
+                        }
                         sb.append( "_" );
                     }
                 }
+                
                 if( sb.length() > 0 ) {
 
                     PageParameters parameters = new PageParameters();
