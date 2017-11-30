@@ -22,7 +22,12 @@ ________________________________________________________________________________
 ***     4        ***|   3.11.0      |  20-10-2016   | ATS OFFICIAL RELEASE
         5        ***|   4.0.0       |  30-03-2017   | ATS OFFICIAL RELEASE (First Open source release)
         6           |   4.0.1       |  xx-xx-xxxx   |
-		7           |   4.0.2       |   
+		7           |   4.0.2       |  20-11-2017   | Adding PostgreSQL as a alternative database server.
+													  Storing timestamp in UTC format in database and showing then in the browser according to the user locale
+													  Combining testcase statistics in more than one chart
+		8           |   4.0.3       |  xx-xx-xxxx   |
+													  
+		                                              
 
 
 
