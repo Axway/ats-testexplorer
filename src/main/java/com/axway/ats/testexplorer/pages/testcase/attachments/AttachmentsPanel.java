@@ -54,7 +54,7 @@ public class AttachmentsPanel extends Panel {
 
     private static final long  serialVersionUID  = 1L;
 
-    private static Logger      LOG               = Logger.getLogger( AttachmentsPanel.class );
+    private static Logger      LOG               = Logger.getLogger(AttachmentsPanel.class);
 
     private Form<Object>       form;
     private MarkupContainer    buttonPanel;
@@ -70,96 +70,96 @@ public class AttachmentsPanel extends Panel {
 
     private String             noButtonPanelInfo = "No attached files";
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings( { "unchecked", "rawtypes" })
     public AttachmentsPanel( String id, final String testcaseId, final PageParameters parameters ) {
-        super( id );
+        super(id);
 
-        form = new Form<Object>( "form" );
-        buttonPanel = new WebMarkupContainer( "buttonPanel" );
-        noButtonPanel = new WebMarkupContainer( "noButtonPanel" );
-        fileContentContainer = new TextArea<String>( "textFile", new Model<String>( "" ) );
-        imageContainer = new WebMarkupContainer( "imageFile" );
-        fileContentInfo = new Label("fileContentInfo" , new Model<String>( "" ));
-        buttons = getAllAttachedFiles( testcaseId );
+        form = new Form<Object>("form");
+        buttonPanel = new WebMarkupContainer("buttonPanel");
+        noButtonPanel = new WebMarkupContainer("noButtonPanel");
+        fileContentContainer = new TextArea<String>("textFile", new Model<String>(""));
+        imageContainer = new WebMarkupContainer("imageFile");
+        fileContentInfo = new Label("fileContentInfo", new Model<String>(""));
+        buttons = getAllAttachedFiles(testcaseId);
 
-        form.add( fileContentContainer );
-        form.add( imageContainer );
-        form.add( fileContentInfo );
-        form.add( buttonPanel );
+        form.add(fileContentContainer);
+        form.add(imageContainer);
+        form.add(fileContentInfo);
+        form.add(buttonPanel);
 
-        add( noButtonPanel );
-        add( form );
+        add(noButtonPanel);
+        add(form);
 
-        buttonPanel.setVisible( ! ( buttons == null ) );
-        fileContentContainer.setVisible( false );
-        imageContainer.setVisible( false );
-        fileContentInfo.setVisible( false );
-        noButtonPanel.setVisible( buttons == null );
+        buttonPanel.setVisible(! (buttons == null));
+        fileContentContainer.setVisible(false);
+        imageContainer.setVisible(false);
+        fileContentInfo.setVisible(false);
+        noButtonPanel.setVisible(buttons == null);
 
         // if noButtonPanel is visible, do not show form and vice versa
-        form.setVisible( !noButtonPanel.isVisible() );
+        form.setVisible(!noButtonPanel.isVisible());
 
-        noButtonPanel.add( new Label( "description", noButtonPanelInfo ) );
+        noButtonPanel.add(new Label("description", noButtonPanelInfo));
 
-        final ListView lv = new ListView( "buttons", buttons ) {
+        final ListView lv = new ListView("buttons", buttons) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem( final ListItem item ) {
-                
-                if( item.getIndex() % 2 != 0 ) {
-                    item.add( AttributeModifier.replace( "class", "oddRow" ) );
+
+                if (item.getIndex() % 2 != 0) {
+                    item.add(AttributeModifier.replace("class", "oddRow"));
                 }
 
-                final String viewedFile = buttons.get( item.getIndex() );
+                final String viewedFile = buttons.get(item.getIndex());
 
-                final String name = getFileSimpleName( buttons.get( item.getIndex() ) );
-                final Label buttonLabel = new Label( "name", name );
+                final String name = getFileSimpleName(buttons.get(item.getIndex()));
+                final Label buttonLabel = new Label("name", name);
 
-                Label fileSize = new Label( "fileSize", getFileSize( viewedFile ) );
+                Label fileSize = new Label("fileSize", getFileSize(viewedFile));
 
-                downloadFile = new DownloadLink( "download", new File( " " ), "" );
-                downloadFile.setModelObject( new File( viewedFile ) );
-                downloadFile.setVisible( true );
+                downloadFile = new DownloadLink("download", new File(" "), "");
+                downloadFile.setModelObject(new File(viewedFile));
+                downloadFile.setVisible(true);
 
-                alink = new AjaxLink( "alink", item.getModel() ) {
+                alink = new AjaxLink("alink", item.getModel()) {
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public void onClick( AjaxRequestTarget target ) {
 
-                        fileContentInfo.setVisible( true ); 
+                        fileContentInfo.setVisible(true);
                         String fileContent = new String();
-                        if( !isImage( viewedFile ) ) {
-                            fileContentContainer.setVisible( true );
-                            imageContainer.setVisible( false );
-                            fileContent = getFileContent( viewedFile, name );
-                            fileContentContainer.setModelObject( fileContent );
+                        if (!isImage(viewedFile)) {
+                            fileContentContainer.setVisible(true);
+                            imageContainer.setVisible(false);
+                            fileContent = getFileContent(viewedFile, name);
+                            fileContentContainer.setModelObject(fileContent);
                         } else {
 
                             PageNavigation navigation = null;
                             try {
-                                navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                      .getNavigationForTestcase( testcaseId,
-                                                                                                                 getTESession().getTimeOffset() );
-                            } catch( DatabaseAccessException e ) {
-                                LOG.error( "Can't get runId, suiteId and dbname for testcase with id="
-                                           + testcaseId, e );
+                                navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                  .getNavigationForTestcase(testcaseId,
+                                                                                                            getTESession().getTimeOffset());
+                            } catch (DatabaseAccessException e) {
+                                LOG.error("Can't get runId, suiteId and dbname for testcase with id="
+                                          + testcaseId, e);
                             }
 
                             String runId = navigation.getRunId();
                             String suiteId = navigation.getSuiteId();
-                            String dbname = TestExplorerUtils.extractPageParameter( parameters, "dbname" );
-                            
-                            fileContentInfo.setDefaultModelObject( "Previewing '" + name + "' image" );
+                            String dbname = TestExplorerUtils.extractPageParameter(parameters, "dbname");
+
+                            fileContentInfo.setDefaultModelObject("Previewing '" + name + "' image");
 
                             final String url = "AttachmentsServlet?&runId=" + runId + "&suiteId=" + suiteId
                                                + "&testcaseId=" + testcaseId + "&dbname=" + dbname
                                                + "&fileName=" + name;
-                            imageContainer.add( new AttributeModifier( "src", new Model<String>( url ) ) );
-                            imageContainer.setVisible( true );
-                            fileContentContainer.setVisible( false );
+                            imageContainer.add(new AttributeModifier("src", new Model<String>(url)));
+                            imageContainer.setVisible(true);
+                            fileContentContainer.setVisible(false);
                         }
 
                         // first setting all buttons with the same state
@@ -181,40 +181,40 @@ public class AttachmentsPanel extends Panel {
                                                     + "button.style.outline=\"medium none\";";
 
                         // I could not figure out how it works with wicket, so i did it with JS
-                        target.appendJavaScript( reverseButtonsState );
-                        target.appendJavaScript( pressClickedButton );
+                        target.appendJavaScript(reverseButtonsState);
+                        target.appendJavaScript(pressClickedButton);
 
-                        target.add( form );
+                        target.add(form);
                     }
                 };
 
-                alink.add( buttonLabel );
-                item.add( alink );
-                item.add( downloadFile );
-                item.add( fileSize );
+                alink.add(buttonLabel);
+                item.add(alink);
+                item.add(downloadFile);
+                item.add(fileSize);
             }
         };
-        buttonPanel.add( lv );
+        buttonPanel.add(lv);
     }
 
     private boolean isImage( String filePath ) {
 
-        try (FileInputStream fileStream = new FileInputStream( filePath )) {
-            if( ImageIO.read( fileStream ) == null ) {
+        try (FileInputStream fileStream = new FileInputStream(filePath)) {
+            if (ImageIO.read(fileStream) == null) {
                 return false;
             }
-        } catch( IOException e ) {
-            LOG.error( "File '" + filePath + "' cannot be read." );
+        } catch (IOException e) {
+            LOG.error("File '" + filePath + "' cannot be read.");
         }
         return true;
     }
 
     private String getFileSimpleName( String filePath ) {
 
-        if( !StringUtils.isNullOrEmpty( filePath ) ) {
-            String normalizedFilePath = filePath.replace( "\\", "/" );
-            int lastDashIndex = normalizedFilePath.lastIndexOf( '/' );
-            return normalizedFilePath.substring( lastDashIndex + 1, normalizedFilePath.length() );
+        if (!StringUtils.isNullOrEmpty(filePath)) {
+            String normalizedFilePath = filePath.replace("\\", "/");
+            int lastDashIndex = normalizedFilePath.lastIndexOf('/');
+            return normalizedFilePath.substring(lastDashIndex + 1, normalizedFilePath.length());
         }
         return null;
     }
@@ -224,60 +224,60 @@ public class AttachmentsPanel extends Panel {
         int maxLines = 1024;
         StringBuilder fileContent = new StringBuilder();
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
-        String[] fileContentArray = fo.getLastLinesFromFile( filePath, maxLines );
+        String[] fileContentArray = fo.getLastLinesFromFile(filePath, maxLines);
 
-        for( String line : fileContentArray ) {
-            fileContent.append( line );
-            fileContent.append( "\n" );
+        for (String line : fileContentArray) {
+            fileContent.append(line);
+            fileContent.append("\n");
         }
-        
-        if( fileContent.length() < maxLines ) {
-            fileContentInfo.setDefaultModelObject( "Showing the content of '" + name + "' in "
-                    + fileContentArray.length + " lines" );
+
+        if (fileContent.length() < maxLines) {
+            fileContentInfo.setDefaultModelObject("Showing the content of '" + name + "' in "
+                                                  + fileContentArray.length + " lines");
         } else {
-            fileContentInfo.setDefaultModelObject( "Showing the last " + maxLines + " lines of '" + name
-                                                   + "'" );
+            fileContentInfo.setDefaultModelObject("Showing the last " + maxLines + " lines of '" + name
+                                                  + "'");
         }
-        
+
         return fileContent.toString();
     }
 
     private String getFileSize( String filePath ) {
 
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
-        double size = fo.getFileSize( filePath ) / 1024d; // calculating the file size in bytes
+        double size = fo.getFileSize(filePath) / 1024d; // calculating the file size in bytes
 
-        StringBuilder fixedSize = new StringBuilder( String.format( "%.2f", size ) ); // round the value to the second digit after the comma
+        StringBuilder fixedSize = new StringBuilder(String.format("%.2f", size)); // round the value to the second digit after the comma
         int idx = fixedSize.length() - 4;
 
         // grouping number in 3 digits
-        while( idx > 0 ) {
-            fixedSize.insert( idx, " " );
+        while (idx > 0) {
+            fixedSize.insert(idx, " ");
             idx = idx - 4;
         }
-        fixedSize.append( " KB" );
+        fixedSize.append(" KB");
 
         return fixedSize.toString();
     }
 
     private List<String> getAllAttachedFiles( String testcaseId ) {
 
-        ServletContext context = ( ( WebApplication ) getApplication() ).getServletContext();
-        if( context.getAttribute( ContextListener.getAttachedFilesDir() ) == null ) {
+        ServletContext context = ((WebApplication) getApplication()).getServletContext();
+        if (context.getAttribute(ContextListener.getAttachedFilesDir()) == null) {
             String errorMsg = "No attached files can be displayed. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.";
-            LOG.error( errorMsg );
+            LOG.error(errorMsg);
             noButtonPanelInfo = errorMsg;
 
             return null;
         }
 
-        String attachedfilesDir = context.getAttribute( "ats-attached-files" ).toString();
+        String attachedfilesDir = context.getAttribute("ats-attached-files").toString();
 
         try {
-            PageNavigation navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                 .getNavigationForTestcase( testcaseId,
-                                                                                                            getTESession().getTimeOffset() );
-            String database = ( ( TestExplorerSession ) Session.get() ).getDbName();
+            PageNavigation navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                             .getNavigationForTestcase(testcaseId,
+                                                                                                       getTESession().getTimeOffset());
+            String database = ((TestExplorerSession) Session.get()).getDbName();
             String runId = navigation.getRunId();
             String suiteId = navigation.getSuiteId();
 
@@ -285,22 +285,22 @@ public class AttachmentsPanel extends Panel {
             // check if there is a directory for the current testcase and files attached to it
             String baseDir = attachedfilesDir + "\\" + database;
             String fullFilePath = baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId;
-            fullFilePath = IoUtils.normalizeFilePath( fullFilePath );
-            if( fo.doesFileExist( fullFilePath ) ) {
-                String[] attachedFiles = fo.findFiles( fullFilePath, ".*", true, false, false );
-                if( attachedFiles.length > 0 ) {
-                    return Arrays.asList( attachedFiles );
+            fullFilePath = IoUtils.normalizeFilePath(fullFilePath);
+            if (fo.doesFileExist(fullFilePath)) {
+                String[] attachedFiles = fo.findFiles(fullFilePath, ".*", true, false, false);
+                if (attachedFiles.length > 0) {
+                    return Arrays.asList(attachedFiles);
                 }
                 return null;
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "There was problem getting testcase parameters, files attached to the current testcase will not be shown!" );
+        } catch (DatabaseAccessException e) {
+            LOG.error("There was problem getting testcase parameters, files attached to the current testcase will not be shown!");
         }
         return null;
     }
 
     public TestExplorerSession getTESession() {
 
-        return ( TestExplorerSession ) Session.get();
+        return (TestExplorerSession) Session.get();
     }
 }

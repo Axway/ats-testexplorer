@@ -52,49 +52,49 @@ public class RunsPanel extends Panel {
     private List<TableColumn>  columnDefinitions;
 
     public RunsPanel( String id ) {
-        super( id );
+        super(id);
         columnDefinitions = getTableColumnDefinitions();
     }
 
     public RunsPanel( String id, final BasePage parentPage, PageParameters parameters ) {
 
-        super( id );
+        super(id);
 
         columnDefinitions = getTableColumnDefinitions();
-        MainDataGrid grid = new MainDataGrid( "runsTable", new RunsDataSource( this ),
-                                              getColumns( parentPage ), columnDefinitions,
-                                              "Runs",
-                                              MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
-                                                      | MainDataGrid.OPERATION_ADD_TO_COMPARE );
+        MainDataGrid grid = new MainDataGrid("runsTable", new RunsDataSource(this),
+                                             getColumns(parentPage), columnDefinitions,
+                                             "Runs",
+                                             MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
+                                                     | MainDataGrid.OPERATION_ADD_TO_COMPARE);
 
-        grid.setGridColumnsState( columnDefinitions );
-        grid.setAllowSelectMultiple( true );
-        grid.setSelectToEdit( false );
-        grid.setClickRowToSelect( true );
-        grid.setClickRowToDeselect( true );
-        grid.setCleanSelectionOnPageChange( true );
+        grid.setGridColumnsState(columnDefinitions);
+        grid.setAllowSelectMultiple(true);
+        grid.setSelectToEdit(false);
+        grid.setClickRowToSelect(true);
+        grid.setClickRowToDeselect(true);
+        grid.setCleanSelectionOnPageChange(true);
 
-        add( grid );
+        add(grid);
 
         // Add Runs Search form
-        runsFilter = new RunsFilter( "runs_search_form", grid, parameters );
-        add( runsFilter );
+        runsFilter = new RunsFilter("runs_search_form", grid, parameters);
+        add(runsFilter);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings( { "unchecked", "rawtypes" })
     public List<IGridColumn> getColumns( final BasePage parentPage ) {
 
         // Add Runs table
         List<IGridColumn> columns = new ArrayList<IGridColumn>();
 
-        columns.add( new CheckBoxColumn( "check" ) );
-        for( final TableColumn cd : columnDefinitions ) {
+        columns.add(new CheckBoxColumn("check"));
+        for (final TableColumn cd : columnDefinitions) {
 
             AbstractColumn col;
-            if( cd.isEditable() ) {
+            if (cd.isEditable()) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new EditablePropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                                 cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -102,27 +102,27 @@ public class RunsPanel extends Panel {
                     @Override
                     protected Object getProperty( Object object, String propertyExpression ) {
 
-                        Run runObject = ( Run ) object;
-                        if( "userNote".equals( propertyExpression ) && runObject.userNote != null ) {
-                            setEscapeMarkup( false );
+                        Run runObject = (Run) object;
+                        if ("userNote".equals(propertyExpression) && runObject.userNote != null) {
+                            setEscapeMarkup(false);
                             return "<span title=\"" + runObject.userNote + "\">" + runObject.userNote
                                    + "</span>";
-                        } else if( "runName".equals( propertyExpression ) ) {
+                        } else if ("runName".equals(propertyExpression)) {
 
-                            setEscapeMarkup( false );
+                            setEscapeMarkup(false);
 
                             // generate link url
                             PageParameters parameters = new PageParameters();
                             // pass the run id
-                            parameters.add( "runId", String.valueOf( runObject.runId ) );
-                            if( parentPage != null ) {
+                            parameters.add("runId", String.valueOf(runObject.runId));
+                            if (parentPage != null) {
                                 // pass database name
-                                parameters.add( "dbname", parentPage.getTESession().getDbName() );
-                            } else if( ( ( TestExplorerSession ) Session.get() ) != null ) {
-                                parameters.add( "dbname",
-                                                ( ( TestExplorerSession ) Session.get() ).getDbName() );
+                                parameters.add("dbname", parentPage.getTESession().getDbName());
+                            } else if ( ((TestExplorerSession) Session.get()) != null) {
+                                parameters.add("dbname",
+                                               ((TestExplorerSession) Session.get()).getDbName());
                             }
-                            String href = urlFor( SuitesPage.class, parameters ).toString();
+                            String href = urlFor(SuitesPage.class, parameters).toString();
                             String title = "Started from " + runObject.hostName;
 
                             String linkWithToolip = "<a title=\"" + title + "\" href=\"" + href + "\">"
@@ -131,17 +131,17 @@ public class RunsPanel extends Panel {
                             String linkWithoutTooltip = "<a href=\"" + href + "\">" + runObject.runName
                                                         + "</a>";
 
-                            if( runObject.hostName == null ) {
+                            if (runObject.hostName == null) {
                                 return linkWithoutTooltip;
                             } else {
-                                if( "".equals( runObject.hostName ) ) {
+                                if ("".equals(runObject.hostName)) {
                                     return linkWithoutTooltip;
                                 }
                                 return linkWithToolip;
                             }
 
                         }
-                        return PropertyResolver.getValue( propertyExpression, object );
+                        return PropertyResolver.getValue(propertyExpression, object);
                     }
 
                     @Override
@@ -152,8 +152,8 @@ public class RunsPanel extends Panel {
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new PropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                         cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -161,42 +161,42 @@ public class RunsPanel extends Panel {
                     protected Object getProperty( Object object, String propertyExpression ) {
 
                         // we provide tooltip with full data and time
-                        Run runObject = ( Run ) object;
-                        if( "dateStart".equals( propertyExpression ) && runObject.getDateStart() != null ) {
-                            setEscapeMarkup( false );
+                        Run runObject = (Run) object;
+                        if ("dateStart".equals(propertyExpression) && runObject.getDateStart() != null) {
+                            setEscapeMarkup(false);
                             return "<span title=\"" + runObject.getDateStartLong() + "\">"
                                    + runObject.getDateStart() + "</span>";
-                        } else if( "dateEnd".equals( propertyExpression )
-                                   && runObject.getDateEnd() != null ) {
-                            setEscapeMarkup( false );
+                        } else if ("dateEnd".equals(propertyExpression)
+                                   && runObject.getDateEnd() != null) {
+                            setEscapeMarkup(false);
                             return "<span title=\"" + runObject.getDateEndLong() + "\">"
                                    + runObject.getDateEnd() + "</span>";
-                        } else if( "duration".equals( propertyExpression ) ) {
-                            setEscapeMarkup( false );
+                        } else if ("duration".equals(propertyExpression)) {
+                            setEscapeMarkup(false);
                             return "<span>"
-                                   + runObject.getDurationAsString( getTESession().getCurrentTimestamp() )
+                                   + runObject.getDurationAsString(getTESession().getCurrentTimestamp())
                                    + "</span>";
                         }
-                        return PropertyResolver.getValue( propertyExpression, object );
+                        return PropertyResolver.getValue(propertyExpression, object);
                     }
 
                     @Override
                     public String getCellCssClass( IModel rowModel, int rowNum ) {
 
-                        if( "duration".equals( getId() ) ) {
+                        if ("duration".equals(getId())) {
                             return "durationCell";
-                        } else if( "testcasesPassedPercent".equals( getId() ) ) {
+                        } else if ("testcasesPassedPercent".equals(getId())) {
                             return "passedCell";
-                        } else if( "failed".equals( getId() ) ) {
-                            Run run = ( Run ) rowModel.getObject();
-                            if( run.testcasesFailed > 0 ) {
+                        } else if ("failed".equals(getId())) {
+                            Run run = (Run) rowModel.getObject();
+                            if (run.testcasesFailed > 0) {
                                 return "failedBackground";
                             } else {
                                 return null;
                             }
-                        } else if( "scenariosSkipped".equals( getId() ) ) {
-                            Run run = ( Run ) rowModel.getObject();
-                            if( run.scenariosSkipped > 0 ) {
+                        } else if ("scenariosSkipped".equals(getId())) {
+                            Run run = (Run) rowModel.getObject();
+                            if (run.scenariosSkipped > 0) {
                                 return "skippedBackground";
                             } else {
                                 return null;
@@ -216,17 +216,17 @@ public class RunsPanel extends Panel {
             }
 
             // Set column initial width
-            if( cd.getInitialWidth() >= 0 ) {
-                col.setInitialSize( cd.getInitialWidth() );
+            if (cd.getInitialWidth() >= 0) {
+                col.setInitialSize(cd.getInitialWidth());
             }
 
             // set column tooltip
-            col.setHeaderTooltipModel( cd.getTooltip() );
+            col.setHeaderTooltipModel(cd.getTooltip());
 
-            if( "User Note".equals( cd.getColumnName() ) ) {
-                col.setWrapText( true );
+            if ("User Note".equals(cd.getColumnName())) {
+                col.setWrapText(true);
             }
-            columns.add( col );
+            columns.add(col);
         }
         // Column with 'submit' and 'cancel' icons (used for editable cells)
         //        columns.add( new SubmitCancelColumn( "esd", new Model<String>( "Edit" ) ).setInitialSize( -1 )
@@ -237,7 +237,7 @@ public class RunsPanel extends Panel {
 
     protected TestExplorerSession getTESession() {
 
-        return ( TestExplorerSession ) Session.get();
+        return (TestExplorerSession) Session.get();
     }
 
     public RunsFilter getRunsFilter() {
@@ -254,9 +254,9 @@ public class RunsPanel extends Panel {
      */
     public List<TableColumn> getTableColumnDefinitions() {
 
-        String dbName = ( ( TestExplorerSession ) Session.get() ).getDbName();
-        List<TableColumn> dbColumnDefinitionList = ( ( TestExplorerApplication ) getApplication() ).getColumnDefinition( dbName );
-        dbColumnDefinitionList = setTableColumnsProperties( dbColumnDefinitionList );
+        String dbName = ((TestExplorerSession) Session.get()).getDbName();
+        List<TableColumn> dbColumnDefinitionList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);
+        dbColumnDefinitionList = setTableColumnsProperties(dbColumnDefinitionList);
         return dbColumnDefinitionList;
     }
 
@@ -269,10 +269,10 @@ public class RunsPanel extends Panel {
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
-        int arraySize = listSize( dbColumnDefinitionList );
+        int arraySize = listSize(dbColumnDefinitionList);
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
 
-        for( TableColumn element : dbColumnDefinitionList ) {
+        for (TableColumn element : dbColumnDefinitionList) {
 
             String name = element.getColumnName();
             String tableName = element.getParentTable();
@@ -280,60 +280,60 @@ public class RunsPanel extends Panel {
             int length = element.getInitialWidth();
             boolean isVisible = element.isVisible();
 
-            if( "Run".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getRun( DB_TABLE_NAME, length,
-                                                                               isVisible );
-            } else if( "Product".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getProduct( DB_TABLE_NAME, length,
-                                                                                   isVisible );
-            } else if( "Version".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getVersion( DB_TABLE_NAME, length,
-                                                                                   isVisible );
-            } else if( "Build".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getBuildName( DB_TABLE_NAME, length,
-                                                                                     isVisible );
-            } else if( "OS".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getOS( "tRuns", length, isVisible );
+            if ("Run".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getRun(DB_TABLE_NAME, length,
+                                                                              isVisible);
+            } else if ("Product".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getProduct(DB_TABLE_NAME, length,
+                                                                                  isVisible);
+            } else if ("Version".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getVersion(DB_TABLE_NAME, length,
+                                                                                  isVisible);
+            } else if ("Build".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getBuildName(DB_TABLE_NAME, length,
+                                                                                    isVisible);
+            } else if ("OS".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getOS("tRuns", length, isVisible);
 
-            } else if( "Total".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME, length,
-                                                                                 isVisible );
-            } else if( "Failed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME, length,
-                                                                                  isVisible );
-            } else if( "Skipped".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped( DB_TABLE_NAME,
+            } else if ("Total".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal(DB_TABLE_NAME, length,
+                                                                                isVisible);
+            } else if ("Failed".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed(DB_TABLE_NAME, length,
+                                                                                 isVisible);
+            } else if ("Skipped".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped(DB_TABLE_NAME,
+                                                                                           length,
+                                                                                           isVisible);
+            } else if ("Passed".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcasesPassedPercent(DB_TABLE_NAME,
+                                                                                                 length,
+                                                                                                 isVisible);
+            } else if ("Running".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcaseIsRunning(DB_TABLE_NAME,
                                                                                             length,
-                                                                                            isVisible );
-            } else if( "Passed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcasesPassedPercent( DB_TABLE_NAME,
-                                                                                                  length,
-                                                                                                  isVisible );
-            } else if( "Running".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcaseIsRunning( DB_TABLE_NAME,
-                                                                                             length,
-                                                                                             isVisible );
+                                                                                            isVisible);
 
-            } else if( "Start".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition( DB_TABLE_NAME,
-                                                                                               length,
-                                                                                               isVisible );
-            } else if( "End".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition( DB_TABLE_NAME,
+            } else if ("Start".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition(DB_TABLE_NAME,
+                                                                                              length,
+                                                                                              isVisible);
+            } else if ("End".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition(DB_TABLE_NAME,
+                                                                                            length,
+                                                                                            isVisible);
+            } else if ("Duration".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition(DB_TABLE_NAME,
                                                                                              length,
-                                                                                             isVisible );
-            } else if( "Duration".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition( DB_TABLE_NAME,
-                                                                                              length,
-                                                                                              isVisible );
-            } else if( "User Note".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition( DB_TABLE_NAME,
-                                                                                              length,
-                                                                                              isVisible );
+                                                                                             isVisible);
+            } else if ("User Note".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition(DB_TABLE_NAME,
+                                                                                             length,
+                                                                                             isVisible);
             }
 
         }
-        return Arrays.asList( dbColumnDefinitionArray );
+        return Arrays.asList(dbColumnDefinitionArray);
     }
 
     /**
@@ -343,8 +343,8 @@ public class RunsPanel extends Panel {
     private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
-        for( TableColumn col : dbColumnDefinitionList ) {
-            if( DB_TABLE_NAME.equals( col.getParentTable() ) ) {
+        for (TableColumn col : dbColumnDefinitionList) {
+            if (DB_TABLE_NAME.equals(col.getParentTable())) {
                 size++;
             }
         }

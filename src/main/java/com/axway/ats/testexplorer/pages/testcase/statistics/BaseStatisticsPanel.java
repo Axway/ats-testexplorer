@@ -43,63 +43,63 @@ public abstract class BaseStatisticsPanel extends Panel {
     protected DataPanel                  actionStatisticsPanel;
 
     public BaseStatisticsPanel( String id ) {
-        super( id );
+        super(id);
     }
 
     protected boolean loadStatisticDescriptions( float timeOffSet, boolean isComparing ) {
 
         // load statistics descriptions from Statistics table
-        List<StatisticDescription> dbStatisticDescriptions = loadSystemAndUserStatisticDescriptions( timeOffSet );
-        for( StatisticDescription dbStatDescription : dbStatisticDescriptions ) {
+        List<StatisticDescription> dbStatisticDescriptions = loadSystemAndUserStatisticDescriptions(timeOffSet);
+        for (StatisticDescription dbStatDescription : dbStatisticDescriptions) {
 
-            DbStatisticDescription statDescription = new DbStatisticDescription( dbStatDescription.statisticTypeId,
-                                                                                                                                                                                           dbStatDescription.testcaseId,
-                                                                                                                                                                                           dbStatDescription.testcaseName,
-                                                                                                                                                                                           dbStatDescription.getStartTimestamp(),
-                                                                                                                                                                                           dbStatDescription.machineId,
-                                                                                                                                                                                           dbStatDescription.machineName,
-                                                                                                                                                                                           dbStatDescription.parent,
-                                                                                                                                                                                           dbStatDescription.internalName,
-                                                                                                                                                                                           dbStatDescription.statisticName,
-                                                                                                                                                                                           "",
-                                                                                                                                                                                           dbStatDescription.unit,
-                                                                                                                                                                                           dbStatDescription.params,
-                                                                                                                                                                                           dbStatDescription.minValue,
-                                                                                                                                                                                           dbStatDescription.avgValue,
-                                                                                                                                                                                           dbStatDescription.maxValue,
-                                                                                                                                                                                           dbStatDescription.numberMeasurements );
+            DbStatisticDescription statDescription = new DbStatisticDescription(dbStatDescription.statisticTypeId,
+                                                                                dbStatDescription.testcaseId,
+                                                                                dbStatDescription.testcaseName,
+                                                                                dbStatDescription.getStartTimestamp(),
+                                                                                dbStatDescription.machineId,
+                                                                                dbStatDescription.machineName,
+                                                                                dbStatDescription.parent,
+                                                                                dbStatDescription.internalName,
+                                                                                dbStatDescription.statisticName,
+                                                                                "",
+                                                                                dbStatDescription.unit,
+                                                                                dbStatDescription.params,
+                                                                                dbStatDescription.minValue,
+                                                                                dbStatDescription.avgValue,
+                                                                                dbStatDescription.maxValue,
+                                                                                dbStatDescription.numberMeasurements);
 
-            if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase( dbStatDescription.machineName ) ) {
+            if (SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase(dbStatDescription.machineName)) {
                 // this is a user activity statistic
-                this.userStatisticsPanel.addStatisticDescription( statDescription, isComparing );
+                this.userStatisticsPanel.addStatisticDescription(statDescription, isComparing);
             } else {
                 // this is a system statistic
-                this.systemStatisticsPanel.addStatisticDescription( statDescription, isComparing );
+                this.systemStatisticsPanel.addStatisticDescription(statDescription, isComparing);
             }
         }
 
         // load statistics descriptions from Checkpoints table
-        dbStatisticDescriptions = loadChechpointStatisticDescriptions( timeOffSet ); 
-        if( dbStatisticDescriptions != null && !dbStatisticDescriptions.isEmpty() ) {
-            for( StatisticDescription dbStatDescription : dbStatisticDescriptions ) {
+        dbStatisticDescriptions = loadChechpointStatisticDescriptions(timeOffSet);
+        if (dbStatisticDescriptions != null && !dbStatisticDescriptions.isEmpty()) {
+            for (StatisticDescription dbStatDescription : dbStatisticDescriptions) {
 
-                DbStatisticDescription statDescription = new DbStatisticDescription( dbStatDescription.statisticTypeId,
-                                                                                                                                                                                               dbStatDescription.testcaseId,
-                                                                                                                                                                                               dbStatDescription.testcaseName,
-                                                                                                                                                                                               dbStatDescription.getStartTimestamp(),
-                                                                                                                                                                                               dbStatDescription.machineId,
-                                                                                                                                                                                               dbStatDescription.machineName,
-                                                                                                                                                                                               dbStatDescription.queueName,
-                                                                                                                                                                                               dbStatDescription.internalName,
-                                                                                                                                                                                               dbStatDescription.statisticName,
-                                                                                                                                                                                               "",
-                                                                                                                                                                                               dbStatDescription.unit,
-                                                                                                                                                                                               dbStatDescription.params,
-                                                                                                                                                                                               dbStatDescription.minValue,
-                                                                                                                                                                                               dbStatDescription.avgValue,
-                                                                                                                                                                                               dbStatDescription.maxValue,
-                                                                                                                                                                                               dbStatDescription.numberMeasurements );
-                this.actionStatisticsPanel.addStatisticDescription( statDescription, isComparing );
+                DbStatisticDescription statDescription = new DbStatisticDescription(dbStatDescription.statisticTypeId,
+                                                                                    dbStatDescription.testcaseId,
+                                                                                    dbStatDescription.testcaseName,
+                                                                                    dbStatDescription.getStartTimestamp(),
+                                                                                    dbStatDescription.machineId,
+                                                                                    dbStatDescription.machineName,
+                                                                                    dbStatDescription.queueName,
+                                                                                    dbStatDescription.internalName,
+                                                                                    dbStatDescription.statisticName,
+                                                                                    "",
+                                                                                    dbStatDescription.unit,
+                                                                                    dbStatDescription.params,
+                                                                                    dbStatDescription.minValue,
+                                                                                    dbStatDescription.avgValue,
+                                                                                    dbStatDescription.maxValue,
+                                                                                    dbStatDescription.numberMeasurements);
+                this.actionStatisticsPanel.addStatisticDescription(statDescription, isComparing);
             }
         }
 
@@ -111,10 +111,10 @@ public abstract class BaseStatisticsPanel extends Panel {
 
     public Model<String> getMachineAliasModel( String machineAlias ) {
 
-        Model<String> machineAliasModel = globalMachineAliasModels.get( machineAlias );
-        if( machineAliasModel == null ) {
-            machineAliasModel = new Model<String>( machineAlias );
-            globalMachineAliasModels.put( machineAlias, machineAliasModel );
+        Model<String> machineAliasModel = globalMachineAliasModels.get(machineAlias);
+        if (machineAliasModel == null) {
+            machineAliasModel = new Model<String>(machineAlias);
+            globalMachineAliasModels.put(machineAlias, machineAliasModel);
         }
 
         return machineAliasModel;
@@ -122,16 +122,16 @@ public abstract class BaseStatisticsPanel extends Panel {
 
     public void rememberMachineAliasLabel( Label machineAliasLabel ) {
 
-        machineAliasLabel.setOutputMarkupId( true );
-        globalMachineAliasLabels.add( machineAliasLabel );
+        machineAliasLabel.setOutputMarkupId(true);
+        globalMachineAliasLabels.add(machineAliasLabel);
     }
 
     public Model<String> getActionQueueAliasModel( String actionQueueAlias ) {
 
-        Model<String> actionQueueModel = globalActionQueueAliasModels.get( actionQueueAlias );
-        if( actionQueueModel == null ) {
-            actionQueueModel = new Model<String>( actionQueueAlias );
-            globalActionQueueAliasModels.put( actionQueueAlias, actionQueueModel );
+        Model<String> actionQueueModel = globalActionQueueAliasModels.get(actionQueueAlias);
+        if (actionQueueModel == null) {
+            actionQueueModel = new Model<String>(actionQueueAlias);
+            globalActionQueueAliasModels.put(actionQueueAlias, actionQueueModel);
         }
 
         return actionQueueModel;
@@ -139,7 +139,7 @@ public abstract class BaseStatisticsPanel extends Panel {
 
     public TestExplorerSession getTESession() {
 
-        return ( ( TestExplorerSession ) Session.get() );
+        return ((TestExplorerSession) Session.get());
     }
 
     protected abstract List<StatisticDescription> loadSystemAndUserStatisticDescriptions( float timeOffSet );

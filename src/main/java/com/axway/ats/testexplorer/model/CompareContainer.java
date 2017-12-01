@@ -36,7 +36,7 @@ public class CompareContainer implements Serializable {
 
     private static final long             serialVersionUID = 1L;
 
-    private static final Logger           LOG              = Logger.getLogger( CompareContainer.class );
+    private static final Logger           LOG              = Logger.getLogger(CompareContainer.class);
 
     private Map<Run, Model<Boolean>>      runs             = new HashMap<Run, Model<Boolean>>();
     // we need the exact order of all test cases, so we will use LinkedHashMap
@@ -59,55 +59,56 @@ public class CompareContainer implements Serializable {
 
     public List<Run> getRunsList() {
 
-        return new ArrayList<Run>( runs.keySet() );
+        return new ArrayList<Run>(runs.keySet());
     }
 
     public List<Testcase> getTestcasesList() {
 
-        return new ArrayList<Testcase>( testcases.keySet() );
+        return new ArrayList<Testcase>(testcases.keySet());
     }
 
     public void addObject( Object obj, String currentPath ) {
 
-        if( obj instanceof Run ) {
-            if( !runs.containsKey( obj ) ) {
-                runs.put( ( Run ) obj, new Model<Boolean>( Boolean.TRUE ) );
+        if (obj instanceof Run) {
+            if (!runs.containsKey(obj)) {
+                runs.put((Run) obj, new Model<Boolean>(Boolean.TRUE));
             }
-        } else if( obj instanceof Testcase ) {
-            if( !testcases.containsKey( obj ) ) {
-                Testcase testcase = ( Testcase ) obj;
-                testcase.setPath( currentPath );
-                testcases.put( testcase, new Model<Boolean>( Boolean.TRUE ) );
+        } else if (obj instanceof Testcase) {
+            if (!testcases.containsKey(obj)) {
+                Testcase testcase = (Testcase) obj;
+                testcase.setPath(currentPath);
+                testcases.put(testcase, new Model<Boolean>(Boolean.TRUE));
             }
-        } else if( obj instanceof Scenario ) {
+        } else if (obj instanceof Scenario) {
             try {
-                Scenario scenario = ( ( Scenario ) obj );
-                TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
+                Scenario scenario = ((Scenario) obj);
+                TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
                 String whereClause = "WHERE suiteId=" + scenario.suiteId + " and scenarioId="
                                      + scenario.scenarioId;
-                int testcasesCount = dbAccess.getTestcasesCount( whereClause );
-                List<Testcase> testcasesList = dbAccess.getTestcases( 0, testcasesCount, whereClause,
-                                                                      "testcaseId", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
-                for( Testcase testcase : testcasesList ) {
-                    if( !testcases.containsKey( testcase ) ) {
-                        testcase.setPath( currentPath + "/" + scenario.name );
-                        testcases.put( testcase, new Model<Boolean>( Boolean.TRUE ) );
+                int testcasesCount = dbAccess.getTestcasesCount(whereClause);
+                List<Testcase> testcasesList = dbAccess.getTestcases(0, testcasesCount, whereClause,
+                                                                     "testcaseId", true,
+                                                                     ((TestExplorerSession) Session.get()).getTimeOffset());
+                for (Testcase testcase : testcasesList) {
+                    if (!testcases.containsKey(testcase)) {
+                        testcase.setPath(currentPath + "/" + scenario.name);
+                        testcases.put(testcase, new Model<Boolean>(Boolean.TRUE));
                     }
                 }
-            } catch( DatabaseAccessException e ) {
-                LOG.error( "Can't get testcases count", e );
+            } catch (DatabaseAccessException e) {
+                LOG.error("Can't get testcases count", e);
             }
         }
     }
 
     public void removeObject( Object obj ) {
 
-        if( obj instanceof Run ) {
+        if (obj instanceof Run) {
 
-            runs.remove( ( Run ) obj );
-        } else if( obj instanceof Testcase ) {
+            runs.remove((Run) obj);
+        } else if (obj instanceof Testcase) {
 
-            testcases.remove( ( Testcase ) obj );
+            testcases.remove((Testcase) obj);
         }
     }
 

@@ -25,17 +25,17 @@ public class DbEntityCopyException extends Exception {
 
     public DbEntityCopyException( String arg0 ) {
 
-        super( "Error copying data in ATS DB: " + arg0 );
+        super("Error copying data in ATS DB: " + arg0);
     }
 
     public DbEntityCopyException( Throwable arg0 ) {
 
-        super( arg0 );
+        super(arg0);
     }
 
     public DbEntityCopyException( String arg0,
-                             Throwable arg1 ) {
+                                  Throwable arg1 ) {
 
-        super( arg0, arg1 );
+        super(arg0, arg1);
     }
 }

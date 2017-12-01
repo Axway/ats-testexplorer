@@ -58,61 +58,61 @@ public class TestcasesCopyPage extends BaseCopyPage {
 
     public TestcasesCopyPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        this.srcSuiteId = getSuiteId( parameters );
-        this.copyEntities = TestExplorerUtils.extractPageParameter( parameters, "copyEntities" );
-        this.copyEntitiesType = TestExplorerUtils.extractPageParameter( parameters, "copyEntitiesType" );
+        this.srcSuiteId = getSuiteId(parameters);
+        this.copyEntities = TestExplorerUtils.extractPageParameter(parameters, "copyEntities");
+        this.copyEntitiesType = TestExplorerUtils.extractPageParameter(parameters, "copyEntitiesType");
         addCopyDetailsComponents();
     }
 
     @Override
     protected void addCopyDetailsComponents() {
 
-        copyEntityTypes = ENTITY_TYPES.valueOf( copyEntitiesType );
-        String[] copyEntitiesTokens = copyEntities.split( "_" );
+        copyEntityTypes = ENTITY_TYPES.valueOf(copyEntitiesType);
+        String[] copyEntitiesTokens = copyEntities.split("_");
         srcEntityIds = new int[copyEntitiesTokens.length];
-        for( int i = 0; i < copyEntitiesTokens.length; i++ ) {
-            srcEntityIds[i] = Integer.parseInt( copyEntitiesTokens[i] );
+        for (int i = 0; i < copyEntitiesTokens.length; i++) {
+            srcEntityIds[i] = Integer.parseInt(copyEntitiesTokens[i]);
         }
 
-        TextField<String> sourceHost = new TextField<String>( "sourceHost", sourceHostModel );
-        sourceHostModel.setObject( getTESession().getDbHost() );
-        form.add( sourceHost );
-        
-        TextField<String> sourceDbName = new TextField<String>( "sourceDbName", sourceDbNameModel );
-        sourceDbNameModel.setObject( getTESession().getDbName() );
-        form.add( sourceDbName );
+        TextField<String> sourceHost = new TextField<String>("sourceHost", sourceHostModel);
+        sourceHostModel.setObject(getTESession().getDbHost());
+        form.add(sourceHost);
 
-        TextArea<String> sourceSelectionToCopy = new TextArea<String>( "sourceSelectionToCopy",
-                                                                       sourceSelectionToCopyModel );
-        sourceSelectionToCopyModel.setObject( getCopySelectionInfo( copyEntityTypes ) );
-        form.add( sourceSelectionToCopy );
+        TextField<String> sourceDbName = new TextField<String>("sourceDbName", sourceDbNameModel);
+        sourceDbNameModel.setObject(getTESession().getDbName());
+        form.add(sourceDbName);
 
-        TextField<String> destinationRunId = new TextField<String>( "destinationRunId",
-                                                                    destinationRunIdModel );
-        destinationRunIdModel.setObject( "" );
-        form.add( destinationRunId );
+        TextArea<String> sourceSelectionToCopy = new TextArea<String>("sourceSelectionToCopy",
+                                                                      sourceSelectionToCopyModel);
+        sourceSelectionToCopyModel.setObject(getCopySelectionInfo(copyEntityTypes));
+        form.add(sourceSelectionToCopy);
 
-        TextField<String> destinationHost = new TextField<String>( "destinationHost", destinationHostModel );
-        destinationHostModel.setObject( getTESession().getDbHost() );
-        form.add( destinationHost );
-        
-        TextField<String> destinationPort = new TextField<String>( "destinationPort", destinationPortModel );
-        destinationPortModel.setObject( "" );
-        form.add( destinationPort );
+        TextField<String> destinationRunId = new TextField<String>("destinationRunId",
+                                                                   destinationRunIdModel);
+        destinationRunIdModel.setObject("");
+        form.add(destinationRunId);
 
-        TextField<String> destinationDbName = new TextField<String>( "destinationDbName",
-                                                                     destinationDbNameModel );
-        destinationDbNameModel.setObject( getTESession().getDbName() );
-        form.add( destinationDbName );
+        TextField<String> destinationHost = new TextField<String>("destinationHost", destinationHostModel);
+        destinationHostModel.setObject(getTESession().getDbHost());
+        form.add(destinationHost);
 
-        RadioChoice<String> hostingType = new RadioChoice<String>( "testcaseOverwriteOption",
-                                                                   new PropertyModel<String>( this,
-                                                                                              "selectedEntityType" ),
-                                                                   Arrays.asList( TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE,
-                                                                                  TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE_NOT_PASSED ) );
-        form.add( hostingType );
+        TextField<String> destinationPort = new TextField<String>("destinationPort", destinationPortModel);
+        destinationPortModel.setObject("");
+        form.add(destinationPort);
+
+        TextField<String> destinationDbName = new TextField<String>("destinationDbName",
+                                                                    destinationDbNameModel);
+        destinationDbNameModel.setObject(getTESession().getDbName());
+        form.add(destinationDbName);
+
+        RadioChoice<String> hostingType = new RadioChoice<String>("testcaseOverwriteOption",
+                                                                  new PropertyModel<String>(this,
+                                                                                            "selectedEntityType"),
+                                                                  Arrays.asList(TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE,
+                                                                                TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE_NOT_PASSED));
+        form.add(hostingType);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class TestcasesCopyPage extends BaseCopyPage {
         String destinationRunId = destinationRunIdModel.getObject();
 
         return "copy_testcases_into_run_" + destinationRunId + "_" + copyEntityTypes + "_"
-               + Arrays.toString( srcEntityIds );
+               + Arrays.toString(srcEntityIds);
     }
 
     @Override
@@ -134,17 +134,18 @@ public class TestcasesCopyPage extends BaseCopyPage {
         String destinationDbName = destinationDbNameModel.getObject();
         int sourcePort = getSourcePort();
 
-        boolean overwriteAllTestcases = this.selectedEntityType.equals( TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE );
+        boolean overwriteAllTestcases = this.selectedEntityType.equals(TestcasesCopyUtility.OVERWRITE_TESTCASES_MSG_OVERWRITE);
 
-        CopyJobThread copyJobThread = new CopyTestcasesJobThread( sourceHost, sourcePort, sourceDbName,
-                                                                  Integer.parseInt( destinationRunId ), destinationHost,
-                                                                  Integer.parseInt( destinationPortModel.getObject() ), destinationDbName,
-                                                                  getTESession().getDbUser(),
-                                                                  getTESession().getDbPassword(), srcSuiteId,
-                                                                  srcEntityIds, copyEntityTypes,
-                                                                  overwriteAllTestcases, webConsole );
+        CopyJobThread copyJobThread = new CopyTestcasesJobThread(sourceHost, sourcePort, sourceDbName,
+                                                                 Integer.parseInt(destinationRunId), destinationHost,
+                                                                 Integer.parseInt(destinationPortModel.getObject()),
+                                                                 destinationDbName,
+                                                                 getTESession().getDbUser(),
+                                                                 getTESession().getDbPassword(), srcSuiteId,
+                                                                 srcEntityIds, copyEntityTypes,
+                                                                 overwriteAllTestcases, webConsole);
 
-        copyJobThread.setThreadIdentifier( threadIdentifier );
+        copyJobThread.setThreadIdentifier(threadIdentifier);
 
         return copyJobThread;
     }
@@ -154,19 +155,19 @@ public class TestcasesCopyPage extends BaseCopyPage {
         TestExplorerSession teSession = (TestExplorerSession) Session.get();
         TestExplorerDbReadAccessInterface teDbReadImpl = teSession.getDbReadConnection();
 
-        if ( teDbReadImpl instanceof TestExplorerSQLServerDbReadAccess ) {
-            
+        if (teDbReadImpl instanceof TestExplorerSQLServerDbReadAccess) {
+
             return DbConnSQLServer.DEFAULT_PORT;
-            
-        } else if ( teDbReadImpl instanceof TestExplorerPGDbReadAccess ) {
-            
+
+        } else if (teDbReadImpl instanceof TestExplorerPGDbReadAccess) {
+
             return DbConnPostgreSQL.DEFAULT_PORT;
-            
+
         } else {
-            
+
             throw new RuntimeException("Unable to get source database port. Source database is neither MSSQL, nor PostgreSQL.");
         }
-        
+
     }
 
     @Override
@@ -179,31 +180,32 @@ public class TestcasesCopyPage extends BaseCopyPage {
         String destinationDbName = destinationDbNameModel.getObject();
         String destinationRunId = destinationRunIdModel.getObject();
 
-        if( StringUtils.isNullOrEmpty( sourceHost ) || StringUtils.isNullOrEmpty( sourceDbName )
-            || StringUtils.isNullOrEmpty( destinationHost ) || StringUtils.isNullOrEmpty( destinationDbName )
-            || StringUtils.isNullOrEmpty( destinationRunId ) ) {
+        if (StringUtils.isNullOrEmpty(sourceHost) || StringUtils.isNullOrEmpty(sourceDbName)
+            || StringUtils.isNullOrEmpty(destinationHost) || StringUtils.isNullOrEmpty(destinationDbName)
+            || StringUtils.isNullOrEmpty(destinationRunId)) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "Please enter valid data in the text fields",
-                                                         true ) );
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("Please enter valid data in the text fields",
+                                                                 true));
             return false;
         }
-        
+
         // validate destination port
         try {
-            Integer.parseInt( destinationPort );
-        } catch( NumberFormatException nfe ) {
+            Integer.parseInt(destinationPort);
+        } catch (NumberFormatException nfe) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "'" + destinationPort + "' is not a valid destination port",
-                                                         true ) );
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("'" + destinationPort
+                                                                 + "' is not a valid destination port",
+                                                                 true));
             return false;
         }
-        
-        try {
-            Integer.parseInt( destinationRunId );
-        } catch( NumberFormatException nfe ) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "'" + destinationRunId
-                                                         + "' is not a valid destination run id", true ) );
+        try {
+            Integer.parseInt(destinationRunId);
+        } catch (NumberFormatException nfe) {
+
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("'" + destinationRunId
+                                                                 + "' is not a valid destination run id", true));
             return false;
         }
         return true;
@@ -225,7 +227,7 @@ public class TestcasesCopyPage extends BaseCopyPage {
 
         String message;
 
-        switch( copyEntityTypes ){
+        switch (copyEntityTypes) {
             case SUITES:
                 message = "Testcases from Suites with ids: ";
                 break;
@@ -236,18 +238,18 @@ public class TestcasesCopyPage extends BaseCopyPage {
                 message = "Testcases with ids: ";
                 break;
         }
-        String ids = Arrays.toString( srcEntityIds );
+        String ids = Arrays.toString(srcEntityIds);
 
-        return message + ids.substring( 1, ids.length() - 1 );
+        return message + ids.substring(1, ids.length() - 1);
     }
 
     private int getSuiteId( PageParameters parameters ) {
 
-        String suiteId = TestExplorerUtils.extractPageParameter( parameters, "suiteId" );
+        String suiteId = TestExplorerUtils.extractPageParameter(parameters, "suiteId");
 
-        if( !StringUtils.isNullOrEmpty( suiteId ) ) {
+        if (!StringUtils.isNullOrEmpty(suiteId)) {
             // suiteId is needed for copying scenarios
-            return Integer.parseInt( suiteId );
+            return Integer.parseInt(suiteId);
         }
         // we did not provide suiteId, because it is not needed
         return -1;

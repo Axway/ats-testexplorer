@@ -30,7 +30,7 @@ public class SelectOption implements Serializable {
     public SelectOption( String key,
                          String value ) {
 
-        this( key, value, -1 );
+        this(key, value, -1);
     }
 
     public SelectOption( String key,
@@ -73,16 +73,16 @@ public class SelectOption implements Serializable {
     public boolean equals(
                            Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof SelectOption ) {
-            SelectOption other = ( SelectOption ) obj;
-            if( this.key == null || other.key == null || this.value == null || other.value == null ) {
+        } else if (obj instanceof SelectOption) {
+            SelectOption other = (SelectOption) obj;
+            if (this.key == null || other.key == null || this.value == null || other.value == null) {
                 return false;
             }
-            return other.key.equals( this.key ) && other.value.equals( this.value );
+            return other.key.equals(this.key) && other.value.equals(this.value);
         }
         return false;
     }
@@ -90,7 +90,7 @@ public class SelectOption implements Serializable {
     @Override
     public int hashCode() {
 
-        return Integer.valueOf( this.key ).hashCode();
+        return Integer.valueOf(this.key).hashCode();
     }
 
 }

@@ -29,12 +29,12 @@ import com.inmethod.grid.IDataSource;
 import com.inmethod.grid.IGridSortState;
 import com.inmethod.grid.IGridSortState.ISortStateColumn;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class SuitesDataSource implements IDataSource {
 
     private static final long   serialVersionUID = 1L;
 
-    private static final Logger LOG              = Logger.getLogger( SuitesDataSource.class );
+    private static final Logger LOG              = Logger.getLogger(SuitesDataSource.class);
 
     private String              runId;
     private String              suiteId;
@@ -53,7 +53,7 @@ public class SuitesDataSource implements IDataSource {
     @Override
     public IModel<Suite> model( final Object object ) {
 
-        return new SuiteLoadableDetachableModel( ( Suite ) object );
+        return new SuiteLoadableDetachableModel((Suite) object);
     }
 
     @Override
@@ -62,47 +62,48 @@ public class SuitesDataSource implements IDataSource {
         String sortProperty = "suiteId";
         boolean sortAsc = true;
         // is there any sorting
-        if( query.getSortState().getColumns().size() > 0 ) {
+        if (query.getSortState().getColumns().size() > 0) {
             // get the most relevant column
-            ISortStateColumn state = query.getSortState().getColumns().get( 0 );
+            ISortStateColumn state = query.getSortState().getColumns().get(0);
             // get the column sort properties
-            sortProperty = ( String ) state.getPropertyName();
+            sortProperty = (String) state.getPropertyName();
             sortAsc = state.getDirection() == IGridSortState.Direction.ASC;
         }
 
         List<Suite> resultList;
         try {
-            TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
+            TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
             String whereClause;
-            if( suiteId != null ) {
+            if (suiteId != null) {
                 whereClause = "WHERE runId=" + this.runId + " and suiteId=" + this.suiteId;
             } else {
                 whereClause = "WHERE runId=" + this.runId;
             }
-            result.setTotalCount( dbAccess.getSuitesCount( whereClause ) );
+            result.setTotalCount(dbAccess.getSuitesCount(whereClause));
 
-            resultList = dbAccess.getSuites( ( int ) ( query.getFrom() + 1 ),
-                                             ( int ) ( query.getFrom() + query.getCount() + 1 ), whereClause,
-                                             sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
+            resultList = dbAccess.getSuites((int) (query.getFrom() + 1),
+                                            (int) (query.getFrom() + query.getCount() + 1), whereClause,
+                                            sortProperty, sortAsc,
+                                            ((TestExplorerSession) Session.get()).getTimeOffset());
 
             String[] packageNames = new String[resultList.size()];
 
-            for( int i = 0; i < resultList.size(); i++ ) {
+            for (int i = 0; i < resultList.size(); i++) {
 
-                packageNames[i] = resultList.get( i ).packageName;
-
-            }
-            String[] parsedPackageNames = parsePackages( packageNames );
-
-            for( int i = 0; i < parsedPackageNames.length; i++ ) {
-
-                resultList.get( i ).packageName = parsedPackageNames[i];
+                packageNames[i] = resultList.get(i).packageName;
 
             }
+            String[] parsedPackageNames = parsePackages(packageNames);
 
-            result.setItems( resultList.iterator() );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get suites", e );
+            for (int i = 0; i < parsedPackageNames.length; i++) {
+
+                resultList.get(i).packageName = parsedPackageNames[i];
+
+            }
+
+            result.setItems(resultList.iterator());
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get suites", e);
         }
     }
 
@@ -126,24 +127,24 @@ public class SuitesDataSource implements IDataSource {
 
         // break packages into package tokens
         int sizeShortestPackage = Integer.MAX_VALUE;
-        for( int i = 0; i < packages.length; i++ ) {
-            packageTokens[i] = packages[i].split( "\\." );
+        for (int i = 0; i < packages.length; i++) {
+            packageTokens[i] = packages[i].split("\\.");
 
-            if( sizeShortestPackage > packageTokens[i].length ) {
+            if (sizeShortestPackage > packageTokens[i].length) {
                 sizeShortestPackage = packageTokens[i].length;
             }
         }
 
         // find the index of the first different token
         int iDifferentTokens = -1;
-        for( int iToken = 0; iToken < sizeShortestPackage; iToken++ ) {
+        for (int iToken = 0; iToken < sizeShortestPackage; iToken++) {
             String currentToken = null;
-            for( int iPackage = 0; iPackage < packageTokens.length; iPackage++ ) {
+            for (int iPackage = 0; iPackage < packageTokens.length; iPackage++) {
                 String token = packageTokens[iPackage][iToken];
-                if( currentToken == null ) {
+                if (currentToken == null) {
                     // remember this token
                     currentToken = token;
-                } else if( !currentToken.equals( token ) ) {
+                } else if (!currentToken.equals(token)) {
                     // we have found a different token, stop cycling
                     iDifferentTokens = iToken;
                     break;
@@ -151,7 +152,7 @@ public class SuitesDataSource implements IDataSource {
                 // else -> token is the same, go to next package at this index
             }
 
-            if( iDifferentTokens != -1 ) {
+            if (iDifferentTokens != -1) {
                 // we have found a different token, stop cycling
                 break;
             }
@@ -160,7 +161,7 @@ public class SuitesDataSource implements IDataSource {
 
         // define the token where we start copying packages from
         int startToken;
-        if( iDifferentTokens != -1 ) {
+        if (iDifferentTokens != -1) {
             // different packages are found
             startToken = iDifferentTokens;
         } else {
@@ -170,14 +171,14 @@ public class SuitesDataSource implements IDataSource {
 
         // generate the result packages
         List<String> resultPackages = new ArrayList<String>();
-        for( int iPackage = 0; iPackage < packageTokens.length; iPackage++ ) {
+        for (int iPackage = 0; iPackage < packageTokens.length; iPackage++) {
             StringBuilder resultPackage = new StringBuilder();
-            for( int iToken = startToken; iToken < packageTokens[iPackage].length; iToken++ ) {
-                resultPackage.append( packageTokens[iPackage][iToken] + "." );
+            for (int iToken = startToken; iToken < packageTokens[iPackage].length; iToken++) {
+                resultPackage.append(packageTokens[iPackage][iToken] + ".");
             }
-            resultPackages.add( resultPackage.substring( 0, resultPackage.length() - 1 ) );
+            resultPackages.add(resultPackage.substring(0, resultPackage.length() - 1));
         }
-        return resultPackages.toArray( new String[resultPackages.size()] );
+        return resultPackages.toArray(new String[resultPackages.size()]);
     }
 
     public String getRunId() {

@@ -32,24 +32,24 @@ import org.apache.wicket.model.Model;
  */
 public class MachineDescription implements Serializable {
 
-    private static final long                 serialVersionUID = 1L;
+    private static final long                   serialVersionUID = 1L;
 
-    private int                               testcaseId;
-    private String                            testcaseName;
-    private long                              testcaseStarttime;
+    private int                                 testcaseId;
+    private String                              testcaseName;
+    private long                                testcaseStarttime;
 
-    private int                               machineId;
-    private String                            machineName;
+    private int                                 machineId;
+    private String                              machineName;
 
     private Map<String, DbStatisticDescription> statDescriptionsMap;
-    private Map<String, Model<Boolean>>       statDescriptionSelectionModelsMap;
+    private Map<String, Model<Boolean>>         statDescriptionSelectionModelsMap;
 
     // sorted set with all measurement counts
-    private Set<Integer>                      numberOfMeasurements;
+    private Set<Integer>                        numberOfMeasurements;
 
-    private String                            machineAlias;
+    private String                              machineAlias;
 
-    private boolean                           isComparing;
+    private boolean                             isComparing;
 
     public MachineDescription( int testcaseId,
                                String testcaseName,
@@ -69,13 +69,13 @@ public class MachineDescription implements Serializable {
         this.numberOfMeasurements = new TreeSet<Integer>();
 
         String alias = null;
-        if( this.isComparing ) {
+        if (this.isComparing) {
             alias = testcaseName + " on " + machineName;
         } else {
             alias = machineName;
         }
-        if( alias.length() > 60 ) {
-            alias = alias.substring( 0, 56 ) + "...";
+        if (alias.length() > 60) {
+            alias = alias.substring(0, 56) + "...";
         }
         this.machineAlias = alias;
     }
@@ -83,22 +83,22 @@ public class MachineDescription implements Serializable {
     public void addStatisticDescription(
                                          DbStatisticDescription statDescription ) {
 
-        if( testcaseStarttime == 0 ) {
+        if (testcaseStarttime == 0) {
             // all Statistic Descriptions for same Machine Description are coming
             // from same testcase
             testcaseStarttime = statDescription.testcaseStarttime;
         }
 
-        statDescriptionsMap.put( statDescription.getUidNoMatterTestcaseAndMachine(), statDescription );
-        statDescriptionSelectionModelsMap.put( removeTestcaseAndMachineIds( statDescription.getUid() ),
-                                               new Model<Boolean>( Boolean.FALSE ) );
-        numberOfMeasurements.add( statDescription.numberOfMeasurements );
+        statDescriptionsMap.put(statDescription.getUidNoMatterTestcaseAndMachine(), statDescription);
+        statDescriptionSelectionModelsMap.put(removeTestcaseAndMachineIds(statDescription.getUid()),
+                                              new Model<Boolean>(Boolean.FALSE));
+        numberOfMeasurements.add(statDescription.numberOfMeasurements);
     }
 
     public List<DbStatisticDescription> getStatDescriptionsList() {
 
         List<DbStatisticDescription> statDescriptions = new java.util.ArrayList<DbStatisticDescription>();
-        statDescriptions.addAll( statDescriptionsMap.values() );
+        statDescriptions.addAll(statDescriptionsMap.values());
         return statDescriptions;
     }
 
@@ -113,24 +113,24 @@ public class MachineDescription implements Serializable {
      * @return
      */
     public DbStatisticDescription getActualStatisticInfoForThisMachine(
-                                                                      DbStatisticDescription statDescription ) {
+                                                                        DbStatisticDescription statDescription ) {
 
-        return statDescriptionsMap.get( statDescription.getUidNoMatterTestcaseAndMachine() );
+        return statDescriptionsMap.get(statDescription.getUidNoMatterTestcaseAndMachine());
     }
 
     public Model<Boolean> getStatDescriptionSelectionModel(
                                                             DbStatisticDescription statDescription ) {
 
-        return statDescriptionSelectionModelsMap.get( removeTestcaseAndMachineIds( statDescription.getUid() ) );
+        return statDescriptionSelectionModelsMap.get(removeTestcaseAndMachineIds(statDescription.getUid()));
     }
 
     private String removeTestcaseAndMachineIds(
                                                 String uid ) {
 
         // skip the testcase id
-        uid = uid.substring( uid.indexOf( "->" ) + 2 );
+        uid = uid.substring(uid.indexOf("->") + 2);
         // skip the machine id
-        uid = uid.substring( uid.indexOf( "->" ) + 2 );
+        uid = uid.substring(uid.indexOf("->") + 2);
 
         return uid;
     }
@@ -142,7 +142,7 @@ public class MachineDescription implements Serializable {
 
     public String getNumberOfMeasurements() {
 
-        return Arrays.toString( this.numberOfMeasurements.toArray() ).replace( "[", "" ).replace( "]", "" );
+        return Arrays.toString(this.numberOfMeasurements.toArray()).replace("[", "").replace("]", "");
     }
 
     public void setMachineId(
@@ -216,13 +216,13 @@ public class MachineDescription implements Serializable {
 
     public MachineDescription newSimpleInstance() {
 
-        MachineDescription newMachineDescription = new MachineDescription( this.testcaseId,
-                                                                           this.testcaseName,
-                                                                           this.machineId,
-                                                                           this.machineName,
-                                                                           this.isComparing );
-        for( DbStatisticDescription statDescription : this.statDescriptionsMap.values() ) {
-            newMachineDescription.addStatisticDescription( statDescription );
+        MachineDescription newMachineDescription = new MachineDescription(this.testcaseId,
+                                                                          this.testcaseName,
+                                                                          this.machineId,
+                                                                          this.machineName,
+                                                                          this.isComparing);
+        for (DbStatisticDescription statDescription : this.statDescriptionsMap.values()) {
+            newMachineDescription.addStatisticDescription(statDescription);
         }
         return newMachineDescription;
     }
@@ -231,10 +231,10 @@ public class MachineDescription implements Serializable {
                         MachineDescription that ) {
 
         int diff = this.getTestcaseId() - that.getTestcaseId();
-        if( diff == 0 ) {
+        if (diff == 0) {
             diff = this.getMachineId() - that.getMachineId();
-            if( diff == 0 ) {
-                diff = this.getMachineAlias().compareTo( that.getMachineAlias() );
+            if (diff == 0) {
+                diff = this.getMachineAlias().compareTo(that.getMachineAlias());
             }
         }
         return diff;
@@ -247,6 +247,6 @@ public class MachineDescription implements Serializable {
     public boolean equals(
                            Object that ) {
 
-        return this.compare( ( MachineDescription ) that ) == 0;
+        return this.compare((MachineDescription) that) == 0;
     }
 }

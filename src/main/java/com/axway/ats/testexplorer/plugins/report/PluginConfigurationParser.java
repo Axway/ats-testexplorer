@@ -38,7 +38,7 @@ import com.axway.ats.core.utils.StringUtils;
  */
 public class PluginConfigurationParser {
 
-    private static final Logger LOG               = Logger.getLogger( PluginConfigurationParser.class );
+    private static final Logger LOG               = Logger.getLogger(PluginConfigurationParser.class);
 
     private static final String NODE__PLUGINS     = "plugins";
     private static final String NODE__PLUGIN      = "plugin";
@@ -62,22 +62,22 @@ public class PluginConfigurationParser {
                                                              ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setIgnoringElementContentWhitespace( true );
-        documentBuilderFactory.setNamespaceAware( true );
-        documentBuilderFactory.setValidating( false );
-        documentBuilderFactory.setIgnoringComments( true );
+        documentBuilderFactory.setIgnoringElementContentWhitespace(true);
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setValidating(false);
+        documentBuilderFactory.setIgnoringComments(true);
 
         try {
             // skip DTD validation
-            documentBuilderFactory.setFeature( "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                                               false );
-            documentBuilderFactory.setFeature( "http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                                               false );
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                                              false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                                              false);
 
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            return documentBuilder.parse( inputStream, jarFilePath );
-        } catch( ParserConfigurationException | IOException | SAXException e ) {
-            LOG.error( e.getMessage() );
+            return documentBuilder.parse(inputStream, jarFilePath);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            LOG.error(e.getMessage());
             throw e;
         }
     }
@@ -102,65 +102,65 @@ public class PluginConfigurationParser {
 
         Map<String, Map<String, String>> pluginsInfo = new HashMap<>();
 
-        Document mDocument = inititalizeParser( inputStream, jarFilePath );
+        Document mDocument = inititalizeParser(inputStream, jarFilePath);
 
         NodeList nodes = mDocument.getChildNodes();
-        Node pluginNode = nodes.item( 0 );
-        if( pluginNode.getNodeType() != Node.ELEMENT_NODE
-            || !pluginNode.getNodeName().equals( NODE__PLUGINS ) ) {
-            throw new PluginLoadException( "The expected top level " + NODE__PLUGINS + " node not found in "
-                                           + jarFilePath );
+        Node pluginNode = nodes.item(0);
+        if (pluginNode.getNodeType() != Node.ELEMENT_NODE
+            || !pluginNode.getNodeName().equals(NODE__PLUGINS)) {
+            throw new PluginLoadException("The expected top level " + NODE__PLUGINS + " node not found in "
+                                          + jarFilePath);
         }
 
         nodes = pluginNode.getChildNodes();
-        for( int i = 0; i < nodes.getLength(); i++ ) {
-            Node childNode = nodes.item( i );
-            if( childNode.getNodeType() == Node.ELEMENT_NODE
-                && childNode.getNodeName().equals( NODE__PLUGIN ) ) {
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node childNode = nodes.item(i);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE
+                && childNode.getNodeName().equals(NODE__PLUGIN)) {
 
                 Map<String, String> parameters = new HashMap<>();
                 String name = null;
                 NamedNodeMap attributes = childNode.getAttributes();
-                for( int iAtt = 0; iAtt < attributes.getLength(); iAtt++ ) {
-                    Node attributeNode = attributes.item( iAtt );
-                    if( NODE__NAME.equalsIgnoreCase( attributeNode.getNodeName() ) ) {
+                for (int iAtt = 0; iAtt < attributes.getLength(); iAtt++) {
+                    Node attributeNode = attributes.item(iAtt);
+                    if (NODE__NAME.equalsIgnoreCase(attributeNode.getNodeName())) {
                         name = attributeNode.getNodeValue();
                     } else {
-                        parameters.put( attributeNode.getNodeName(), attributeNode.getNodeValue() );
+                        parameters.put(attributeNode.getNodeName(), attributeNode.getNodeValue());
                     }
                 }
 
                 // check for missing data
                 String missingData = null;
-                if( StringUtils.isNullOrEmpty( name ) ) {
+                if (StringUtils.isNullOrEmpty(name)) {
                     missingData = NODE__NAME;
                 }
-                if( !parameters.containsKey( NODE__TYPE ) ) {
+                if (!parameters.containsKey(NODE__TYPE)) {
                     missingData = NODE__TYPE;
                 }
-                if( !parameters.containsKey( NODE__PAGE_CLASS ) ) {
+                if (!parameters.containsKey(NODE__PAGE_CLASS)) {
                     missingData = NODE__PAGE_CLASS;
                 }
-                if( !parameters.containsKey( NODE__BUTTON_NAME ) ) {
+                if (!parameters.containsKey(NODE__BUTTON_NAME)) {
                     missingData = NODE__BUTTON_NAME;
                 }
-                if( missingData != null ) {
-                    throw new PluginLoadException( "Missing plugin '" + missingData + "' node in "
-                                                   + TestExplorerPluginsRepo.PLUGIN_DESCRIPTOR + " in "
-                                                   + jarFilePath );
+                if (missingData != null) {
+                    throw new PluginLoadException("Missing plugin '" + missingData + "' node in "
+                                                  + TestExplorerPluginsRepo.PLUGIN_DESCRIPTOR + " in "
+                                                  + jarFilePath);
                 }
 
                 // we do not allow more than one plugin with same name
-                if( pluginsInfo.containsKey( name ) ) {
-                    throw new PluginLoadException( "There is already a plugin with name '" + name + "'" );
+                if (pluginsInfo.containsKey(name)) {
+                    throw new PluginLoadException("There is already a plugin with name '" + name + "'");
                 }
 
                 // make a quick check the plugin class name can be loaded runtime
-                new PluginParameters( parameters );
+                new PluginParameters(parameters);
 
                 // accept the plugin info
-                pluginsInfo.put( name, parameters );
-                LOG.info( "Loaded Test Explorer plugin pluginName '" + name + "'" );
+                pluginsInfo.put(name, parameters);
+                LOG.info("Loaded Test Explorer plugin pluginName '" + name + "'");
             }
         }
 

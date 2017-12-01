@@ -41,11 +41,11 @@ import com.axway.ats.testexplorer.pages.LightweightBasePage;
 
 public class MachinesPage extends LightweightBasePage {
 
-    private static final long            serialVersionUID         = 1L;
+    private static final long            serialVersionUID        = 1L;
 
     private List<Machine>                machines;
 
-    private Map<Integer, IModel<String>> machineModels            = new HashMap<Integer, IModel<String>>();
+    private Map<Integer, IModel<String>> machineModels           = new HashMap<Integer, IModel<String>>();
 
     private WebMarkupContainer           machineInfoDialog;
     private TextArea<String>             machineInfoText;
@@ -53,39 +53,39 @@ public class MachinesPage extends LightweightBasePage {
     private Form<Object>                 machineInfoDialogForm;
     private Machine                      machineForEdit;
 
-    private static final int             MAX_MACHINE_INFO_LENGTH  = 10000;
+    private static final int             MAX_MACHINE_INFO_LENGTH = 10000;
 
     public MachinesPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
         machines = getMachines();
 
-        Label noMachinesLabel = new Label( "noMachinesLabel", "There are no machines in database '"
-                                                              + getTESession().getDbName() + "'" );
-        noMachinesLabel.setOutputMarkupId( true );
-        Form<Object> machinesForm = getMachinesForm( noMachinesLabel );
-        add( machinesForm );
+        Label noMachinesLabel = new Label("noMachinesLabel", "There are no machines in database '"
+                                                             + getTESession().getDbName() + "'");
+        noMachinesLabel.setOutputMarkupId(true);
+        Form<Object> machinesForm = getMachinesForm(noMachinesLabel);
+        add(machinesForm);
 
-        machineInfoDialog = new WebMarkupContainer( "machineInfoDialog" );
-        machineInfoDialog.setVisible( false );
-        machineInfoDialogTitle = new Label( "machineInfoDialogTitle", "" );
-        machineInfoDialog.add( machineInfoDialogTitle );
-        machineInfoText = new TextArea<String>( "machineInformationText", new Model<String>( "" ) );
-        machineInfoDialog.add( machineInfoText );
-        machineInfoDialog.add( getMachineInfoDialogSaveButton() );
-        machineInfoDialog.add( getMachineInfoDialogCancelButton() );
+        machineInfoDialog = new WebMarkupContainer("machineInfoDialog");
+        machineInfoDialog.setVisible(false);
+        machineInfoDialogTitle = new Label("machineInfoDialogTitle", "");
+        machineInfoDialog.add(machineInfoDialogTitle);
+        machineInfoText = new TextArea<String>("machineInformationText", new Model<String>(""));
+        machineInfoDialog.add(machineInfoText);
+        machineInfoDialog.add(getMachineInfoDialogSaveButton());
+        machineInfoDialog.add(getMachineInfoDialogCancelButton());
 
-        machineInfoDialogForm = new Form<Object>( "machineInfoDialogForm" );
-        machineInfoDialogForm.setOutputMarkupId( true );
-        machineInfoDialogForm.add( machineInfoDialog );
+        machineInfoDialogForm = new Form<Object>("machineInfoDialogForm");
+        machineInfoDialogForm.setOutputMarkupId(true);
+        machineInfoDialogForm.add(machineInfoDialog);
 
-        add( machineInfoDialogForm );
+        add(machineInfoDialogForm);
     }
 
     private Component getMachineInfoDialogSaveButton() {
 
-        return new AjaxButton( "machineInfoDialogSave" ) {
+        return new AjaxButton("machineInfoDialogSave") {
 
             private static final long serialVersionUID = 1L;
 
@@ -95,23 +95,23 @@ public class MachinesPage extends LightweightBasePage {
                                      Form<?> form ) {
 
                 String information = machineInfoText.getModel().getObject();
-                if( information == null ) {
+                if (information == null) {
                     information = "";
                 }
-                if( information.length() > MAX_MACHINE_INFO_LENGTH ) {
-                    information = information.substring( 0, MAX_MACHINE_INFO_LENGTH ) + "...";
+                if (information.length() > MAX_MACHINE_INFO_LENGTH) {
+                    information = information.substring(0, MAX_MACHINE_INFO_LENGTH) + "...";
                 }
-                updateMachineInformation( machineForEdit, information );
+                updateMachineInformation(machineForEdit, information);
 
-                machineInfoDialog.setVisible( false );
-                target.add( machineInfoDialogForm );
+                machineInfoDialog.setVisible(false);
+                target.add(machineInfoDialogForm);
             }
         };
     }
 
     private Component getMachineInfoDialogCancelButton() {
 
-        return new AjaxButton( "machineInfoDialogCancel" ) {
+        return new AjaxButton("machineInfoDialogCancel") {
 
             private static final long serialVersionUID = 1L;
 
@@ -120,8 +120,8 @@ public class MachinesPage extends LightweightBasePage {
                                      AjaxRequestTarget target,
                                      Form<?> form ) {
 
-                machineInfoDialog.setVisible( false );
-                target.add( machineInfoDialogForm );
+                machineInfoDialog.setVisible(false);
+                target.add(machineInfoDialogForm);
             }
         };
     }
@@ -129,12 +129,12 @@ public class MachinesPage extends LightweightBasePage {
     private List<Machine> getMachines() {
 
         try {
-            if( getTESession().getDbReadConnection() != null ) {
+            if (getTESession().getDbReadConnection() != null) {
 
                 return getTESession().getDbReadConnection().getMachines();
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get machines from database '" + getTESession().getDbName() + "'", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get machines from database '" + getTESession().getDbName() + "'", e);
         }
         return new ArrayList<Machine>();
     }
@@ -143,13 +143,13 @@ public class MachinesPage extends LightweightBasePage {
                                           Machine machine ) {
 
         try {
-            if( getTESession().getDbReadConnection() != null ) {
+            if (getTESession().getDbReadConnection() != null) {
 
-                return getTESession().getDbReadConnection().getMachineInformation( machine.machineId );
+                return getTESession().getDbReadConnection().getMachineInformation(machine.machineId);
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get machine information for machine '" + machine.name + "' in database '"
-                       + getTESession().getDbName() + "'", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get machine information for machine '" + machine.name + "' in database '"
+                      + getTESession().getDbName() + "'", e);
         }
         return "";
     }
@@ -159,26 +159,26 @@ public class MachinesPage extends LightweightBasePage {
                                            String information ) {
 
         try {
-            if( getTESession().getDbWriteConnection() != null ) {
+            if (getTESession().getDbWriteConnection() != null) {
 
-                getTESession().getDbWriteConnection().updateMachineInformation( machine.machineId,
-                                                                                information );
+                getTESession().getDbWriteConnection().updateMachineInformation(machine.machineId,
+                                                                               information);
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't update machine information for machine '" + machine.name + "' in database '"
-                       + getTESession().getDbName() + "'", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't update machine information for machine '" + machine.name + "' in database '"
+                      + getTESession().getDbName() + "'", e);
         }
     }
 
     private Form<Object> getMachinesForm(
                                           final Label noMachinesLabel ) {
 
-        final Form<Object> machinesForm = new Form<Object>( "machinesForm" );
-        machinesForm.setOutputMarkupId( true );
+        final Form<Object> machinesForm = new Form<Object>("machinesForm");
+        machinesForm.setOutputMarkupId(true);
 
         machineModels = new HashMap<Integer, IModel<String>>();
 
-        ListView<Machine> machinesTable = new ListView<Machine>( "machine", machines ) {
+        ListView<Machine> machinesTable = new ListView<Machine>("machine", machines) {
 
             private static final long serialVersionUID = 1L;
 
@@ -186,17 +186,17 @@ public class MachinesPage extends LightweightBasePage {
             protected void populateItem(
                                          final ListItem<Machine> item ) {
 
-                if( item.getIndex() % 2 != 0 ) {
-                    item.add( AttributeModifier.replace( "class", "oddRow" ) );
+                if (item.getIndex() % 2 != 0) {
+                    item.add(AttributeModifier.replace("class", "oddRow"));
                 }
-                IModel<String> aliasModel = new Model<String>( item.getModelObject().alias );
-                machineModels.put( item.getModelObject().machineId, aliasModel );
-                item.add( new TextField<String>( "machineAlias", aliasModel ) );
+                IModel<String> aliasModel = new Model<String>(item.getModelObject().alias);
+                machineModels.put(item.getModelObject().machineId, aliasModel);
+                item.add(new TextField<String>("machineAlias", aliasModel));
 
-                item.add( new Label( "machineName", item.getModelObject().name ).setEscapeModelStrings( false ) );
+                item.add(new Label("machineName", item.getModelObject().name).setEscapeModelStrings(false));
 
                 final Machine machine = item.getModelObject();
-                item.add( new AjaxButton( "machineInfo" ) {
+                item.add(new AjaxButton("machineInfo") {
 
                     private static final long serialVersionUID = 1L;
 
@@ -205,25 +205,25 @@ public class MachinesPage extends LightweightBasePage {
                                              AjaxRequestTarget target,
                                              Form<?> form ) {
 
-                        if( machine.alias == null || machine.alias.trim().length() == 0 ) {
-                            machineInfoDialogTitle.setDefaultModelObject( machine.name );
+                        if (machine.alias == null || machine.alias.trim().length() == 0) {
+                            machineInfoDialogTitle.setDefaultModelObject(machine.name);
                         } else {
-                            machineInfoDialogTitle.setDefaultModelObject( machine.alias + " (" + machine.name
-                                                                          + ")" );
+                            machineInfoDialogTitle.setDefaultModelObject(machine.alias + " (" + machine.name
+                                                                         + ")");
                         }
 
-                        machineInfoDialog.setVisible( true );
+                        machineInfoDialog.setVisible(true);
                         machineForEdit = machine;
-                        machineInfoText.setModelObject( getMachineInformation( machine ) );
+                        machineInfoText.setModelObject(getMachineInformation(machine));
 
-                        target.add( machineInfoDialogForm );
+                        target.add(machineInfoDialogForm);
                     }
-                } );
+                });
             }
         };
-        machinesForm.add( machinesTable );
+        machinesForm.add(machinesTable);
 
-        AjaxButton saveMachineAliasesButton = new AjaxButton( "saveMachineAliasesButton" ) {
+        AjaxButton saveMachineAliasesButton = new AjaxButton("saveMachineAliasesButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -232,41 +232,41 @@ public class MachinesPage extends LightweightBasePage {
                                   AjaxRequestTarget target,
                                   Form<?> form ) {
 
-                if( !form.isSubmitted() ) {
+                if (!form.isSubmitted()) {
                     return;
                 }
 
-                for( Machine machine : machines ) {
+                for (Machine machine : machines) {
 
-                    String newMachineAlias = machineModels.get( machine.machineId ).getObject();
-                    if( newMachineAlias != null ) {
+                    String newMachineAlias = machineModels.get(machine.machineId).getObject();
+                    if (newMachineAlias != null) {
                         newMachineAlias = newMachineAlias.trim();
                     }
-                    if( ( newMachineAlias == null && machine.alias != null )
-                        || ( newMachineAlias != null && !newMachineAlias.equals( machine.alias ) ) ) {
+                    if ( (newMachineAlias == null && machine.alias != null)
+                         || (newMachineAlias != null && !newMachineAlias.equals(machine.alias))) {
 
                         machine.alias = newMachineAlias;
                         try {
-                            getTESession().getDbWriteConnection().updateMachineAlias( machine );
-                        } catch( DatabaseAccessException e ) {
-                            LOG.error( "Can't update alias of machine '" + machine.name + "'", e );
-                            target.appendJavaScript( "alert('There was an error while updating the machine aliases!');" );
+                            getTESession().getDbWriteConnection().updateMachineAlias(machine);
+                        } catch (DatabaseAccessException e) {
+                            LOG.error("Can't update alias of machine '" + machine.name + "'", e);
+                            target.appendJavaScript("alert('There was an error while updating the machine aliases!');");
                             return;
                         }
                     }
                 }
-                target.appendJavaScript( "alert('The machine aliases were successfully updated.');" );
+                target.appendJavaScript("alert('The machine aliases were successfully updated.');");
             }
         };
 
         boolean hasMachines = machines.size() > 0;
 
-        machinesTable.setVisible( hasMachines );
-        saveMachineAliasesButton.setVisible( hasMachines );
-        noMachinesLabel.setVisible( !hasMachines );
+        machinesTable.setVisible(hasMachines);
+        saveMachineAliasesButton.setVisible(hasMachines);
+        noMachinesLabel.setVisible(!hasMachines);
 
-        machinesForm.add( saveMachineAliasesButton );
-        machinesForm.add( noMachinesLabel );
+        machinesForm.add(saveMachineAliasesButton);
+        machinesForm.add(noMachinesLabel);
 
         return machinesForm;
     }

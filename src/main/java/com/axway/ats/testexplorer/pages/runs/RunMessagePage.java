@@ -33,32 +33,32 @@ public class RunMessagePage extends BasePage {
 
     public RunMessagePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        String runId = TestExplorerUtils.extractPageParameter( parameters, "runId" );
-        if( runId != null ) {
+        String runId = TestExplorerUtils.extractPageParameter(parameters, "runId");
+        if (runId != null) {
             MessagesPanel.isRun = true;
-            add( new MessagesPanel( "run_message_info", runId ) );
+            add(new MessagesPanel("run_message_info", runId));
         }
 
         // organize navigation links
         PageNavigation navigation = null;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection().getNavigationForSuite( runId );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get navigation data for suites with runId=" + runId, e );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection().getNavigationForSuite(runId);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get navigation data for suites with runId=" + runId, e);
         }
 
-        if( navigation != null ) {
-            addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
-            addNavigationLink( RunsPage.class,
-                               getRunsPageParameters( parameters ),
-                               "Runs",
-                               navigation.getRunName() );
-            addNavigationLink( SuitesPage.class,
-                               getSuitesPageParameters( parameters, runId ),
-                               "Suites",
-                               "ALL" );
+        if (navigation != null) {
+            addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
+            addNavigationLink(RunsPage.class,
+                              getRunsPageParameters(parameters),
+                              "Runs",
+                              navigation.getRunName());
+            addNavigationLink(SuitesPage.class,
+                              getSuitesPageParameters(parameters, runId),
+                              "Suites",
+                              "ALL");
         }
 
     }
@@ -68,8 +68,8 @@ public class RunMessagePage extends BasePage {
                                                     String runId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "runId", runId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("runId", runId);
         return newParams;
     }
 
@@ -77,7 +77,7 @@ public class RunMessagePage extends BasePage {
                                                   PageParameters parameters ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
+        newParams.add("dbname", parameters.get("dbname"));
         return newParams;
     }
 

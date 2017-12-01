@@ -29,7 +29,7 @@ import com.inmethod.grid.datagrid.DataGrid;
  * configured pragmatically by setting it as the model object of the label.
  *
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class NavigatorLabel extends Label {
 
     private static final long serialVersionUID = 1L;
@@ -44,19 +44,19 @@ public class NavigatorLabel extends Label {
                            final DataGrid table,
                            String whatIsShowing ) {
 
-        super( id );
-        if( whatIsShowing == null ) {
+        super(id);
+        if (whatIsShowing == null) {
             whatIsShowing = "";
         }
-        StringResourceModel stringResourceMode = new StringResourceModel( "NavigatorLabel",
-                                                                          this,
-                                                                          new Model( new LabelModelObject( table ) ) );
-        stringResourceMode.setParameters( whatIsShowing + " from ${from} to ${to} (of ${of})" );
-        
-        setDefaultModel( stringResourceMode );
+        StringResourceModel stringResourceMode = new StringResourceModel("NavigatorLabel",
+                                                                         this,
+                                                                         new Model(new LabelModelObject(table)));
+        stringResourceMode.setParameters(whatIsShowing + " from ${from} to ${to} (of ${of})");
+
+        setDefaultModel(stringResourceMode);
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings( "unused")
     private class LabelModelObject implements IClusterable {
 
         private static final long serialVersionUID = 1L;
@@ -78,10 +78,10 @@ public class NavigatorLabel extends Label {
          */
         public String getOf() {
 
-            int total = ( int ) table.getTotalRowCount();
+            int total = (int) table.getTotalRowCount();
             return total != -1
-                              ? "" + total
-                              : getString( "unknown", null, "unknown" );
+                               ? "" + total
+                               : getString("unknown", null, "unknown");
         }
 
         /**
@@ -89,10 +89,10 @@ public class NavigatorLabel extends Label {
          */
         public int getFrom() {
 
-            if( table.getTotalRowCount() == 0 ) {
+            if (table.getTotalRowCount() == 0) {
                 return 0;
             }
-            return ( int ) ( ( table.getCurrentPage() * table.getRowsPerPage() ) + 1 );
+            return (int) ( (table.getCurrentPage() * table.getRowsPerPage()) + 1);
         }
 
         /**
@@ -100,10 +100,10 @@ public class NavigatorLabel extends Label {
          */
         public int getTo() {
 
-            if( table.getTotalRowCount() == 0 ) {
+            if (table.getTotalRowCount() == 0) {
                 return 0;
             } else {
-                return ( int ) ( getFrom() + table.getCurrentPageItemCount() - 1 );
+                return (int) (getFrom() + table.getCurrentPageItemCount() - 1);
             }
         }
 

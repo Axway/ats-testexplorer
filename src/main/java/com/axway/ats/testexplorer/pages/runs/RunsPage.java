@@ -26,11 +26,11 @@ public class RunsPage extends BasePage {
 
     public RunsPage( PageParameters parameters ) {
 
-        super( parameters );
-        add( new RunsPanel( "runs_info", this, parameters ) );
-        
+        super(parameters);
+        add(new RunsPanel("runs_info", this, parameters));
+
         // organize navigation links
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
     }
 
     @Override

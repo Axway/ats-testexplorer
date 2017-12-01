@@ -56,12 +56,12 @@ import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescripti
 import com.axway.ats.testexplorer.pages.testcase.statistics.MachineDescription;
 import com.axway.ats.testexplorer.pages.testcase.statistics.StatisticsTableCell;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings( { "unchecked", "rawtypes" })
 public class ChartsPanel extends BaseStatisticsPanel {
 
     private static final long                         serialVersionUID        = 1L;
 
-    private static final Logger                       LOG                     = Logger.getLogger( ChartsPanel.class );
+    private static final Logger                       LOG                     = Logger.getLogger(ChartsPanel.class);
 
     private static final String                       NBSP                    = "&nbsp;";
     private static final int                          MAX_LABEL_LENGTH        = 130;
@@ -86,20 +86,20 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
     public ChartsPanel( String id, PageParameters parameters ) {
 
-        super( id );
+        super(id);
 
         // get all parameters from the URL
-        parsePageParameters( parameters );
+        parsePageParameters(parameters);
 
-        systemStatisticsPanel = new DataPanel( this, "System statistics", "system" );
-        userStatisticsPanel = new DataPanel( this, "User activities", "user" );
-        actionStatisticsPanel = new DataPanel( this, "Action responses", "checkpoint" );
+        systemStatisticsPanel = new DataPanel(this, "System statistics", "system");
+        userStatisticsPanel = new DataPanel(this, "User activities", "user");
+        actionStatisticsPanel = new DataPanel(this, "Action responses", "checkpoint");
 
-        loadStatisticDescriptions( this.timeOffSet, false );
+        loadStatisticDescriptions(this.timeOffSet, false);
         calculateTestcaseStarttimeDeltas();
 
-        chartsPanelContent = new Form( "chartsPanelContent" );
-        chartsPanelContent.setOutputMarkupId( true );
+        chartsPanelContent = new Form("chartsPanelContent");
+        chartsPanelContent.setOutputMarkupId(true);
 
         // load the statistics data from the database
         getSystemStatistics();
@@ -107,41 +107,41 @@ public class ChartsPanel extends BaseStatisticsPanel {
         getActionStatistics();
 
         ListView chartListView = getChartListViewComponent();
-        chartListView.setOutputMarkupId( true );
+        chartListView.setOutputMarkupId(true);
 
         Component detailedStatisticDescriptions = getStatisticsDetailsComponent();
-        detailedStatisticDescriptions.setOutputMarkupId( true );
+        detailedStatisticDescriptions.setOutputMarkupId(true);
 
-        chartsPanelContent.add( chartListView );
-        chartsPanelContent.add( detailedStatisticDescriptions );
-        add( chartsPanelContent.setOutputMarkupId( true ) );
+        chartsPanelContent.add(chartListView);
+        chartsPanelContent.add(detailedStatisticDescriptions);
+        add(chartsPanelContent.setOutputMarkupId(true));
     }
 
     private void parsePageParameters( PageParameters parameters ) {
 
-        for( NamedPair attr : parameters.getAllNamed() ) {
-            if( "timeOffSet".equals( attr.getKey() ) ) {
-                if( attr.getValue() != null && !attr.getValue().isEmpty() ) {
-                    this.timeOffSet = Float.parseFloat( attr.getValue().toString() );
+        for (NamedPair attr : parameters.getAllNamed()) {
+            if ("timeOffSet".equals(attr.getKey())) {
+                if (attr.getValue() != null && !attr.getValue().isEmpty()) {
+                    this.timeOffSet = Float.parseFloat(attr.getValue().toString());
                 }
-            } else if( !"dbname".equals( attr.getKey() ) && !"currentTestcase".equals( attr.getKey() ) ) {
+            } else if (!"dbname".equals(attr.getKey()) && !"currentTestcase".equals(attr.getKey())) {
                 List<DbStatisticDescription> sysUserStats = new ArrayList<DbStatisticDescription>();
                 List<DbStatisticDescription> actionStats = new ArrayList<DbStatisticDescription>();
-                for( String stat : attr.getValue().toString().split( "," ) ) {
-                    DbStatisticDescription statData = DbStatisticDescription.fromURL( stat );
-                    testcaseIds.add( statData.testcaseId );
-                    if( statData.statisticId != -1 ) {
-                        sysUserStats.add( statData );
+                for (String stat : attr.getValue().toString().split(",")) {
+                    DbStatisticDescription statData = DbStatisticDescription.fromURL(stat);
+                    testcaseIds.add(statData.testcaseId);
+                    if (statData.statisticId != -1) {
+                        sysUserStats.add(statData);
                     } else {
-                        actionNames.add( statData.name );
-                        actionStats.add( statData );
+                        actionNames.add(statData.name);
+                        actionStats.add(statData);
                     }
                 }
-                if( !sysUserStats.isEmpty() ) {
-                    userAndSystemStatistics.put( attr.getKey(), sysUserStats );
+                if (!sysUserStats.isEmpty()) {
+                    userAndSystemStatistics.put(attr.getKey(), sysUserStats);
                 }
-                if( !actionStats.isEmpty() ) {
-                    actionStatistics.put( attr.getKey(), actionStats );
+                if (!actionStats.isEmpty()) {
+                    actionStatistics.put(attr.getKey(), actionStats);
                 }
             }
         }
@@ -150,20 +150,20 @@ public class ChartsPanel extends BaseStatisticsPanel {
     @Override
     protected List<StatisticDescription> loadSystemAndUserStatisticDescriptions( float timeOffSet ) {
 
-        if( !userAndSystemStatistics.isEmpty() ) {
+        if (!userAndSystemStatistics.isEmpty()) {
             StringBuilder uniqueStatisticIds = new StringBuilder();
-            for( Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet() ) {
-                for( DbStatisticDescription stat : statsData.getValue() ) {
-                    if( stat.statisticId != -1 ) {
-                        uniqueStatisticIds.append( stat.statisticId ).append( "," );
+            for (Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet()) {
+                for (DbStatisticDescription stat : statsData.getValue()) {
+                    if (stat.statisticId != -1) {
+                        uniqueStatisticIds.append(stat.statisticId).append(",");
                     }
                 }
             }
-            if( uniqueStatisticIds.length() <= 0 ) {
+            if (uniqueStatisticIds.length() <= 0) {
                 return new ArrayList<StatisticDescription>();
             }
-            uniqueStatisticIds.setLength( uniqueStatisticIds.length() - 1 );
-            String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
+            uniqueStatisticIds.setLength(uniqueStatisticIds.length() - 1);
+            String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
             try {
                 String whereClause = "where ss.testcaseId in ( " + uniqueTestcaseIds
                                      + " ) and ss.statsTypeId in ( " + uniqueStatisticIds + " )";
@@ -172,14 +172,14 @@ public class ChartsPanel extends BaseStatisticsPanel {
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
-                                                                                 .getSystemStatisticDescriptions( timeOffSet,
-                                                                                                                  whereClause,
-                                                                                                                  new HashMap<String, String>(),
-                                                                                                                  0/* ( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
-                                                                                                                  ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
+                                                                                 .getSystemStatisticDescriptions(timeOffSet,
+                                                                                                                 whereClause,
+                                                                                                                 new HashMap<String, String>(),
+                                                                                                                 0/* ( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                                                 ((TestExplorerSession) Session.get()).isDayLightSavingOn());
                 return statisticDescriptions;
-            } catch( DatabaseAccessException e ) {
-                LOG.error( "Error loading system statistic descriptions", e );
+            } catch (DatabaseAccessException e) {
+                LOG.error("Error loading system statistic descriptions", e);
                 return new ArrayList<StatisticDescription>();
             }
         } else {
@@ -190,28 +190,28 @@ public class ChartsPanel extends BaseStatisticsPanel {
     @Override
     protected List<StatisticDescription> loadChechpointStatisticDescriptions( float timeOffSet ) {
 
-        if( !actionStatistics.isEmpty() ) {
-            String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
+        if (!actionStatistics.isEmpty()) {
+            String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
             StringBuilder actions = new StringBuilder();
             StringBuilder actionParents = new StringBuilder();
             Set<String> expectedActions = new HashSet<String>();
-            for( List<DbStatisticDescription> actionList : actionStatistics.values() ) {
-                for( DbStatisticDescription action : actionList ) {
-                    if( !actions.toString().contains( "'" + action.name + "'" ) ) {
-                        actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
+            for (List<DbStatisticDescription> actionList : actionStatistics.values()) {
+                for (DbStatisticDescription action : actionList) {
+                    if (!actions.toString().contains("'" + action.name + "'")) {
+                        actions.append("'").append(action.name).append("'").append(",");
                     }
-                    if( !actionParents.toString().contains( "'" + action.parentName + "'" ) ) {
-                        actionParents.append( "'" ).append( action.parentName ).append( "'," );
+                    if (!actionParents.toString().contains("'" + action.parentName + "'")) {
+                        actionParents.append("'").append(action.parentName).append("',");
                     }
-                    expectedActions.add( action.testcaseId + "->" + action.machineId + "->"
-                                         + action.parentName + "->" + action.name );
+                    expectedActions.add(action.testcaseId + "->" + action.machineId + "->"
+                                        + action.parentName + "->" + action.name);
                 }
             }
-            if( actions.toString().endsWith( "," ) ) {
-                actions.setLength( actions.length() - 1 );
+            if (actions.toString().endsWith(",")) {
+                actions.setLength(actions.length() - 1);
             }
-            if( actionParents.toString().endsWith( "," ) ) {
-                actionParents.setLength( actionParents.length() - 1 );
+            if (actionParents.toString().endsWith(",")) {
+                actionParents.setLength(actionParents.length() - 1);
             }
             try {
                 String whereClause = " where tt.testcaseId in (" + uniqueTestcaseIds + ") AND chs.name in ( "
@@ -221,14 +221,14 @@ public class ChartsPanel extends BaseStatisticsPanel {
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
-                                                                                 .getCheckpointStatisticDescriptions( this.timeOffSet,
-                                                                                                                      whereClause,
-                                                                                                                      expectedActions,
-                                                                                                                      0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
-                                                                                                                      ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
+                                                                                 .getCheckpointStatisticDescriptions(this.timeOffSet,
+                                                                                                                     whereClause,
+                                                                                                                     expectedActions,
+                                                                                                                     0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                                                     ((TestExplorerSession) Session.get()).isDayLightSavingOn());
                 return statisticDescriptions;
-            } catch( DatabaseAccessException e ) {
-                LOG.error( "Error loading action response statistic descriptions", e );
+            } catch (DatabaseAccessException e) {
+                LOG.error("Error loading action response statistic descriptions", e);
                 return new ArrayList<StatisticDescription>();
             }
         } else {
@@ -241,50 +241,50 @@ public class ChartsPanel extends BaseStatisticsPanel {
         // update the content of the ListView container
         refreshDiagramContent();
 
-        final List<String> charts = new ArrayList<String>( diagramContent.keySet() );
+        final List<String> charts = new ArrayList<String>(diagramContent.keySet());
 
-        return new ListView( "chartsListView", charts ) {
+        return new ListView("chartsListView", charts) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem( final ListItem item ) {
 
-                String diagramName = charts.get( item.getIndex() );
+                String diagramName = charts.get(item.getIndex());
                 List<ChartData> chartData = new ArrayList<ChartData>();
-                for( DbStatisticDescription stat : diagramContent.get( diagramName ) ) {
-                    chartData.add( stat.getChartData() );
+                for (DbStatisticDescription stat : diagramContent.get(diagramName)) {
+                    chartData.add(stat.getChartData());
                 }
 
-                Label chartTitle = new Label( "chartTitle", diagramName );
-                item.add( chartTitle );
+                Label chartTitle = new Label("chartTitle", diagramName);
+                item.add(chartTitle);
 
-                final String chartScript = getChartScript( chartData, chartId++ );
-                final Label chart = new Label( "chartScriptContainer", chartScript );
-                chart.setEscapeModelStrings( false );
+                final String chartScript = getChartScript(chartData, chartId++);
+                final Label chart = new Label("chartScriptContainer", chartScript);
+                chart.setEscapeModelStrings(false);
 
-                CsvWriter csvWriter = new CsvWriter( chartData );
+                CsvWriter csvWriter = new CsvWriter(chartData);
                 DownloadLink downloadChartDataLink = csvWriter.getDownloadChartDataLink();
 
-                AjaxLink refreshButton = getRefreshChartLink( charts.get( item.getIndex() ) );
+                AjaxLink refreshButton = getRefreshChartLink(charts.get(item.getIndex()));
 
-                item.add( chart );
-                item.add( downloadChartDataLink );
-                item.add( refreshButton );
+                item.add(chart);
+                item.add(downloadChartDataLink);
+                item.add(refreshButton);
             }
         };
     }
 
     private AjaxLink<?> getRefreshChartLink( final String diagramName ) {
 
-        AjaxLink refreshChartLink = new AjaxLink( "refreshChart" ) {
+        AjaxLink refreshChartLink = new AjaxLink("refreshChart") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             public void onClick( AjaxRequestTarget target ) {
 
-                List<DbStatisticDescription> dataToBeUpdated = diagramContent.get( diagramName );
+                List<DbStatisticDescription> dataToBeUpdated = diagramContent.get(diagramName);
                 Set<Integer> sysStatisticTypeIds = new HashSet<Integer>();
                 Set<Integer> sysMachineIds = new HashSet<Integer>();
                 Set<Integer> usrStatisticTypeIds = new HashSet<Integer>();
@@ -295,32 +295,32 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 Set<String> expectedActions = new HashSet<String>();
 
                 // collect all the data from this diagram, so all statistics could be updated successfully
-                for( DbStatisticDescription dbStatDescription : dataToBeUpdated ) {
-                    testcaseIds.add( dbStatDescription.testcaseId );
-                    if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( dbStatDescription.machineName ) ) {
-                        usrStatisticTypeIds.add( dbStatDescription.statisticId );
-                        usrMachineIds.add( dbStatDescription.machineId );
-                    } else if( dbStatDescription.machineId != 0 ) {
-                        sysStatisticTypeIds.add( dbStatDescription.statisticId );
-                        sysMachineIds.add( dbStatDescription.machineId );
+                for (DbStatisticDescription dbStatDescription : dataToBeUpdated) {
+                    testcaseIds.add(dbStatDescription.testcaseId);
+                    if (SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals(dbStatDescription.machineName)) {
+                        usrStatisticTypeIds.add(dbStatDescription.statisticId);
+                        usrMachineIds.add(dbStatDescription.machineId);
+                    } else if (dbStatDescription.machineId != 0) {
+                        sysStatisticTypeIds.add(dbStatDescription.statisticId);
+                        sysMachineIds.add(dbStatDescription.machineId);
                     } else {
-                        actions.append( "'" ).append( dbStatDescription.name ).append( "'" ).append( "," );
-                        if( actionParents.indexOf( dbStatDescription.parentName ) == -1 ) {
-                            actionParents.append( "'" ).append( dbStatDescription.parentName ).append( "'," );
+                        actions.append("'").append(dbStatDescription.name).append("'").append(",");
+                        if (actionParents.indexOf(dbStatDescription.parentName) == -1) {
+                            actionParents.append("'").append(dbStatDescription.parentName).append("',");
                         }
-                        expectedActions.add( dbStatDescription.testcaseId + "->" + dbStatDescription.machineId
-                                             + "->" + dbStatDescription.parentName + "->"
-                                             + dbStatDescription.name );
+                        expectedActions.add(dbStatDescription.testcaseId + "->" + dbStatDescription.machineId
+                                            + "->" + dbStatDescription.parentName + "->"
+                                            + dbStatDescription.name);
                     }
                 }
 
-                loadActionStatisticsFromDatabase( testcaseIds, actions, actionParents, expectedActions );
-                loadSystemStatisticsFromDatabase( sysStatisticTypeIds, sysMachineIds );
-                loadUserStatisticsFromDatabase( usrStatisticTypeIds, usrMachineIds );
+                loadActionStatisticsFromDatabase(testcaseIds, actions, actionParents, expectedActions);
+                loadSystemStatisticsFromDatabase(sysStatisticTypeIds, sysMachineIds);
+                loadUserStatisticsFromDatabase(usrStatisticTypeIds, usrMachineIds);
 
                 refreshDiagramContent();
 
-                target.add( chartsPanelContent );
+                target.add(chartsPanelContent);
             }
         };
         return refreshChartLink;
@@ -331,21 +331,21 @@ public class ChartsPanel extends BaseStatisticsPanel {
         // remove the old content
         diagramContent.clear();
 
-        for( Entry<String, List<DbStatisticDescription>> stat : userAndSystemStatistics.entrySet() ) {
-            if( diagramContent.containsKey( stat.getKey() ) ) {
-                diagramContent.get( stat.getKey() ).addAll( stat.getValue() );
+        for (Entry<String, List<DbStatisticDescription>> stat : userAndSystemStatistics.entrySet()) {
+            if (diagramContent.containsKey(stat.getKey())) {
+                diagramContent.get(stat.getKey()).addAll(stat.getValue());
             } else {
-                List<DbStatisticDescription> statistics = new ArrayList<DbStatisticDescription>( stat.getValue() );
-                diagramContent.put( stat.getKey(), statistics );
+                List<DbStatisticDescription> statistics = new ArrayList<DbStatisticDescription>(stat.getValue());
+                diagramContent.put(stat.getKey(), statistics);
             }
         }
 
-        for( Entry<String, List<DbStatisticDescription>> stat : actionStatistics.entrySet() ) {
-            if( diagramContent.containsKey( stat.getKey() ) ) {
-                diagramContent.get( stat.getKey() ).addAll( stat.getValue() );
+        for (Entry<String, List<DbStatisticDescription>> stat : actionStatistics.entrySet()) {
+            if (diagramContent.containsKey(stat.getKey())) {
+                diagramContent.get(stat.getKey()).addAll(stat.getValue());
             } else {
-                List<DbStatisticDescription> statistics = new ArrayList<DbStatisticDescription>( stat.getValue() );
-                diagramContent.put( stat.getKey(), statistics );
+                List<DbStatisticDescription> statistics = new ArrayList<DbStatisticDescription>(stat.getValue());
+                diagramContent.put(stat.getKey(), statistics);
             }
         }
     }
@@ -354,48 +354,48 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
         Set<Integer> sysStatisticIds = new HashSet<Integer>();
         Set<Integer> sysMachineIds = new HashSet<Integer>();
-        for( MachineDescription machDesc : systemStatisticsPanel.getMachineDescriptions() ) {
-            for( DbStatisticDescription statDesc : machDesc.getStatDescriptionsList() ) {
-                if( !SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
-                    for( Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet() ) {
-                        for( DbStatisticDescription dbStatDescription : statsData.getValue() ) {
-                            if( dbStatDescription.statisticId != -1
+        for (MachineDescription machDesc : systemStatisticsPanel.getMachineDescriptions()) {
+            for (DbStatisticDescription statDesc : machDesc.getStatDescriptionsList()) {
+                if (!SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals(statDesc.machineName)) {
+                    for (Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet()) {
+                        for (DbStatisticDescription dbStatDescription : statsData.getValue()) {
+                            if (dbStatDescription.statisticId != -1
                                 && statDesc.testcaseId == dbStatDescription.testcaseId
                                 && statDesc.statisticId == dbStatDescription.statisticId
-                                && statDesc.machineId == dbStatDescription.machineId ) {
-                                sysStatisticIds.add( dbStatDescription.statisticId );
-                                sysMachineIds.add( dbStatDescription.machineId );
+                                && statDesc.machineId == dbStatDescription.machineId) {
+                                sysStatisticIds.add(dbStatDescription.statisticId);
+                                sysMachineIds.add(dbStatDescription.machineId);
                             }
                         }
                     }
                 }
             }
         }
-        loadSystemStatisticsFromDatabase( sysStatisticIds, sysMachineIds );
+        loadSystemStatisticsFromDatabase(sysStatisticIds, sysMachineIds);
     }
 
     private void getUserStatistics() {
 
         Set<Integer> userStatisticIds = new HashSet<Integer>();
         Set<Integer> userMachineIds = new HashSet<Integer>();
-        for( MachineDescription machDesc : userStatisticsPanel.getMachineDescriptions() ) {
-            for( DbStatisticDescription statDesc : machDesc.getStatDescriptionsList() ) {
-                if( SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals( statDesc.machineName ) ) {
-                    for( Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet() ) {
-                        for( DbStatisticDescription dbStatDescription : statsData.getValue() ) {
-                            if( dbStatDescription.statisticId != -1
+        for (MachineDescription machDesc : userStatisticsPanel.getMachineDescriptions()) {
+            for (DbStatisticDescription statDesc : machDesc.getStatDescriptionsList()) {
+                if (SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equals(statDesc.machineName)) {
+                    for (Entry<String, List<DbStatisticDescription>> statsData : userAndSystemStatistics.entrySet()) {
+                        for (DbStatisticDescription dbStatDescription : statsData.getValue()) {
+                            if (dbStatDescription.statisticId != -1
                                 && statDesc.testcaseId == dbStatDescription.testcaseId
                                 && statDesc.statisticId == dbStatDescription.statisticId
-                                && statDesc.machineId == dbStatDescription.machineId ) {
-                                userStatisticIds.add( dbStatDescription.statisticId );
-                                userMachineIds.add( dbStatDescription.machineId );
+                                && statDesc.machineId == dbStatDescription.machineId) {
+                                userStatisticIds.add(dbStatDescription.statisticId);
+                                userMachineIds.add(dbStatDescription.machineId);
                             }
                         }
                     }
                 }
             }
         }
-        loadUserStatisticsFromDatabase( userStatisticIds, userMachineIds );
+        loadUserStatisticsFromDatabase(userStatisticIds, userMachineIds);
     }
 
     private void getActionStatistics() {
@@ -403,101 +403,101 @@ public class ChartsPanel extends BaseStatisticsPanel {
         StringBuilder actions = new StringBuilder();
         StringBuilder actionParents = new StringBuilder();
         Set<String> expectedActions = new HashSet<String>();
-        for( List<DbStatisticDescription> actionList : actionStatistics.values() ) {
-            for( DbStatisticDescription action : actionList ) {
-                if( !actions.toString().contains( "'" + action.name + "'" ) ) {
-                    actions.append( "'" ).append( action.name ).append( "'" ).append( "," );
+        for (List<DbStatisticDescription> actionList : actionStatistics.values()) {
+            for (DbStatisticDescription action : actionList) {
+                if (!actions.toString().contains("'" + action.name + "'")) {
+                    actions.append("'").append(action.name).append("'").append(",");
                 }
-                if( !actionParents.toString().contains( "'" + action.parentName + "'" ) ) {
-                    actionParents.append( "'" ).append( action.parentName ).append( "'," );
+                if (!actionParents.toString().contains("'" + action.parentName + "'")) {
+                    actionParents.append("'").append(action.parentName).append("',");
                 }
-                expectedActions.add( action.testcaseId + "->" + action.machineId + "->" + action.parentName
-                                     + "->" + action.name );
+                expectedActions.add(action.testcaseId + "->" + action.machineId + "->" + action.parentName
+                                    + "->" + action.name);
             }
         }
-        loadActionStatisticsFromDatabase( testcaseIds, actions, actionParents, expectedActions );
+        loadActionStatisticsFromDatabase(testcaseIds, actions, actionParents, expectedActions);
     }
 
     private void loadSystemStatisticsFromDatabase( Set<Integer> statisticTypeIds, Set<Integer> machineIds ) {
 
         try {
-            if( !machineIds.isEmpty() && !statisticTypeIds.isEmpty() ) {
-                String uniqueStatisticIds = StringUtils.join( statisticTypeIds, "," );
-                String uniqueMachineIds = StringUtils.join( machineIds, "," );
-                String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
+            if (!machineIds.isEmpty() && !statisticTypeIds.isEmpty()) {
+                String uniqueStatisticIds = StringUtils.join(statisticTypeIds, ",");
+                String uniqueMachineIds = StringUtils.join(machineIds, ",");
+                String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
 
                 /* 
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
-                                                           .getSystemStatistics( timeOffSet,
-                                                                                 uniqueTestcaseIds,
-                                                                                 uniqueMachineIds,
-                                                                                 uniqueStatisticIds,
-                                                                                 0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
-                                                                                 ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
-                if( statistics.size() > 0 ) {
+                                                           .getSystemStatistics(timeOffSet,
+                                                                                uniqueTestcaseIds,
+                                                                                uniqueMachineIds,
+                                                                                uniqueStatisticIds,
+                                                                                0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
+                                                                                ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                if (statistics.size() > 0) {
                     // convert statistics data into chart data
-                    setChartData( systemStatisticsDataToChart( statistics, false, systemStatisticsPanel ),
-                                  false );
+                    setChartData(systemStatisticsDataToChart(statistics, false, systemStatisticsPanel),
+                                 false);
 
                 }
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't load system statistics from database", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't load system statistics from database", e);
         }
     }
 
     private void loadUserStatisticsFromDatabase( Set<Integer> statisticTypeIds, Set<Integer> machineIds ) {
 
         try {
-            if( !machineIds.isEmpty() && !statisticTypeIds.isEmpty() ) {
-                String uniqueStatisticIds = StringUtils.join( statisticTypeIds, "," );
-                String uniqueMachineIds = StringUtils.join( machineIds, "," );
-                String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
+            if (!machineIds.isEmpty() && !statisticTypeIds.isEmpty()) {
+                String uniqueStatisticIds = StringUtils.join(statisticTypeIds, ",");
+                String uniqueMachineIds = StringUtils.join(machineIds, ",");
+                String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
 
                 /* 
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
-                                                           .getSystemStatistics( timeOffSet,
-                                                                                 uniqueTestcaseIds,
-                                                                                 uniqueMachineIds,
-                                                                                 uniqueStatisticIds,
-                                                                                 0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
-                                                                                 ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn());
-                if( statistics.size() > 0 ) {
+                                                           .getSystemStatistics(timeOffSet,
+                                                                                uniqueTestcaseIds,
+                                                                                uniqueMachineIds,
+                                                                                uniqueStatisticIds,
+                                                                                0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                if (statistics.size() > 0) {
                     // convert statistics data into chart data
-                    setChartData( systemStatisticsDataToChart( statistics, true, userStatisticsPanel ),
-                                  true );
+                    setChartData(systemStatisticsDataToChart(statistics, true, userStatisticsPanel),
+                                 true);
 
                 }
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't load system statistics from database", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't load system statistics from database", e);
         }
     }
 
     private void setChartData( Collection<ChartData> statisticsChartData, boolean userStatistics ) {
 
-        for( List<DbStatisticDescription> stats : userAndSystemStatistics.values() ) {
-            for( DbStatisticDescription stat : stats ) {
+        for (List<DbStatisticDescription> stats : userAndSystemStatistics.values()) {
+            for (DbStatisticDescription stat : stats) {
                 Iterator<ChartData> chartDataIterator = statisticsChartData.iterator();
-                while( chartDataIterator.hasNext() ) {
+                while (chartDataIterator.hasNext()) {
                     ChartData chartData = chartDataIterator.next();
-                    if( chartData.getTestcaseId() == stat.testcaseId
+                    if (chartData.getTestcaseId() == stat.testcaseId
                         && chartData.getStatisticTypeId() == stat.statisticId
-                        && chartData.getMachineId() == stat.machineId ) {
+                        && chartData.getMachineId() == stat.machineId) {
                         ChartData chartDataCopy = chartData.newInstance();
-                        if( !stat.alias.equals( "null" ) && !stat.alias.isEmpty() ) {
-                            chartDataCopy.setLabel( stat.alias );
+                        if (!stat.alias.equals("null") && !stat.alias.isEmpty()) {
+                            chartDataCopy.setLabel(stat.alias);
                         }
-                        if( userStatistics ) {
+                        if (userStatistics) {
                             stat.machineName = SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS;
                         }
-                        stat.setChartData( chartDataCopy );
+                        stat.setChartData(chartDataCopy);
                         break;
                     }
                 }
@@ -510,53 +510,54 @@ public class ChartsPanel extends BaseStatisticsPanel {
                                                    Set<String> expectedActions ) {
 
         try {
-            String uniqueTestcaseIds = StringUtils.join( testcaseIds, "," );
-            if( actions.length() > 0 && actionParents.length() > 0 ) {
-                actions.setLength( actions.length() - 1 );
-                actionParents.setLength( actionParents.length() - 1 );
+            String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
+            if (actions.length() > 0 && actionParents.length() > 0) {
+                actions.setLength(actions.length() - 1);
+                actionParents.setLength(actionParents.length() - 1);
 
                 /* 
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<Statistic> statistics = getTESession().getDbReadConnection()
-                                                           .getCheckpointStatistics( timeOffSet,
-                                                                                     uniqueTestcaseIds,
-                                                                                     actions.toString(),
-                                                                                     actionParents.toString(),
-                                                                                     expectedActions,
-                                                                                     new HashSet<String>(),
-                                                                                     0/*((TestExplorerSession)Session.get()).getTimeOffset() */,
-                                                                                     ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
-                if( statistics.size() > 0 ) {
+                                                           .getCheckpointStatistics(timeOffSet,
+                                                                                    uniqueTestcaseIds,
+                                                                                    actions.toString(),
+                                                                                    actionParents.toString(),
+                                                                                    expectedActions,
+                                                                                    new HashSet<String>(),
+                                                                                    0/*((TestExplorerSession)Session.get()).getTimeOffset() */,
+                                                                                    ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                if (statistics.size() > 0) {
                     List<ChartData> statisticsChartData = new ArrayList<ChartData>();
                     // convert statistics data into chart data
-                    statisticsChartData.addAll( addActionStatisticsDataToChart( statistics,
-                                                                                actionStatisticsPanel ) );
-                    for( ChartData chartData : statisticsChartData ) {
-                        for( List<DbStatisticDescription> stats : actionStatistics.values() ) {
-                            for( DbStatisticDescription stat : stats ) {
-                                String statLabelName = getActionLabelName( stat.name, stat.parentName,
-                                                                           "[action response] ",
-                                                                           ", [queue] " );
+                    statisticsChartData.addAll(addActionStatisticsDataToChart(statistics,
+                                                                              actionStatisticsPanel));
+                    for (ChartData chartData : statisticsChartData) {
+                        for (List<DbStatisticDescription> stats : actionStatistics.values()) {
+                            for (DbStatisticDescription stat : stats) {
+                                String statLabelName = getActionLabelName(stat.name, stat.parentName,
+                                                                          "[action response] ",
+                                                                          ", [queue] ");
                                 statLabelName = statLabelName + " at "
-                                                + getMachineAliasForThisStatistic( stat.testcaseId,
-                                                                                   stat.machineId, actionStatisticsPanel );
-                                if( chartData.getLabel().equals( statLabelName )
-                                    && chartData.getTestcaseId() == stat.testcaseId ) {
+                                                + getMachineAliasForThisStatistic(stat.testcaseId,
+                                                                                  stat.machineId,
+                                                                                  actionStatisticsPanel);
+                                if (chartData.getLabel().equals(statLabelName)
+                                    && chartData.getTestcaseId() == stat.testcaseId) {
                                     ChartData chartDataCopy = chartData.newInstance();
-                                    if( !stat.alias.equals( "null" ) && !stat.alias.isEmpty() ) {
-                                        chartDataCopy.setLabel( stat.alias );
+                                    if (!stat.alias.equals("null") && !stat.alias.isEmpty()) {
+                                        chartDataCopy.setLabel(stat.alias);
                                     }
-                                    stat.setChartData( chartDataCopy );
+                                    stat.setChartData(chartDataCopy);
                                 }
                             }
                         }
                     }
                 }
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't load system statistics from database", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't load system statistics from database", e);
         }
     }
 
@@ -565,19 +566,19 @@ public class ChartsPanel extends BaseStatisticsPanel {
                                                                DataPanel panel ) {
 
         // add the statistics to the chart
-        if( userActivityStatistics ) {
-            return addChartData( null, loadedSystemStatistics, ", [queue] ", panel );
+        if (userActivityStatistics) {
+            return addChartData(null, loadedSystemStatistics, ", [queue] ", panel);
         } else {
-            return addChartData( null, loadedSystemStatistics, null, panel );
+            return addChartData(null, loadedSystemStatistics, null, panel);
         }
     }
 
     private Collection<ChartData> addActionStatisticsDataToChart( List<Statistic> loadedActionStatistics,
                                                                   DataPanel panel ) {
 
-        if( loadedActionStatistics.size() > 0 ) {
+        if (loadedActionStatistics.size() > 0) {
             // add the statistics to the chart
-            return addChartData( "[action response] ", loadedActionStatistics, ", [queue] ", panel );
+            return addChartData("[action response] ", loadedActionStatistics, ", [queue] ", panel);
         } else {
             return new ArrayList<ChartData>();
         }
@@ -589,63 +590,63 @@ public class ChartsPanel extends BaseStatisticsPanel {
         // statistics are unique per testcase and statistic type
         Map<String, ChartData> chartData = new HashMap<String, ChartData>();
 
-        for( Statistic stat : statistics ) {
+        for (Statistic stat : statistics) {
 
             // add statistic prefix
-            String statDisplayName = getActionLabelName( stat.name, stat.parentName, statPrefix,
-                                                         parentPrefix );
+            String statDisplayName = getActionLabelName(stat.name, stat.parentName, statPrefix,
+                                                        parentPrefix);
 
-            ChartData data = chartData.get( stat.getUid() );
-            if( data == null ) {
-                data = new ChartData( statDisplayName,
-                                      getMachineAliasForThisStatistic( stat.testcaseId, stat.machineId,
-                                                                       panel ),
-                                      stat.unit );
-                data.setTestcaseId( stat.testcaseId );
-                data.setStatisticTypeId( stat.statisticTypeId );
-                data.setMachineId( stat.machineId );
-                chartData.put( stat.getUid(), data );
+            ChartData data = chartData.get(stat.getUid());
+            if (data == null) {
+                data = new ChartData(statDisplayName,
+                                     getMachineAliasForThisStatistic(stat.testcaseId, stat.machineId,
+                                                                     panel),
+                                     stat.unit);
+                data.setTestcaseId(stat.testcaseId);
+                data.setStatisticTypeId(stat.statisticTypeId);
+                data.setMachineId(stat.machineId);
+                chartData.put(stat.getUid(), data);
             }
 
             int displayValuesMode = 0;
-            data.addAxisValues( stat.value, stat.avgValue, stat.sumValue, stat.totalValue, stat.countValue,
-                                displayValuesMode );
+            data.addAxisValues(stat.value, stat.avgValue, stat.sumValue, stat.totalValue, stat.countValue,
+                               displayValuesMode);
 
             long statisticTimestamp = stat.getStartTimestamp();
-            if( testcaseStarttimeDeltas.containsKey( stat.testcaseId ) ) {
+            if (testcaseStarttimeDeltas.containsKey(stat.testcaseId)) {
                 // we are doing time synchronization
-                statisticTimestamp = statisticTimestamp - testcaseStarttimeDeltas.get( stat.testcaseId );
+                statisticTimestamp = statisticTimestamp - testcaseStarttimeDeltas.get(stat.testcaseId);
             }
-            data.addTimestamp( statisticTimestamp );
+            data.addTimestamp(statisticTimestamp);
         }
 
         return chartData.values();
     }
-    
+
     private String getActionLabelName( String statName, String statParentName, String statPrefix,
                                        String parentPrefix ) {
 
         String statDisplayName = "";
-        if( statPrefix != null ) {
+        if (statPrefix != null) {
             statDisplayName = statPrefix;
         }
 
         // add statistic name
-        statDisplayName = statDisplayName + clearStatName( statName );
+        statDisplayName = statDisplayName + clearStatName(statName);
 
         // add statistic parent name
-        if( parentPrefix != null ) {
+        if (parentPrefix != null) {
             statDisplayName = statDisplayName + parentPrefix
-                              + getActionQueueAliasModel( statParentName ).getObject();
+                              + getActionQueueAliasModel(statParentName).getObject();
         }
         return statDisplayName;
     }
 
     private String getMachineAliasForThisStatistic( int testcaseId, int machineId, DataPanel panel ) {
 
-        for( MachineDescription machine : panel.getMachineDescriptions() ) {
-            if( machine.getTestcaseId() == testcaseId && machine.getMachineId() == machineId ) {
-                return getMachineAliasModel( machine.getMachineAlias() ).getObject();
+        for (MachineDescription machine : panel.getMachineDescriptions()) {
+            if (machine.getTestcaseId() == testcaseId && machine.getMachineId() == machineId) {
+                return getMachineAliasModel(machine.getMachineAlias()).getObject();
             }
         }
 
@@ -655,8 +656,8 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
     private String clearStatName( String statisticName ) {
 
-        if( statisticName.contains( NBSP ) ) {
-            return statisticName.replace( NBSP, "" );
+        if (statisticName.contains(NBSP)) {
+            return statisticName.replace(NBSP, "");
         }
         return statisticName;
     }
@@ -664,22 +665,22 @@ public class ChartsPanel extends BaseStatisticsPanel {
     private String getChartScript( Collection<ChartData> statisticsChartData, int chartNumber ) {
 
         StringBuilder data = new StringBuilder();
-        data.append( "var data = [\n" );
+        data.append("var data = [\n");
         StringBuilder markersScript = new StringBuilder();
-        MutableInt markersCount = new MutableInt( 0 );
-        MutableInt statIndex = new MutableInt( 0 );
+        MutableInt markersCount = new MutableInt(0);
+        MutableInt statIndex = new MutableInt(0);
 
         // iterate selected statistics
         boolean statisticValuesArePresent = true;
-        for( ChartData chartData : statisticsChartData ) {
-            if( chartData != null ) {
+        for (ChartData chartData : statisticsChartData) {
+            if (chartData != null) {
 
-                for( int displayValueMode : StatisticAggregatedType.getAllTypes( chartData.getDisplayValuesMode() ) ) {
-                    statisticValuesArePresent = appendStatisticJSData( data, chartData, displayValueMode,
-                                                                       statIndex, markersCount, markersScript,
-                                                                       statisticsChartData.size() );
+                for (int displayValueMode : StatisticAggregatedType.getAllTypes(chartData.getDisplayValuesMode())) {
+                    statisticValuesArePresent = appendStatisticJSData(data, chartData, displayValueMode,
+                                                                      statIndex, markersCount, markersScript,
+                                                                      statisticsChartData.size());
 
-                    if( !statisticValuesArePresent ) {
+                    if (!statisticValuesArePresent) {
                         return "<div id=\"chartMsgsPanel\">'" + chartData.getLabel()
                                + "' doesn't have enough values to display the chart" + "</div>\n"
                                + NO_DATA_HTML;
@@ -687,31 +688,31 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 }
             }
         }
-        data = data.deleteCharAt( data.length() - 1 ); // delete the last comma
-        data.append( "\n];\n" );
+        data = data.deleteCharAt(data.length() - 1); // delete the last comma
+        data.append("\n];\n");
 
         StringBuilder scriptString = new StringBuilder();
-        scriptString.append( "\n<script type=\"text/javascript\">\n" );
-        scriptString.append( "$(document).ready(function(){\n" );
-        scriptString.append( "var loaded=false;\n" );
-        scriptString.append( "function onChronoscopeLoaded(chrono) {\n" );
-        scriptString.append( "\tloaded=true;\n" );
-        scriptString.append( data.toString() );
-        scriptString.append( "\tchronoscope.Chronoscope.setVerticalCrosshair(false);\n" );
-        scriptString.append( "\tchronoscope.Chronoscope.setFontBookRendering(true);\n" );
-        scriptString.append( "\tchronoscope.Chronoscope.setErrorReporting(true);\n" );
-        scriptString.append( "\tchronoscope.Chronoscope.createTimeseriesChartById(\"chartid" + chartNumber
-                             + "\",data,980,600,function(view)\n" );
-        scriptString.append( "\t\t{\n" );
-        scriptString.append( "\t\t\tvar plot=view.getChart().getPlot();\n" );
-        scriptString.append( "\t\t\tview.getChart().redraw();\n" );
-        scriptString.append( "\t\t\tlargeview=view;\n" );
-        scriptString.append( "\t\t});\n}\n" );
-        scriptString.append( "if (!loaded && typeof(chronoscope)!=\"undefined\" && chronoscope != null) onChronoscopeLoaded(chronoscope);\n" );
-        scriptString.append( "if (typeof(refreshButtonClicked)==\"undefined\" || !refreshButtonClicked) location.hash = '#chart';\n" );
-        scriptString.append( "});\n" );
-        scriptString.append( "</script>\n" );
-        scriptString.append( "<div class=\"chartid\" id=\"chartid" + chartNumber + "\"></div>\n" );
+        scriptString.append("\n<script type=\"text/javascript\">\n");
+        scriptString.append("$(document).ready(function(){\n");
+        scriptString.append("var loaded=false;\n");
+        scriptString.append("function onChronoscopeLoaded(chrono) {\n");
+        scriptString.append("\tloaded=true;\n");
+        scriptString.append(data.toString());
+        scriptString.append("\tchronoscope.Chronoscope.setVerticalCrosshair(false);\n");
+        scriptString.append("\tchronoscope.Chronoscope.setFontBookRendering(true);\n");
+        scriptString.append("\tchronoscope.Chronoscope.setErrorReporting(true);\n");
+        scriptString.append("\tchronoscope.Chronoscope.createTimeseriesChartById(\"chartid" + chartNumber
+                            + "\",data,980,600,function(view)\n");
+        scriptString.append("\t\t{\n");
+        scriptString.append("\t\t\tvar plot=view.getChart().getPlot();\n");
+        scriptString.append("\t\t\tview.getChart().redraw();\n");
+        scriptString.append("\t\t\tlargeview=view;\n");
+        scriptString.append("\t\t});\n}\n");
+        scriptString.append("if (!loaded && typeof(chronoscope)!=\"undefined\" && chronoscope != null) onChronoscopeLoaded(chronoscope);\n");
+        scriptString.append("if (typeof(refreshButtonClicked)==\"undefined\" || !refreshButtonClicked) location.hash = '#chart';\n");
+        scriptString.append("});\n");
+        scriptString.append("</script>\n");
+        scriptString.append("<div class=\"chartid\" id=\"chartid" + chartNumber + "\"></div>\n");
 
         return scriptString.toString();
     }
@@ -723,14 +724,14 @@ public class ChartsPanel extends BaseStatisticsPanel {
         String label = null;
         String unit = chartData.getUnit();
 
-        if( StatisticAggregatedType.isAverage( displayValueMode ) ) {
-            label = chartData.getLabel( "Avg" );
-        } else if( StatisticAggregatedType.isSum( displayValueMode ) ) {
-            label = chartData.getLabel( "Sum" );
-        } else if( StatisticAggregatedType.isTotals( displayValueMode ) ) {
-            label = chartData.getLabel( "Total" );
-        } else if( StatisticAggregatedType.isCount( displayValueMode ) ) {
-            label = chartData.getLabelNoUnit( "Count" );
+        if (StatisticAggregatedType.isAverage(displayValueMode)) {
+            label = chartData.getLabel("Avg");
+        } else if (StatisticAggregatedType.isSum(displayValueMode)) {
+            label = chartData.getLabel("Sum");
+        } else if (StatisticAggregatedType.isTotals(displayValueMode)) {
+            label = chartData.getLabel("Total");
+        } else if (StatisticAggregatedType.isCount(displayValueMode)) {
+            label = chartData.getLabelNoUnit("Count");
             unit = "Count";
         } else {
             label = chartData.getLabel();
@@ -738,36 +739,36 @@ public class ChartsPanel extends BaseStatisticsPanel {
 
         String timestamps = null;
         String values = null;
-        if( chartData.getLabel().startsWith( "[action response]" )
-            && displayValueMode == StatisticAggregatedType.REGULAR ) {
-            String[] tmpsAndAxisVals = chartData.getTimestampsAndAxisValuesAsString( statIndex.intValue(),
-                                                                                     actionCount );
+        if (chartData.getLabel().startsWith("[action response]")
+            && displayValueMode == StatisticAggregatedType.REGULAR) {
+            String[] tmpsAndAxisVals = chartData.getTimestampsAndAxisValuesAsString(statIndex.intValue(),
+                                                                                    actionCount);
             timestamps = tmpsAndAxisVals[0];
             values = tmpsAndAxisVals[1];
 
-            markersScript.append( chartData.getJsMarkersScript() );
-            markersCount.add( chartData.getJsMarkersCount() );
+            markersScript.append(chartData.getJsMarkersScript());
+            markersCount.add(chartData.getJsMarkersCount());
         } else {
             timestamps = chartData.getTimestampsAsString();
-            values = chartData.getAxisValuesAsString( displayValueMode );
+            values = chartData.getAxisValuesAsString(displayValueMode);
         }
 
-        if( timestamps.indexOf( ',' ) < 0 ) {
+        if (timestamps.indexOf(',') < 0) {
             // not enough values for chart
             return false;
         }
 
-        data.append( "\t{\n" );
-        data.append( "\t\t\"domainscale\": 1000,\n" );
-        data.append( "\t\t\"preferredRenderer\": \"line\",\n" );
-        if( label.length() > MAX_LABEL_LENGTH ) {
-            label = label.substring( 0, MAX_LABEL_LENGTH ) + "...";
+        data.append("\t{\n");
+        data.append("\t\t\"domainscale\": 1000,\n");
+        data.append("\t\t\"preferredRenderer\": \"line\",\n");
+        if (label.length() > MAX_LABEL_LENGTH) {
+            label = label.substring(0, MAX_LABEL_LENGTH) + "...";
         }
-        data.append( "\t\t\"label\": \"" + label + " (" + unit + ") " + "\",\n" );
-        data.append( "\t\t\"axis\": \"" + unit.replace( "&Delta;", "Δ" ) + "\", \n" );
-        data.append( "\t\t\"domain\": [" + timestamps + "],\n" );
-        data.append( "\t\t\"range\": [" + values + "],\n" );
-        data.append( "\t}," );
+        data.append("\t\t\"label\": \"" + label + " (" + unit + ") " + "\",\n");
+        data.append("\t\t\"axis\": \"" + unit.replace("&Delta;", "Δ") + "\", \n");
+        data.append("\t\t\"domain\": [" + timestamps + "],\n");
+        data.append("\t\t\"range\": [" + values + "],\n");
+        data.append("\t},");
 
         statIndex.increment();
         return true;
@@ -782,20 +783,20 @@ public class ChartsPanel extends BaseStatisticsPanel {
         List<StatisticsTableCell> columns = new ArrayList<StatisticsTableCell>();
 
         // add title
-        columns.add( new StatisticsTableCell( "<img class=\"arrowUD\" src=\"images/up.png\"> System statistic details",
-                                              false ) );
+        columns.add(new StatisticsTableCell("<img class=\"arrowUD\" src=\"images/up.png\"> System statistic details",
+                                            false));
 
         // add machine value columns
         List<MachineDescription> mergedMachineDescriptions = getMergedMachineDescriptions();
-        columns.add( new StatisticsTableCell( true, getMachineAliasModel( "Values" ) ) );
-        rows.add( columns );
+        columns.add(new StatisticsTableCell(true, getMachineAliasModel("Values")));
+        rows.add(columns);
 
-        rows.addAll( systemStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
-        rows.addAll( userStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
-        rows.addAll( actionStatisticsPanel.generateStatisticDetailRows( mergedMachineDescriptions, diagramContent ) );
+        rows.addAll(systemStatisticsPanel.generateStatisticDetailRows(mergedMachineDescriptions, diagramContent));
+        rows.addAll(userStatisticsPanel.generateStatisticDetailRows(mergedMachineDescriptions, diagramContent));
+        rows.addAll(actionStatisticsPanel.generateStatisticDetailRows(mergedMachineDescriptions, diagramContent));
 
-        ListView<List<StatisticsTableCell>> statisticDetailsTable = new ListView<List<StatisticsTableCell>>( "statDetailsRows",
-                                                                                                             rows ) {
+        ListView<List<StatisticsTableCell>> statisticDetailsTable = new ListView<List<StatisticsTableCell>>("statDetailsRows",
+                                                                                                            rows) {
 
             private static final long serialVersionUID = 1L;
 
@@ -803,15 +804,15 @@ public class ChartsPanel extends BaseStatisticsPanel {
             protected void populateItem( ListItem<List<StatisticsTableCell>> item ) {
 
                 // table TR
-                if( item.getIndex() == 0 ) {
-                    item.add( AttributeModifier.replace( "class", "statDetailsHeaderRow" ) );
-                    item.add( AttributeModifier.replace( "onclick",
-                                                         "showOrHideTableRows('statDetailsTable',1,false);" ) );
-                } else if( item.getIndex() > 1
-                           && item.getModelObject().get( 0 ).labelText.contains( "statUnit" ) ) {
-                    item.add( AttributeModifier.replace( "class", "statDetailsStatNameRow" ) );
+                if (item.getIndex() == 0) {
+                    item.add(AttributeModifier.replace("class", "statDetailsHeaderRow"));
+                    item.add(AttributeModifier.replace("onclick",
+                                                       "showOrHideTableRows('statDetailsTable',1,false);"));
+                } else if (item.getIndex() > 1
+                           && item.getModelObject().get(0).labelText.contains("statUnit")) {
+                    item.add(AttributeModifier.replace("class", "statDetailsStatNameRow"));
                 }
-                item.add( new ListView<StatisticsTableCell>( "statDetailsColumns", item.getModelObject() ) {
+                item.add(new ListView<StatisticsTableCell>("statDetailsColumns", item.getModelObject()) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -819,23 +820,23 @@ public class ChartsPanel extends BaseStatisticsPanel {
                     protected void populateItem( ListItem<StatisticsTableCell> item ) {
 
                         // table TD
-                        if( item.getIndex() > 0 ) { // skip the first column
-                            item.add( AttributeModifier.replace( "class", "statDetailsCenCol" ) );
+                        if (item.getIndex() > 0) { // skip the first column
+                            item.add(AttributeModifier.replace("class", "statDetailsCenCol"));
                         }
                         StatisticsTableCell cell = item.getModelObject();
                         Label label = null;
-                        if( cell.isInputText ) {
-                            label = new Label( "label", cell.getMachineLabelModel() );
-                            if( cell.getMachineLabelModel() != null ) {
-                                rememberMachineAliasLabel( label );
+                        if (cell.isInputText) {
+                            label = new Label("label", cell.getMachineLabelModel());
+                            if (cell.getMachineLabelModel() != null) {
+                                rememberMachineAliasLabel(label);
                             }
                         } else {
-                            label = new Label( "label", cell.labelText );
+                            label = new Label("label", cell.labelText);
                         }
-                        label.setEscapeModelStrings( false );
-                        item.add( label );
+                        label.setEscapeModelStrings(false);
+                        item.add(label);
                     }
-                } );
+                });
             }
         };
 
@@ -850,12 +851,12 @@ public class ChartsPanel extends BaseStatisticsPanel {
     private List<MachineDescription> getMergedMachineDescriptions() {
 
         List<MachineDescription> mergedMachineDescriptions = new ArrayList<MachineDescription>();
-        mergedMachineDescriptions = mergeMachineDescriptions( mergedMachineDescriptions,
-                                                              systemStatisticsPanel.getMachineDescriptions() );
-        mergedMachineDescriptions = mergeMachineDescriptions( mergedMachineDescriptions,
-                                                              userStatisticsPanel.getMachineDescriptions() );
-        mergedMachineDescriptions = mergeMachineDescriptions( mergedMachineDescriptions,
-                                                              actionStatisticsPanel.getMachineDescriptions() );
+        mergedMachineDescriptions = mergeMachineDescriptions(mergedMachineDescriptions,
+                                                             systemStatisticsPanel.getMachineDescriptions());
+        mergedMachineDescriptions = mergeMachineDescriptions(mergedMachineDescriptions,
+                                                             userStatisticsPanel.getMachineDescriptions());
+        mergedMachineDescriptions = mergeMachineDescriptions(mergedMachineDescriptions,
+                                                             actionStatisticsPanel.getMachineDescriptions());
 
         return mergedMachineDescriptions;
     }
@@ -864,20 +865,20 @@ public class ChartsPanel extends BaseStatisticsPanel {
                                                                List<MachineDescription> mergedMachineDescriptions,
                                                                Set<MachineDescription> machineDescriptions ) {
 
-        for( MachineDescription machineDescription : machineDescriptions ) {
+        for (MachineDescription machineDescription : machineDescriptions) {
             boolean machineFound = false;
-            for( MachineDescription mergedMachineDescription : mergedMachineDescriptions ) {
-                if( mergedMachineDescription.getMachineAlias().equals( machineDescription.getMachineAlias() )
-                    && machineDescription.getTestcaseId() == mergedMachineDescription.getTestcaseId() ) {
+            for (MachineDescription mergedMachineDescription : mergedMachineDescriptions) {
+                if (mergedMachineDescription.getMachineAlias().equals(machineDescription.getMachineAlias())
+                    && machineDescription.getTestcaseId() == mergedMachineDescription.getTestcaseId()) {
                     machineFound = true;
-                    for( DbStatisticDescription statisticDescription : machineDescription.getStatDescriptionsList() ) {
-                        mergedMachineDescription.addStatisticDescription( statisticDescription );
+                    for (DbStatisticDescription statisticDescription : machineDescription.getStatDescriptionsList()) {
+                        mergedMachineDescription.addStatisticDescription(statisticDescription);
                     }
                 }
             }
 
-            if( !machineFound ) {
-                mergedMachineDescriptions.add( machineDescription.newSimpleInstance() );
+            if (!machineFound) {
+                mergedMachineDescriptions.add(machineDescription.newSimpleInstance());
             }
         }
 
@@ -894,36 +895,36 @@ public class ChartsPanel extends BaseStatisticsPanel {
         this.testcaseStarttimeDeltas = new HashMap<Integer, Long>();
 
         List<MachineDescription> allMachines = new ArrayList<MachineDescription>();
-        allMachines.addAll( systemStatisticsPanel.getMachineDescriptions() );
-        allMachines.addAll( userStatisticsPanel.getMachineDescriptions() );
-        allMachines.addAll( actionStatisticsPanel.getMachineDescriptions() );
+        allMachines.addAll(systemStatisticsPanel.getMachineDescriptions());
+        allMachines.addAll(userStatisticsPanel.getMachineDescriptions());
+        allMachines.addAll(actionStatisticsPanel.getMachineDescriptions());
 
         // first check if needed to deal with starttime deltas
         int firstTestcaseId = -1;
-        for( MachineDescription machine : allMachines ) {
-            if( firstTestcaseId == -1 ) {
+        for (MachineDescription machine : allMachines) {
+            if (firstTestcaseId == -1) {
                 firstTestcaseId = machine.getTestcaseId();
             }
         }
 
         // collect the starttimes of each testcase
-        for( MachineDescription machine : allMachines ) {
+        for (MachineDescription machine : allMachines) {
 
-            Long testcaseStarttime = testcaseStarttimeDeltas.get( machine.getTestcaseId() );
-            if( testcaseStarttime == null ) {
+            Long testcaseStarttime = testcaseStarttimeDeltas.get(machine.getTestcaseId());
+            if (testcaseStarttime == null) {
                 testcaseStarttime = machine.getTestcaseStarttime();
-                testcaseStarttimeDeltas.put( machine.getTestcaseId(), testcaseStarttime );
-                
-                if( testcaseStarttime < earliestStarttime ) {
+                testcaseStarttimeDeltas.put(machine.getTestcaseId(), testcaseStarttime);
+
+                if (testcaseStarttime < earliestStarttime) {
                     earliestStarttime = testcaseStarttime;
                 }
             }
         }
         // calculate the delta for each testcase's start time and the
         // earliest start time
-        for( int testcaseId : testcaseStarttimeDeltas.keySet() ) {
-            testcaseStarttimeDeltas.put( testcaseId,
-                                         ( testcaseStarttimeDeltas.get( testcaseId ) - earliestStarttime ) );
+        for (int testcaseId : testcaseStarttimeDeltas.keySet()) {
+            testcaseStarttimeDeltas.put(testcaseId,
+                                        (testcaseStarttimeDeltas.get(testcaseId) - earliestStarttime));
         }
     }
 }

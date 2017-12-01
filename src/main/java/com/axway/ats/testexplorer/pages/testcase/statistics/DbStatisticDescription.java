@@ -39,7 +39,7 @@ public class DbStatisticDescription implements Serializable {
 
     public int                 machineId;
     public String              machineName;
-    
+
     public String              alias                 = "";
 
     public String              diagramName;
@@ -69,36 +69,36 @@ public class DbStatisticDescription implements Serializable {
     private static final byte  DISPLAY_MODE_COMBINED = 0x02;
 
     private int                indexInUI;
-    
+
     private ChartData          chartData;
-    
+
     public DbStatisticDescription( String name,
-                          String unit ) {
-        
+                                   String unit ) {
+
         this.name = name;
         this.unit = unit;
     }
-    
+
     public DbStatisticDescription() {
         setSingleDisplayMode();
     }
 
     public DbStatisticDescription( int statisticId,
-                                 int testcaseId,
-                                 String testcaseName,
-                                 long testcaseStarttime,
-                                 int machineId,
-                                 String machineName,
-                                 String parentName,
-                                 String internalName,
-                                 String name,
-                                 String diagramName,
-                                 String unit,
-                                 String params,
-                                 float minValue,
-                                 float avgValue,
-                                 float maxValue,
-                                 int numberOfMeasurements ) {
+                                   int testcaseId,
+                                   String testcaseName,
+                                   long testcaseStarttime,
+                                   int machineId,
+                                   String machineName,
+                                   String parentName,
+                                   String internalName,
+                                   String name,
+                                   String diagramName,
+                                   String unit,
+                                   String params,
+                                   float minValue,
+                                   float avgValue,
+                                   float maxValue,
+                                   int numberOfMeasurements ) {
 
         this.statisticId = statisticId;
 
@@ -122,18 +122,18 @@ public class DbStatisticDescription implements Serializable {
     }
 
     public DbStatisticDescription( int statisticId,
-                                 int testcaseId,
-                                 String testcaseName,
-                                 long testcaseStarttime,
-                                 int machineId,
-                                 String machineName,
-                                 String parentName,
-                                 String internalName,
-                                 String name,
-                                 String diagramName,
-                                 String unit,
-                                 String params,
-                                 int numberOfMeasurements ) {
+                                   int testcaseId,
+                                   String testcaseName,
+                                   long testcaseStarttime,
+                                   int machineId,
+                                   String machineName,
+                                   String parentName,
+                                   String internalName,
+                                   String name,
+                                   String diagramName,
+                                   String unit,
+                                   String params,
+                                   int numberOfMeasurements ) {
 
         this.statisticId = statisticId;
 
@@ -154,22 +154,22 @@ public class DbStatisticDescription implements Serializable {
     }
 
     public DbStatisticDescription( int statisticId,
-                                 int testcaseId,
-                                 String testcaseName,
-                                 long testcaseStattime,
-                                 int machineId,
-                                 String machineName,
-                                 String parentName,
-                                 String internalName,
-                                 String name,
-                                 String diagramName,
-                                 String alias,
-                                 String unit,
-                                 String params,
-                                 float minValue,
-                                 float avgValue,
-                                 float maxValue,
-                                 int numberOfMeasurements ) {
+                                   int testcaseId,
+                                   String testcaseName,
+                                   long testcaseStattime,
+                                   int machineId,
+                                   String machineName,
+                                   String parentName,
+                                   String internalName,
+                                   String name,
+                                   String diagramName,
+                                   String alias,
+                                   String unit,
+                                   String params,
+                                   float minValue,
+                                   float avgValue,
+                                   float maxValue,
+                                   int numberOfMeasurements ) {
 
         this.statisticId = statisticId;
 
@@ -213,22 +213,22 @@ public class DbStatisticDescription implements Serializable {
 
     public void setSingleDisplayMode() {
 
-        displayMode = ( byte ) ( displayMode | DISPLAY_MODE_SINGLE );
+        displayMode = (byte) (displayMode | DISPLAY_MODE_SINGLE);
     }
 
     public boolean isSingleDisplayMode() {
 
-        return ( displayMode & DISPLAY_MODE_SINGLE ) > 0;
+        return (displayMode & DISPLAY_MODE_SINGLE) > 0;
     }
 
     public void setCombinedDisplayMode() {
 
-        displayMode = ( byte ) ( displayMode | DISPLAY_MODE_COMBINED );
+        displayMode = (byte) (displayMode | DISPLAY_MODE_COMBINED);
     }
 
     public boolean isCombinedDisplayMode() {
 
-        return ( displayMode & DISPLAY_MODE_COMBINED ) > 0;
+        return (displayMode & DISPLAY_MODE_COMBINED) > 0;
     }
 
     public int getTestcaseId() {
@@ -265,7 +265,7 @@ public class DbStatisticDescription implements Serializable {
 
         return name;
     }
-    
+
     public String getUnit() {
 
         return unit;
@@ -299,16 +299,16 @@ public class DbStatisticDescription implements Serializable {
     public void addStatisticIds(
                                  Set<Integer> newStatisticIds ) {
 
-        this.statisticIds.addAll( newStatisticIds );
+        this.statisticIds.addAll(newStatisticIds);
     }
 
     public Set<Integer> getStatisticIds() {
 
         // we must not return the original Set as it is passed by reference
         // and the original Set gets changed, but we do not want this side effect
-        return new HashSet<Integer>( this.statisticIds );
+        return new HashSet<Integer>(this.statisticIds);
     }
-    
+
     public int getStatisticId() {
 
         return this.statisticId;
@@ -324,41 +324,41 @@ public class DbStatisticDescription implements Serializable {
 
         this.indexInUI = statisticDescriptionIndexInUI;
     }
-    
-    public void setChartData(ChartData chartData){
-        
+
+    public void setChartData( ChartData chartData ) {
+
         this.chartData = chartData;
     }
 
-    public ChartData getChartData(  ){
-        
+    public ChartData getChartData() {
+
         return this.chartData;
     }
-    
-    public String toURL(){
-        
+
+    public String toURL() {
+
         return this.testcaseId + ":" + this.statisticId + ":" + this.machineId + ":" + this.alias;
     }
-    
+
     public static DbStatisticDescription fromURL( String ids ) {
 
         DbStatisticDescription statData = new DbStatisticDescription();
-        String[] idValues = ids.split( ":" );
-        int testcaseId = Integer.parseInt( idValues[0] );
+        String[] idValues = ids.split(":");
+        int testcaseId = Integer.parseInt(idValues[0]);
         try {
-            int statisticId = Integer.parseInt( idValues[1] );
+            int statisticId = Integer.parseInt(idValues[1]);
             statData.statisticId = statisticId;
             statData.testcaseId = testcaseId;
-            statData.machineId = Integer.parseInt( idValues[2] );
-            if(idValues.length == 4 ){
+            statData.machineId = Integer.parseInt(idValues[2]);
+            if (idValues.length == 4) {
                 statData.alias = idValues[3];
             }
-        } catch( Exception e ) {
+        } catch (Exception e) {
             statData.statisticId = -1;
             statData.testcaseId = testcaseId;
             statData.name = idValues[2];
             statData.parentName = idValues[1];
-            if(idValues.length == 4 ){
+            if (idValues.length == 4) {
                 statData.alias = idValues[3];
             }
         }
@@ -368,22 +368,22 @@ public class DbStatisticDescription implements Serializable {
 
     public DbStatisticDescription newInstance() {
 
-        return new DbStatisticDescription( this.statisticId,
-                                         this.testcaseId,
-                                         this.testcaseName,
-                                         this.testcaseStarttime,
-                                         this.machineId,
-                                         this.machineName,
-                                         this.parentName,
-                                         this.internalName,
-                                         this.name,
-                                         this.alias,
-                                         this.diagramName,
-                                         this.unit,
-                                         this.params,
-                                         this.minValue,
-                                         this.avgValue,
-                                         this.maxValue,
-                                         this.numberOfMeasurements );
+        return new DbStatisticDescription(this.statisticId,
+                                          this.testcaseId,
+                                          this.testcaseName,
+                                          this.testcaseStarttime,
+                                          this.machineId,
+                                          this.machineName,
+                                          this.parentName,
+                                          this.internalName,
+                                          this.name,
+                                          this.alias,
+                                          this.diagramName,
+                                          this.unit,
+                                          this.params,
+                                          this.minValue,
+                                          this.avgValue,
+                                          this.maxValue,
+                                          this.numberOfMeasurements);
     }
 }

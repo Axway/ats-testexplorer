@@ -48,103 +48,103 @@ public class Filter extends Form<String> implements IFilter {
     private List<String>               versionNames;
     private List<String>               selectedVersionNames;
 
-    private static transient Logger    LOG              = Logger.getLogger( Filter.class );
+    private static transient Logger    LOG              = Logger.getLogger(Filter.class);
 
     public Filter() {
 
-        super( "filter" );
+        super("filter");
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
 
         try {
 
-            productNames = ( ArrayList<String> ) session.getDbReadConnection()
-                                                        .getAllProductNames( "WHERE 1=1" );
+            productNames = (ArrayList<String>) session.getDbReadConnection()
+                                                      .getAllProductNames("WHERE 1=1");
 
             selectedProductName = null;
 
-            searchByProduct = new DropDownChoice<String>( "search_by_product",
-                                                          new PropertyModel<String>( this,
-                                                                                     "selectedProductName" ),
-                                                          productNames );
+            searchByProduct = new DropDownChoice<String>("search_by_product",
+                                                         new PropertyModel<String>(this,
+                                                                                   "selectedProductName"),
+                                                         productNames);
 
-            searchByProduct.setNullValid( false );
+            searchByProduct.setNullValid(false);
 
-            searchByProduct.setEscapeModelStrings( false );
-            searchByProduct.setOutputMarkupId( true );
+            searchByProduct.setEscapeModelStrings(false);
+            searchByProduct.setOutputMarkupId(true);
 
-            searchByProduct.add( new OnChangeAjaxBehavior() {
+            searchByProduct.add(new OnChangeAjaxBehavior() {
 
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 protected void onUpdate( AjaxRequestTarget target ) {
 
-                    TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                    TestExplorerSession session = (TestExplorerSession) Session.get();
                     try {
 
                         versionNames = session.getDbReadConnection()
-                                              .getAllVersionNames( "WHERE productName = '"
-                                                                   + selectedProductName + "'" );
+                                              .getAllVersionNames("WHERE productName = '"
+                                                                  + selectedProductName + "'");
 
-                        selectedVersionNames = new ArrayList<String>( versionNames );
+                        selectedVersionNames = new ArrayList<String>(versionNames);
 
-                        searchByVersion.getModel().setObject( selectedVersionNames );
+                        searchByVersion.getModel().setObject(selectedVersionNames);
 
-                        searchByVersion.setChoices( versionNames );
+                        searchByVersion.setChoices(versionNames);
 
-                        target.add( searchByVersion );
+                        target.add(searchByVersion);
 
-                    } catch( DatabaseAccessException e ) {
-                        error( "Unable to get version names" );
-                        LOG.error( e );
+                    } catch (DatabaseAccessException e) {
+                        error("Unable to get version names");
+                        LOG.error(e);
                     }
 
                 }
 
-            } );
+            });
 
-        } catch( DatabaseAccessException e ) {
-            error( e.getMessage() );
-            LOG.error( e );
+        } catch (DatabaseAccessException e) {
+            error(e.getMessage());
+            LOG.error(e);
         }
 
-        versionNames = new ArrayList<String>( 1 );
-        selectedVersionNames = new ArrayList<String>( 1 );
+        versionNames = new ArrayList<String>(1);
+        selectedVersionNames = new ArrayList<String>(1);
 
-        searchByVersion = new ListMultipleChoice<String>( "search_by_version",
-                                                          new ListModel<String>( selectedVersionNames ),
-                                                          versionNames );
+        searchByVersion = new ListMultipleChoice<String>("search_by_version",
+                                                         new ListModel<String>(selectedVersionNames),
+                                                         versionNames);
 
-        searchByVersion.setEscapeModelStrings( false );
-        searchByVersion.setOutputMarkupId( true );
+        searchByVersion.setEscapeModelStrings(false);
+        searchByVersion.setOutputMarkupId(true);
 
-        add( searchByProduct );
-        add( searchByVersion );
+        add(searchByProduct);
+        add(searchByVersion);
 
-        AjaxButton searchButton = new AjaxButton( "submit" ) {
+        AjaxButton searchButton = new AjaxButton("submit") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                List<String[]> productAndVersionNames = new ArrayList<String[]>( 1 );
+                List<String[]> productAndVersionNames = new ArrayList<String[]>(1);
 
-                for( String versionName : selectedVersionNames ) {
-                    productAndVersionNames.add( new String[]{ selectedProductName, versionName } );
+                for (String versionName : selectedVersionNames) {
+                    productAndVersionNames.add(new String[]{ selectedProductName, versionName });
                 }
 
-                TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                TestExplorerSession session = (TestExplorerSession) Session.get();
 
                 try {
-                    new DashboardHomeUtils().callJavaScript( target,
-                                                             new DashboardHomeUtils().initJsonData( productAndVersionNames,
-                                                                                                    session.getDbReadConnection()
-                                                                                                           .getAllBuildTypes( "AND 1=1" ) ) );
-                } catch( DatabaseAccessException e ) {
-                    error( "Unable to get runs data" );
-                    LOG.error( "Unable to get runs data", e );
+                    new DashboardHomeUtils().callJavaScript(target,
+                                                            new DashboardHomeUtils().initJsonData(productAndVersionNames,
+                                                                                                  session.getDbReadConnection()
+                                                                                                         .getAllBuildTypes("AND 1=1")));
+                } catch (DatabaseAccessException e) {
+                    error("Unable to get runs data");
+                    LOG.error("Unable to get runs data", e);
                 }
 
             }
@@ -152,15 +152,15 @@ public class Filter extends Form<String> implements IFilter {
             @Override
             protected void onError( AjaxRequestTarget target, Form<?> form ) {
 
-                super.onError( target, form );
+                super.onError(target, form);
             }
 
         };
-        add( searchButton );
+        add(searchButton);
         // search button is the button to trigger when user hit the enter key
-        this.setDefaultButton( searchButton );
+        this.setDefaultButton(searchButton);
 
-        add( new AjaxButton( "clear" ) {
+        add(new AjaxButton("clear") {
 
             private static final long serialVersionUID = 1L;
 
@@ -169,31 +169,31 @@ public class Filter extends Form<String> implements IFilter {
 
                 selectedProductName = null;
 
-                selectedVersionNames = new ArrayList<String>( 1 );
-                versionNames = new ArrayList<String>( 1 );
+                selectedVersionNames = new ArrayList<String>(1);
+                versionNames = new ArrayList<String>(1);
 
-                searchByProduct.setModelObject( selectedProductName );
+                searchByProduct.setModelObject(selectedProductName);
 
-                searchByVersion.setModelObject( selectedVersionNames );
-                searchByVersion.setChoices( new ListModel<String>( versionNames ) );
+                searchByVersion.setModelObject(selectedVersionNames);
+                searchByVersion.setChoices(new ListModel<String>(versionNames));
 
-                target.add( searchByProduct );
-                target.add( searchByVersion );
+                target.add(searchByProduct);
+                target.add(searchByVersion);
 
-                target.appendJavaScript( ";$('#container').empty();" );
+                target.appendJavaScript(";$('#container').empty();");
 
             }
 
-        } );
+        });
 
     }
 
     public List<String[]> getSelectedProductAndVersionNames() {
 
-        List<String[]> productAndVersionNames = new ArrayList<String[]>( 1 );
+        List<String[]> productAndVersionNames = new ArrayList<String[]>(1);
 
-        for( String versionName : selectedVersionNames ) {
-            productAndVersionNames.add( new String[]{ selectedProductName, versionName } );
+        for (String versionName : selectedVersionNames) {
+            productAndVersionNames.add(new String[]{ selectedProductName, versionName });
         }
 
         return productAndVersionNames;
@@ -201,34 +201,34 @@ public class Filter extends Form<String> implements IFilter {
 
     public void performSearchOnPageLoad() {
 
-        if( productNames.size() == 0 ) {
+        if (productNames.size() == 0) {
             return;
         }
 
-        selectedProductName = productNames.get( productNames.size() - 1 );
-        searchByProduct.setModelObject( selectedProductName );
+        selectedProductName = productNames.get(productNames.size() - 1);
+        searchByProduct.setModelObject(selectedProductName);
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
         try {
             versionNames = session.getDbReadConnection()
-                                  .getAllVersionNames( "WHERE productName = '" + selectedProductName + "'" );
-            selectedVersionNames = new ArrayList<String>( versionNames );
-            searchByVersion.getModel().setObject( selectedVersionNames );
-            searchByVersion.setChoices( versionNames );
+                                  .getAllVersionNames("WHERE productName = '" + selectedProductName + "'");
+            selectedVersionNames = new ArrayList<String>(versionNames);
+            searchByVersion.getModel().setObject(selectedVersionNames);
+            searchByVersion.setChoices(versionNames);
 
-        } catch( DatabaseAccessException e ) {
-            error( "Unable to perform initial search" );
-            LOG.error( "Unable to perform initial search", e );
+        } catch (DatabaseAccessException e) {
+            error("Unable to perform initial search");
+            LOG.error("Unable to perform initial search", e);
         }
     }
-    
+
     @Override
     public boolean hasSelectedFields() {
 
-        if( !StringUtils.isNullOrEmpty( selectedProductName ) ) {
+        if (!StringUtils.isNullOrEmpty(selectedProductName)) {
             return true;
         }
-        if( selectedVersionNames.size() > 0 ) {
+        if (selectedVersionNames.size() > 0) {
             return true;
         }
 
@@ -239,10 +239,10 @@ public class Filter extends Form<String> implements IFilter {
     public void renderHead(
                             IHeaderResponse response ) {
 
-        super.renderHead( response );
-        if( hasSelectedFields() ) {
-            response.render( OnDomReadyHeaderItem.forScript( "$('.filterHeader').click()" ) );
+        super.renderHead(response);
+        if (hasSelectedFields()) {
+            response.render(OnDomReadyHeaderItem.forScript("$('.filterHeader').click()"));
         }
-   }
-    
+    }
+
 }

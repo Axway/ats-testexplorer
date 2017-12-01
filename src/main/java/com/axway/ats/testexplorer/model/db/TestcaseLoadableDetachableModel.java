@@ -51,19 +51,19 @@ public class TestcaseLoadableDetachableModel extends LoadableDetachableModel<Tes
     @Override
     public boolean equals( Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof TestcaseLoadableDetachableModel ) {
-            TestcaseLoadableDetachableModel other = ( TestcaseLoadableDetachableModel ) obj;
+        } else if (obj instanceof TestcaseLoadableDetachableModel) {
+            TestcaseLoadableDetachableModel other = (TestcaseLoadableDetachableModel) obj;
 
-            if( grid != null && grid.isEditMode() ) {
-                return other.testcase.testcaseId.equals( this.testcase.testcaseId );
+            if (grid != null && grid.isEditMode()) {
+                return other.testcase.testcaseId.equals(this.testcase.testcaseId);
             }
-            return other.testcase.testcaseId.equals( this.testcase.testcaseId )
-                   && other.testcase.state.equals( this.testcase.state )
-                   && other.testcase.getDurationAsString( 0 ).equals( this.testcase.getDurationAsString( 0 ) )
+            return other.testcase.testcaseId.equals(this.testcase.testcaseId)
+                   && other.testcase.state.equals(this.testcase.state)
+                   && other.testcase.getDurationAsString(0).equals(this.testcase.getDurationAsString(0))
                    && other.testcase.result == this.testcase.result;
         }
         return false;

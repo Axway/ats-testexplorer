@@ -52,7 +52,7 @@ public abstract class BaseCopyPage extends LightweightBasePage {
     protected IModel<String>              sourceHostModel         = new Model<String>();
     protected IModel<String>              sourcePortModel         = new Model<String>();
     protected IModel<String>              sourceDbNameModel       = new Model<String>();
-    
+
     protected IModel<String>              destinationHostModel    = new Model<String>();
     protected IModel<String>              destinationPortModel    = new Model<String>();
     protected IModel<String>              destinationDbNameModel  = new Model<String>();
@@ -63,12 +63,12 @@ public abstract class BaseCopyPage extends LightweightBasePage {
 
     public BaseCopyPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        this.form = new Form<Object>( "form" );
-        addCopyButton( form );
-        addCopyHiddenButton( form );
-        add( form );
+        this.form = new Form<Object>("form");
+        addCopyButton(form);
+        addCopyHiddenButton(form);
+        add(form);
 
         IModel<List<String>> consoleModel = new LoadableDetachableModel<List<String>>() {
 
@@ -77,32 +77,32 @@ public abstract class BaseCopyPage extends LightweightBasePage {
             protected List<String> load() {
 
                 int size = webConsole.size();
-                if( size > MAX_CONSOLE_LINES ) {
-                    webConsole.subList( 0, size - MAX_CONSOLE_LINES ).clear();
+                if (size > MAX_CONSOLE_LINES) {
+                    webConsole.subList(0, size - MAX_CONSOLE_LINES).clear();
                 }
                 return webConsole;
             }
         };
 
-        ListView<String> messages = new ListView<String>( "messages", consoleModel ) {
+        ListView<String> messages = new ListView<String>("messages", consoleModel) {
 
             private static final long serialVersionUID = 1L;
 
             protected void populateItem(
                                          ListItem<String> item ) {
 
-                Label label = new Label( "message", item.getModelObject() );
-                label.setEscapeModelStrings( false );
-                item.add( label );
+                Label label = new Label("message", item.getModelObject());
+                label.setEscapeModelStrings(false);
+                item.add(label);
             }
         };
-        messages.setOutputMarkupId( true );
+        messages.setOutputMarkupId(true);
 
-        consoleContainer = new WebMarkupContainer( "webConsole" );
-        consoleContainer.setOutputMarkupId( true );
-        consoleContainer.add( messages );
+        consoleContainer = new WebMarkupContainer("webConsole");
+        consoleContainer.setOutputMarkupId(true);
+        consoleContainer.add(messages);
 
-        add( consoleContainer );
+        add(consoleContainer);
     }
 
     protected abstract String generateThreadIdentifier();
@@ -117,7 +117,7 @@ public abstract class BaseCopyPage extends LightweightBasePage {
     private void addCopyButton(
                                 Form<Object> form ) {
 
-        AjaxButton button = new AjaxButton( "copyButton", form ) {
+        AjaxButton button = new AjaxButton("copyButton", form) {
 
             private static final long serialVersionUID = 1L;
 
@@ -126,54 +126,54 @@ public abstract class BaseCopyPage extends LightweightBasePage {
                                      AjaxRequestTarget target,
                                      Form<?> form ) {
 
-                if( consoleUpdateTimer == null || consoleUpdateTimer.isStopped() ) {
+                if (consoleUpdateTimer == null || consoleUpdateTimer.isStopped()) {
 
                     // clear current console logs
                     webConsole.clear();
 
                     // do some input validation
-                    if( isInputValid() ) {
+                    if (isInputValid()) {
 
                         // get the thread identifier for this copy process
                         String threadIdentifier = generateThreadIdentifier();
 
                         // if we are already running this copy process - we will not start a new copy
                         // process, but we will simply attach to the current copy console
-                        if( !checkForThreadCopingTheSameRun( threadIdentifier ) ) {
+                        if (!checkForThreadCopingTheSameRun(threadIdentifier)) {
 
                             // create a new copy process
-                            copyThread = getNewCopyThread( threadIdentifier );
+                            copyThread = getNewCopyThread(threadIdentifier);
 
-                            if( copyThread.isInitSuccessful() ) {
+                            if (copyThread.isInitSuccessful()) {
 
-                                if( copyThread.areDbVersionsDifferent() ) {
+                                if (copyThread.areDbVersionsDifferent()) {
 
                                     // ask user for confirmation
-                                    target.appendJavaScript( "if ( confirm('The two databases has different versions!"
-                                                             + "\\nSource database version is "
-                                                             + copyThread.getSrcDbVersion()
-                                                             + " but the destinanation is "
-                                                             + copyThread.getDstDbVersion()
-                                                             + "\\nAre you sure you want to continue?') ) "
-                                                             + "document.getElementById('copyHiddenButtonSpan').getElementsByTagName('input')[0].click();" );
+                                    target.appendJavaScript("if ( confirm('The two databases has different versions!"
+                                                            + "\\nSource database version is "
+                                                            + copyThread.getSrcDbVersion()
+                                                            + " but the destinanation is "
+                                                            + copyThread.getDstDbVersion()
+                                                            + "\\nAre you sure you want to continue?') ) "
+                                                            + "document.getElementById('copyHiddenButtonSpan').getElementsByTagName('input')[0].click();");
                                 } else {
                                     startCurrentCopyThread();
                                 }
                             }
                         }
                     }
-                    target.add( consoleContainer );
+                    target.add(consoleContainer);
                 }
             }
         };
 
-        form.add( button );
+        form.add(button);
     }
 
     private void addCopyHiddenButton(
                                       Form<Object> form ) {
 
-        AjaxButton button = new AjaxButton( "copyHiddenButton" ) {
+        AjaxButton button = new AjaxButton("copyHiddenButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -183,26 +183,26 @@ public abstract class BaseCopyPage extends LightweightBasePage {
                                      Form<?> form ) {
 
                 startCurrentCopyThread();
-                target.add( consoleContainer );
+                target.add(consoleContainer);
             }
         };
 
-        form.add( button );
+        form.add(button);
     }
 
     private void startCurrentCopyThread() {
 
         // start the timer
-        consoleUpdateTimer = new AjaxSelfUpdatingTimerBehavior( Duration.seconds( CONSOLE_UPDATE_INTERVAL ) );
-        consoleContainer.add( consoleUpdateTimer );
+        consoleUpdateTimer = new AjaxSelfUpdatingTimerBehavior(Duration.seconds(CONSOLE_UPDATE_INTERVAL));
+        consoleContainer.add(consoleUpdateTimer);
         // adding console update timer to thread and when the coping is done the timer will be stopped
-        copyThread.addConsoleUpdateTimer( consoleUpdateTimer );
+        copyThread.addConsoleUpdateTimer(consoleUpdateTimer);
 
         copyThread.start();
 
-        synchronized( copyJobThreads ) {
+        synchronized (copyJobThreads) {
 
-            copyJobThreads.add( copyThread );
+            copyJobThreads.add(copyThread);
         }
 
     }
@@ -210,16 +210,16 @@ public abstract class BaseCopyPage extends LightweightBasePage {
     private boolean checkForThreadCopingTheSameRun(
                                                     String threadIdentifier ) {
 
-        synchronized( copyJobThreads ) {
+        synchronized (copyJobThreads) {
 
-            for( CopyJobThread th : copyJobThreads ) {
-                if( th.isAlive() && th.getThreadIdentifier().equals( threadIdentifier ) ) {
+            for (CopyJobThread th : copyJobThreads) {
+                if (th.isAlive() && th.getThreadIdentifier().equals(threadIdentifier)) {
 
                     webConsole = th.getWebConsole();
                     // start the timer and attach it to the coping thread
-                    AjaxSelfUpdatingTimerBehavior consoleUpdateTimer = new AjaxSelfUpdatingTimerBehavior( Duration.seconds( CONSOLE_UPDATE_INTERVAL ) );
-                    th.addConsoleUpdateTimer( consoleUpdateTimer );
-                    consoleContainer.add( consoleUpdateTimer );
+                    AjaxSelfUpdatingTimerBehavior consoleUpdateTimer = new AjaxSelfUpdatingTimerBehavior(Duration.seconds(CONSOLE_UPDATE_INTERVAL));
+                    th.addConsoleUpdateTimer(consoleUpdateTimer);
+                    consoleContainer.add(consoleUpdateTimer);
                     return true;
                 }
             }

@@ -52,7 +52,7 @@ import com.inmethod.grid.datagrid.DataGrid;
 
 public class ColumnsDialog extends WebMarkupContainer {
 
-    private static Logger     LOG              = Logger.getLogger( ColumnsDialog.class );
+    private static Logger     LOG              = Logger.getLogger(ColumnsDialog.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -60,19 +60,19 @@ public class ColumnsDialog extends WebMarkupContainer {
 
     private List<TableColumn> dbColumnDefinitions;
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings( { "rawtypes" })
     public ColumnsDialog( String id,
                           final DataGrid grid,
                           List<TableColumn> columnDefinitions ) {
 
-        super( id );
-        setOutputMarkupId( true );
+        super(id);
+        setOutputMarkupId(true);
 
         this.dbColumnDefinitions = columnDefinitions;
 
-        DataView<TableColumn> table = new DataView<TableColumn>( "headers",
-                                                                 new ListDataProvider<TableColumn>( dbColumnDefinitions ),
-                                                                 100 ) {
+        DataView<TableColumn> table = new DataView<TableColumn>("headers",
+                                                                new ListDataProvider<TableColumn>(dbColumnDefinitions),
+                                                                100) {
 
             private static final long serialVersionUID = 1L;
 
@@ -82,10 +82,10 @@ public class ColumnsDialog extends WebMarkupContainer {
 
                 final TableColumn column = item.getModelObject();
 
-                item.add( new CheckBox( "visible", new PropertyModel<Boolean>( column, "visible" ) ) );
-                item.add( new Label( "columnName", new PropertyModel<String>( column, "columnName" ) ) );
+                item.add(new CheckBox("visible", new PropertyModel<Boolean>(column, "visible")));
+                item.add(new Label("columnName", new PropertyModel<String>(column, "columnName")));
 
-                item.add( new AjaxEventBehavior( "click" ) {
+                item.add(new AjaxEventBehavior("click") {
 
                     private static final long serialVersionUID = 1L;
 
@@ -93,37 +93,37 @@ public class ColumnsDialog extends WebMarkupContainer {
                     protected void onEvent(
                                             AjaxRequestTarget target ) {
 
-                        TableColumn tableColumn = ( TableColumn ) this.getComponent().getDefaultModelObject();
-                        tableColumn.setVisible( !tableColumn.isVisible() );
+                        TableColumn tableColumn = (TableColumn) this.getComponent().getDefaultModelObject();
+                        tableColumn.setVisible(!tableColumn.isVisible());
 
-                        if( tableColumn.isVisible() ) {
-                            item.add( AttributeModifier.replace( "class", "selected" ) );
+                        if (tableColumn.isVisible()) {
+                            item.add(AttributeModifier.replace("class", "selected"));
                         } else {
-                            item.add( AttributeModifier.replace( "class", "notSelected" ) );
+                            item.add(AttributeModifier.replace("class", "notSelected"));
                         }
-                        grid.getColumnState().setColumnVisibility( tableColumn.getColumnId(),
-                                                                   tableColumn.isVisible() );
-                        target.add( grid );
-                        target.add( this.getComponent() );
+                        grid.getColumnState().setColumnVisibility(tableColumn.getColumnId(),
+                                                                  tableColumn.isVisible());
+                        target.add(grid);
+                        target.add(this.getComponent());
 
-                        open( target );
+                        open(target);
                     }
-                } );
-                item.setOutputMarkupId( true );
+                });
+                item.setOutputMarkupId(true);
 
-                if( column.isVisible() ) {
-                    item.add( AttributeModifier.replace( "class", "selected" ) );
+                if (column.isVisible()) {
+                    item.add(AttributeModifier.replace("class", "selected"));
                 } else {
-                    item.add( AttributeModifier.replace( "class", "notSelected" ) );
+                    item.add(AttributeModifier.replace("class", "notSelected"));
                 }
             }
         };
-        add( table );
+        add(table);
 
-        final Form<Void> columnDefinitionsForm = new Form<Void>( "columnDefinitionsForm" );
-        add( columnDefinitionsForm );
+        final Form<Void> columnDefinitionsForm = new Form<Void>("columnDefinitionsForm");
+        add(columnDefinitionsForm);
 
-        AjaxSubmitLink saveButton = new AjaxSubmitLink( "saveButton", columnDefinitionsForm ) {
+        AjaxSubmitLink saveButton = new AjaxSubmitLink("saveButton", columnDefinitionsForm) {
 
             private static final long serialVersionUID = 1L;
 
@@ -131,10 +131,10 @@ public class ColumnsDialog extends WebMarkupContainer {
             protected void updateAjaxAttributes(
                                                  AjaxRequestAttributes attributes ) {
 
-                super.updateAjaxAttributes( attributes );
+                super.updateAjaxAttributes(attributes);
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
-                ajaxCallListener.onPrecondition( "getTableColumnDefinitions(); " );
-                attributes.getAjaxCallListeners().add( ajaxCallListener );
+                ajaxCallListener.onPrecondition("getTableColumnDefinitions(); ");
+                attributes.getAjaxCallListeners().add(ajaxCallListener);
             }
 
             @Override
@@ -144,32 +144,32 @@ public class ColumnsDialog extends WebMarkupContainer {
 
                 String columnDefinitionsString = form.getRequest()
                                                      .getPostParameters()
-                                                     .getParameterValue( "columnDefinitions" )
+                                                     .getParameterValue("columnDefinitions")
                                                      .toString();
 
-                List<TableColumn> jsColDefinitions = asList( columnDefinitionsString );
-                orderTableColumns( dbColumnDefinitions, jsColDefinitions );
+                List<TableColumn> jsColDefinitions = asList(columnDefinitionsString);
+                orderTableColumns(dbColumnDefinitions, jsColDefinitions);
 
                 try {
-                    saveColumnDefinitionsToDb( jsColDefinitions );
+                    saveColumnDefinitionsToDb(jsColDefinitions);
 
-                    modifyDBColumnDefinitionList( jsColDefinitions );
+                    modifyDBColumnDefinitionList(jsColDefinitions);
 
-                } catch( DatabaseAccessException dae ) {
-                    throw new RuntimeException( "Unable to save table Column definitions in db: "
-                                                + ( ( TestExplorerSession ) Session.get() ).getDbName(), dae );
-                } catch( SQLException sqle ) {
-                    throw new RuntimeException( "Unable to save table Column definitions in db: "
-                                                + ( ( TestExplorerSession ) Session.get() ).getDbName(), sqle );
+                } catch (DatabaseAccessException dae) {
+                    throw new RuntimeException("Unable to save table Column definitions in db: "
+                                               + ((TestExplorerSession) Session.get()).getDbName(), dae);
+                } catch (SQLException sqle) {
+                    throw new RuntimeException("Unable to save table Column definitions in db: "
+                                               + ((TestExplorerSession) Session.get()).getDbName(), sqle);
                 }
 
-                close( target );
+                close(target);
             }
         };
-        add( AttributeModifier.append( "class", "runsTableColDialogDivWrapper" ) );
-        columnDefinitionsForm.add( saveButton );
+        add(AttributeModifier.append("class", "runsTableColDialogDivWrapper"));
+        columnDefinitionsForm.add(saveButton);
 
-        add( new Behavior() {
+        add(new Behavior() {
 
             private static final long serialVersionUID = 1L;
 
@@ -178,7 +178,7 @@ public class ColumnsDialog extends WebMarkupContainer {
                                     Component component,
                                     IHeaderResponse response ) {
 
-                if( autoAddToHeader() ) {
+                if (autoAddToHeader()) {
 
                     String script = "jQuery.fn.center=function(){" + "this.css(\"position\",\"absolute\");"
                                     + "this.css(\"top\",(jQuery(window).height()-this.height())/2+jQuery(window).scrollTop()+\"px\");"
@@ -202,25 +202,25 @@ public class ColumnsDialog extends WebMarkupContainer {
                                  + "filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=5,OffY=5,Color='gray');"
                                  + "-ms-filter:\"progid:DXImageTransform.Microsoft.dropshadow(OffX=5,OffY=5,Color='gray')\";}";
 
-                    response.render( JavaScriptHeaderItem.forScript( script, null ) );
-                    response.render( CssHeaderItem.forCSS( css, null ) );
-                    if( isSupportIE6() ) {
-                        response.render( JavaScriptHeaderItem.forReference( new PackageResourceReference( getClass(),
-                                                                                                          "jquery.bgiframe.js" ) ) );
+                    response.render(JavaScriptHeaderItem.forScript(script, null));
+                    response.render(CssHeaderItem.forCSS(css, null));
+                    if (isSupportIE6()) {
+                        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(getClass(),
+                                                                                                       "jquery.bgiframe.js")));
                     }
                 }
 
-                response.render( OnDomReadyHeaderItem.forScript( getJS() ) );
+                response.render(OnDomReadyHeaderItem.forScript(getJS()));
             }
 
             private String getJS() {
 
                 StringBuilder sb = new StringBuilder();
-                sb.append( "if (jQuery('#" )
-                  .append( getDivId() )
-                  .append( "').length == 0) { jQuery(document.body).append('" )
-                  .append( getDiv().replace( "'", "\\'" ) )
-                  .append( "'); }" );
+                sb.append("if (jQuery('#")
+                  .append(getDivId())
+                  .append("').length == 0) { jQuery(document.body).append('")
+                  .append(getDiv().replace("'", "\\'"))
+                  .append("'); }");
                 return sb.toString();
             }
 
@@ -231,14 +231,14 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             private String getDiv() {
 
-                if( isClickBkgToClose() ) {
-                    return ( "<div id=\"" + getDivId() + "\" class=\"settingsoverlayCD\" onclick=\""
-                             + getCloseString() + "\"></div>" );
+                if (isClickBkgToClose()) {
+                    return ("<div id=\"" + getDivId() + "\" class=\"settingsoverlayCD\" onclick=\""
+                            + getCloseString() + "\"></div>");
                 } else {
-                    return ( "<div id=\"" + getDivId() + "\" class=\"settingsoverlayCD\"></div>" );
+                    return ("<div id=\"" + getDivId() + "\" class=\"settingsoverlayCD\"></div>");
                 }
             }
-        } );
+        });
 
     }
 
@@ -258,8 +258,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     protected void onComponentTag(
                                    ComponentTag tag ) {
 
-        super.onComponentTag( tag );
-        tag.put( "class", "settingsoverlaycontent" );
+        super.onComponentTag(tag);
+        tag.put("class", "settingsoverlaycontent");
     }
 
     /**
@@ -270,7 +270,7 @@ public class ColumnsDialog extends WebMarkupContainer {
     public void open(
                       AjaxRequestTarget target ) {
 
-        target.appendJavaScript( getOpenString() );
+        target.appendJavaScript(getOpenString());
     }
 
     /**
@@ -281,7 +281,7 @@ public class ColumnsDialog extends WebMarkupContainer {
     public void close(
                        AjaxRequestTarget target ) {
 
-        target.appendJavaScript( getCloseString() );
+        target.appendJavaScript(getCloseString());
     }
 
     /**
@@ -301,7 +301,7 @@ public class ColumnsDialog extends WebMarkupContainer {
                                         Component component,
                                         ComponentTag tag ) {
 
-                tag.put( "click", getOpenString() );
+                tag.put("click", getOpenString());
             }
         };
     }
@@ -323,7 +323,7 @@ public class ColumnsDialog extends WebMarkupContainer {
                                         Component component,
                                         ComponentTag tag ) {
 
-                tag.put( "click", getCloseString() );
+                tag.put("click", getCloseString());
             }
         };
     }
@@ -336,24 +336,24 @@ public class ColumnsDialog extends WebMarkupContainer {
      */
     protected String getOpenString() {
 
-        if( !isEnabled() ) {
+        if (!isEnabled()) {
             return "";
         }
         StringBuilder result = new StringBuilder();
-        result.append( "jQuery('#" ).append( getMarkupId() ).append( "_ovl').show();" );
-        if( isSupportIE6() ) {
-            result.append( "jQuery('#" ).append( getMarkupId() ).append( "_ovl').bgiframe();" );
+        result.append("jQuery('#").append(getMarkupId()).append("_ovl').show();");
+        if (isSupportIE6()) {
+            result.append("jQuery('#").append(getMarkupId()).append("_ovl').bgiframe();");
         }
-        result.append( "jQuery('#" )
-              .append( getMarkupId() )
-              .append( "_ovl').height(jQuery(document).height()); jQuery('#" )
-              .append( getMarkupId() )
-              .append( "').show(); " )
-              .append( "jQuery('#" )
-              .append( getMarkupId() )
-              .append( "')[0].style.top = jQuery(document.getElementById('" )
-              .append( getMarkupId() )
-              .append( "').parentNode).offset().top + 30 + 'px';" );
+        result.append("jQuery('#")
+              .append(getMarkupId())
+              .append("_ovl').height(jQuery(document).height()); jQuery('#")
+              .append(getMarkupId())
+              .append("').show(); ")
+              .append("jQuery('#")
+              .append(getMarkupId())
+              .append("')[0].style.top = jQuery(document.getElementById('")
+              .append(getMarkupId())
+              .append("').parentNode).offset().top + 30 + 'px';");
 
         return result.toString();
     }
@@ -367,8 +367,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     protected String getCloseString() {
 
         StringBuilder result = new StringBuilder();
-        result.append( "jQuery('#" ).append( getMarkupId() ).append( "').hide();" );
-        result.append( "jQuery('#" ).append( getMarkupId() ).append( "_ovl').hide();" );
+        result.append("jQuery('#").append(getMarkupId()).append("').hide();");
+        result.append("jQuery('#").append(getMarkupId()).append("_ovl').hide();");
         return result.toString();
     }
 
@@ -416,31 +416,31 @@ public class ColumnsDialog extends WebMarkupContainer {
 
         List<TableColumn> tableColumns = new ArrayList<TableColumn>();
 
-        String[] cols = columnDefinitionsString.split( "," );
+        String[] cols = columnDefinitionsString.split(",");
         int position = 1;
-        for( int index = 0; index < cols.length; index++ ) {
+        for (int index = 0; index < cols.length; index++) {
 
-            String[] colData = cols[index].split( ":" );
+            String[] colData = cols[index].split(":");
 
-            if( colData[0].isEmpty() ) {
+            if (colData[0].isEmpty()) {
 
                 continue;
             }
             TableColumn newColumn = new TableColumn();
-            newColumn.setColumnPosition( position++ );
-            if( "UserNote".equalsIgnoreCase( colData[0] ) ) {
-                newColumn.setColumnName( "User Note" );
+            newColumn.setColumnPosition(position++);
+            if ("UserNote".equalsIgnoreCase(colData[0])) {
+                newColumn.setColumnName("User Note");
             } else {
-                newColumn.setColumnName( colData[0] );
+                newColumn.setColumnName(colData[0]);
             }
             try {
-                Double columnWidth = Double.parseDouble( colData[1] );
-                newColumn.setInitialWidth( columnWidth.intValue() );
-            } catch( NumberFormatException nfe ) {
-                LOG.warn( "Non parsable double value for column width: " + colData[1] );
+                Double columnWidth = Double.parseDouble(colData[1]);
+                newColumn.setInitialWidth(columnWidth.intValue());
+            } catch (NumberFormatException nfe) {
+                LOG.warn("Non parsable double value for column width: " + colData[1]);
             }
 
-            tableColumns.add( newColumn );
+            tableColumns.add(newColumn);
         }
 
         return tableColumns;
@@ -457,35 +457,35 @@ public class ColumnsDialog extends WebMarkupContainer {
                                    List<TableColumn> dbColDefinitions,
                                    List<TableColumn> jsColDefinitions ) {
 
-        for( TableColumn dbCol : dbColDefinitions ) {
+        for (TableColumn dbCol : dbColDefinitions) {
 
-            if( jsColDefinitions.contains( dbCol ) ) {
+            if (jsColDefinitions.contains(dbCol)) {
 
                 // add column id
-                jsColDefinitions.get( jsColDefinitions.indexOf( dbCol ) ).setColumnId( dbCol.getColumnId() );
+                jsColDefinitions.get(jsColDefinitions.indexOf(dbCol)).setColumnId(dbCol.getColumnId());
                 // add column type
-                jsColDefinitions.get( jsColDefinitions.indexOf( dbCol ) )
-                                .setParentTable( dbCol.getParentTable() );
+                jsColDefinitions.get(jsColDefinitions.indexOf(dbCol))
+                                .setParentTable(dbCol.getParentTable());
 
             } else {
 
                 // add column definition of the hidden columns
                 String tooltip = null;
-                if( dbCol.getTooltip() != null ) {
+                if (dbCol.getTooltip() != null) {
                     tooltip = dbCol.getTooltip().toString();
                 }
-                TableColumn column = new TableColumn( dbCol.getColumnId(),
-                                                      dbCol.getColumnName(),
-                                                      dbCol.getParentTable(),
-                                                      dbCol.getSortProperty(),
-                                                      dbCol.getPropertyExpression(),
-                                                      tooltip,
-                                                      dbCol.getHeaderCssClass(),
-                                                      false,
-                                                      dbCol.isEditable(),
-                                                      dbCol.getInitialWidth() );
-                jsColDefinitions.add( column );
-                column.setColumnPosition( jsColDefinitions.indexOf( column ) + 1 );
+                TableColumn column = new TableColumn(dbCol.getColumnId(),
+                                                     dbCol.getColumnName(),
+                                                     dbCol.getParentTable(),
+                                                     dbCol.getSortProperty(),
+                                                     dbCol.getPropertyExpression(),
+                                                     tooltip,
+                                                     dbCol.getHeaderCssClass(),
+                                                     false,
+                                                     dbCol.isEditable(),
+                                                     dbCol.getInitialWidth());
+                jsColDefinitions.add(column);
+                column.setColumnPosition(jsColDefinitions.indexOf(column) + 1);
             }
         }
     }
@@ -502,8 +502,8 @@ public class ColumnsDialog extends WebMarkupContainer {
                                            List<TableColumn> jsColDefinitions ) throws DatabaseAccessException,
                                                                                 SQLException {
 
-        TestExplorerDbWriteAccessInterface dbWriter = ( ( TestExplorerSession ) Session.get() ).getDbWriteConnection();
-        dbWriter.updateDBColumnDefinitionTable( jsColDefinitions );
+        TestExplorerDbWriteAccessInterface dbWriter = ((TestExplorerSession) Session.get()).getDbWriteConnection();
+        dbWriter.updateDBColumnDefinitionTable(jsColDefinitions);
     }
 
     /**
@@ -517,17 +517,17 @@ public class ColumnsDialog extends WebMarkupContainer {
     private void modifyDBColumnDefinitionList(
                                                List<TableColumn> jsColDefinitions ) {
 
-        String dbName = ( ( TestExplorerSession ) Session.get() ).getDbName();
-        List<TableColumn> oldDBList = ( ( TestExplorerApplication ) getApplication() ).getColumnDefinition( dbName );
+        String dbName = ((TestExplorerSession) Session.get()).getDbName();
+        List<TableColumn> oldDBList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);
 
-        for( TableColumn jsCol : jsColDefinitions ) {
+        for (TableColumn jsCol : jsColDefinitions) {
 
-            oldDBList.get( oldDBList.indexOf( jsCol ) ).setColumnPosition( jsCol.getColumnPosition() );
-            oldDBList.get( oldDBList.indexOf( jsCol ) ).setVisible( jsCol.isVisible() );
-            oldDBList.get( oldDBList.indexOf( jsCol ) ).setInitialWidth( jsCol.getInitialWidth() );
+            oldDBList.get(oldDBList.indexOf(jsCol)).setColumnPosition(jsCol.getColumnPosition());
+            oldDBList.get(oldDBList.indexOf(jsCol)).setVisible(jsCol.isVisible());
+            oldDBList.get(oldDBList.indexOf(jsCol)).setInitialWidth(jsCol.getInitialWidth());
         }
 
-        ( ( TestExplorerApplication ) getApplication() ).setColumnDefinition( dbName, oldDBList );
+        ((TestExplorerApplication) getApplication()).setColumnDefinition(dbName, oldDBList);
 
     }
 }

@@ -40,12 +40,12 @@ public class MessageLoadableDetachableModel extends LoadableDetachableModel<Mess
     public boolean equals(
                            Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof MessageLoadableDetachableModel ) {
-            MessageLoadableDetachableModel other = ( MessageLoadableDetachableModel ) obj;
+        } else if (obj instanceof MessageLoadableDetachableModel) {
+            MessageLoadableDetachableModel other = (MessageLoadableDetachableModel) obj;
             return other.message.messageId == this.message.messageId;
         }
         return false;
@@ -54,7 +54,7 @@ public class MessageLoadableDetachableModel extends LoadableDetachableModel<Mess
     @Override
     public int hashCode() {
 
-        return Long.valueOf( this.message.messageId ).hashCode();
+        return Long.valueOf(this.message.messageId).hashCode();
     }
 
 }

@@ -51,50 +51,50 @@ public class SuitesPanel extends Panel {
     List<TableColumn>          columnDefinitions;
 
     public SuitesPanel( String id ) {
-        super( id );
+        super(id);
 
         columnDefinitions = getTableColumnDefinitions();
     }
 
     public SuitesPanel( BasePage parentPage, String id, String runId ) {
 
-        super( id );
+        super(id);
         this.runId = runId;
         // Add Suites table
         columnDefinitions = getTableColumnDefinitions();
 
-        MainDataGrid grid = new MainDataGrid( "suitesTable", new SuitesDataSource( runId ), getColumns(),
-                                              columnDefinitions, "Suites",
-                                              MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
-                                                                           | MainDataGrid.OPERATION_GET_LOG );
-        grid.setGridColumnsState( columnDefinitions );
-        grid.setAllowSelectMultiple( true );
-        grid.setSelectToEdit( false );
-        grid.setClickRowToSelect( true );
-        grid.setClickRowToDeselect( true );
-        grid.setCleanSelectionOnPageChange( true );
+        MainDataGrid grid = new MainDataGrid("suitesTable", new SuitesDataSource(runId), getColumns(),
+                                             columnDefinitions, "Suites",
+                                             MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
+                                                                          | MainDataGrid.OPERATION_GET_LOG);
+        grid.setGridColumnsState(columnDefinitions);
+        grid.setAllowSelectMultiple(true);
+        grid.setSelectToEdit(false);
+        grid.setClickRowToSelect(true);
+        grid.setClickRowToDeselect(true);
+        grid.setCleanSelectionOnPageChange(true);
 
-        add( grid );
+        add(grid);
 
-        parentPage.setMainGrid( grid );
+        parentPage.setMainGrid(grid);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings( { "unchecked", "rawtypes" })
     public List<IGridColumn> getColumns() {
 
         List<IGridColumn> columns = new ArrayList<IGridColumn>();
 
-        columns.add( new CheckBoxColumn( "check" ) );
-        for( final TableColumn cd : columnDefinitions ) {
+        columns.add(new CheckBoxColumn("check"));
+        for (final TableColumn cd : columnDefinitions) {
 
             AbstractColumn col;
-            if( "Suite".equals( cd.getColumnName() ) ) {
+            if ("Suite".equals(cd.getColumnName())) {
 
-                col = new SuiteScenarioLinkColumn( cd );
-            } else if( cd.isEditable() ) {
+                col = new SuiteScenarioLinkColumn(cd);
+            } else if (cd.isEditable()) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new EditablePropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                                 cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -108,41 +108,41 @@ public class SuitesPanel extends Panel {
                     @Override
                     protected Object getProperty( Object object, String propertyExpression ) {
 
-                        Object value = PropertyResolver.getValue( propertyExpression, object );
-                        if( "userNote".equals( propertyExpression ) && value != null ) {
+                        Object value = PropertyResolver.getValue(propertyExpression, object);
+                        if ("userNote".equals(propertyExpression) && value != null) {
 
                             value = "<span title=\"" + value + "\">" + value + "</span>";
-                            setEscapeMarkup( false );
+                            setEscapeMarkup(false);
                         }
                         return value;
                     }
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new PropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                         cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public String getCellCssClass( IModel rowModel, int rowNum ) {
 
-                        if( "duration".equals( getId() ) ) {
+                        if ("duration".equals(getId())) {
                             return "durationCell";
-                        } else if( "packageName".equals( getId() ) ) {
+                        } else if ("packageName".equals(getId())) {
                             return "packageCell";
-                        } else if( "testcasesPassedPercent".equals( getId() ) ) {
+                        } else if ("testcasesPassedPercent".equals(getId())) {
                             return "passedCell";
-                        } else if( "failed".equals( getId() ) ) {
-                            Suite suite = ( Suite ) rowModel.getObject();
-                            if( suite.testcasesFailed > 0 ) {
+                        } else if ("failed".equals(getId())) {
+                            Suite suite = (Suite) rowModel.getObject();
+                            if (suite.testcasesFailed > 0) {
                                 return "failedBackground";
                             } else {
                                 return null;
                             }
-                        } else if( "scenariosSkipped".equals( getId() ) ) {
-                            Suite suite = ( Suite ) rowModel.getObject();
-                            if( suite.scenariosSkipped > 0 ) {
+                        } else if ("scenariosSkipped".equals(getId())) {
+                            Suite suite = (Suite) rowModel.getObject();
+                            if (suite.scenariosSkipped > 0) {
                                 return "skippedBackground";
                             } else {
                                 return null;
@@ -162,38 +162,38 @@ public class SuitesPanel extends Panel {
                     @Override
                     protected Object getProperty( Object object, String propertyExpression ) {
 
-                        Suite suiteObject = ( Suite ) object;
-                        if( "dateStart".equals( propertyExpression ) && suiteObject.getDateStart() != null ) {
-                            setEscapeMarkup( false );
+                        Suite suiteObject = (Suite) object;
+                        if ("dateStart".equals(propertyExpression) && suiteObject.getDateStart() != null) {
+                            setEscapeMarkup(false);
                             return "<span>" + suiteObject.getDateStart() + "</span>";
-                        } else if( "dateEnd".equals( propertyExpression )
-                                   && suiteObject.getDateEnd() != null ) {
-                            setEscapeMarkup( false );
+                        } else if ("dateEnd".equals(propertyExpression)
+                                   && suiteObject.getDateEnd() != null) {
+                            setEscapeMarkup(false);
                             return "<span>" + suiteObject.getDateEnd() + "</span>";
-                        } else if( "duration".equals( propertyExpression ) ) {
-                            setEscapeMarkup( false );
+                        } else if ("duration".equals(propertyExpression)) {
+                            setEscapeMarkup(false);
                             return "<span>"
-                                   + suiteObject.getDurationAsString( getTESession().getCurrentTimestamp() )
+                                   + suiteObject.getDurationAsString(getTESession().getCurrentTimestamp())
                                    + "</span>";
                         }
-                        return PropertyResolver.getValue( propertyExpression, object );
+                        return PropertyResolver.getValue(propertyExpression, object);
                     }
 
                 };
             }
 
             // Set column initial width
-            if( cd.getInitialWidth() >= 0 ) {
-                col.setInitialSize( cd.getInitialWidth() );
+            if (cd.getInitialWidth() >= 0) {
+                col.setInitialSize(cd.getInitialWidth());
             }
 
             // set column tooltip
-            col.setHeaderTooltipModel( cd.getTooltip() );
+            col.setHeaderTooltipModel(cd.getTooltip());
 
-            if( "User Note".equals( cd.getColumnName() ) ) {
-                col.setWrapText( true );
+            if ("User Note".equals(cd.getColumnName())) {
+                col.setWrapText(true);
             }
-            columns.add( col );
+            columns.add(col);
         }
 
         return columns;
@@ -201,7 +201,7 @@ public class SuitesPanel extends Panel {
 
     protected TestExplorerSession getTESession() {
 
-        return ( TestExplorerSession ) Session.get();
+        return (TestExplorerSession) Session.get();
     }
 
     public String getRun() {
@@ -218,9 +218,9 @@ public class SuitesPanel extends Panel {
      */
     public List<TableColumn> getTableColumnDefinitions() {
 
-        String dbName = ( ( TestExplorerSession ) Session.get() ).getDbName();
-        List<TableColumn> dbColumnDefinitionList = ( ( TestExplorerApplication ) getApplication() ).getColumnDefinition( dbName );
-        dbColumnDefinitionList = setTableColumnsProperties( dbColumnDefinitionList );
+        String dbName = ((TestExplorerSession) Session.get()).getDbName();
+        List<TableColumn> dbColumnDefinitionList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);
+        dbColumnDefinitionList = setTableColumnsProperties(dbColumnDefinitionList);
         return dbColumnDefinitionList;
     }
 
@@ -233,9 +233,9 @@ public class SuitesPanel extends Panel {
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
-        int arraySize = listSize( dbColumnDefinitionList );
+        int arraySize = listSize(dbColumnDefinitionList);
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
-        for( TableColumn element : dbColumnDefinitionList ) {
+        for (TableColumn element : dbColumnDefinitionList) {
 
             String name = element.getColumnName();
             String tableName = element.getParentTable();
@@ -243,50 +243,50 @@ public class SuitesPanel extends Panel {
             int length = element.getInitialWidth();
             boolean isVisible = element.isVisible();
 
-            if( "Suite".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getSuite( DB_TABLE_NAME, length,
-                                                                                 isVisible );
-            } else if( "Total".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal( DB_TABLE_NAME, length,
-                                                                                 isVisible );
-            } else if( "Failed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed( DB_TABLE_NAME, length,
-                                                                                  isVisible );
-            } else if( "Skipped".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped( DB_TABLE_NAME,
-                                                                                            length,
-                                                                                            isVisible );
+            if ("Suite".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getSuite(DB_TABLE_NAME, length,
+                                                                                isVisible);
+            } else if ("Total".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTotal(DB_TABLE_NAME, length,
+                                                                                isVisible);
+            } else if ("Failed".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getFailed(DB_TABLE_NAME, length,
+                                                                                 isVisible);
+            } else if ("Skipped".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getScenariosSkipped(DB_TABLE_NAME,
+                                                                                           length,
+                                                                                           isVisible);
 
-            } else if( "Passed".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcasesPassedPercent( DB_TABLE_NAME,
-                                                                                                  length,
-                                                                                                  isVisible );
-            } else if( "Running".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcaseIsRunning( DB_TABLE_NAME,
-                                                                                             length,
-                                                                                             isVisible );
-            } else if( "Start".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition( DB_TABLE_NAME,
-                                                                                               length,
-                                                                                               isVisible );
-            } else if( "End".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition( DB_TABLE_NAME,
-                                                                                             length,
-                                                                                             isVisible );
-            } else if( "Duration".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition( DB_TABLE_NAME,
+            } else if ("Passed".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcasesPassedPercent(DB_TABLE_NAME,
+                                                                                                 length,
+                                                                                                 isVisible);
+            } else if ("Running".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcaseIsRunning(DB_TABLE_NAME,
+                                                                                            length,
+                                                                                            isVisible);
+            } else if ("Start".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition(DB_TABLE_NAME,
                                                                                               length,
-                                                                                              isVisible );
-            } else if( "User Note".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition( DB_TABLE_NAME,
-                                                                                              length,
-                                                                                              isVisible );
-            } else if( "Package".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getPackage( DB_TABLE_NAME, length,
-                                                                                   isVisible );
+                                                                                              isVisible);
+            } else if ("End".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition(DB_TABLE_NAME,
+                                                                                            length,
+                                                                                            isVisible);
+            } else if ("Duration".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition(DB_TABLE_NAME,
+                                                                                             length,
+                                                                                             isVisible);
+            } else if ("User Note".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition(DB_TABLE_NAME,
+                                                                                             length,
+                                                                                             isVisible);
+            } else if ("Package".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getPackage(DB_TABLE_NAME, length,
+                                                                                  isVisible);
             }
         }
-        return Arrays.asList( dbColumnDefinitionArray );
+        return Arrays.asList(dbColumnDefinitionArray);
     }
 
     /**
@@ -296,8 +296,8 @@ public class SuitesPanel extends Panel {
     private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
-        for( TableColumn col : dbColumnDefinitionList ) {
-            if( DB_TABLE_NAME.equals( col.getParentTable() ) ) {
+        for (TableColumn col : dbColumnDefinitionList) {
+            if (DB_TABLE_NAME.equals(col.getParentTable())) {
                 size++;
             }
         }

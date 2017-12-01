@@ -28,12 +28,12 @@ import com.inmethod.grid.IDataSource;
 import com.inmethod.grid.IGridSortState;
 import com.inmethod.grid.IGridSortState.ISortStateColumn;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class ScenariosDataSource implements IDataSource {
 
     private static final long   serialVersionUID = 1L;
 
-    private static final Logger LOG              = Logger.getLogger( ScenariosDataSource.class );
+    private static final Logger LOG              = Logger.getLogger(ScenariosDataSource.class);
 
     private String              suiteId;
     private String              scenarioId;
@@ -52,7 +52,7 @@ public class ScenariosDataSource implements IDataSource {
     @Override
     public IModel<Scenario> model( final Object object ) {
 
-        return new ScenarioLoadableDetachableModel( ( Scenario ) object );
+        return new ScenarioLoadableDetachableModel((Scenario) object);
     }
 
     @Override
@@ -61,32 +61,33 @@ public class ScenariosDataSource implements IDataSource {
         String sortProperty = "scenarioId";
         boolean sortAsc = true;
         // is there any sorting
-        if( query.getSortState().getColumns().size() > 0 ) {
+        if (query.getSortState().getColumns().size() > 0) {
             // get the most relevant column
-            ISortStateColumn state = query.getSortState().getColumns().get( 0 );
+            ISortStateColumn state = query.getSortState().getColumns().get(0);
             // get the column sort properties
-            sortProperty = ( String ) state.getPropertyName();
+            sortProperty = (String) state.getPropertyName();
             sortAsc = state.getDirection() == IGridSortState.Direction.ASC;
         }
 
         List<Scenario> resultList;
         try {
-            TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
+            TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
             String whereClause;
-            if( this.scenarioId != null ) {
+            if (this.scenarioId != null) {
                 whereClause = "WHERE suiteId=" + this.suiteId + " and scenarioId=" + this.scenarioId;
             } else {
                 whereClause = "WHERE suiteId=" + this.suiteId;
             }
-            result.setTotalCount( dbAccess.getScenariosCount( whereClause ) );
+            result.setTotalCount(dbAccess.getScenariosCount(whereClause));
 
-            resultList = dbAccess.getScenarios( ( int ) ( query.getFrom() + 1 ),
-                                                ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                whereClause, sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
+            resultList = dbAccess.getScenarios((int) (query.getFrom() + 1),
+                                               (int) (query.getFrom() + query.getCount() + 1),
+                                               whereClause, sortProperty, sortAsc,
+                                               ((TestExplorerSession) Session.get()).getTimeOffset());
 
-            result.setItems( resultList.iterator() );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get scenarios", e );
+            result.setItems(resultList.iterator());
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get scenarios", e);
         }
     }
 

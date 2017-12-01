@@ -34,43 +34,43 @@ public class TestcasesPage extends BasePage {
 
     public TestcasesPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        String suiteId = TestExplorerUtils.extractPageParameter( parameters, "suiteId" );
-        String scenarioId = TestExplorerUtils.extractPageParameter( parameters, "scenarioId" );
+        String suiteId = TestExplorerUtils.extractPageParameter(parameters, "suiteId");
+        String scenarioId = TestExplorerUtils.extractPageParameter(parameters, "scenarioId");
 
         // organize navigation links
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
 
         PageNavigation navigation = null;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                        .getNavigationForTestcases( suiteId );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get navigation data for testcases with suiteId=" + suiteId, e );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                              .getNavigationForTestcases(suiteId);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get navigation data for testcases with suiteId=" + suiteId, e);
         }
 
-        if( navigation != null ) {
-            addNavigationLink( RunsPage.class,
-                               getRunsPageParameters( parameters ),
-                               "Runs",
-                               navigation.getRunName() );
-            addNavigationLink( SuitesPage.class,
-                               getSuitesPageParameters( parameters, navigation.getRunId() ),
-                               "Suites",
-                               navigation.getSuiteName() );
-            addNavigationLink( ScenariosPage.class,
-                               getScenariosPageParameters( parameters, navigation.getSuiteId() ),
-                               "Scenarios",
-                               navigation.getScenarioName() );
-            setRunIdToRunCopyLink( navigation.getRunId() );
-            
-            add( new TestcasesPanel( this, "testcases_info", suiteId, scenarioId ) );
+        if (navigation != null) {
+            addNavigationLink(RunsPage.class,
+                              getRunsPageParameters(parameters),
+                              "Runs",
+                              navigation.getRunName());
+            addNavigationLink(SuitesPage.class,
+                              getSuitesPageParameters(parameters, navigation.getRunId()),
+                              "Suites",
+                              navigation.getSuiteName());
+            addNavigationLink(ScenariosPage.class,
+                              getScenariosPageParameters(parameters, navigation.getSuiteId()),
+                              "Scenarios",
+                              navigation.getScenarioName());
+            setRunIdToRunCopyLink(navigation.getRunId());
 
-            singleTestIds.put( "runId", navigation.getRunId() );
-            singleTestIds.put( "suiteId", navigation.getSuiteId() );
-            singleTestIds.put( "scenarioId", navigation.getScenarioId() );
-            
+            add(new TestcasesPanel(this, "testcases_info", suiteId, scenarioId));
+
+            singleTestIds.put("runId", navigation.getRunId());
+            singleTestIds.put("suiteId", navigation.getSuiteId());
+            singleTestIds.put("scenarioId", navigation.getScenarioId());
+
         }
 
     }
@@ -80,8 +80,8 @@ public class TestcasesPage extends BasePage {
                                                        String suiteId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "suiteId", suiteId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("suiteId", suiteId);
         return newParams;
     }
 
@@ -90,8 +90,8 @@ public class TestcasesPage extends BasePage {
                                                     String runId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "runId", runId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("runId", runId);
         return newParams;
     }
 
@@ -99,7 +99,7 @@ public class TestcasesPage extends BasePage {
                                                   PageParameters parameters ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
+        newParams.add("dbname", parameters.get("dbname"));
         return newParams;
     }
 

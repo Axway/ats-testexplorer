@@ -34,7 +34,7 @@ import com.axway.ats.testexplorer.pages.runs.RunsPage;
 import com.axway.ats.testexplorer.pages.suites.SuitesPage;
 import com.inmethod.grid.column.WicketColumnAdapter;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings( { "unchecked", "rawtypes" })
 public class RunSuiteLinkColumn extends WicketColumnAdapter {
 
     private static final long serialVersionUID = 1L;
@@ -43,10 +43,10 @@ public class RunSuiteLinkColumn extends WicketColumnAdapter {
 
     public RunSuiteLinkColumn( TableColumn tableColumn ) {
 
-        super( tableColumn.getColumnId(),
-               new PropertyColumn( new PropertyModel<TableColumn>( tableColumn, "columnName" ),
-                                   tableColumn.getSortProperty(),
-                                   tableColumn.getPropertyExpression() ) );
+        super(tableColumn.getColumnId(),
+              new PropertyColumn(new PropertyModel<TableColumn>(tableColumn, "columnName"),
+                                 tableColumn.getSortProperty(),
+                                 tableColumn.getPropertyExpression()));
         this.tableColumn = tableColumn;
     }
 
@@ -56,8 +56,8 @@ public class RunSuiteLinkColumn extends WicketColumnAdapter {
                               String componentId,
                               IModel rowModel ) {
 
-        final Run run = ( Run ) rowModel.getObject();
-        Link<RunsPage> link = new Link<RunsPage>( componentId ) {
+        final Run run = (Run) rowModel.getObject();
+        Link<RunsPage> link = new Link<RunsPage>(componentId) {
 
             private static final long serialVersionUID = 1L;
 
@@ -67,10 +67,10 @@ public class RunSuiteLinkColumn extends WicketColumnAdapter {
                 // generate Bookmarkable link url
                 PageParameters parameters = new PageParameters();
                 // pass the run id
-                parameters.add( "runId", String.valueOf( run.runId ) );
+                parameters.add("runId", String.valueOf(run.runId));
                 //pass database name
-                parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
-                return urlFor( SuitesPage.class, parameters );
+                parameters.add("dbname", ((TestExplorerSession) Session.get()).getDbName());
+                return urlFor(SuitesPage.class, parameters);
             }
 
             @Override
@@ -84,8 +84,8 @@ public class RunSuiteLinkColumn extends WicketColumnAdapter {
                                            final ComponentTag tag ) {
 
                 // make tag <div wicket:id="item"> to link (<a wicket:id="item">)
-                tag.setName( "a" );
-                super.onComponentTag( tag );
+                tag.setName("a");
+                super.onComponentTag(tag);
             }
 
             @Override
@@ -93,13 +93,13 @@ public class RunSuiteLinkColumn extends WicketColumnAdapter {
                                             MarkupStream markupStream,
                                             ComponentTag tag ) {
 
-                replaceComponentTagBody( markupStream,
-                                         tag,
-                                         "<span title=\"" + run.runName + "\">" + run.runName + "</span>" );
+                replaceComponentTagBody(markupStream,
+                                        tag,
+                                        "<span title=\"" + run.runName + "\">" + run.runName + "</span>");
             }
 
         };
-        link.add( new AttributeAppender( "class", new Model<String>( "link" ), " " ) );
+        link.add(new AttributeAppender("class", new Model<String>("link"), " "));
 
         return link;
     }

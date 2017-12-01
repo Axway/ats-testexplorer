@@ -50,26 +50,26 @@ public class TestcasesPanel extends Panel {
     private static final long  serialVersionUID = 1L;
     public static final String DB_TABLE_NAME    = "tTestcases";
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings( { "unchecked", "rawtypes" })
     public TestcasesPanel( BasePage parentPage, String id, String suiteId, String scenarioId ) {
 
-        super( id );
+        super(id);
 
         // Add Testcases table
         List<TableColumn> columnDefinitions = getTableColumnDefinitions();
         List<IGridColumn> columns = new ArrayList<IGridColumn>();
 
-        columns.add( new CheckBoxColumn( "check" ) );
-        for( final TableColumn cd : columnDefinitions ) {
+        columns.add(new CheckBoxColumn("check"));
+        for (final TableColumn cd : columnDefinitions) {
 
             AbstractColumn col;
-            if( "Testcase".equals( cd.getColumnName() ) ) {
+            if ("Testcase".equals(cd.getColumnName())) {
 
-                col = new TestcasesTestcaseLinkColumn( cd );
-            } else if( cd.isEditable() ) {
+                col = new TestcasesTestcaseLinkColumn(cd);
+            } else if (cd.isEditable()) {
 
-                col = new EditablePropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                                  cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new EditablePropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                                 cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -77,11 +77,11 @@ public class TestcasesPanel extends Panel {
                     @Override
                     protected Object getProperty( Object object, String propertyExpression ) {
 
-                        Object value = PropertyResolver.getValue( propertyExpression, object );
-                        if( "userNote".equals( propertyExpression ) && value != null ) {
+                        Object value = PropertyResolver.getValue(propertyExpression, object);
+                        if ("userNote".equals(propertyExpression) && value != null) {
 
                             value = "<span title=\"" + value + "\">" + value + "</span>";
-                            setEscapeMarkup( false );
+                            setEscapeMarkup(false);
                         }
                         return value;
                     }
@@ -94,17 +94,17 @@ public class TestcasesPanel extends Panel {
                 };
             } else {
 
-                col = new PropertyColumn( cd.getColumnId(), new Model<String>( cd.getColumnName() ),
-                                          cd.getPropertyExpression(), cd.getSortProperty() ) {
+                col = new PropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
+                                         cd.getPropertyExpression(), cd.getSortProperty()) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public String getCellCssClass( IModel rowModel, int rowNum ) {
 
-                        if( "state".equals( getId() ) ) {
-                            return ( ( Testcase ) rowModel.getObject() ).state.toLowerCase() + "State";
-                        } else if( "duration".equals( getId() ) ) {
+                        if ("state".equals(getId())) {
+                            return ((Testcase) rowModel.getObject()).state.toLowerCase() + "State";
+                        } else if ("duration".equals(getId())) {
                             return "durationCell";
                         }
                         return null;
@@ -120,27 +120,27 @@ public class TestcasesPanel extends Panel {
                     @Override
                     protected Object getProperty( Object object, String propertyExpression ) {
 
-                        Testcase testcaseObject = ( Testcase ) object;
-                        if( "dateStart".equals( propertyExpression )
-                            && testcaseObject.getDateStart() != null ) {
-                            setEscapeMarkup( false );
+                        Testcase testcaseObject = (Testcase) object;
+                        if ("dateStart".equals(propertyExpression)
+                            && testcaseObject.getDateStart() != null) {
+                            setEscapeMarkup(false);
                             return "<span>" + testcaseObject.getDateStart() + "</span>";
-                        } else if( "dateEnd".equals( propertyExpression )
-                                   && testcaseObject.getDateEnd() != null ) {
-                            setEscapeMarkup( false );
+                        } else if ("dateEnd".equals(propertyExpression)
+                                   && testcaseObject.getDateEnd() != null) {
+                            setEscapeMarkup(false);
                             return "<span>" + testcaseObject.getDateEnd() + "</span>";
-                        } else if( "duration".equals( propertyExpression ) ) {
-                            setEscapeMarkup( false );
+                        } else if ("duration".equals(propertyExpression)) {
+                            setEscapeMarkup(false);
                             return "<span>"
-                                   + testcaseObject.getDurationAsString( getTESession().getCurrentTimestamp() )
+                                   + testcaseObject.getDurationAsString(getTESession().getCurrentTimestamp())
                                    + "</span>";
                         }
 
-                        Object value = PropertyResolver.getValue( propertyExpression, object );
-                        if( "description".equals( propertyExpression ) && value != null ) {
+                        Object value = PropertyResolver.getValue(propertyExpression, object);
+                        if ("description".equals(propertyExpression) && value != null) {
 
                             value = "<span title=\"" + value + "\">" + value + "</span>";
-                            setEscapeMarkup( false );
+                            setEscapeMarkup(false);
                         }
                         return value;
                     }
@@ -149,60 +149,60 @@ public class TestcasesPanel extends Panel {
             }
 
             // Set column initial width
-            if( cd.getInitialWidth() >= 0 ) {
-                col.setInitialSize( cd.getInitialWidth() );
+            if (cd.getInitialWidth() >= 0) {
+                col.setInitialSize(cd.getInitialWidth());
             }
 
             // set column tooltip
-            col.setHeaderTooltipModel( cd.getTooltip() );
+            col.setHeaderTooltipModel(cd.getTooltip());
 
-            if( "User Note".equals( cd.getColumnName() ) ) {
-                col.setWrapText( true );
+            if ("User Note".equals(cd.getColumnName())) {
+                col.setWrapText(true);
             }
-            columns.add( col );
+            columns.add(col);
         }
 
         int supportedGridOperations = MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
                                       | MainDataGrid.OPERATION_ADD_TO_COMPARE
                                       | MainDataGrid.OPERATION_CREATE_REPORT;
-        if( parentPage.showTestcaseStatusChangeButtons ) {
+        if (parentPage.showTestcaseStatusChangeButtons) {
             supportedGridOperations |= MainDataGrid.OPERATION_STATUS_CHANGE;
         }
 
-        final MainDataGrid grid = new MainDataGrid( "testcasesTable",
-                                                    new TestcasesDataSource( suiteId, scenarioId ), columns,
-                                                    columnDefinitions, "Testcases", supportedGridOperations );
+        final MainDataGrid grid = new MainDataGrid("testcasesTable",
+                                                   new TestcasesDataSource(suiteId, scenarioId), columns,
+                                                   columnDefinitions, "Testcases", supportedGridOperations);
 
-        ( ( TestcasesDataSource ) grid.getDataSource() ).setDataGrid( grid );
-        grid.setGridColumnsState( columnDefinitions );
-        grid.setAllowSelectMultiple( true );
-        grid.setSelectToEdit( false );
-        grid.setClickRowToSelect( true );
-        grid.setClickRowToDeselect( true );
-        grid.setCleanSelectionOnPageChange( true );
+        ((TestcasesDataSource) grid.getDataSource()).setDataGrid(grid);
+        grid.setGridColumnsState(columnDefinitions);
+        grid.setAllowSelectMultiple(true);
+        grid.setSelectToEdit(false);
+        grid.setClickRowToSelect(true);
+        grid.setClickRowToDeselect(true);
+        grid.setCleanSelectionOnPageChange(true);
 
-        add( grid );
+        add(grid);
 
-        parentPage.setMainGrid( grid );
+        parentPage.setMainGrid(grid);
 
-        Form<Object> hiddenForm = new Form<Object>( "hiddenForm" );
-        AjaxButton hiddenRefreshButton = new AjaxButton( "hiddenRefreshButton" ) {
+        Form<Object> hiddenForm = new Form<Object>("hiddenForm");
+        AjaxButton hiddenRefreshButton = new AjaxButton("hiddenRefreshButton") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                target.add( grid );
+                target.add(grid);
             }
         };
-        hiddenForm.add( hiddenRefreshButton );
-        add( hiddenForm );
+        hiddenForm.add(hiddenRefreshButton);
+        add(hiddenForm);
     }
 
     protected TestExplorerSession getTESession() {
 
-        return ( TestExplorerSession ) Session.get();
+        return (TestExplorerSession) Session.get();
     }
 
     /**
@@ -214,9 +214,9 @@ public class TestcasesPanel extends Panel {
      */
     private List<TableColumn> getTableColumnDefinitions() {
 
-        String dbName = ( ( TestExplorerSession ) Session.get() ).getDbName();
-        List<TableColumn> dbColumnDefinitionList = ( ( TestExplorerApplication ) getApplication() ).getColumnDefinition( dbName );
-        dbColumnDefinitionList = setTableColumnsProperties( dbColumnDefinitionList );
+        String dbName = ((TestExplorerSession) Session.get()).getDbName();
+        List<TableColumn> dbColumnDefinitionList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);
+        dbColumnDefinitionList = setTableColumnsProperties(dbColumnDefinitionList);
         return dbColumnDefinitionList;
     }
 
@@ -229,10 +229,10 @@ public class TestcasesPanel extends Panel {
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {
 
-        int arraySize = listSize( dbColumnDefinitionList );
+        int arraySize = listSize(dbColumnDefinitionList);
         TableColumn[] dbColumnDefinitionArray = new TableColumn[arraySize];
 
-        for( TableColumn element : dbColumnDefinitionList ) {
+        for (TableColumn element : dbColumnDefinitionList) {
 
             String name = element.getColumnName();
             String tableName = element.getParentTable();
@@ -240,31 +240,31 @@ public class TestcasesPanel extends Panel {
             int length = element.getInitialWidth();
             boolean isVisible = element.isVisible();
 
-            if( "Testcase".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcase( DB_TABLE_NAME, length,
-                                                                                    isVisible );
-            } else if( "State".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getState( DB_TABLE_NAME, length,
-                                                                                 isVisible );
-            } else if( "Start".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition( DB_TABLE_NAME,
-                                                                                               length,
-                                                                                               isVisible );
-            } else if( "End".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition( DB_TABLE_NAME,
+            if ("Testcase".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getTestcase(DB_TABLE_NAME, length,
+                                                                                   isVisible);
+            } else if ("State".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getState(DB_TABLE_NAME, length,
+                                                                                isVisible);
+            } else if ("Start".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateStartDefinition(DB_TABLE_NAME,
+                                                                                              length,
+                                                                                              isVisible);
+            } else if ("End".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDateEndDefinition(DB_TABLE_NAME,
+                                                                                            length,
+                                                                                            isVisible);
+            } else if ("Duration".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition(DB_TABLE_NAME,
                                                                                              length,
-                                                                                             isVisible );
-            } else if( "Duration".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getDurationDefinition( DB_TABLE_NAME,
-                                                                                              length,
-                                                                                              isVisible );
-            } else if( "User Note".equals( name ) && DB_TABLE_NAME.equalsIgnoreCase( tableName ) ) {
-                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition( DB_TABLE_NAME,
-                                                                                              length,
-                                                                                              isVisible );
+                                                                                             isVisible);
+            } else if ("User Note".equals(name) && DB_TABLE_NAME.equalsIgnoreCase(tableName)) {
+                dbColumnDefinitionArray[--position] = TableDefinitions.getUserNoteDefinition(DB_TABLE_NAME,
+                                                                                             length,
+                                                                                             isVisible);
             }
         }
-        return Arrays.asList( dbColumnDefinitionArray );
+        return Arrays.asList(dbColumnDefinitionArray);
     }
 
     /**
@@ -274,8 +274,8 @@ public class TestcasesPanel extends Panel {
     private int listSize( List<TableColumn> dbColumnDefinitionList ) {
 
         int size = 0;
-        for( TableColumn col : dbColumnDefinitionList ) {
-            if( DB_TABLE_NAME.equals( col.getParentTable() ) ) {
+        for (TableColumn col : dbColumnDefinitionList) {
+            if (DB_TABLE_NAME.equals(col.getParentTable())) {
                 size++;
             }
         }

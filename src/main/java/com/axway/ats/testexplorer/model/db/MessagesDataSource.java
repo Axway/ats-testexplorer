@@ -29,12 +29,12 @@ import com.inmethod.grid.IDataSource;
 import com.inmethod.grid.IGridSortState;
 import com.inmethod.grid.IGridSortState.ISortStateColumn;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class MessagesDataSource implements IDataSource {
 
     private static final long   serialVersionUID = 1L;
 
-    private static final Logger LOG              = Logger.getLogger( MessagesDataSource.class );
+    private static final Logger LOG              = Logger.getLogger(MessagesDataSource.class);
 
     private MessagesPanel       messagesPanel;
 
@@ -46,7 +46,7 @@ public class MessagesDataSource implements IDataSource {
     @Override
     public IModel<Message> model( final Object object ) {
 
-        return new MessageLoadableDetachableModel( ( Message ) object );
+        return new MessageLoadableDetachableModel((Message) object);
     }
 
     @Override
@@ -55,54 +55,54 @@ public class MessagesDataSource implements IDataSource {
         String sortProperty = "timestamp";
         boolean sortAsc = true;
         // is there any sorting
-        if( query.getSortState().getColumns().size() > 0 ) {
+        if (query.getSortState().getColumns().size() > 0) {
             // get the most relevant column
-            ISortStateColumn state = query.getSortState().getColumns().get( 0 );
+            ISortStateColumn state = query.getSortState().getColumns().get(0);
             // get the column sort properties
-            sortProperty = ( String ) state.getPropertyName();
+            sortProperty = (String) state.getPropertyName();
             sortAsc = state.getDirection() == IGridSortState.Direction.ASC;
         }
 
         List<Message> resultList;
         try {
-            TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
-            result.setTotalCount( getMessagesCount( dbAccess ) );
+            TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
+            result.setTotalCount(getMessagesCount(dbAccess));
 
-            if( "run".equals( checkMessageInstance() ) ) {
+            if ("run".equals(checkMessageInstance())) {
 
-                resultList = dbAccess.getRunMessages( ( int ) ( query.getFrom() + 1 ),
-                                                      ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                      getWhereClause(), sortProperty, sortAsc,
-                                                      ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
-            } else if( "suite".equals( checkMessageInstance() ) ) {
-                resultList = dbAccess.getSuiteMessages( ( int ) ( query.getFrom() + 1 ),
-                                                        ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                        getWhereClause(), sortProperty, sortAsc,
-                                                        ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
+                resultList = dbAccess.getRunMessages((int) (query.getFrom() + 1),
+                                                     (int) (query.getFrom() + query.getCount() + 1),
+                                                     getWhereClause(), sortProperty, sortAsc,
+                                                     ((TestExplorerSession) Session.get()).getTimeOffset());
+            } else if ("suite".equals(checkMessageInstance())) {
+                resultList = dbAccess.getSuiteMessages((int) (query.getFrom() + 1),
+                                                       (int) (query.getFrom() + query.getCount() + 1),
+                                                       getWhereClause(), sortProperty, sortAsc,
+                                                       ((TestExplorerSession) Session.get()).getTimeOffset());
             } else {
 
-                resultList = dbAccess.getMessages( ( int ) ( query.getFrom() + 1 ),
-                                                   ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                   getWhereClause(), sortProperty, sortAsc,
-                                                   ( ( TestExplorerSession ) Session.get() ).getTimeOffset() );
+                resultList = dbAccess.getMessages((int) (query.getFrom() + 1),
+                                                  (int) (query.getFrom() + query.getCount() + 1),
+                                                  getWhereClause(), sortProperty, sortAsc,
+                                                  ((TestExplorerSession) Session.get()).getTimeOffset());
             }
 
-            result.setItems( resultList.iterator() );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get messages", e );
+            result.setItems(resultList.iterator());
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get messages", e);
         }
     }
 
     protected int
             getMessagesCount( TestExplorerDbReadAccessInterface dbAccess ) throws DatabaseAccessException {
 
-        return dbAccess.getMessagesCount( getWhereClause() );
+        return dbAccess.getMessagesCount(getWhereClause());
 
     }
 
     protected String getWhereClause() {
 
-        return messagesPanel.getMessageFilter().getWhereClause( "testcaseId" );
+        return messagesPanel.getMessageFilter().getWhereClause("testcaseId");
 
     }
 

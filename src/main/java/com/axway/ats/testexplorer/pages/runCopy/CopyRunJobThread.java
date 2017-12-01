@@ -30,7 +30,7 @@ public class CopyRunJobThread extends CopyJobThread {
 
     private int               sourceRunId;
 
-    protected static Logger   LOG              = Logger.getLogger( CopyRunJobThread.class );
+    protected static Logger   LOG              = Logger.getLogger(CopyRunJobThread.class);
 
     private String            copyDescription;
 
@@ -45,15 +45,15 @@ public class CopyRunJobThread extends CopyJobThread {
                              String dbPassword,
                              List<String> webConsole ) {
 
-        super( sourceHost,
-               sourcePort,
-               sourceDbName,
-               destinationHost,
-               destinationPort,
-               destinationDbName,
-               dbUsername,
-               dbPassword,
-               webConsole );
+        super(sourceHost,
+              sourcePort,
+              sourceDbName,
+              destinationHost,
+              destinationPort,
+              destinationDbName,
+              dbUsername,
+              dbPassword,
+              webConsole);
 
         this.sourceRunId = sourceRunId;
 
@@ -62,23 +62,23 @@ public class CopyRunJobThread extends CopyJobThread {
                           + getDestinationDbName();
 
         try {
-            copyUtility = new RunCopyUtility( sourceHost,
-                                              sourcePort,
-                                              sourceDbName,
-                                              sourceRunId,
-                                              destinationHost,
-                                              destinationPort,
-                                              destinationDbName,
-                                              dbUsername,
-                                              dbPassword,
-                                              webConsole );
+            copyUtility = new RunCopyUtility(sourceHost,
+                                             sourcePort,
+                                             sourceDbName,
+                                             sourceRunId,
+                                             destinationHost,
+                                             destinationPort,
+                                             destinationDbName,
+                                             dbUsername,
+                                             dbPassword,
+                                             webConsole);
 
             isInitSuccessful = true;
-        } catch( Throwable t ) {
+        } catch (Throwable t) {
 
-            LOG.error( "Unable to initialize connection to database " + sourceDbName + " on " + sourceHost
-                       + " or " + destinationDbName + " on" + destinationHost, t );
-            addToWebConsole( t );
+            LOG.error("Unable to initialize connection to database " + sourceDbName + " on " + sourceHost
+                      + " or " + destinationDbName + " on" + destinationHost, t);
+            addToWebConsole(t);
         }
     }
 
@@ -86,28 +86,28 @@ public class CopyRunJobThread extends CopyJobThread {
     public void run() {
 
         try {
-            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
+            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-            addToWebConsole( "Copying " + copyDescription, false );
+            addToWebConsole("Copying " + copyDescription, false);
 
             Date copyStartTime = new Date();
             copyUtility.doCopy();
             Date copyEndTime = new Date();
 
-            addToWebConsole( "Successfully copied " + copyDescription + "\nCopy process started at "
-                                     + DATE_FORMAT.format( copyStartTime ) + " and ended at "
-                                     + DATE_FORMAT.format( copyEndTime ),
-                             false );
-        } catch( Throwable t ) {
+            addToWebConsole("Successfully copied " + copyDescription + "\nCopy process started at "
+                            + DATE_FORMAT.format(copyStartTime) + " and ended at "
+                            + DATE_FORMAT.format(copyEndTime),
+                            false);
+        } catch (Throwable t) {
 
-            LOG.error( "Unable to copy " + sourceRunId + copyDescription, t );
-            addToWebConsole( t );
+            LOG.error("Unable to copy " + sourceRunId + copyDescription, t);
+            addToWebConsole(t);
         }
 
         // remove current job from the list of all coping jobs
-        synchronized( RunCopyPage.copyJobThreads ) {
+        synchronized (RunCopyPage.copyJobThreads) {
 
-            RunCopyPage.copyJobThreads.remove( this );
+            RunCopyPage.copyJobThreads.remove(this);
         }
 
         stopConsoleUpdateTimers();

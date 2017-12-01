@@ -30,7 +30,7 @@ public class CopyTestcasesJobThread extends CopyJobThread {
 
     private static final long serialVersionUID = 1L;
 
-    protected static Logger   LOG              = Logger.getLogger( CopyTestcasesJobThread.class );
+    protected static Logger   LOG              = Logger.getLogger(CopyTestcasesJobThread.class);
 
     private String            copyDescription;
 
@@ -49,49 +49,49 @@ public class CopyTestcasesJobThread extends CopyJobThread {
                                    boolean overwriteAllTestcases,
                                    List<String> webConsole ) {
 
-        super( sourceHost,
-               sourcePort,
-               sourceDbName,
-               destinationHost,
-               destinationPort,
-               destinationDbName,
-               dbUsername,
-               dbPassword,
-               webConsole );
+        super(sourceHost,
+              sourcePort,
+              sourceDbName,
+              destinationHost,
+              destinationPort,
+              destinationDbName,
+              dbUsername,
+              dbPassword,
+              webConsole);
 
-        if( srcEntityTypes == ENTITY_TYPES.SUITES ) {
-            copyDescription = "testcases from suites with ids " + Arrays.toString( srcEntityIds );
-        } else if( srcEntityTypes == ENTITY_TYPES.SCENARIOS ) {
-            copyDescription = "testcases from scenarios with ids " + Arrays.toString( srcEntityIds );
+        if (srcEntityTypes == ENTITY_TYPES.SUITES) {
+            copyDescription = "testcases from suites with ids " + Arrays.toString(srcEntityIds);
+        } else if (srcEntityTypes == ENTITY_TYPES.SCENARIOS) {
+            copyDescription = "testcases from scenarios with ids " + Arrays.toString(srcEntityIds);
         } else { //ENTITY_TYPES.TESTCASES
-            copyDescription = "testcases with ids " + Arrays.toString( srcEntityIds );
+            copyDescription = "testcases with ids " + Arrays.toString(srcEntityIds);
         }
         copyDescription = copyDescription + " from " + sourceDbName + " on " + sourceHost
                           + " to run with id " + destinationRunId + " in " + destinationDbName + " on "
                           + destinationHost;
 
         try {
-            copyUtility = new TestcasesCopyUtility( sourceHost,
-                                                    sourcePort,
-                                                    sourceDbName,
-                                                    destinationHost,
-                                                    destinationPort,
-                                                    destinationDbName,
-                                                    dbUsername,
-                                                    dbPassword,
-                                                    srcSuiteId,
-                                                    srcEntityIds,
-                                                    srcEntityTypes,
-                                                    overwriteAllTestcases,
-                                                    destinationRunId,
-                                                    webConsole );
+            copyUtility = new TestcasesCopyUtility(sourceHost,
+                                                   sourcePort,
+                                                   sourceDbName,
+                                                   destinationHost,
+                                                   destinationPort,
+                                                   destinationDbName,
+                                                   dbUsername,
+                                                   dbPassword,
+                                                   srcSuiteId,
+                                                   srcEntityIds,
+                                                   srcEntityTypes,
+                                                   overwriteAllTestcases,
+                                                   destinationRunId,
+                                                   webConsole);
 
             isInitSuccessful = true;
-        } catch( Throwable t ) {
+        } catch (Throwable t) {
 
-            LOG.error( "Unable to initialize connection to database " + sourceDbName + " on " + sourceHost
-                       + " or " + destinationDbName + " on" + destinationHost, t );
-            addToWebConsole( t );
+            LOG.error("Unable to initialize connection to database " + sourceDbName + " on " + sourceHost
+                      + " or " + destinationDbName + " on" + destinationHost, t);
+            addToWebConsole(t);
         }
     }
 
@@ -99,28 +99,28 @@ public class CopyTestcasesJobThread extends CopyJobThread {
     public void run() {
 
         try {
-            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
+            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-            addToWebConsole( "Copying " + copyDescription, false );
+            addToWebConsole("Copying " + copyDescription, false);
 
             Date copyStartTime = new Date();
             copyUtility.doCopy();
             Date copyEndTime = new Date();
 
-            addToWebConsole( "Successfully copied " + copyDescription + "\nCopy process started at "
-                                     + DATE_FORMAT.format( copyStartTime ) + " and ended at "
-                                     + DATE_FORMAT.format( copyEndTime ),
-                             false );
-        } catch( Throwable t ) {
+            addToWebConsole("Successfully copied " + copyDescription + "\nCopy process started at "
+                            + DATE_FORMAT.format(copyStartTime) + " and ended at "
+                            + DATE_FORMAT.format(copyEndTime),
+                            false);
+        } catch (Throwable t) {
 
-            LOG.error( "Unable to copy " + copyDescription, t );
-            addToWebConsole( t );
+            LOG.error("Unable to copy " + copyDescription, t);
+            addToWebConsole(t);
         }
 
         // remove current job from the list of all coping jobs
-        synchronized( TestcasesCopyPage.copyJobThreads ) {
+        synchronized (TestcasesCopyPage.copyJobThreads) {
 
-            TestcasesCopyPage.copyJobThreads.remove( this );
+            TestcasesCopyPage.copyJobThreads.remove(this);
         }
 
         stopConsoleUpdateTimers();

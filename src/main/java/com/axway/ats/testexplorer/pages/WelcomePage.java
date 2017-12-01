@@ -51,17 +51,17 @@ public class WelcomePage extends BasePage {
 
     private static final long      serialVersionUID     = 1L;
 
-    private TextField<String>      newDatabaseTextField = new TextField<String>( "new_database",
-                                                                                 new Model<String>( "" ) );
+    private TextField<String>      newDatabaseTextField = new TextField<String>("new_database",
+                                                                                new Model<String>(""));
 
-    private DropDownChoice<Object> databaseChoices      = new DropDownChoice<Object>( "databases",
-                                                                                      new PropertyModel<Object>( this,
-                                                                                                                 "" ),
-                                                                                      loadDatabasesList() );
+    private DropDownChoice<Object> databaseChoices      = new DropDownChoice<Object>("databases",
+                                                                                     new PropertyModel<Object>(this,
+                                                                                                               ""),
+                                                                                     loadDatabasesList());
 
     public WelcomePage() {
 
-        add( new SelectDatabaseForm( "databases_form" ) );
+        add(new SelectDatabaseForm("databases_form"));
     }
 
     @Override
@@ -75,13 +75,13 @@ public class WelcomePage extends BasePage {
 
         public SelectDatabaseForm( String id ) {
 
-            super( id );
+            super(id);
 
             // text field for specifying a new database
-            add( newDatabaseTextField );
+            add(newDatabaseTextField);
 
             // the form submit button
-            AjaxButton exploreDatabaseButton = new AjaxButton( "explore_database" ) {
+            AjaxButton exploreDatabaseButton = new AjaxButton("explore_database") {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -93,40 +93,40 @@ public class WelcomePage extends BasePage {
                     String actualDb = null;
 
                     String newDbSelected = newDatabaseTextField.getModelObject();
-                    if( newDbSelected != null && newDbSelected.trim().length() > 0 ) {
+                    if (newDbSelected != null && newDbSelected.trim().length() > 0) {
                         actualDb = newDbSelected;
                     } else {
                         Object knownDbSelected = databaseChoices.getModelObject();
-                        if( knownDbSelected != null && knownDbSelected instanceof String
-                            && ( ( String ) knownDbSelected ).length() > 0 ) {
+                        if (knownDbSelected != null && knownDbSelected instanceof String
+                            && ((String) knownDbSelected).length() > 0) {
 
-                            actualDb = ( String ) knownDbSelected;
+                            actualDb = (String) knownDbSelected;
                         }
                     }
 
-                    if( actualDb != null ) {
+                    if (actualDb != null) {
                         actualDb = actualDb.trim();
-                        if( initializeDatabaseConnection( actualDb ) ) {
-                            updateDatabasesList( actualDb );
+                        if (initializeDatabaseConnection(actualDb)) {
+                            updateDatabasesList(actualDb);
 
                             PageParameters parameters = new PageParameters();
                             // pass database name
-                            parameters.add( "dbname", actualDb );
-                            setResponsePage( RunsPage.class, parameters );
+                            parameters.add("dbname", actualDb);
+                            setResponsePage(RunsPage.class, parameters);
                         }
                     } else {
-                        error( "Database name field is empty" );
+                        error("Database name field is empty");
                     }
                 }
             };
 
-            add( exploreDatabaseButton );
+            add(exploreDatabaseButton);
             // search button is the button to trigger when user hit the enter
             // key
-            this.setDefaultButton( exploreDatabaseButton );
+            this.setDefaultButton(exploreDatabaseButton);
 
             // list with already known databases
-            add( new ListView<String>( "dbLinksList", loadDatabasesList() ) {
+            add(new ListView<String>("dbLinksList", loadDatabasesList()) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -135,26 +135,26 @@ public class WelcomePage extends BasePage {
 
                     final String dbName = item.getModelObject();
 
-                    item.add( new Link<RunsPage>( "dbLink" ) {
+                    item.add(new Link<RunsPage>("dbLink") {
                         private static final long serialVersionUID = 1L;
 
                         @Override
                         public void onClick() {
 
-                            if( initializeDatabaseConnection( dbName ) ) {
-                                updateDatabasesList( dbName );
+                            if (initializeDatabaseConnection(dbName)) {
+                                updateDatabasesList(dbName);
 
                                 PageParameters parameters = new PageParameters();
                                 // pass database name
-                                parameters.add( "dbname", dbName );
-                                setResponsePage( RunsPage.class, parameters );
+                                parameters.add("dbname", dbName);
+                                setResponsePage(RunsPage.class, parameters);
                             }
                         }
 
-                    }.add( new Label( "dbLinkText", humanReadableDbName( dbName ) ) )
-                     .add( AttributeModifier.replace( "title", dbName ) ) );
+                    }.add(new Label("dbLinkText", humanReadableDbName(dbName)))
+                     .add(AttributeModifier.replace("title", dbName)));
                 }
-            } );
+            });
         }
     }
 
@@ -164,29 +164,29 @@ public class WelcomePage extends BasePage {
         BufferedReader buff = null;
         try {
             File dbListFile = findDatabaseListFile();
-            if( dbListFile != null ) {
-                FileInputStream fis = new FileInputStream( dbListFile );
+            if (dbListFile != null) {
+                FileInputStream fis = new FileInputStream(dbListFile);
 
-                DataInputStream dins = new DataInputStream( fis );
-                buff = new BufferedReader( new InputStreamReader( dins ) );
+                DataInputStream dins = new DataInputStream(fis);
+                buff = new BufferedReader(new InputStreamReader(dins));
                 String line;
-                while( ( line = buff.readLine() ) != null ) {
+                while ( (line = buff.readLine()) != null) {
                     line = line.trim();
-                    if( line.length() > 0 ) {
-                        databases.add( line );
+                    if (line.length() > 0) {
+                        databases.add(line);
                     }
                 }
-                IoUtils.closeStream( dins );
+                IoUtils.closeStream(dins);
             } else {
-                LOG.error( "Could not find databases.txt file" );
+                LOG.error("Could not find databases.txt file");
             }
-        } catch( Exception e ) {
-            LOG.error( "Error loading databases list from databases.txt file", e );
-        }finally{
+        } catch (Exception e) {
+            LOG.error("Error loading databases list from databases.txt file", e);
+        } finally {
             try {
                 buff.close();
-            } catch( IOException e ) {
-                LOG.error( "Unable to close stream used for loading of known dababases." );
+            } catch (IOException e) {
+                LOG.error("Unable to close stream used for loading of known dababases.");
             }
         }
 
@@ -197,11 +197,11 @@ public class WelcomePage extends BasePage {
                                                   String dbName ) {
 
         try {
-            getTESession().initializeDbReadConnection( dbName );
+            getTESession().initializeDbReadConnection(dbName);
             return true;
-        } catch( DatabaseAccessException e ) {
-            error( "Unable to connect to database '" + dbName + "': " + e.getMessage() );
-            LOG.error( "Unable to connect to database '" + dbName + "'", e );
+        } catch (DatabaseAccessException e) {
+            error("Unable to connect to database '" + dbName + "': " + e.getMessage());
+            LOG.error("Unable to connect to database '" + dbName + "'", e);
             return false;
         }
     }
@@ -213,43 +213,43 @@ public class WelcomePage extends BasePage {
 
         boolean isDatabaseAlreadyPresent = false;
         StringBuilder sb = new StringBuilder();
-        for( Object db : databases ) {
-            if( newDatabase.endsWith( db.toString() ) ) {
+        for (Object db : databases) {
+            if (newDatabase.endsWith(db.toString())) {
                 isDatabaseAlreadyPresent = true;
             }
-            sb.append( db.toString() ).append( AtsSystemProperties.SYSTEM_LINE_SEPARATOR );
+            sb.append(db.toString()).append(AtsSystemProperties.SYSTEM_LINE_SEPARATOR);
         }
 
         // add the new DB
-        if( isDatabaseAlreadyPresent ) {
+        if (isDatabaseAlreadyPresent) {
             return;
         } else {
-            sb.append( newDatabase ).append( AtsSystemProperties.SYSTEM_LINE_SEPARATOR );
+            sb.append(newDatabase).append(AtsSystemProperties.SYSTEM_LINE_SEPARATOR);
         }
 
         // update the file
         try {
             File dbListFile = findDatabaseListFile();
-            if( dbListFile != null ) {
+            if (dbListFile != null) {
 
-                OutputStream fos = new FileOutputStream( dbListFile );
-                fos.write( sb.toString().getBytes() );
-                IoUtils.closeStream( fos );
+                OutputStream fos = new FileOutputStream(dbListFile);
+                fos.write(sb.toString().getBytes());
+                IoUtils.closeStream(fos);
             } else {
-                LOG.error( "Could not find databases.txt file" );
+                LOG.error("Could not find databases.txt file");
             }
-        } catch( Exception e ) {
-            LOG.error( "Error updating databases list in databases.txt file", e );
+        } catch (Exception e) {
+            LOG.error("Error updating databases list in databases.txt file", e);
         }
     }
 
     private static File findDatabaseListFile() {
 
-        URL url = WelcomePage.class.getResource( "/databases.txt" );
+        URL url = WelcomePage.class.getResource("/databases.txt");
         try {
-            return new File( url.toURI() );
-        } catch( URISyntaxException e ) {
-            LOG.error( "Unable to construct URL for resource with filepath '/databases.txt'", e);
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            LOG.error("Unable to construct URL for resource with filepath '/databases.txt'", e);
             return null;
         }
     }
@@ -266,7 +266,7 @@ public class WelcomePage extends BasePage {
     private String humanReadableDbName(
                                         String dbName ) {
 
-        dbName = dbName.replace( '_', ' ' );
+        dbName = dbName.replace('_', ' ');
         try {
 
             // Make lines by:
@@ -282,13 +282,13 @@ public class WelcomePage extends BasePage {
             int lastLowCaseChar = 0;
             char prevCh = ' ';
             int i = 0;
-            for( i = 0; i < dbName.length(); i++ ) {
-                char ch = dbName.charAt( i );
+            for (i = 0; i < dbName.length(); i++) {
+                char ch = dbName.charAt(i);
                 // Upper after Lower case letter
-                if( ( Character.isUpperCase( ch ) && Character.isLowerCase( prevCh ) )
-                    || ( lineLength > 10 ) /* the line is too long */ ) {
+                if ( (Character.isUpperCase(ch) && Character.isLowerCase(prevCh))
+                     || (lineLength > 10) /* the line is too long */ ) {
 
-                    newDbName.append( ' ' ).append( ch );
+                    newDbName.append(' ').append(ch);
                     lineLength = 1;
 
                     /*
@@ -296,40 +296,40 @@ public class WelcomePage extends BasePage {
                      * Upper followed by Lower - e.g. "ATS Functional"
                      */
                 } else {
-                    if( Character.isLowerCase( ch ) && Character.isUpperCase( prevCh )
+                    if (Character.isLowerCase(ch) && Character.isUpperCase(prevCh)
                         && newDbName.length() > 1
                         // check if 2 symbols back, the symbol is uppercase, so if we should add whitespace
-                        && Character.isUpperCase( newDbName.charAt( newDbName.length() - 2 ) ) ) {
-                        if( lastLowCaseChar != 0 )
-                            newDbName.insert( lastLowCaseChar + 1, ' ' );
+                        && Character.isUpperCase(newDbName.charAt(newDbName.length() - 2))) {
+                        if (lastLowCaseChar != 0)
+                            newDbName.insert(lastLowCaseChar + 1, ' ');
 
-                        newDbName.append( ch );
+                        newDbName.append(ch);
                         lineLength = newDbName.length() - lastLowCaseChar + 1;
-                    } else if( newDbName.length() > 3 && Character.isDigit( ch )
+                    } else if (newDbName.length() > 3 && Character.isDigit(ch)
                     // check if the last two symbols are letters, so we have to add whitespace
-                               && Character.isLetter( newDbName.charAt( newDbName.length() - 2 ) )
-                               && Character.isLetter( prevCh ) ) {
-                        newDbName.append( " " + ch );
+                               && Character.isLetter(newDbName.charAt(newDbName.length() - 2))
+                               && Character.isLetter(prevCh)) {
+                        newDbName.append(" " + ch);
                         lineLength = 1;
                     } else {
-                        newDbName.append( ch );
+                        newDbName.append(ch);
                         lineLength++;
-                        if( ( ch == ' ' ) || ( ch == '-' ) ) {
+                        if ( (ch == ' ') || (ch == '-')) {
                             lineLength = 0;
                         }
                     }
                 }
 
                 // save the index of the last lowercase char
-                if( Character.isLowerCase( ch ) )
+                if (Character.isLowerCase(ch))
                     lastLowCaseChar = i;
 
                 prevCh = ch;
             }
             return newDbName.toString().trim();
-        } catch( Exception e ) {
+        } catch (Exception e) {
 
-            LOG.error( "Unable to format db name: \"" + dbName + "\"" );
+            LOG.error("Unable to format db name: \"" + dbName + "\"");
         }
 
         return dbName;

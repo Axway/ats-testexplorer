@@ -22,56 +22,56 @@ import org.apache.wicket.model.Model;
 
 public class StatisticsTableCell implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public boolean isCheckbox;
-	public boolean isInputText;
-	public boolean isCheckboxLabel;
-	public Model<Boolean> checkboxModel = new Model<Boolean>(Boolean.FALSE);
-	private Model<String> machineLabelModel;
-	public String labelText;
-	public String cssClass;
-	public String title;
+    public boolean            isCheckbox;
+    public boolean            isInputText;
+    public boolean            isCheckboxLabel;
+    public Model<Boolean>     checkboxModel    = new Model<Boolean>(Boolean.FALSE);
+    private Model<String>     machineLabelModel;
+    public String             labelText;
+    public String             cssClass;
+    public String             title;
 
-	public StatisticsTableCell(boolean isCheckbox) {
+    public StatisticsTableCell( boolean isCheckbox ) {
 
-		this.isCheckbox = isCheckbox;
-	}
+        this.isCheckbox = isCheckbox;
+    }
 
-	public StatisticsTableCell(String labelText, boolean isCheckboxLabel) {
+    public StatisticsTableCell( String labelText, boolean isCheckboxLabel ) {
 
-		this.labelText = labelText;
-		this.isCheckboxLabel = isCheckboxLabel;
-	}
+        this.labelText = labelText;
+        this.isCheckboxLabel = isCheckboxLabel;
+    }
 
-	public StatisticsTableCell(String labelText, boolean isCheckboxLabel, String cssClass) {
+    public StatisticsTableCell( String labelText, boolean isCheckboxLabel, String cssClass ) {
 
-		this(labelText, isCheckboxLabel);
-		this.cssClass = cssClass;
-	}
+        this(labelText, isCheckboxLabel);
+        this.cssClass = cssClass;
+    }
 
-	public StatisticsTableCell(Model<Boolean> checkboxModel) {
+    public StatisticsTableCell( Model<Boolean> checkboxModel ) {
 
-		this.isCheckbox = true;
-		this.checkboxModel = checkboxModel;
-	}
+        this.isCheckbox = true;
+        this.checkboxModel = checkboxModel;
+    }
 
-	public StatisticsTableCell(boolean isInputText, Model<String> machineLabelModel) {
+    public StatisticsTableCell( boolean isInputText, Model<String> machineLabelModel ) {
 
-		this.isInputText = isInputText;
-		this.machineLabelModel = machineLabelModel;
-	}
+        this.isInputText = isInputText;
+        this.machineLabelModel = machineLabelModel;
+    }
 
-	public Model<String> getMachineLabelModel() {
+    public Model<String> getMachineLabelModel() {
 
-		return machineLabelModel;
-	}
+        return machineLabelModel;
+    }
 
-	public String getMachineLabel() {
+    public String getMachineLabel() {
 
-		if (machineLabelModel != null) {
-			return machineLabelModel.getObject();
-		}
-		return "";
-	}
+        if (machineLabelModel != null) {
+            return machineLabelModel.getObject();
+        }
+        return "";
+    }
 }

@@ -40,55 +40,55 @@ public class TestcasePanel extends Panel {
                           final String testcaseId,
                           final PageParameters parameters ) {
 
-        super( id );
+        super(id);
 
         List<ITab> tabs = new ArrayList<ITab>();
-        tabs.add( new AbstractTab( new Model<String>( "Messages" ) ) {
+        tabs.add(new AbstractTab(new Model<String>("Messages")) {
 
             private static final long serialVersionUID = 1L;
 
             public Panel getPanel(
                                    String panelId ) {
 
-                return new MessagesPanel( panelId, testcaseId );
+                return new MessagesPanel(panelId, testcaseId);
             }
-        } );
+        });
 
-        tabs.add( new AbstractTab( new Model<String>( "Performance actions" ) ) {
+        tabs.add(new AbstractTab(new Model<String>("Performance actions")) {
 
             private static final long serialVersionUID = 1L;
 
             public Panel getPanel(
                                    String panelId ) {
 
-                return new LoadQueuesPanel( panelId, testcaseId );
+                return new LoadQueuesPanel(panelId, testcaseId);
             }
-        } );
+        });
 
-        tabs.add( new AbstractTab( new Model<String>( "Statistics" ) ) {
+        tabs.add(new AbstractTab(new Model<String>("Statistics")) {
 
             private static final long serialVersionUID = 1L;
 
             public Panel getPanel(
                                    String panelId ) {
 
-                return new StatisticsPanel( panelId, parameters, testcaseId, false );
+                return new StatisticsPanel(panelId, parameters, testcaseId, false);
             }
-        } );
-        
-        tabs.add( new AbstractTab( new Model<String>( "Attachments" ) ) {
+        });
+
+        tabs.add(new AbstractTab(new Model<String>("Attachments")) {
 
             private static final long serialVersionUID = 1L;
 
             public Panel getPanel(
                                    String panelId ) {
 
-                return new AttachmentsPanel( panelId, testcaseId, parameters );
+                return new AttachmentsPanel(panelId, testcaseId, parameters);
             }
-        } );
+        });
 
-        BookmarkableTabbedPanel tabbedPanel = new BookmarkableTabbedPanel( "tabs", tabs, parameters );
-        add( tabbedPanel );
+        BookmarkableTabbedPanel tabbedPanel = new BookmarkableTabbedPanel("tabs", tabs, parameters);
+        add(tabbedPanel);
     }
 
 }

@@ -29,16 +29,16 @@ import com.inmethod.grid.IDataSource;
 import com.inmethod.grid.IGridSortState;
 import com.inmethod.grid.IGridSortState.ISortStateColumn;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class RunsDataSource implements IDataSource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger( RunsDataSource.class );
+    private static final Logger LOG              = Logger.getLogger(RunsDataSource.class);
 
-    private RunsPanel runsPanel;
+    private RunsPanel           runsPanel;
 
-    private String runId;
+    private String              runId;
 
     public RunsDataSource( RunsPanel runsPanel ) {
 
@@ -54,7 +54,7 @@ public class RunsDataSource implements IDataSource {
     public IModel<Run> model(
                               final Object object ) {
 
-        return new RunLoadableDetachableModel( ( Run ) object );
+        return new RunLoadableDetachableModel((Run) object);
     }
 
     @Override
@@ -64,37 +64,37 @@ public class RunsDataSource implements IDataSource {
 
         String whereClause = "";
         int totalCount = 1;
-        if( runId != null ) {
+        if (runId != null) {
             whereClause = "where runId=" + runId;
         } else {
             whereClause = runsPanel.getRunsFilter().getWhereClause();
-            totalCount = ( int ) ( query.getFrom() + query.getCount() + 1 );
+            totalCount = (int) (query.getFrom() + query.getCount() + 1);
         }
 
         String sortProperty = "runId";
         boolean sortAsc = false;
         // is there any sorting
-        if( query.getSortState().getColumns().size() > 0 ) {
+        if (query.getSortState().getColumns().size() > 0) {
             // get the most relevant column
-            ISortStateColumn state = query.getSortState().getColumns().get( 0 );
+            ISortStateColumn state = query.getSortState().getColumns().get(0);
             // get the column sort properties
-            sortProperty = ( String ) state.getPropertyName();
+            sortProperty = (String) state.getPropertyName();
             sortAsc = state.getDirection() == IGridSortState.Direction.ASC;
         }
 
         List<Run> resultList;
         try {
-            TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
-            result.setTotalCount( dbAccess.getRunsCount( whereClause ) );
+            TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
+            result.setTotalCount(dbAccess.getRunsCount(whereClause));
 
-            resultList = dbAccess.getRuns( (int)(query.getFrom() + 1),
-                                           totalCount,
-                                           whereClause,
-                                           sortProperty,
-                                           sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
-            result.setItems( resultList.iterator() );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get runs", e );
+            resultList = dbAccess.getRuns((int) (query.getFrom() + 1),
+                                          totalCount,
+                                          whereClause,
+                                          sortProperty,
+                                          sortAsc, ((TestExplorerSession) Session.get()).getTimeOffset());
+            result.setItems(resultList.iterator());
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get runs", e);
         }
     }
 

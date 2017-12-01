@@ -40,14 +40,14 @@ public class SuiteLoadableDetachableModel extends LoadableDetachableModel<Suite>
     public boolean equals(
                            Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof SuiteLoadableDetachableModel ) {
-            SuiteLoadableDetachableModel other = ( SuiteLoadableDetachableModel ) obj;
-            return other.suite.suiteId.equals( this.suite.suiteId )
-                   && other.suite.getDurationAsString( 0 ).equals( this.suite.getDurationAsString( 0 ) );
+        } else if (obj instanceof SuiteLoadableDetachableModel) {
+            SuiteLoadableDetachableModel other = (SuiteLoadableDetachableModel) obj;
+            return other.suite.suiteId.equals(this.suite.suiteId)
+                   && other.suite.getDurationAsString(0).equals(this.suite.getDurationAsString(0));
         }
         return false;
     }

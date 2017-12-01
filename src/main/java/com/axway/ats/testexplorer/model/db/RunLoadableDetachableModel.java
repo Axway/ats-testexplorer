@@ -43,12 +43,12 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
     @Override
     public boolean equals( Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof RunLoadableDetachableModel ) {
-            RunLoadableDetachableModel other = ( RunLoadableDetachableModel ) obj;
+        } else if (obj instanceof RunLoadableDetachableModel) {
+            RunLoadableDetachableModel other = (RunLoadableDetachableModel) obj;
 
             /*
              *  The following code is a HACK, that helps us to keep model object/Run synced with the database.
@@ -60,18 +60,18 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
              *  and if it was checked/selected before, we will not be able to Edit/Delete/... it,
              *  because the Selected object doesn't exist any more in the model/cached list.
              */
-            if( other.run.runId.equals( this.run.runId )
-                && other.run.getDuration( 0 ) != this.run.getDuration( 0 ) ) {
+            if (other.run.runId.equals(this.run.runId)
+                && other.run.getDuration(0) != this.run.getDuration(0)) {
 
                 // copy dynamic details from the most recent run version to the other
-                if( other.run.getDuration( 0 ) > this.run.getDuration( 0 ) ) {
-                    updateRunDynamicDetails( other.run, this.run );
+                if (other.run.getDuration(0) > this.run.getDuration(0)) {
+                    updateRunDynamicDetails(other.run, this.run);
                 } else {
-                    updateRunDynamicDetails( this.run, other.run );
+                    updateRunDynamicDetails(this.run, other.run);
                 }
             }
 
-            return other.run.runId.equals( this.run.runId );
+            return other.run.runId.equals(this.run.runId);
         }
         return false;
     }
@@ -84,8 +84,8 @@ public class RunLoadableDetachableModel extends LoadableDetachableModel<Run> {
 
     private void updateRunDynamicDetails( Run from, Run to ) {
 
-        if( from.getEndTimestamp() != -1 ) {
-            to.setEndTimestamp( from.getEndTimestamp() );
+        if (from.getEndTimestamp() != -1) {
+            to.setEndTimestamp(from.getEndTimestamp());
         }
         to.failed = from.failed;
         to.scenariosFailed = from.scenariosFailed;

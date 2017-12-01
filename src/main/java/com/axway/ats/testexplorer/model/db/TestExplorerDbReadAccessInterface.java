@@ -30,15 +30,15 @@ public interface TestExplorerDbReadAccessInterface extends IDbReadAccess {
 
     public MessageFilterDetails getMessageFilterDetails(
                                                          String sqlQuery ) throws DatabaseAccessException;
-    
+
     public MessageFilterDetails getRunMessageFilterDetails(
-                                                        String runId ) throws DatabaseAccessException;
-    
+                                                            String runId ) throws DatabaseAccessException;
+
     public MessageFilterDetails getSuiteMessageFilterDetails(
-                                                        String suiteId ) throws DatabaseAccessException;
-    
+                                                              String suiteId ) throws DatabaseAccessException;
+
     public MessageFilterDetails getTestcaseMessageFilterDetails(
-                                                        String testcaseId ) throws DatabaseAccessException;
+                                                                 String testcaseId ) throws DatabaseAccessException;
 
     public List<TestcaseCompareDetails> getTestcaseToCompareDetails(
                                                                      String whereClause ) throws DatabaseAccessException;
@@ -56,7 +56,8 @@ public interface TestExplorerDbReadAccessInterface extends IDbReadAccess {
                                                      String scenarioId ) throws DatabaseAccessException;
 
     public PageNavigation getNavigationForTestcase(
-                                                    String testcaseId, int utcTimeOffset ) throws DatabaseAccessException;
+                                                    String testcaseId,
+                                                    int utcTimeOffset ) throws DatabaseAccessException;
 
     public String getMachineInformation(
                                          int machineId ) throws DatabaseAccessException;
@@ -75,8 +76,8 @@ public interface TestExplorerDbReadAccessInterface extends IDbReadAccess {
     public List<String[]> getProductAndVersionNames() throws DatabaseAccessException;
 
     public TestcaseInfoPerGroupStorage getTestcaseInfoPerGroupStorage(
-                                                                       String productName, 
-                                                                       List<String> versionNames, 
+                                                                       String productName,
+                                                                       List<String> versionNames,
                                                                        List<String> groupNames,
                                                                        String afterDate,
                                                                        String beforeDate,
@@ -89,24 +90,29 @@ public interface TestExplorerDbReadAccessInterface extends IDbReadAccess {
                                             String whereClause ) throws DatabaseAccessException;
 
     public List<String> getAllGroupNames(
-                                          String productName, List<String> versionNames ) throws DatabaseAccessException;
-    
+                                          String productName,
+                                          List<String> versionNames ) throws DatabaseAccessException;
+
     public List<String> getAllGroupNamesViaWhereClause( String whereClause ) throws DatabaseAccessException;
 
     public List<String> getAllBuildTypes(
                                           String whereClause ) throws DatabaseAccessException;
-    
-    public List<Run> getSpecificProductVersionBuildRuns( String productName, String versionName, String buildType ) throws DatabaseAccessException;
-    
+
+    public List<Run> getSpecificProductVersionBuildRuns( String productName, String versionName,
+                                                         String buildType ) throws DatabaseAccessException;
+
     public List<Run> getUnspecifiedRuns( String productName, String versionName ) throws DatabaseAccessException;
-    
-    public List<Suite> getSpecificProductVersionBuildSuites( String productName, String versionName, String buildType ) throws DatabaseAccessException;
-    
+
+    public List<Suite> getSpecificProductVersionBuildSuites( String productName, String versionName,
+                                                             String buildType ) throws DatabaseAccessException;
+
     public List<Suite> getUnspecifiedSuites( String productName, String versionName ) throws DatabaseAccessException;
-    
+
     public List<Testcase> getSpecificProductVersionBuildSuiteNameTestcases( String suiteName, String type,
-                                                                            String productName, String versionName ) throws DatabaseAccessException;
-    
+                                                                            String productName,
+                                                                            String versionName ) throws DatabaseAccessException;
+
     public List<Testcase> getUnspecifiedTestcases( String suiteName, String type,
-                                                                            String productName, String versionName ) throws DatabaseAccessException;
+                                                   String productName,
+                                                   String versionName ) throws DatabaseAccessException;
 }

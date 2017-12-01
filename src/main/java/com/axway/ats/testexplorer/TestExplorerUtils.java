@@ -35,49 +35,49 @@ import com.axway.ats.core.utils.StringUtils;
 
 public class TestExplorerUtils {
 
-    private static final Logger           LOG         = Logger.getLogger( TestExplorerUtils.class );
+    private static final Logger           LOG         = Logger.getLogger(TestExplorerUtils.class);
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "HH:mm:ss.SSS" );
-    
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
+
     /* Due to all methods being static, we make the default constructor private, 
        so users will not try to call these methods on a object and instead will use the class
        If anyone try to instantiate a object of those class, an Exception will be thrown
     */
-    private TestExplorerUtils(){
+    private TestExplorerUtils() {
         throw new IllegalAccessError("Utility class");
     }
 
     public static String escapeSqlSearchValue( String searchValue ) {
 
         // replacing the '\' and '%'
-        searchValue = searchValue.replace( "\\", "\\\\" ).replace( "%", "\\%" );
+        searchValue = searchValue.replace("\\", "\\\\").replace("%", "\\%");
         // replace '*' with '%' to support wildcard search and then escape the special characters
-        searchValue = searchValue.replace( '*', '%' )
-                                 .replace( "'", "''" )
-                                 .replace( "\"", "\\\"" )
-                                 .replace( "-", "\\-" )
-                                 .replace( "!", "\\!" )
-                                 .replace( "&", "\\&" )
-                                 .replace( "$", "\\$" )
-                                 .replace( "?", "\\?" )
-                                 .replace( "[", "\\[" )
-                                 .replace( "]", "\\]" );
+        searchValue = searchValue.replace('*', '%')
+                                 .replace("'", "''")
+                                 .replace("\"", "\\\"")
+                                 .replace("-", "\\-")
+                                 .replace("!", "\\!")
+                                 .replace("&", "\\&")
+                                 .replace("$", "\\$")
+                                 .replace("?", "\\?")
+                                 .replace("[", "\\[")
+                                 .replace("]", "\\]");
         return searchValue;
     }
 
     public static String extractPageParameter( PageParameters parameters, String paramName ) {
 
         String value = null;
-        if( parameters != null && !parameters.isEmpty() ) {
+        if (parameters != null && !parameters.isEmpty()) {
 
-            Object param = parameters.get( paramName );
-            if( param == null ) {
+            Object param = parameters.get(paramName);
+            if (param == null) {
                 return null;
-            } else if( param instanceof String
-                       || param instanceof org.apache.wicket.util.string.StringValue ) {
+            } else if (param instanceof String
+                       || param instanceof org.apache.wicket.util.string.StringValue) {
                 value = param.toString();
             } else {
-                value = ( ( String[] ) param )[0];
+                value = ((String[]) param)[0];
             }
         }
         return value;
@@ -86,20 +86,20 @@ public class TestExplorerUtils {
     public static List<String> extractPageParameter( PageParameters parameters, String paramName,
                                                      String delimeter ) {
 
-        String value = extractPageParameter( parameters, paramName );
-        if( value == null ) {
+        String value = extractPageParameter(parameters, paramName);
+        if (value == null) {
             return null;
         } else {
             List<String> valueList = new ArrayList<String>();
-            Collections.addAll( valueList, value.split( delimeter ) );
+            Collections.addAll(valueList, value.split(delimeter));
             return valueList;
         }
     }
 
     public static String buildConsoleMessage( String message, boolean isError ) {
 
-        String msg = "<b>" + DATE_FORMAT.format( new Date() ) + "</b>  " + message;
-        if( isError ) {
+        String msg = "<b>" + DATE_FORMAT.format(new Date()) + "</b>  " + message;
+        if (isError) {
 
             return "<span style=\"color:red\">" + msg + "</span>";
         }
@@ -111,25 +111,25 @@ public class TestExplorerUtils {
         PrintWriter pw = null;
         try {
             StringWriter sw = new StringWriter();
-            pw = new PrintWriter( sw, true );
-            throwable.printStackTrace( pw );
+            pw = new PrintWriter(sw, true);
+            throwable.printStackTrace(pw);
             return sw.getBuffer().toString();
         } finally {
-            IoUtils.closeStream( pw );
+            IoUtils.closeStream(pw);
         }
     }
 
     public static String escapeHtmlCharacters( String text ) {
 
-        if( StringUtils.isNullOrEmpty( text ) ) {
+        if (StringUtils.isNullOrEmpty(text)) {
             return "";
         }
         // first replace the '&' sign
-        text = text.replace( "&", "&amp;" );
-        return text.replace( "<", "&lt;" )
-                   .replace( ">", "&gt;" )
-                   .replace( "\"", "&quot;" )
-                   .replace( "'", "&#39;" );
+        text = text.replace("&", "&amp;");
+        return text.replace("<", "&lt;")
+                   .replace(">", "&gt;")
+                   .replace("\"", "&quot;")
+                   .replace("'", "&#39;");
     }
 
     /**
@@ -140,19 +140,19 @@ public class TestExplorerUtils {
      */
     public static String exportToPDF( String pdfExporterPath, String pageUrl ) {
 
-        if( !StringUtils.isNullOrEmpty( pdfExporterPath ) && !StringUtils.isNullOrEmpty( pageUrl ) ) {
+        if (!StringUtils.isNullOrEmpty(pdfExporterPath) && !StringUtils.isNullOrEmpty(pageUrl)) {
 
             try {
-                File tmpPdfFile = File.createTempFile( "atsTE_pageExport_", ".pdf" );
+                File tmpPdfFile = File.createTempFile("atsTE_pageExport_", ".pdf");
                 tmpPdfFile.deleteOnExit();
                 String pdfFilePath = tmpPdfFile.getCanonicalPath();
 
-                new LocalProcessExecutor( HostUtils.LOCAL_HOST_IPv4, pdfExporterPath, pageUrl,
-                                          pdfFilePath ).execute();
+                new LocalProcessExecutor(HostUtils.LOCAL_HOST_IPv4, pdfExporterPath, pageUrl,
+                                         pdfFilePath).execute();
 
                 return pdfFilePath;
-            } catch( IOException ioe ) {
-                LOG.error( "Unable to create a temporary file for HTML page to PDF export", ioe );
+            } catch (IOException ioe) {
+                LOG.error("Unable to create a temporary file for HTML page to PDF export", ioe);
             }
         }
         return null;

@@ -35,18 +35,18 @@ public class RunsByTypeDashboardRunPage extends BasePage {
 
     public RunsByTypeDashboardRunPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
 
-        addNavigationLink( RunsByTypeDashboardHomePage.class,
-                           new PageParameters(),
-                           "Runs by type",
-                           parameters.get( "productName" ).toString() + "/"
-                                           + parameters.get( "versionName" ).toString() + "/"
-                                           + parameters.get( "type" ).toString() );
+        addNavigationLink(RunsByTypeDashboardHomePage.class,
+                          new PageParameters(),
+                          "Runs by type",
+                          parameters.get("productName").toString() + "/"
+                                          + parameters.get("versionName").toString() + "/"
+                                          + parameters.get("type").toString());
 
-        AjaxLink<String> modalTooltip = new AjaxLink<String>( "modalTooltip" ) {
+        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
 
             private static final long serialVersionUID = 1L;
 
@@ -57,20 +57,20 @@ public class RunsByTypeDashboardRunPage extends BasePage {
             }
         };
         //        modalTooltip.
-        modalTooltip.add( new WebMarkupContainer( "helpButton" ) );
+        modalTooltip.add(new WebMarkupContainer("helpButton"));
 
-        add( modalTooltip );
+        add(modalTooltip);
 
-        if( !parameters.isEmpty() ) {
-            String productName = parameters.get( "productName" ).toString();
-            String versionName = parameters.get( "versionName" ).toString();
-            String buildType = parameters.get( "type" ).toString();
+        if (!parameters.isEmpty()) {
+            String productName = parameters.get("productName").toString();
+            String versionName = parameters.get("versionName").toString();
+            String buildType = parameters.get("type").toString();
 
             try {
-                jsonDatas = new DashboardRunUtils().initData( productName, versionName, buildType );
-            } catch( DatabaseAccessException e ) {
-                LOG.error( "Unable to get run and suites data.", e );
-                error( "Unable to get run and suites data." );
+                jsonDatas = new DashboardRunUtils().initData(productName, versionName, buildType);
+            } catch (DatabaseAccessException e) {
+                LOG.error("Unable to get run and suites data.", e);
+                error("Unable to get run and suites data.");
             }
 
         }
@@ -81,11 +81,11 @@ public class RunsByTypeDashboardRunPage extends BasePage {
     public void renderHead(
                             IHeaderResponse response ) {
 
-        if( !getPageParameters().isEmpty() ) {
-            new DashboardRunUtils().callJavaScript( response, jsonDatas );
+        if (!getPageParameters().isEmpty()) {
+            new DashboardRunUtils().callJavaScript(response, jsonDatas);
         } else {
             String errorScript = ";resize();";
-            response.render( OnLoadHeaderItem.forScript( errorScript ) );
+            response.render(OnLoadHeaderItem.forScript(errorScript));
         }
 
     }

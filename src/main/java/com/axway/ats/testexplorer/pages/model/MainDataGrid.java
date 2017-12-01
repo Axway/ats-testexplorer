@@ -32,7 +32,7 @@ import com.inmethod.grid.common.ColumnsState;
 import com.inmethod.grid.datagrid.DataGrid;
 import com.inmethod.grid.toolbar.NoRecordsToolbar;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class MainDataGrid extends DataGrid {
 
     private static final long    serialVersionUID         = 1L;
@@ -66,7 +66,7 @@ public class MainDataGrid extends DataGrid {
                          List<TableColumn> columnDefinitions,
                          String whatIsShowing ) {
 
-        this( id, dataSource, columns, columnDefinitions, whatIsShowing, 0 );
+        this(id, dataSource, columns, columnDefinitions, whatIsShowing, 0);
     }
 
     public MainDataGrid( String id,
@@ -76,8 +76,8 @@ public class MainDataGrid extends DataGrid {
                          String whatIsShowing,
                          int supportedOperations ) {
 
-        super( id, dataSource, columns );
-        init( columnDefinitions, whatIsShowing, supportedOperations );
+        super(id, dataSource, columns);
+        init(columnDefinitions, whatIsShowing, supportedOperations);
     }
 
     private void init(
@@ -86,17 +86,17 @@ public class MainDataGrid extends DataGrid {
                        int supportedOperations ) {
 
         // prevent from automatically checking checkboxes (cached) from the browser, on page Reload
-        getForm().add( AttributeModifier.replace( "autocomplete", "off" ) );
+        getForm().add(AttributeModifier.replace("autocomplete", "off"));
 
-        setRowsPerPage( ( ( TestExplorerSession ) Session.get() ).getRowsPerPage() );
+        setRowsPerPage( ((TestExplorerSession) Session.get()).getRowsPerPage());
 
-        topToolbar = new PagingToolbar( this, columnDefinitions, whatIsShowing, supportedOperations );
-        addTopToolbar( topToolbar );
+        topToolbar = new PagingToolbar(this, columnDefinitions, whatIsShowing, supportedOperations);
+        addTopToolbar(topToolbar);
 
-        bottomToolbar = new PagingToolbar( this, columnDefinitions, whatIsShowing, supportedOperations );
-        addBottomToolbar( bottomToolbar );
+        bottomToolbar = new PagingToolbar(this, columnDefinitions, whatIsShowing, supportedOperations);
+        addBottomToolbar(bottomToolbar);
 
-        addBottomToolbar( new NoRecordsToolbar( this ) );
+        addBottomToolbar(new NoRecordsToolbar(this));
     }
 
     public void switchToEditMode() {
@@ -119,19 +119,19 @@ public class MainDataGrid extends DataGrid {
     public void setGridColumnsState(
                                      List<TableColumn> columnDefinitions ) {
 
-        ColumnsState cs = new ColumnsState( getAllColumns() );
-        for( TableColumn column : columnDefinitions ) {
-            cs.setColumnVisibility( column.getColumnId(), column.isVisible() );
+        ColumnsState cs = new ColumnsState(getAllColumns());
+        for (TableColumn column : columnDefinitions) {
+            cs.setColumnVisibility(column.getColumnId(), column.isVisible());
         }
-        setColumnState( cs );
+        setColumnState(cs);
     }
 
     public IModel<SelectOption> getRowsPerPageModel() {
 
-        if( this.rowsPerPageModel == null ) {
+        if (this.rowsPerPageModel == null) {
 
-            String rppString = String.valueOf( ( ( TestExplorerSession ) Session.get() ).getRowsPerPage() );
-            this.rowsPerPageModel = new Model<SelectOption>( new SelectOption( rppString, rppString ) );
+            String rppString = String.valueOf( ((TestExplorerSession) Session.get()).getRowsPerPage());
+            this.rowsPerPageModel = new Model<SelectOption>(new SelectOption(rppString, rppString));
         }
         return this.rowsPerPageModel;
     }
@@ -140,10 +140,10 @@ public class MainDataGrid extends DataGrid {
     public DataGrid setRowsPerPage(
                                     int rowsPerPage ) {
 
-        ( ( TestExplorerSession ) Session.get() ).setRowsPerPage( rowsPerPage );
-        String rppString = String.valueOf( rowsPerPage );
-        this.rowsPerPageModel = new Model<SelectOption>( new SelectOption( rppString, rppString ) );
-        return super.setRowsPerPage( rowsPerPage );
+        ((TestExplorerSession) Session.get()).setRowsPerPage(rowsPerPage);
+        String rppString = String.valueOf(rowsPerPage);
+        this.rowsPerPageModel = new Model<SelectOption>(new SelectOption(rppString, rppString));
+        return super.setRowsPerPage(rowsPerPage);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class MainDataGrid extends DataGrid {
                                         IModel item,
                                         boolean newValue ) {
 
-        super.onItemSelectionChanged( item, newValue );
+        super.onItemSelectionChanged(item, newValue);
 
         topToolbar.reloadButtons();
         bottomToolbar.reloadButtons();

@@ -40,57 +40,57 @@ public abstract class LightweightBasePage extends WebPage implements IAjaxIndica
 
     public LightweightBasePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        currentRunId = TestExplorerUtils.extractPageParameter( parameters, "runId" );
+        currentRunId = TestExplorerUtils.extractPageParameter(parameters, "runId");
 
-        LOG = Logger.getLogger( this.getClass() );
+        LOG = Logger.getLogger(this.getClass());
 
         addHeader();
 
         // add child page
-        TransparentWebMarkupContainer pageWrapper = new TransparentWebMarkupContainer( "page_wrapper" );
-        add( pageWrapper );
+        TransparentWebMarkupContainer pageWrapper = new TransparentWebMarkupContainer("page_wrapper");
+        add(pageWrapper);
     }
 
     public TestExplorerSession getTESession() {
 
-        return ( TestExplorerSession ) Session.get();
+        return (TestExplorerSession) Session.get();
     }
 
     private void addHeader() {
 
-        add( new Label( "page_title", "Axway ATS Test Explorer - " + getPageName() ) );
+        add(new Label("page_title", "Axway ATS Test Explorer - " + getPageName()));
 
         // check DB connection and sets the current DB Name
         getTESession().getDbReadConnection();
 
-        if( getPageHeaderText() == null ) {
-            add( new Label( "headerText", "" ) );
+        if (getPageHeaderText() == null) {
+            add(new Label("headerText", ""));
         } else {
-            add( new Label( "headerText", " - " + getPageHeaderText() ) );
+            add(new Label("headerText", " - " + getPageHeaderText()));
         }
 
-        WebMarkupContainer topRightContent = new WebMarkupContainer( "topRightContent" );
-        add( topRightContent );
+        WebMarkupContainer topRightContent = new WebMarkupContainer("topRightContent");
+        add(topRightContent);
 
         String dbName = getTESession().getDbName();
-        if( dbName == null || "".equals( dbName ) ) {
-            topRightContent.add( new Label( "dbName", "" ).setVisible( false ) );
+        if (dbName == null || "".equals(dbName)) {
+            topRightContent.add(new Label("dbName", "").setVisible(false));
         } else {
             String dbNameAndVersion = dbName;
             String dbVersion = getTESession().getDbVersion();
-            if( dbVersion != null ) {
+            if (dbVersion != null) {
                 dbNameAndVersion = dbNameAndVersion + ", v" + dbVersion;
             }
-            topRightContent.add( new Label( "dbName",
-                                            "<div class=\"dbName\"><span style=\"color:#C8D5DF;\">Exploring database:</span>&nbsp; "
-                                                    + dbNameAndVersion + "</div>" ).setEscapeModelStrings( false ) );
+            topRightContent.add(new Label("dbName",
+                                          "<div class=\"dbName\"><span style=\"color:#C8D5DF;\">Exploring database:</span>&nbsp; "
+                                                    + dbNameAndVersion + "</div>").setEscapeModelStrings(false));
         }
 
-        FeedbackPanel feedbackPanel = new FeedbackPanel( "feedback" );
-        feedbackPanel.setOutputMarkupId( true );
-        add( feedbackPanel );
+        FeedbackPanel feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId(true);
+        add(feedbackPanel);
     }
 
     public abstract String getPageName();
@@ -100,13 +100,13 @@ public abstract class LightweightBasePage extends WebPage implements IAjaxIndica
                                     String paramName ) {
 
         String paramValue = null;
-        Object paramObject = parameters.get( paramName );
-        if( paramObject == null ) {
+        Object paramObject = parameters.get(paramName);
+        if (paramObject == null) {
             return null;
-        } else if( paramObject instanceof StringValue ) {
+        } else if (paramObject instanceof StringValue) {
             paramValue = paramObject.toString();
         } else {
-            paramValue = ( ( StringValue[] ) paramObject )[0].toString();
+            paramValue = ((StringValue[]) paramObject)[0].toString();
         }
         return paramValue;
     }
@@ -129,7 +129,7 @@ public abstract class LightweightBasePage extends WebPage implements IAjaxIndica
                                       WebResponse response ) {
 
         response.disableCaching();
-        super.configureResponse( response );
+        super.configureResponse(response);
     }
 
 }

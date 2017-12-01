@@ -32,12 +32,12 @@ import com.inmethod.grid.IDataSource;
 import com.inmethod.grid.IGridSortState;
 import com.inmethod.grid.IGridSortState.ISortStateColumn;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class TestcasesDataSource implements IDataSource {
 
     private static final long   serialVersionUID = 1L;
 
-    private static final Logger LOG              = Logger.getLogger( TestcasesDataSource.class );
+    private static final Logger LOG              = Logger.getLogger(TestcasesDataSource.class);
 
     private String              suiteId;
     private String              scenarioId;
@@ -58,7 +58,7 @@ public class TestcasesDataSource implements IDataSource {
     @Override
     public IModel<Testcase> model( final Object object ) {
 
-        return new TestcaseLoadableDetachableModel( ( Testcase ) object, grid );
+        return new TestcaseLoadableDetachableModel((Testcase) object, grid);
     }
 
     @Override
@@ -67,41 +67,42 @@ public class TestcasesDataSource implements IDataSource {
         String sortProperty = "testcaseId";
         boolean sortAsc = true;
         // is there any sorting
-        if( query.getSortState().getColumns().size() > 0 ) {
+        if (query.getSortState().getColumns().size() > 0) {
             // get the most relevant column
-            ISortStateColumn state = query.getSortState().getColumns().get( 0 );
+            ISortStateColumn state = query.getSortState().getColumns().get(0);
             // get the column sort properties
-            sortProperty = ( String ) state.getPropertyName();
+            sortProperty = (String) state.getPropertyName();
             sortAsc = state.getDirection() == IGridSortState.Direction.ASC;
         }
 
         List<Testcase> resultList;
         try {
-            TestExplorerSession session = ( ( TestExplorerSession ) Session.get() );
+            TestExplorerSession session = ((TestExplorerSession) Session.get());
             TestExplorerDbReadAccessInterface dbAccess = session.getDbReadConnection();
             String whereClause = "WHERE suiteId=" + this.suiteId + " AND scenarioId=" + this.scenarioId;
-            result.setTotalCount( dbAccess.getTestcasesCount( whereClause ) );
+            result.setTotalCount(dbAccess.getTestcasesCount(whereClause));
 
-            resultList = dbAccess.getTestcases( ( int ) ( query.getFrom() + 1 ),
-                                                ( int ) ( query.getFrom() + query.getCount() + 1 ),
-                                                whereClause, sortProperty, sortAsc, ((TestExplorerSession)Session.get()).getTimeOffset() );
+            resultList = dbAccess.getTestcases((int) (query.getFrom() + 1),
+                                               (int) (query.getFrom() + query.getCount() + 1),
+                                               whereClause, sortProperty, sortAsc,
+                                               ((TestExplorerSession) Session.get()).getTimeOffset());
 
             // if there is only one testcase - redirect to its Testcase page
-            if( resultList.size() == 1 ) {
+            if (resultList.size() == 1) {
 
                 PageParameters parameters = new PageParameters();
                 // pass the testcase id
-                parameters.add( "testcaseId", String.valueOf( resultList.get( 0 ).testcaseId ) );
+                parameters.add("testcaseId", String.valueOf(resultList.get(0).testcaseId));
                 //pass database name
-                parameters.add( "dbname", session.getDbName() );
+                parameters.add("dbname", session.getDbName());
 
                 //RequestCycle.get().setRedirect( true );
-                RequestCycle.get().setResponsePage( TestcasePage.class, parameters );
+                RequestCycle.get().setResponsePage(TestcasePage.class, parameters);
             }
-            result.setItems( resultList.iterator() );
-        } catch( DatabaseAccessException e ) {
+            result.setItems(resultList.iterator());
+        } catch (DatabaseAccessException e) {
 
-            LOG.error( "Can't get testcases", e );
+            LOG.error("Can't get testcases", e);
         }
     }
 

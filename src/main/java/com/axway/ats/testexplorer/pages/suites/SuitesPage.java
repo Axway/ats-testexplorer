@@ -32,38 +32,38 @@ public class SuitesPage extends BasePage {
 
     public SuitesPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        String runId = TestExplorerUtils.extractPageParameter( parameters, "runId" );
+        String runId = TestExplorerUtils.extractPageParameter(parameters, "runId");
 
         // organize navigation links
         PageNavigation navigation = null;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection().getNavigationForSuite( runId );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get navigation data for suites with runId=" + runId, e );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection().getNavigationForSuite(runId);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get navigation data for suites with runId=" + runId, e);
         }
 
-        if( navigation != null ) {
-            addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
-            addNavigationLink( RunsPage.class,
-                               getRunsPageParameters( parameters ),
-                               "Runs",
-                               navigation.getRunName() );
+        if (navigation != null) {
+            addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
+            addNavigationLink(RunsPage.class,
+                              getRunsPageParameters(parameters),
+                              "Runs",
+                              navigation.getRunName());
 
-            setRunIdToRunCopyLink( runId );
+            setRunIdToRunCopyLink(runId);
         }
 
-        add( new SuitesPanel( this, "suites_info", runId ) );
+        add(new SuitesPanel(this, "suites_info", runId));
 
-        singleTestIds.put( "runId", runId );
+        singleTestIds.put("runId", runId);
     }
 
     private PageParameters getRunsPageParameters(
                                                   PageParameters parameters ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
+        newParams.add("dbname", parameters.get("dbname"));
         return newParams;
     }
 

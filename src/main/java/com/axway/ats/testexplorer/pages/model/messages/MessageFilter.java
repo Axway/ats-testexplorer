@@ -45,12 +45,12 @@ import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
 import com.axway.ats.testexplorer.pages.model.filtering.IFilter;
 import com.inmethod.grid.datagrid.DataGrid;
 
-@SuppressWarnings({ "rawtypes" })
-public class MessageFilter extends Form<Object> implements IFilter{
+@SuppressWarnings( { "rawtypes" })
+public class MessageFilter extends Form<Object> implements IFilter {
 
     private static final long                    serialVersionUID = 1L;
 
-    private static Logger                        LOG              = Logger.getLogger( MessageFilter.class );
+    private static Logger                        LOG              = Logger.getLogger(MessageFilter.class);
 
     private Select                               threadChoices;
 
@@ -58,8 +58,8 @@ public class MessageFilter extends Form<Object> implements IFilter{
 
     private Select                               levelChoices;
 
-    private TextField<String>                    searchByMessage  = new TextField<String>( "search_by_message",
-                                                                                           new Model<String>( "" ) );
+    private TextField<String>                    searchByMessage  = new TextField<String>("search_by_message",
+                                                                                          new Model<String>(""));
 
     private String                               idColumnValue;
 
@@ -76,31 +76,31 @@ public class MessageFilter extends Form<Object> implements IFilter{
                           String idColumnName,
                           String idColumnValue ) {
 
-        super( wicketId );
+        super(wicketId);
 
         this.idColumnValue = idColumnValue;
-        searchByMessage.setOutputMarkupId( true );
-        searchByMessage.setEscapeModelStrings( false );
-        add( searchByMessage );
+        searchByMessage.setOutputMarkupId(true);
+        searchByMessage.setEscapeModelStrings(false);
+        add(searchByMessage);
 
-        TestExplorerDbReadAccessInterface dbAccess = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection();
+        TestExplorerDbReadAccessInterface dbAccess = ((TestExplorerSession) Session.get()).getDbReadConnection();
         try {
-            if( "runId".equals( idColumnName ) ) {
-                messageFilterDetails = dbAccess.getRunMessageFilterDetails( idColumnValue );
-            } else if( "suiteId".equals( idColumnName ) ) {
-                messageFilterDetails = dbAccess.getSuiteMessageFilterDetails( idColumnValue );
+            if ("runId".equals(idColumnName)) {
+                messageFilterDetails = dbAccess.getRunMessageFilterDetails(idColumnValue);
+            } else if ("suiteId".equals(idColumnName)) {
+                messageFilterDetails = dbAccess.getSuiteMessageFilterDetails(idColumnValue);
             } else {
-                messageFilterDetails = dbAccess.getTestcaseMessageFilterDetails( idColumnValue );
+                messageFilterDetails = dbAccess.getTestcaseMessageFilterDetails(idColumnValue);
             }
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get message filter details", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get message filter details", e);
         }
-        add( getThreadChoices() );
-        add( getMachineChoices() );
-        add( getLevelChoices() );
+        add(getThreadChoices());
+        add(getMachineChoices());
+        add(getLevelChoices());
 
         // search button
-        AjaxButton searchButton = new AjaxButton( "search_button" ) {
+        AjaxButton searchButton = new AjaxButton("search_button") {
 
             private static final long serialVersionUID = 1L;
 
@@ -109,12 +109,12 @@ public class MessageFilter extends Form<Object> implements IFilter{
                                      AjaxRequestTarget target,
                                      Form<?> form ) {
 
-                target.add( dataGrid );
+                target.add(dataGrid);
             }
         };
-        add( searchButton );
+        add(searchButton);
 
-        AjaxButton hiddenSearchButton = new AjaxButton( "hiddenSearchButton" ) {
+        AjaxButton hiddenSearchButton = new AjaxButton("hiddenSearchButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -123,16 +123,16 @@ public class MessageFilter extends Form<Object> implements IFilter{
                                      AjaxRequestTarget target,
                                      Form<?> form ) {
 
-                target.add( dataGrid );
+                target.add(dataGrid);
             }
         };
-        add( hiddenSearchButton );
+        add(hiddenSearchButton);
 
         // search button is the button to trigger when user hit the enter key
-        this.setDefaultButton( searchButton );
+        this.setDefaultButton(searchButton);
 
         // reset button
-        add( new AjaxButton( "reset_button" ) {
+        add(new AjaxButton("reset_button") {
 
             private static final long serialVersionUID = 1L;
 
@@ -142,44 +142,44 @@ public class MessageFilter extends Form<Object> implements IFilter{
                                      Form<?> form ) {
 
                 // reset the filter
-                searchByMessage.setModelObject( "" );
-                target.add( searchByMessage );
+                searchByMessage.setModelObject("");
+                target.add(searchByMessage);
 
-                selectedThreads.setObject( new TreeSet<String>( messageFilterDetails.getThreads() ) );
-                target.add( threadChoices );
+                selectedThreads.setObject(new TreeSet<String>(messageFilterDetails.getThreads()));
+                target.add(threadChoices);
 
-                selectedMachines.setObject( new TreeSet<String>( messageFilterDetails.getMachines() ) );
-                target.add( machineChoices );
+                selectedMachines.setObject(new TreeSet<String>(messageFilterDetails.getMachines()));
+                target.add(machineChoices);
 
-                selectedLevels.setObject( messageFilterDetails.getSelectedLevels() );
-                target.add( levelChoices );
+                selectedLevels.setObject(messageFilterDetails.getSelectedLevels());
+                target.add(levelChoices);
 
                 // automatically trigger a new search
-                target.add( dataGrid );
+                target.add(dataGrid);
             }
-        } );
+        });
 
         // if there are error log messages, show only them at page load
-        if( messageFilterDetails.getSelectedLevels().contains( "error" ) ) {
+        if (messageFilterDetails.getSelectedLevels().contains("error")) {
             List<String> errorListObject = new ArrayList<String>();
-            errorListObject.add( "error" );
-            selectedLevels.setObject( errorListObject );
+            errorListObject.add("error");
+            selectedLevels.setObject(errorListObject);
         }
     }
-    
+
     @Override
     public boolean hasSelectedFields() {
 
-        if( !StringUtils.isNullOrEmpty( searchByMessage.getModelObject() ) ) {
+        if (!StringUtils.isNullOrEmpty(searchByMessage.getModelObject())) {
             return true;
         }
-        if( selectedThreads.getObject().size() > 0 ) {
+        if (selectedThreads.getObject().size() > 0) {
             return true;
         }
-        if( selectedMachines.getObject().size() > 0 ) {
+        if (selectedMachines.getObject().size() > 0) {
             return true;
         }
-        if( selectedLevels.getObject().size() > 0 ) {
+        if (selectedLevels.getObject().size() > 0) {
             return true;
         }
 
@@ -190,17 +190,17 @@ public class MessageFilter extends Form<Object> implements IFilter{
     public void renderHead(
                             IHeaderResponse response ) {
 
-        super.renderHead( response );
-        if( hasSelectedFields() ) {
-            response.render( OnDomReadyHeaderItem.forScript( "$('.filterHeader').click()" ) );
+        super.renderHead(response);
+        if (hasSelectedFields()) {
+            response.render(OnDomReadyHeaderItem.forScript("$('.filterHeader').click()"));
         }
-   }
+    }
 
     private Select getLevelChoices() {
 
-        levelChoices = new Select( "levelChoices" );
-        selectedLevels = new WildcardCollectionModel<String>( messageFilterDetails.getSelectedLevels() );
-        levelChoices.setDefaultModel( selectedLevels );
+        levelChoices = new Select("levelChoices");
+        selectedLevels = new WildcardCollectionModel<String>(messageFilterDetails.getSelectedLevels());
+        levelChoices.setDefaultModel(selectedLevels);
         IOptionRenderer<String> renderer = new IOptionRenderer<String>() {
 
             private static final long serialVersionUID = 1L;
@@ -214,22 +214,22 @@ public class MessageFilter extends Form<Object> implements IFilter{
             public IModel<String> getModel(
                                             String value ) {
 
-                return new Model<String>( value );
+                return new Model<String>(value);
             }
 
         };
-        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>( new ArrayList<String>( messageFilterDetails.getLevels() ) );
-        levelChoices.add( new SelectOptions<String>( "levelOptions", optionsModel, renderer ) );
-        levelChoices.setOutputMarkupId( true );
+        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>(new ArrayList<String>(messageFilterDetails.getLevels()));
+        levelChoices.add(new SelectOptions<String>("levelOptions", optionsModel, renderer));
+        levelChoices.setOutputMarkupId(true);
         return levelChoices;
     }
 
     private Select getMachineChoices() {
 
-        machineChoices = new Select( "machineChoices" );
-        Set<String> machines = new TreeSet<String>( messageFilterDetails.getMachines() );
-        selectedMachines = new WildcardCollectionModel<String>( machines );
-        machineChoices.setDefaultModel( selectedMachines );
+        machineChoices = new Select("machineChoices");
+        Set<String> machines = new TreeSet<String>(messageFilterDetails.getMachines());
+        selectedMachines = new WildcardCollectionModel<String>(machines);
+        machineChoices.setDefaultModel(selectedMachines);
         IOptionRenderer<String> renderer = new IOptionRenderer<String>() {
 
             private static final long serialVersionUID = 1L;
@@ -243,22 +243,22 @@ public class MessageFilter extends Form<Object> implements IFilter{
             public IModel<String> getModel(
                                             String value ) {
 
-                return new Model<String>( value );
+                return new Model<String>(value);
             }
 
         };
-        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>( machines );
-        machineChoices.add( new SelectOptions<String>( "machineOptions", optionsModel, renderer ) );
-        machineChoices.setOutputMarkupId( true );
+        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>(machines);
+        machineChoices.add(new SelectOptions<String>("machineOptions", optionsModel, renderer));
+        machineChoices.setOutputMarkupId(true);
         return machineChoices;
     }
 
     private Select getThreadChoices() {
 
-        threadChoices = new Select( "threadChoices" );
-        Set<String> threads = new TreeSet<String>( messageFilterDetails.getThreads() );
-        selectedThreads = new WildcardCollectionModel<String>( threads );
-        threadChoices.setDefaultModel( selectedThreads );
+        threadChoices = new Select("threadChoices");
+        Set<String> threads = new TreeSet<String>(messageFilterDetails.getThreads());
+        selectedThreads = new WildcardCollectionModel<String>(threads);
+        threadChoices.setDefaultModel(selectedThreads);
         IOptionRenderer<String> renderer = new IOptionRenderer<String>() {
 
             private static final long serialVersionUID = 1L;
@@ -272,13 +272,13 @@ public class MessageFilter extends Form<Object> implements IFilter{
             public IModel<String> getModel(
                                             String value ) {
 
-                return new Model<String>( value );
+                return new Model<String>(value);
             }
 
         };
-        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>( threads );
-        threadChoices.add( new SelectOptions<String>( "threadOptions", optionsModel, renderer ) );
-        threadChoices.setOutputMarkupId( true );
+        IModel<Collection<? extends String>> optionsModel = new WildcardCollectionModel<String>(threads);
+        threadChoices.add(new SelectOptions<String>("threadOptions", optionsModel, renderer));
+        threadChoices.setOutputMarkupId(true);
         return threadChoices;
     }
 
@@ -288,19 +288,19 @@ public class MessageFilter extends Form<Object> implements IFilter{
         StringBuilder where = new StringBuilder();
 
         String searchValue = searchByMessage.getValue();
-        if( searchValue != null && searchValue.length() > 0 ) {
+        if (searchValue != null && searchValue.length() > 0) {
 
-            where.append( " AND message LIKE '%" + TestExplorerUtils.escapeSqlSearchValue( searchValue )
-                          + "%' escape '\\'" );
+            where.append(" AND message LIKE '%" + TestExplorerUtils.escapeSqlSearchValue(searchValue)
+                         + "%' escape '\\'");
         }
-        if( selectedThreads != null && selectedThreads.getObject().size() > 0
-            && selectedThreads.getObject().size() < messageFilterDetails.getThreads().size() ) {
+        if (selectedThreads != null && selectedThreads.getObject().size() > 0
+            && selectedThreads.getObject().size() < messageFilterDetails.getThreads().size()) {
 
-            where.append( " AND threadName in ("
-                          + getQueryString( selectedThreads.getObject().toArray( new String[0] ) ) + ")" );
+            where.append(" AND threadName in ("
+                         + getQueryString(selectedThreads.getObject().toArray(new String[0])) + ")");
         }
-        if( selectedMachines != null && selectedMachines.getObject().size() > 0
-            && selectedMachines.getObject().size() < messageFilterDetails.getMachines().size() ) {
+        if (selectedMachines != null && selectedMachines.getObject().size() > 0
+            && selectedMachines.getObject().size() < messageFilterDetails.getMachines().size()) {
 
             /*
              * The function:   COALESCE ( expression [ ,...n ] )
@@ -312,49 +312,49 @@ public class MessageFilter extends Form<Object> implements IFilter{
              *    ELSE expressionN
              * END
              */
-            where.append( " AND COALESCE(machineAlias,machineName) in ("
-                          + getQueryString( selectedMachines.getObject().toArray( new String[0] ) ) + ")" );
+            where.append(" AND COALESCE(machineAlias,machineName) in ("
+                         + getQueryString(selectedMachines.getObject().toArray(new String[0])) + ")");
         }
 
         setMinMessageLevel();
-        if( selectedLevels != null && selectedLevels.getObject().size() > 0
-            && selectedLevels.getObject().size() < messageFilterDetails.getLevels().size() ) {
+        if (selectedLevels != null && selectedLevels.getObject().size() > 0
+            && selectedLevels.getObject().size() < messageFilterDetails.getLevels().size()) {
 
-            where.append( " AND name in ("
-                          + getQueryString( selectedLevels.getObject().toArray( new String[0] ) ) + ")" );
+            where.append(" AND name in ("
+                         + getQueryString(selectedLevels.getObject().toArray(new String[0])) + ")");
         }
-        where.append( " AND " + id + "=" + idColumnValue );
+        where.append(" AND " + id + "=" + idColumnValue);
 
-        if( where.length() > 0 ) {
-            where.delete( 0, " AND".length() );
-            where.insert( 0, "WHERE" );
+        if (where.length() > 0) {
+            where.delete(0, " AND".length());
+            where.insert(0, "WHERE");
         }
         return where.toString();
     }
 
     private void setMinMessageLevel() {
 
-        if( selectedLevels != null && selectedLevels.getObject().size() > 0 ) {
+        if (selectedLevels != null && selectedLevels.getObject().size() > 0) {
             int minLevelIndex = 10;
-            for( String selectedLevel : selectedLevels.getObject() ) {
-                int idx = MessageFilterDetails.SKIPPED_LOG_LEVELS.indexOf( selectedLevel );
-                if( idx > -1 && minLevelIndex > idx ) {
+            for (String selectedLevel : selectedLevels.getObject()) {
+                int idx = MessageFilterDetails.SKIPPED_LOG_LEVELS.indexOf(selectedLevel);
+                if (idx > -1 && minLevelIndex > idx) {
                     minLevelIndex = idx;
                 }
             }
-            if( minLevelIndex < 10 ) {
-                ( ( TestExplorerSession ) Session.get() ).setMinMessageLevel( MessageFilterDetails.SKIPPED_LOG_LEVELS.get( minLevelIndex ) );
+            if (minLevelIndex < 10) {
+                ((TestExplorerSession) Session.get()).setMinMessageLevel(MessageFilterDetails.SKIPPED_LOG_LEVELS.get(minLevelIndex));
             } else {
                 // check if there is unchecked skipped level
                 boolean hasOneOfTheSkippedLevels = false;
-                for( String skippedLevel : MessageFilterDetails.SKIPPED_LOG_LEVELS ) {
-                    if( messageFilterDetails.getLevels().contains( skippedLevel ) ) {
+                for (String skippedLevel : MessageFilterDetails.SKIPPED_LOG_LEVELS) {
+                    if (messageFilterDetails.getLevels().contains(skippedLevel)) {
                         hasOneOfTheSkippedLevels = true;
                         break;
                     }
                 }
-                if( hasOneOfTheSkippedLevels ) {
-                    ( ( TestExplorerSession ) Session.get() ).setMinMessageLevel( "info" );
+                if (hasOneOfTheSkippedLevels) {
+                    ((TestExplorerSession) Session.get()).setMinMessageLevel("info");
                 }
             }
         }
@@ -364,10 +364,10 @@ public class MessageFilter extends Form<Object> implements IFilter{
                                    String[] array ) {
 
         StringBuilder sb = new StringBuilder();
-        for( int i = 0; i < array.length; i++ ) {
-            sb.append( "'" ).append( array[i] ).append( "'" );
-            if( i < array.length - 1 ) {
-                sb.append( ", " );
+        for (int i = 0; i < array.length; i++) {
+            sb.append("'").append(array[i]).append("'");
+            if (i < array.length - 1) {
+                sb.append(", ");
             }
         }
         return sb.toString();

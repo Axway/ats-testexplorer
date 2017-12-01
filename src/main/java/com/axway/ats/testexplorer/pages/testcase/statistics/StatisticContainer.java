@@ -32,10 +32,10 @@ import java.util.TreeMap;
  */
 public class StatisticContainer implements Serializable {
 
-    private static final long                  serialVersionUID = 1L;
+    private static final long                    serialVersionUID = 1L;
 
-    protected int                              indexInDataPanel;
-    protected String                           name;
+    protected int                                indexInDataPanel;
+    protected String                             name;
 
     // all statistics are ordered
     private Map<Integer, DbStatisticDescription> statDescriptions;
@@ -60,23 +60,24 @@ public class StatisticContainer implements Serializable {
 
     public List<DbStatisticDescription> getStatDescriptions() {
 
-        return new ArrayList<DbStatisticDescription>( this.statDescriptions.values() );
+        return new ArrayList<DbStatisticDescription>(this.statDescriptions.values());
     }
 
     public void addStatisticDescription(
                                          DbStatisticDescription statDescription ) {
 
         int statisticDescriptionIndexInContainer = getNewStatisticDescriptionIndexInContainer();
-        statDescription.setIndexInUI( statisticDescriptionIndexInContainer );
-        statDescriptions.put( statisticDescriptionIndexInContainer, statDescription );
+        statDescription.setIndexInUI(statisticDescriptionIndexInContainer);
+        statDescriptions.put(statisticDescriptionIndexInContainer, statDescription);
     }
 
     public boolean isStatisticAvailableForThisContainer(
                                                          DbStatisticDescription newStatDescription ) {
 
-        for( DbStatisticDescription statDescription : statDescriptions.values() ) {
+        for (DbStatisticDescription statDescription : statDescriptions.values()) {
             // statistic containers keep one entry of a statistic description for all testcases
-            if( statDescription.getUidNoMatterTestcaseAndMachine().equals( newStatDescription.getUidNoMatterTestcaseAndMachine() ) ) {
+            if (statDescription.getUidNoMatterTestcaseAndMachine()
+                               .equals(newStatDescription.getUidNoMatterTestcaseAndMachine())) {
                 return true;
             }
         }

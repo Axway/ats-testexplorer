@@ -26,11 +26,11 @@ public class CompareTestcaseSystemStatisticsPage extends LightweightBasePage {
 
     public CompareTestcaseSystemStatisticsPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        String testcaseIds = extractParameter( parameters, "testcaseIds" );
+        String testcaseIds = extractParameter(parameters, "testcaseIds");
 
-        add( new StatisticsPanel( "chartsPanel", parameters, testcaseIds, true ) );
+        add(new StatisticsPanel("chartsPanel", parameters, testcaseIds, true));
     }
 
     @Override

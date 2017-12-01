@@ -86,7 +86,7 @@ public class TableColumn implements Serializable {
                         boolean visible,
                         boolean isEditable ) {
 
-        this( columnId, columnName, parentTable, sortProperty, propertyExpression, visible );
+        this(columnId, columnName, parentTable, sortProperty, propertyExpression, visible);
         this.isEditable = isEditable;
     }
 
@@ -100,7 +100,7 @@ public class TableColumn implements Serializable {
                         boolean isEditable,
                         int initialWidth ) {
 
-        this( columnId, columnName, parentTable, sortProperty, propertyExpression, visible, isEditable );
+        this(columnId, columnName, parentTable, sortProperty, propertyExpression, visible, isEditable);
         this.headerCssClass = headerCssClass;
         this.initialWidth = initialWidth;
     }
@@ -116,11 +116,11 @@ public class TableColumn implements Serializable {
                         boolean isEditable,
                         int initialWidth ) {
 
-        this( columnId, columnName, parentTable, sortProperty, propertyExpression, visible, isEditable );
+        this(columnId, columnName, parentTable, sortProperty, propertyExpression, visible, isEditable);
         this.headerCssClass = headerCssClass;
         this.initialWidth = initialWidth;
 
-        this.tooltipModel = new Model<String>( tooltip );
+        this.tooltipModel = new Model<String>(tooltip);
     }
 
     public String getParentTable() {
@@ -129,7 +129,7 @@ public class TableColumn implements Serializable {
     }
 
     public void setParentTable(
-                               String parentTable ) {
+                                String parentTable ) {
 
         this.parentTable = parentTable;
     }
@@ -243,19 +243,19 @@ public class TableColumn implements Serializable {
     public boolean equals(
                            Object obj ) {
 
-        if( ! ( obj instanceof TableColumn ) ) {
+        if (! (obj instanceof TableColumn)) {
             return false;
         }
-        TableColumn columnObj = ( TableColumn ) obj;
-        if( this.columnName == null || columnObj.columnName == null ) {
+        TableColumn columnObj = (TableColumn) obj;
+        if (this.columnName == null || columnObj.columnName == null) {
 
             return false;
-        } else if( this.parentTable == null || columnObj.parentTable == null ) {
+        } else if (this.parentTable == null || columnObj.parentTable == null) {
 
-            return this.columnName.equals( columnObj.columnName );
+            return this.columnName.equals(columnObj.columnName);
         }
-        return this.columnName.equals( columnObj.columnName )
-               && this.parentTable.equals( columnObj.parentTable );
+        return this.columnName.equals(columnObj.columnName)
+               && this.parentTable.equals(columnObj.parentTable);
     }
 
     public IModel<String> getTooltip() {

@@ -48,15 +48,15 @@ public class BookmarkableTabbedPanel extends TabbedPanel<ITab> {
                                     List<ITab> tabs,
                                     PageParameters pageParameters ) {
 
-        super( id, tabs );
+        super(id, tabs);
         this.pageParameters = pageParameters;
 
-        if( pageParameters.getNamedKeys().contains( tabParameterName ) ) {
+        if (pageParameters.getNamedKeys().contains(tabParameterName)) {
 
-            int tab = pageParameters.get( tabParameterName ).toInt();
-            setSelectedTab( tab );
+            int tab = pageParameters.get(tabParameterName).toInt();
+            setSelectedTab(tab);
         } else {
-            setSelectedTab( defaultTabIndex );
+            setSelectedTab(defaultTabIndex);
         }
     }
 
@@ -76,9 +76,9 @@ public class BookmarkableTabbedPanel extends TabbedPanel<ITab> {
                                     String tabParameterName,
                                     PageParameters pageParameters ) {
 
-        this( id, tabs, pageParameters );
+        this(id, tabs, pageParameters);
         this.defaultTabIndex = defaultTabIndex;
-        setSelectedTab( defaultTabIndex );
+        setSelectedTab(defaultTabIndex);
         this.tabParameterName = tabParameterName;
     }
 
@@ -87,16 +87,16 @@ public class BookmarkableTabbedPanel extends TabbedPanel<ITab> {
                                           String linkId,
                                           int index ) {
 
-        PageParameters newPageParameters = new PageParameters( pageParameters );
-        if( index == defaultTabIndex ) {
-            newPageParameters.remove( tabParameterName );
+        PageParameters newPageParameters = new PageParameters(pageParameters);
+        if (index == defaultTabIndex) {
+            newPageParameters.remove(tabParameterName);
         } else {
-            newPageParameters.set( tabParameterName, index );
+            newPageParameters.set(tabParameterName, index);
         }
 
-        WebMarkupContainer link = new BookmarkablePageLink<Object>( linkId,
-                                                                    getPage().getClass(),
-                                                                    newPageParameters );
+        WebMarkupContainer link = new BookmarkablePageLink<Object>(linkId,
+                                                                   getPage().getClass(),
+                                                                   newPageParameters);
         return link;
     }
 

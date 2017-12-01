@@ -66,7 +66,7 @@ import com.axway.ats.testexplorer.plugins.report.TestExplorerPluginsRepo;
  */
 public class TestExplorerApplication extends WebApplication {
 
-    private static final Logger            LOG                  = Logger.getLogger( TestExplorerApplication.class );
+    private static final Logger            LOG                  = Logger.getLogger(TestExplorerApplication.class);
 
     private Properties                     configProperties;
 
@@ -76,71 +76,71 @@ public class TestExplorerApplication extends WebApplication {
     @Override
     protected void init() {
 
-        Locale.setDefault( Locale.US );
+        Locale.setDefault(Locale.US);
 
-        getApplicationSettings().setPageExpiredErrorPage( PageExpiredErrorPage.class );
-        getApplicationSettings().setInternalErrorPage( InternalErrorPage.class );
+        getApplicationSettings().setPageExpiredErrorPage(PageExpiredErrorPage.class);
+        getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
         // show internal error page rather than default developer page
         //TODO: use this line in PRODUCTION mode, by default in development mode is used ExceptionSettings.SHOW_EXCEPTION_PAGE
         //        getExceptionSettings().setUnexpectedExceptionDisplay( ExceptionSettings.SHOW_INTERNAL_ERROR_PAGE );
 
-        mountPage( "/runs", RunsPage.class );
-        mountPage( "/suites", SuitesPage.class );
-        mountPage( "/scenarios", ScenariosPage.class );
-        mountPage( "/testcases", TestcasesPage.class );
-        mountPage( "/testcase", TestcasePage.class );
-        
-        mountPage( "/charts", ChartsPage.class );
+        mountPage("/runs", RunsPage.class);
+        mountPage("/suites", SuitesPage.class);
+        mountPage("/scenarios", ScenariosPage.class);
+        mountPage("/testcases", TestcasesPage.class);
+        mountPage("/testcase", TestcasePage.class);
 
-        mountPage( "/compare", ComparePage.class );
-        mountPage( "/compareStatistics", CompareTestcaseSystemStatisticsPage.class );
+        mountPage("/charts", ChartsPage.class);
 
-        mountPage( "/runMessages", RunMessagePage.class );
-        mountPage( "/suiteMessages", SuiteMessagePage.class );
+        mountPage("/compare", ComparePage.class);
+        mountPage("/compareStatistics", CompareTestcaseSystemStatisticsPage.class);
 
-        mountPage( "/machines", MachinesPage.class );
-        mountPage( "/runCopy", RunCopyPage.class );
-        mountPage( "/testcasesCopy", TestcasesCopyPage.class );
+        mountPage("/runMessages", RunMessagePage.class);
+        mountPage("/suiteMessages", SuiteMessagePage.class);
 
-        mountPage( "/reportSelect", SelectTestcaseReportPage.class );
+        mountPage("/machines", MachinesPage.class);
+        mountPage("/runCopy", RunCopyPage.class);
+        mountPage("/testcasesCopy", TestcasesCopyPage.class);
 
-        mountPage( "/pageExpired", PageExpiredErrorPage.class );
-        mountPage( "/error", InternalErrorPage.class );
+        mountPage("/reportSelect", SelectTestcaseReportPage.class);
 
-        mountPage( "/dashboardhome", RunsByTypeDashboardHomePage.class );
-        mountPage( "/dashboardrun", RunsByTypeDashboardRunPage.class );
-        mountPage( "/dashboardsuite", RunsByTypeDashboardSuitePage.class );
+        mountPage("/pageExpired", PageExpiredErrorPage.class);
+        mountPage("/error", InternalErrorPage.class);
 
-        mountPage( "/groups", TestcasesByGroupsPage.class );
+        mountPage("/dashboardhome", RunsByTypeDashboardHomePage.class);
+        mountPage("/dashboardrun", RunsByTypeDashboardRunPage.class);
+        mountPage("/dashboardsuite", RunsByTypeDashboardSuitePage.class);
+
+        mountPage("/groups", TestcasesByGroupsPage.class);
 
         try {
             configProperties = new Properties();
-            configProperties.load( this.getClass()
-                                       .getClassLoader()
-                                       .getResourceAsStream( "ats.config.properties" ) );
-        } catch( IOException e ) {
-            LOG.error( "Can't load config.properties file", e );
+            configProperties.load(this.getClass()
+                                      .getClassLoader()
+                                      .getResourceAsStream("ats.config.properties"));
+        } catch (IOException e) {
+            LOG.error("Can't load config.properties file", e);
         }
 
-        getAjaxRequestTargetListeners().add( new AjaxRequestTarget.IListener() {
+        getAjaxRequestTargetListeners().add(new AjaxRequestTarget.IListener() {
 
             @Override
             public void onBeforeRespond( Map<String, Component> map, final AjaxRequestTarget target ) {
 
                 // if( !Session.get().getFeedbackMessages().isEmpty() ) {
 
-                target.getPage().visitChildren( IFeedback.class, new IVisitor<Component, Void>() {
+                target.getPage().visitChildren(IFeedback.class, new IVisitor<Component, Void>() {
                     public void component( final Component component, final IVisit<Void> visit ) {
 
-                        if( component.getOutputMarkupId() ) {
-                            target.appendJavaScript( "$('#" + component.getMarkupId()
-                                                     + "').effect('bounce', { times:5 }, 200);" );
-                            target.add( component );
+                        if (component.getOutputMarkupId()) {
+                            target.appendJavaScript("$('#" + component.getMarkupId()
+                                                    + "').effect('bounce', { times:5 }, 200);");
+                            target.add(component);
                             //visit.stop();
                         }
                         visit.dontGoDeeper();
                     }
-                } );
+                });
             }
 
             @Override
@@ -156,7 +156,7 @@ public class TestExplorerApplication extends WebApplication {
                 // TODO Auto-generated method stub
 
             }
-        } );
+        });
 
         // load any available Test Explorer plugins
         TestExplorerPluginsRepo.getInstance();
@@ -178,7 +178,7 @@ public class TestExplorerApplication extends WebApplication {
     @Override
     public final Session newSession( Request request, Response response ) {
 
-        return new TestExplorerSession( request );
+        return new TestExplorerSession(request);
     }
 
     /**
@@ -189,11 +189,11 @@ public class TestExplorerApplication extends WebApplication {
      */
     public void setColumnDefinition( String dbName, List<TableColumn> columnDefinition ) {
 
-        columnDefinitionsMap.put( dbName, columnDefinition );
+        columnDefinitionsMap.put(dbName, columnDefinition);
     }
 
     public List<TableColumn> getColumnDefinition( String dbName ) {
 
-        return columnDefinitionsMap.get( dbName );
+        return columnDefinitionsMap.get(dbName);
     }
 }

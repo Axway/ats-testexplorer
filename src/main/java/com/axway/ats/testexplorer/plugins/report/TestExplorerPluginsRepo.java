@@ -36,7 +36,7 @@ import com.axway.ats.core.utils.IoUtils;
  */
 public class TestExplorerPluginsRepo {
 
-    private static Logger                    LOG               = Logger.getLogger( TestExplorerPluginsRepo.class );
+    private static Logger                    LOG               = Logger.getLogger(TestExplorerPluginsRepo.class);
 
     /**
      * If this file is found into a jar, then this jar is supposed to be a Test Explorer plugin jar
@@ -52,7 +52,7 @@ public class TestExplorerPluginsRepo {
 
     synchronized public static TestExplorerPluginsRepo getInstance() {
 
-        if( instance == null ) {
+        if (instance == null) {
             instance = new TestExplorerPluginsRepo();
         }
         return instance;
@@ -64,10 +64,10 @@ public class TestExplorerPluginsRepo {
         String webappsHome = getTomcatWebappsFolder();
 
         // find all jars, they will be checked for plugins inside
-        List<String> jarFiles = getJarFilesReference( webappsHome );
+        List<String> jarFiles = getJarFilesReference(webappsHome);
 
-        LOG.debug( "Searching for Test Explorer plugins in " + webappsHome );
-        loadPlugins( jarFiles );
+        LOG.debug("Searching for Test Explorer plugins in " + webappsHome);
+        loadPlugins(jarFiles);
     }
 
     /**
@@ -79,8 +79,8 @@ public class TestExplorerPluginsRepo {
     public List<PluginParameters> getPluginParameters( PluginConfigurationParser.PLUGIN_TYPE type ) {
 
         List<PluginParameters> pluginParameters = new ArrayList<>();
-        for( String pluginName : getPluginNamesForType( type ) ) {
-            pluginParameters.add( new PluginParameters( pluginParametersMap.get( pluginName ) ) );
+        for (String pluginName : getPluginNamesForType(type)) {
+            pluginParameters.add(new PluginParameters(pluginParametersMap.get(pluginName)));
         }
 
         return pluginParameters;
@@ -95,11 +95,11 @@ public class TestExplorerPluginsRepo {
     private List<String> getPluginNamesForType( PluginConfigurationParser.PLUGIN_TYPE type ) {
 
         List<String> pluginNames = new ArrayList<>();
-        for( String name : pluginParametersMap.keySet() ) {
-            Map<String, String> pluginParameters = pluginParametersMap.get( name );
-            if( pluginParameters.get( PluginConfigurationParser.NODE__TYPE )
-                                .equalsIgnoreCase( type.toString() ) ) {
-                pluginNames.add( name );
+        for (String name : pluginParametersMap.keySet()) {
+            Map<String, String> pluginParameters = pluginParametersMap.get(name);
+            if (pluginParameters.get(PluginConfigurationParser.NODE__TYPE)
+                                .equalsIgnoreCase(type.toString())) {
+                pluginNames.add(name);
             }
         }
         return pluginNames;
@@ -111,19 +111,19 @@ public class TestExplorerPluginsRepo {
         // we expect it deployed into a Tomcat webapps folder
         Class<?> klass = TestExplorerPluginsRepo.class;
         String webapps = klass.getClassLoader()
-                              .getResource( klass.getName().replace( ".", "/" ) + ".class" )
+                              .getResource(klass.getName().replace(".", "/") + ".class")
                               .getPath();
 
         // make sure we always use same file separator character
-        webapps = IoUtils.normalizeDirPath( webapps );
+        webapps = IoUtils.normalizeDirPath(webapps);
 
         // remove the path coming from Test Explorers war
-        webapps = webapps.substring( 0, webapps.indexOf( "webapps" ) + "webapps".length() + 1 );
+        webapps = webapps.substring(0, webapps.indexOf("webapps") + "webapps".length() + 1);
 
         // if running on Windows and it starts with a file separator - remove it
-        if( new LocalSystemOperations().getOperatingSystemType().isWindows()
-            && webapps.startsWith( AtsSystemProperties.SYSTEM_FILE_SEPARATOR ) ) {
-            webapps = webapps.substring( 1 );
+        if (new LocalSystemOperations().getOperatingSystemType().isWindows()
+            && webapps.startsWith(AtsSystemProperties.SYSTEM_FILE_SEPARATOR)) {
+            webapps = webapps.substring(1);
         }
 
         return webapps;
@@ -140,14 +140,14 @@ public class TestExplorerPluginsRepo {
         List<String> jarsReference = new ArrayList<String>();
 
         try {
-            File[] files = new File( folder ).listFiles();
-            for( File file : files ) {
-                if( file.isFile() && file.getName().endsWith( ".jar" ) ) {
-                    jarsReference.add( folder + AtsSystemProperties.SYSTEM_FILE_SEPARATOR + file.getName() );
+            File[] files = new File(folder).listFiles();
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".jar")) {
+                    jarsReference.add(folder + AtsSystemProperties.SYSTEM_FILE_SEPARATOR + file.getName());
                 }
             }
-        } catch( Exception e ) {
-            LOG.warn( "Error searching for jar files into '" + folder + "' folder" );
+        } catch (Exception e) {
+            LOG.warn("Error searching for jar files into '" + folder + "' folder");
         }
 
         return jarsReference;
@@ -162,25 +162,25 @@ public class TestExplorerPluginsRepo {
 
         pluginParametersMap = new HashMap<>();
 
-        for( String jarFilePath : jarFiles ) {
+        for (String jarFilePath : jarFiles) {
             JarFile jarFile = null;
             try {
-                jarFile = new JarFile( new File( jarFilePath ) );
+                jarFile = new JarFile(new File(jarFilePath));
 
-                JarEntry entry = jarFile.getJarEntry( PLUGIN_DESCRIPTOR );
-                if( entry != null ) {
-                    LOG.info( "Found Test Explorer plugins description file in '" + jarFilePath
-                              + "', starting registration process" );
+                JarEntry entry = jarFile.getJarEntry(PLUGIN_DESCRIPTOR);
+                if (entry != null) {
+                    LOG.info("Found Test Explorer plugins description file in '" + jarFilePath
+                             + "', starting registration process");
 
-                    InputStream descriptorStream = jarFile.getInputStream( entry );
+                    InputStream descriptorStream = jarFile.getInputStream(entry);
 
-                    pluginParametersMap.putAll( new PluginConfigurationParser().parse( descriptorStream,
-                                                                                       jarFilePath ) );
+                    pluginParametersMap.putAll(new PluginConfigurationParser().parse(descriptorStream,
+                                                                                     jarFilePath));
                 }
-            } catch( Exception e ) {
-                LOG.warn( "Could not load Test Explorer plugin from '" + jarFilePath + "', skipping it.", e );
+            } catch (Exception e) {
+                LOG.warn("Could not load Test Explorer plugin from '" + jarFilePath + "', skipping it.", e);
             } finally {
-                IoUtils.closeStream( jarFile );
+                IoUtils.closeStream(jarFile);
             }
         }
     }

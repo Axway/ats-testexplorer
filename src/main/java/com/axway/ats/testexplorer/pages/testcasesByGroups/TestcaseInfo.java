@@ -21,21 +21,21 @@ public class TestcaseInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public String testcaseName;
-    public String testcaseId;
-    public String scenarioId;
-    public String scenarioName;
-    public String suiteId;
-    public String suiteName;
-    public String groupName;
-    public String dateStart;
-    public String dateEnd;
-    public int lastExecutionResult;
-    public int totalExecutions;
-    public float numberPassed;
-    
+    public String             testcaseName;
+    public String             testcaseId;
+    public String             scenarioId;
+    public String             scenarioName;
+    public String             suiteId;
+    public String             suiteName;
+    public String             groupName;
+    public String             dateStart;
+    public String             dateEnd;
+    public int                lastExecutionResult;
+    public int                totalExecutions;
+    public float              numberPassed;
+
     public TestcaseInfo() {
-        
+
     }
 
 }

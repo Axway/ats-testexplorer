@@ -16,7 +16,7 @@
 package com.axway.ats.testexplorer.pages.model.filtering;
 
 public interface IFilter {
-    
+
     public boolean hasSelectedFields();
-    
+
 }

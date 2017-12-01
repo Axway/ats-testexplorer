@@ -16,8 +16,8 @@
 package com.axway.ats.testexplorer.pages.model;
 
 public class TableDefinitions {
-    
-    private TableDefinitions(){
+
+    private TableDefinitions() {
         throw new IllegalAccessError("Utility class");
     }
 
@@ -26,15 +26,15 @@ public class TableDefinitions {
                                             int initialWidth,
                                             boolean isVisible ) {
 
-        return new TableColumn( "runName",
-                                "Run",
-                                parentTable,
-                                "runName",
-                                "runName",
-                                null,
-                                isVisible,
-                                true,
-                                initialWidth );
+        return new TableColumn("runName",
+                               "Run",
+                               parentTable,
+                               "runName",
+                               "runName",
+                               null,
+                               isVisible,
+                               true,
+                               initialWidth);
     }
 
     public static TableColumn getProduct(
@@ -42,15 +42,15 @@ public class TableDefinitions {
                                           int initialWidth,
                                           boolean isVisible ) {
 
-        return new TableColumn( "productName",
-                                "Product",
-                                parentTable,
-                                "productName",
-                                "productName",
-                                null,
-                                isVisible,
-                                true,
-                                initialWidth );
+        return new TableColumn("productName",
+                               "Product",
+                               parentTable,
+                               "productName",
+                               "productName",
+                               null,
+                               isVisible,
+                               true,
+                               initialWidth);
     }
 
     public static TableColumn getVersion(
@@ -58,15 +58,15 @@ public class TableDefinitions {
                                           int initialWidth,
                                           boolean isVisible ) {
 
-        return new TableColumn( "versionName",
-                                "Version",
-                                parentTable,
-                                "versionName",
-                                "versionName",
-                                null,
-                                isVisible,
-                                true,
-                                initialWidth );
+        return new TableColumn("versionName",
+                               "Version",
+                               parentTable,
+                               "versionName",
+                               "versionName",
+                               null,
+                               isVisible,
+                               true,
+                               initialWidth);
 
     }
 
@@ -75,15 +75,15 @@ public class TableDefinitions {
                                             int initialWidth,
                                             boolean isVisible ) {
 
-        return new TableColumn( "buildName",
-                                "Build",
-                                parentTable,
-                                "buildName",
-                                "buildName",
-                                null,
-                                isVisible,
-                                true,
-                                initialWidth );
+        return new TableColumn("buildName",
+                               "Build",
+                               parentTable,
+                               "buildName",
+                               "buildName",
+                               null,
+                               isVisible,
+                               true,
+                               initialWidth);
     }
 
     public static TableColumn getOS(
@@ -91,7 +91,7 @@ public class TableDefinitions {
                                      int initialWidth,
                                      boolean isVisible ) {
 
-        return new TableColumn( "os", "OS", parentTable, "os", "os", null, isVisible, true, initialWidth );
+        return new TableColumn("os", "OS", parentTable, "os", "os", null, isVisible, true, initialWidth);
     }
 
     public static TableColumn getTotal(
@@ -99,16 +99,16 @@ public class TableDefinitions {
                                         int initialWidth,
                                         boolean isVisible ) {
 
-        return new TableColumn( "total",
-                                "Total",
-                                parentTable,
-                                "scenariosTotal,testcasesTotal",
-                                "total",
-                                "Total test scenarios and test cases",
-                                "totalHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("total",
+                               "Total",
+                               parentTable,
+                               "scenariosTotal,testcasesTotal",
+                               "total",
+                               "Total test scenarios and test cases",
+                               "totalHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getTotalTestcase(
@@ -116,16 +116,16 @@ public class TableDefinitions {
                                                 int initialWidth,
                                                 boolean isVisible ) {
 
-        return new TableColumn( "testcasesTotal",
-                                "TestcasesTotal",
-                                parentTable,
-                                "testcasesTotal",
-                                "testcasesTotal",
-                                "Total test cases",
-                                "totalHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("testcasesTotal",
+                               "TestcasesTotal",
+                               parentTable,
+                               "testcasesTotal",
+                               "testcasesTotal",
+                               "Total test cases",
+                               "totalHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getFailed(
@@ -133,16 +133,16 @@ public class TableDefinitions {
                                          int initialWidth,
                                          boolean isVisible ) {
 
-        return new TableColumn( "failed",
-                                "Failed",
-                                parentTable,
-                                "scenariosFailed,testcasesFailed",
-                                "failed",
-                                "Failed test scenarios and test cases",
-                                "failedHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("failed",
+                               "Failed",
+                               parentTable,
+                               "scenariosFailed,testcasesFailed",
+                               "failed",
+                               "Failed test scenarios and test cases",
+                               "failedHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getFailedTestcase(
@@ -150,16 +150,16 @@ public class TableDefinitions {
                                                  int initialWidth,
                                                  boolean isVisible ) {
 
-        return new TableColumn( "testcasesFailed",
-                                "TestcasesFailed",
-                                parentTable,
-                                "testcasesFailed",
-                                "testcasesFailed",
-                                "Failed test cases",
-                                "failedHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("testcasesFailed",
+                               "TestcasesFailed",
+                               parentTable,
+                               "testcasesFailed",
+                               "testcasesFailed",
+                               "Failed test cases",
+                               "failedHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getScenariosSkipped(
@@ -167,16 +167,16 @@ public class TableDefinitions {
                                                    int initialWidth,
                                                    boolean isVisible ) {
 
-        return new TableColumn( "scenariosSkipped",
-                                "Skipped",
-                                parentTable,
-                                "scenariosSkipped",
-                                "scenariosSkipped",
-                                "Skipped test scenarios",
-                                "skippedHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("scenariosSkipped",
+                               "Skipped",
+                               parentTable,
+                               "scenariosSkipped",
+                               "scenariosSkipped",
+                               "Skipped test scenarios",
+                               "skippedHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getTestcasesPassedPercent(
@@ -184,16 +184,16 @@ public class TableDefinitions {
                                                          int initialWidth,
                                                          boolean isVisible ) {
 
-        return new TableColumn( "testcasesPassedPercent",
-                                "Passed",
-                                parentTable,
-                                "testcasesPassedPercent",
-                                "testcasesPassedPercent",
-                                "Percentage passed test cases ",
-                                "passedHeader",
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("testcasesPassedPercent",
+                               "Passed",
+                               parentTable,
+                               "testcasesPassedPercent",
+                               "testcasesPassedPercent",
+                               "Percentage passed test cases ",
+                               "passedHeader",
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getTestcaseIsRunning(
@@ -201,16 +201,16 @@ public class TableDefinitions {
                                                     int initialWidth,
                                                     boolean isVisible ) {
 
-        return new TableColumn( "testcaseIsRunning",
-                                "Running",
-                                parentTable,
-                                "testcaseIsRunning",
-                                "testcaseIsRunning",
-                                "If there is a running testcase",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("testcaseIsRunning",
+                               "Running",
+                               parentTable,
+                               "testcaseIsRunning",
+                               "testcaseIsRunning",
+                               "If there is a running testcase",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getDateStartDefinition(
@@ -218,16 +218,16 @@ public class TableDefinitions {
                                                       int initialWidth,
                                                       boolean isVisible ) {
 
-        return new TableColumn( "dateStart",
-                                "Start",
-                                parentTable,
-                                "dateStart",
-                                "dateStart",
-                                "Start time",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("dateStart",
+                               "Start",
+                               parentTable,
+                               "dateStart",
+                               "dateStart",
+                               "Start time",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getDateEndDefinition(
@@ -235,16 +235,16 @@ public class TableDefinitions {
                                                     int initialWidth,
                                                     boolean isVisible ) {
 
-        return new TableColumn( "dateEnd",
-                                "End",
-                                parentTable,
-                                "dateEnd",
-                                "dateEnd",
-                                "End time",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("dateEnd",
+                               "End",
+                               parentTable,
+                               "dateEnd",
+                               "dateEnd",
+                               "End time",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getDurationDefinition(
@@ -252,16 +252,16 @@ public class TableDefinitions {
                                                      int initialWidth,
                                                      boolean isVisible ) {
 
-        return new TableColumn( "duration",
-                                "Duration",
-                                parentTable,
-                                "duration",
-                                "duration",
-                                "Duration in \"days hh:mm:ss\"",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("duration",
+                               "Duration",
+                               parentTable,
+                               "duration",
+                               "duration",
+                               "Duration in \"days hh:mm:ss\"",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getUserNoteDefinition(
@@ -269,16 +269,16 @@ public class TableDefinitions {
                                                      int initialWidth,
                                                      boolean isVisible ) {
 
-        return new TableColumn( "userNote",
-                                "User Note",
-                                parentTable,
-                                "userNote",
-                                "userNote",
-                                "A user specified note",
-                                null,
-                                isVisible,
-                                true,
-                                initialWidth );
+        return new TableColumn("userNote",
+                               "User Note",
+                               parentTable,
+                               "userNote",
+                               "userNote",
+                               "A user specified note",
+                               null,
+                               isVisible,
+                               true,
+                               initialWidth);
     }
 
     public static TableColumn getScenario(
@@ -286,15 +286,15 @@ public class TableDefinitions {
                                            int initialWidth,
                                            boolean isVisible ) {
 
-        return new TableColumn( "name",
-                                "Scenario",
-                                parentTable,
-                                "name",
-                                "name",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("name",
+                               "Scenario",
+                               parentTable,
+                               "name",
+                               "name",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getDescription(
@@ -302,15 +302,15 @@ public class TableDefinitions {
                                               int initialWidth,
                                               boolean isVisible ) {
 
-        return new TableColumn( "description",
-                                "Description",
-                                parentTable,
-                                "description",
-                                "description",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("description",
+                               "Description",
+                               parentTable,
+                               "description",
+                               "description",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getState(
@@ -318,15 +318,15 @@ public class TableDefinitions {
                                         int initialWidth,
                                         boolean isVisible ) {
 
-        return new TableColumn( "state",
-                                "State",
-                                parentTable,
-                                "result",
-                                "state",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("state",
+                               "State",
+                               parentTable,
+                               "result",
+                               "state",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getSuite(
@@ -334,15 +334,15 @@ public class TableDefinitions {
                                         int initialWidth,
                                         boolean isVisible ) {
 
-        return new TableColumn( "name",
-                                "Suite",
-                                parentTable,
-                                "name",
-                                "name",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("name",
+                               "Suite",
+                               parentTable,
+                               "name",
+                               "name",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getPackage(
@@ -350,15 +350,15 @@ public class TableDefinitions {
                                           int initialWidth,
                                           boolean isVisible ) {
 
-        return new TableColumn( "packageName",
-                                "Package",
-                                parentTable,
-                                "package",
-                                "packageName",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("packageName",
+                               "Package",
+                               parentTable,
+                               "package",
+                               "packageName",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getTestcase(
@@ -366,15 +366,15 @@ public class TableDefinitions {
                                            int initialWidth,
                                            boolean isVisible ) {
 
-        return new TableColumn( "name",
-                                "Testcase",
-                                parentTable,
-                                "name",
-                                "name",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("name",
+                               "Testcase",
+                               parentTable,
+                               "name",
+                               "name",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getDate(
@@ -382,15 +382,15 @@ public class TableDefinitions {
                                        int initialWidth,
                                        boolean isVisible ) {
 
-        return new TableColumn( "date",
-                                "Date",
-                                parentTable,
-                                "timestamp",
-                                "date",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("date",
+                               "Date",
+                               parentTable,
+                               "timestamp",
+                               "date",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getTime(
@@ -398,15 +398,15 @@ public class TableDefinitions {
                                        int initialWidth,
                                        boolean isVisible ) {
 
-        return new TableColumn( "time",
-                                "Time",
-                                parentTable,
-                                "timestamp",
-                                "time",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("time",
+                               "Time",
+                               parentTable,
+                               "timestamp",
+                               "time",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getThread(
@@ -414,15 +414,15 @@ public class TableDefinitions {
                                          int initialWidth,
                                          boolean isVisible ) {
 
-        return new TableColumn( "threadName",
-                                "Thread",
-                                parentTable,
-                                "threadName",
-                                "threadName",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("threadName",
+                               "Thread",
+                               parentTable,
+                               "threadName",
+                               "threadName",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getMachine(
@@ -430,15 +430,15 @@ public class TableDefinitions {
                                           int initialWidth,
                                           boolean isVisible ) {
 
-        return new TableColumn( "machineName",
-                                "Machine",
-                                parentTable,
-                                "machineName",
-                                "machineName",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("machineName",
+                               "Machine",
+                               parentTable,
+                               "machineName",
+                               "machineName",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getMessageType(
@@ -446,15 +446,15 @@ public class TableDefinitions {
                                               int initialWidth,
                                               boolean isVisible ) {
 
-        return new TableColumn( "messageType",
-                                "Level",
-                                parentTable,
-                                "name",
-                                "messageType",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("messageType",
+                               "Level",
+                               parentTable,
+                               "name",
+                               "messageType",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
     public static TableColumn getMessageContent(
@@ -462,15 +462,15 @@ public class TableDefinitions {
                                                  int initialWidth,
                                                  boolean isVisible ) {
 
-        return new TableColumn( "messageContent",
-                                "Message",
-                                parentTable,
-                                "message",
-                                "messageContent",
-                                null,
-                                isVisible,
-                                false,
-                                initialWidth );
+        return new TableColumn("messageContent",
+                               "Message",
+                               parentTable,
+                               "message",
+                               "messageContent",
+                               null,
+                               isVisible,
+                               false,
+                               initialWidth);
     }
 
 }

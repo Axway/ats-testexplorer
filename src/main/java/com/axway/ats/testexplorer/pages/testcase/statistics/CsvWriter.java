@@ -42,7 +42,7 @@ public class CsvWriter implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger     LOG              = Logger.getLogger( CsvWriter.class );
+    private static Logger     LOG              = Logger.getLogger(CsvWriter.class);
 
     private DownloadLink      downloadFile;
 
@@ -57,17 +57,17 @@ public class CsvWriter implements Serializable {
 
         final String fileName = "chartDataFile.csv";
 
-        downloadFile = new DownloadLink( "download", new File( fileName ) ) {
+        downloadFile = new DownloadLink("download", new File(fileName)) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             public void onClick() {
 
-                IResourceStream resourceStream = new FileResourceStream( new org.apache.wicket.util.file.File( generateFile( fileName ) ) );
-                getRequestCycle().scheduleRequestHandlerAfterCurrent( new ResourceStreamRequestHandler( resourceStream ) {}.setFileName( fileName )
-                                                                                                                           .setContentDisposition( ContentDisposition.ATTACHMENT ) );
-                downloadFile.setDeleteAfterDownload( true );
+                IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(generateFile(fileName)));
+                getRequestCycle().scheduleRequestHandlerAfterCurrent(new ResourceStreamRequestHandler(resourceStream) {}.setFileName(fileName)
+                                                                                                                        .setContentDisposition(ContentDisposition.ATTACHMENT));
+                downloadFile.setDeleteAfterDownload(true);
             }
         };
 
@@ -77,18 +77,18 @@ public class CsvWriter implements Serializable {
     private File generateFile( String fileName ) {
 
         PrintWriter pw = null;
-        File file = new File( fileName );
+        File file = new File(fileName);
         try {
-            pw = new PrintWriter( new FileWriter( file ) );
-            List<String> fileData = getChartData( chartDataList );
-            for( String row : fileData ) {
-                pw.println( row );
+            pw = new PrintWriter(new FileWriter(file));
+            List<String> fileData = getChartData(chartDataList);
+            for (String row : fileData) {
+                pw.println(row);
             }
 
-        } catch( IOException ie ) {
-            LOG.error( "Chart data was unable to be persist in file!", ie );
+        } catch (IOException ie) {
+            LOG.error("Chart data was unable to be persist in file!", ie);
         } finally {
-            IoUtils.closeStream( pw );
+            IoUtils.closeStream(pw);
         }
 
         return file;
@@ -97,16 +97,16 @@ public class CsvWriter implements Serializable {
     private List<String> getChartData( Collection<ChartData> collection ) {
 
         List<String> chartDataLists = new ArrayList<String>();
-        
+
         Iterator<ChartData> userStatisticsIterator = collection.iterator();
-        while( userStatisticsIterator.hasNext() ) {
+        while (userStatisticsIterator.hasNext()) {
             ChartData data = userStatisticsIterator.next();
-            String[] avgAxisValues = data.getAxisValuesAsString( 0 ).split( "," );
-            for( int i = 0; i < data.getTimestamps().size(); i++ ) {
-                if( i == 0 ) {
-                    chartDataLists.add( data.getLabel() + " " + data.getUnit() );
+            String[] avgAxisValues = data.getAxisValuesAsString(0).split(",");
+            for (int i = 0; i < data.getTimestamps().size(); i++) {
+                if (i == 0) {
+                    chartDataLists.add(data.getLabel() + " " + data.getUnit());
                 } else {
-                    chartDataLists.add( data.getTimestamps().get( i ).toString() + ","  + avgAxisValues[i] );
+                    chartDataLists.add(data.getTimestamps().get(i).toString() + "," + avgAxisValues[i]);
                 }
             }
         }

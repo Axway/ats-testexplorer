@@ -42,40 +42,40 @@ public class TestcasesByGroupsPage extends BasePage {
 
     public TestcasesByGroupsPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
 
-        filter = new TestcasesByGroupFilter( "searchForm" );
+        filter = new TestcasesByGroupFilter("searchForm");
 
-        add( filter );
+        add(filter);
 
         filter.performSearchOnPageLoad();
 
         filterData = filter.getFilterData();
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
         TestcaseInfoPerGroupStorage perGroupStorage = null;
         try {
             perGroupStorage = session.getDbReadConnection()
-                                     .getTestcaseInfoPerGroupStorage( filter.getSelectedProductName(), 
-                                                                      filter.getSelectedVersionNames(), 
-                                                                      filter.getSelectedGroupNames(), 
-                                                                      filter.getSearchByAfterDate(), 
-                                                                      filter.getSearchByBeforeDate(), 
-                                                                      filter.getSearchByGroupContains() );
+                                     .getTestcaseInfoPerGroupStorage(filter.getSelectedProductName(),
+                                                                     filter.getSelectedVersionNames(),
+                                                                     filter.getSelectedGroupNames(),
+                                                                     filter.getSearchByAfterDate(),
+                                                                     filter.getSearchByBeforeDate(),
+                                                                     filter.getSearchByGroupContains());
 
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Unable to get Testcases and Groups data", e );
-            error( "Unable to get Testcases and Groups data" );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Unable to get Testcases and Groups data", e);
+            error("Unable to get Testcases and Groups data");
         }
 
-        if( perGroupStorage != null ) {
+        if (perGroupStorage != null) {
             treemapData = perGroupStorage.generateTreemapData();
             testcasesIdsMap = perGroupStorage.generateTestcasesIdsMap();
         }
 
-        AjaxLink<String> modalTooltip = new AjaxLink<String>( "modalTooltip" ) {
+        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
 
             private static final long serialVersionUID = 1L;
 
@@ -86,9 +86,9 @@ public class TestcasesByGroupsPage extends BasePage {
             }
         };
         //modalTooltip.
-        modalTooltip.add( new WebMarkupContainer( "helpButton" ) );
+        modalTooltip.add(new WebMarkupContainer("helpButton"));
 
-        add( modalTooltip );
+        add(modalTooltip);
 
     }
 
@@ -96,16 +96,16 @@ public class TestcasesByGroupsPage extends BasePage {
     public void renderHead(
                             IHeaderResponse response ) {
 
-        super.renderHead( response );
+        super.renderHead(response);
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
 
         String initScript = ";setHiddenValue(\"groups\");drawTreemap(" + treemapData + ","
                             + TestcaseInfoPerGroupStorage.TREEMAP_OPTIONS + ");populateFilterDataPanel("
-                            + filterData + ");setDbName(\"" + ( session.getDbName() )
+                            + filterData + ");setDbName(\"" + (session.getDbName())
                             + "\");setTestcasesIdsMap(" + testcasesIdsMap + ");";
 
-        response.render( OnLoadHeaderItem.forScript( initScript ) );
+        response.render(OnLoadHeaderItem.forScript(initScript));
 
     }
 

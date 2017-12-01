@@ -36,8 +36,8 @@ public class MessageFilterDetails implements Serializable {
 
     private List<String>             levels             = new ArrayList<String>();
 
-    public static final List<String> SKIPPED_LOG_LEVELS = new ArrayList<String>( Arrays.asList( "trace",
-                                                                                                "debug" ) );
+    public static final List<String> SKIPPED_LOG_LEVELS = new ArrayList<String>(Arrays.asList("trace",
+                                                                                              "debug"));
 
     public Set<String> getThreads() {
 
@@ -68,13 +68,13 @@ public class MessageFilterDetails implements Serializable {
 
     public List<String> getSelectedLevels() {
 
-        List<String> selectedLevels = new ArrayList<String>( levels );
-        String minMessageLevel = ( ( TestExplorerSession ) Session.get() ).getMinMessageLevel();
-        if( SKIPPED_LOG_LEVELS.contains( minMessageLevel ) ) {
-            selectedLevels.removeAll( SKIPPED_LOG_LEVELS.subList( 0,
-                                                                  SKIPPED_LOG_LEVELS.indexOf( minMessageLevel ) ) );
+        List<String> selectedLevels = new ArrayList<String>(levels);
+        String minMessageLevel = ((TestExplorerSession) Session.get()).getMinMessageLevel();
+        if (SKIPPED_LOG_LEVELS.contains(minMessageLevel)) {
+            selectedLevels.removeAll(SKIPPED_LOG_LEVELS.subList(0,
+                                                                SKIPPED_LOG_LEVELS.indexOf(minMessageLevel)));
         } else {
-            selectedLevels.removeAll( SKIPPED_LOG_LEVELS );
+            selectedLevels.removeAll(SKIPPED_LOG_LEVELS);
         }
         return selectedLevels;
     }

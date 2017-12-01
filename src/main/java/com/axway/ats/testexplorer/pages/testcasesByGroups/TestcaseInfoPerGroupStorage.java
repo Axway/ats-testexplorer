@@ -28,16 +28,16 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
     private List<GroupInfo>    groups;
 
     public static final String TREEMAP_OPTIONS  = "{highlightOnMouseOver : true,width : '100%',height : '75%',headerHeight : 20,fontColor : 'black',showScale : true,generateTooltip : generateTooltip,maxColor: "
-                                                   + "'#0f0'"
-                                                   + ",midColor: "
-                                                   + "'#ddd'"
-                                                   + ",minColor: "
-                                                   + "'#f00'" + ",useWeightedAverageForAggregation: true}";
+                                                  + "'#0f0'"
+                                                  + ",midColor: "
+                                                  + "'#ddd'"
+                                                  + ",minColor: "
+                                                  + "'#f00'" + ",useWeightedAverageForAggregation: true}";
 
     public TestcaseInfoPerGroupStorage() {
 
-        testcaseInfos = new ArrayList<TestcaseInfo>( 1 );
-        groups = new ArrayList<GroupInfo>( 1 );
+        testcaseInfos = new ArrayList<TestcaseInfo>(1);
+        groups = new ArrayList<GroupInfo>(1);
     }
 
     public List<TestcaseInfo> getTestcaseInfos() {
@@ -75,12 +75,12 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
 
         StringBuilder sb = new StringBuilder();
 
-        if( groups == null || groups.size() == 0 ) {
-            sb.append( "google.visualization.arrayToDataTable([" )
-              .append( "['name', 'Parent', 'total runs (size)', 'passed tests ratio']," )
-              .append( "[" + rootNodeName + "," + null + "," + 0 + "," + 0 + "]," )
-              .append( "[\"" + "No Data found" + "\"," + rootNodeName + "," + 1 + "," + 0 + "]," )
-              .append( "],false)" );
+        if (groups == null || groups.size() == 0) {
+            sb.append("google.visualization.arrayToDataTable([")
+              .append("['name', 'Parent', 'total runs (size)', 'passed tests ratio'],")
+              .append("[" + rootNodeName + "," + null + "," + 0 + "," + 0 + "],")
+              .append("[\"" + "No Data found" + "\"," + rootNodeName + "," + 1 + "," + 0 + "],")
+              .append("],false)");
 
             return sb.toString();
         }
@@ -88,25 +88,26 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
         int totalExecutions = 0;
         float passRate = 0.0f;
 
-        for( GroupInfo group : groups ) {
+        for (GroupInfo group : groups) {
             totalExecutions += group.totalTestcases;
             passRate += group.testcasesPassPercentage;
         }
 
-        passRate = ( passRate / groups.size() );
+        passRate = (passRate / groups.size());
 
-        sb.append( "google.visualization.arrayToDataTable([" )
-          .append( "['name', 'Parent', 'total runs (size)', 'passed tests ratio']," )
-          .append( "[" + rootNodeName + "," + null + "," + totalExecutions + "," + passRate + "]," )
-          .append( generateTreemapDataForGroups( groups, rootNodeName ) )
-          .append( generateTreemapDataForTestcases( testcaseInfos ) )
+        sb.append("google.visualization.arrayToDataTable([")
+          .append("['name', 'Parent', 'total runs (size)', 'passed tests ratio'],")
+          .append("[" + rootNodeName + "," + null + "," + totalExecutions + "," + passRate + "],")
+          .append(generateTreemapDataForGroups(groups, rootNodeName))
+          .append(generateTreemapDataForTestcases(testcaseInfos))
           /*when only one group is presented or all groups has the same color (same testcase pass percentage), it is colored incorrectly, 
            * so we append dummy group node with different passRate and minimal size*/
-          .append( "['dummy_ats_treemap_group_node'," + rootNodeName + ",0.001,"
-                   + ( ( passRate == 0 )
-                                        ? 100
-                                        : ( passRate / 4 ) ) + "]," )
-          .append( "],false)" );
+          .append("['dummy_ats_treemap_group_node'," + rootNodeName + ",0.001,"
+                  + ( (passRate == 0)
+                                      ? 100
+                                      : (passRate / 4))
+                  + "],")
+          .append("],false)");
 
         return sb.toString();
 
@@ -115,13 +116,13 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
     public String generateTestcasesIdsMap() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append( "[" );
-        for( TestcaseInfo info : testcaseInfos ) {
+        sb.append("[");
+        for (TestcaseInfo info : testcaseInfos) {
             String name = info.testcaseName + "/" + info.scenarioName + "/"
                           + info.suiteName + "/" + info.groupName;
-            sb.append( "{" ).append( "'name':'" + name + "'," ).append( "'id':'" + info.testcaseId + "'}," );
+            sb.append("{").append("'name':'" + name + "',").append("'id':'" + info.testcaseId + "'},");
         }
-        sb.append( "]" );
+        sb.append("]");
         return sb.toString();
     }
 
@@ -131,13 +132,13 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
 
         StringBuilder sb = new StringBuilder();
 
-        for( GroupInfo group : groups ) {
-            sb.append( "[" )
-              .append( "\"" + group.name + "\"," )
-              .append( "" + rootNodeName + "," )
-              .append( group.totalTestcases + "," )
-              .append( group.testcasesPassPercentage + "," )
-              .append( "]," );
+        for (GroupInfo group : groups) {
+            sb.append("[")
+              .append("\"" + group.name + "\",")
+              .append("" + rootNodeName + ",")
+              .append(group.totalTestcases + ",")
+              .append(group.testcasesPassPercentage + ",")
+              .append("],");
         }
 
         return sb.toString();
@@ -148,19 +149,19 @@ public class TestcaseInfoPerGroupStorage implements Serializable {
 
         StringBuilder sb = new StringBuilder();
 
-        if( testcasesInfos == null || testcasesInfos.size() == 0 ) {
+        if (testcasesInfos == null || testcasesInfos.size() == 0) {
             return "[]";
         }
 
-        for( TestcaseInfo info : testcasesInfos ) {
+        for (TestcaseInfo info : testcasesInfos) {
             String name = info.testcaseName + "/" + info.scenarioName + "/"
                           + info.suiteName + "/" + info.groupName;
-            sb.append( "[" )
-              .append( "\"" + ( name ) + "\"," )
-              .append( "\"" + info.groupName + "\"," )
-              .append( info.totalExecutions + "," )
-              .append( info.numberPassed + "," )
-              .append( "]," );
+            sb.append("[")
+              .append("\"" + (name) + "\",")
+              .append("\"" + info.groupName + "\",")
+              .append(info.totalExecutions + ",")
+              .append(info.numberPassed + ",")
+              .append("],");
 
         }
 

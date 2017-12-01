@@ -40,15 +40,15 @@ public class ScenarioLoadableDetachableModel extends LoadableDetachableModel<Sce
     public boolean equals(
                            Object obj ) {
 
-        if( obj == this ) {
+        if (obj == this) {
             return true;
-        } else if( obj == null ) {
+        } else if (obj == null) {
             return false;
-        } else if( obj instanceof ScenarioLoadableDetachableModel ) {
-            ScenarioLoadableDetachableModel other = ( ScenarioLoadableDetachableModel ) obj;
-            return other.scenario.scenarioId.equals( this.scenario.scenarioId )
+        } else if (obj instanceof ScenarioLoadableDetachableModel) {
+            ScenarioLoadableDetachableModel other = (ScenarioLoadableDetachableModel) obj;
+            return other.scenario.scenarioId.equals(this.scenario.scenarioId)
                    && other.scenario.result == this.scenario.result
-                   && other.scenario.getDuration( 0 ) == this.scenario.getDuration( 0 );
+                   && other.scenario.getDuration(0) == this.scenario.getDuration(0);
         }
         return false;
     }

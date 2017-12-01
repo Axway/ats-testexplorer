@@ -37,17 +37,17 @@ public class PluginParameters implements Serializable {
      */
     private Class<? extends WebPage> klass;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked")
     public PluginParameters( Map<String, String> parameters ) {
 
-        buttonName = parameters.get( PluginConfigurationParser.NODE__BUTTON_NAME );
+        buttonName = parameters.get(PluginConfigurationParser.NODE__BUTTON_NAME);
 
         try {
-            klass = ( Class<? extends WebPage> ) Class.forName( parameters.get( PluginConfigurationParser.NODE__PAGE_CLASS ) );
-        } catch( ClassNotFoundException e ) {
-            throw new PluginLoadException( "Error loading plugin class "
-                                           + parameters.get( PluginConfigurationParser.NODE__PAGE_CLASS ),
-                                           e );
+            klass = (Class<? extends WebPage>) Class.forName(parameters.get(PluginConfigurationParser.NODE__PAGE_CLASS));
+        } catch (ClassNotFoundException e) {
+            throw new PluginLoadException("Error loading plugin class "
+                                          + parameters.get(PluginConfigurationParser.NODE__PAGE_CLASS),
+                                          e);
         }
     }
 

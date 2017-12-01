@@ -29,23 +29,23 @@ import org.apache.wicket.model.PropertyModel;
 import com.axway.ats.log.autodb.entities.Scenario;
 import com.inmethod.grid.column.WicketColumnAdapter;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class ScenarioDescriptionColumn extends WicketColumnAdapter {
 
     private static final long    serialVersionUID       = 1L;
 
-    private static final Pattern wikiUrlPattern         = Pattern.compile( "\\[([^\\|]+)\\|\\s*((?:http|https)\\:\\/\\/[^\\]]+)\\]" );
-    private static final Pattern quotedUrlPattern       = Pattern.compile( "(?<!(?:href\\=))\\\"((?:http|https)\\:\\/\\/[^\\\"]+)\\\"" );
-    private static final Pattern withoutSpaceUrlPattern = Pattern.compile( "(?<!(?:href\\=\\\"|>))((?:http|https)\\:\\/\\/[^\\s]+)" );
+    private static final Pattern wikiUrlPattern         = Pattern.compile("\\[([^\\|]+)\\|\\s*((?:http|https)\\:\\/\\/[^\\]]+)\\]");
+    private static final Pattern quotedUrlPattern       = Pattern.compile("(?<!(?:href\\=))\\\"((?:http|https)\\:\\/\\/[^\\\"]+)\\\"");
+    private static final Pattern withoutSpaceUrlPattern = Pattern.compile("(?<!(?:href\\=\\\"|>))((?:http|https)\\:\\/\\/[^\\s]+)");
 
     private TableColumn          tableColumn;
 
     public ScenarioDescriptionColumn( TableColumn tableColumn ) {
 
-        super( tableColumn.getColumnId(), new PropertyColumn( new PropertyModel<TableColumn>( tableColumn,
-                                                                                              "columnName" ),
-                                                              tableColumn.getSortProperty(),
-                                                              tableColumn.getPropertyExpression() ) );
+        super(tableColumn.getColumnId(), new PropertyColumn(new PropertyModel<TableColumn>(tableColumn,
+                                                                                           "columnName"),
+                                                            tableColumn.getSortProperty(),
+                                                            tableColumn.getPropertyExpression()));
         this.tableColumn = tableColumn;
     }
 
@@ -55,45 +55,45 @@ public class ScenarioDescriptionColumn extends WicketColumnAdapter {
                               String componentId,
                               IModel rowModel ) {
 
-        final Scenario scenario = ( Scenario ) rowModel.getObject();
+        final Scenario scenario = (Scenario) rowModel.getObject();
         String description = scenario.description;
-        if( description == null ) {
+        if (description == null) {
             description = "";
         }
-        IModel<String> labelModel = new Model<String>( description );
-        Label label = new Label( componentId, labelModel );
-        if( description.length() > 0 && description.contains( "://" ) ) {
+        IModel<String> labelModel = new Model<String>(description);
+        Label label = new Label(componentId, labelModel);
+        if (description.length() > 0 && description.contains("://")) {
 
-            description = description.replace( "<", "&lt;" ).replace( ">", "&gt;" );
+            description = description.replace("<", "&lt;").replace(">", "&gt;");
 
             // search for links with wiki syntax eg. [Link text|http://some.rul.com/test.html]
-            StringBuffer sb = new StringBuffer( description.length() );
-            Matcher wikiUrlMatcher = wikiUrlPattern.matcher( description );
-            while( wikiUrlMatcher.find() ) {
-                wikiUrlMatcher.appendReplacement( sb, "<a href=\"$2\" class=\"linkInTable\">$1</a>" );
+            StringBuffer sb = new StringBuffer(description.length());
+            Matcher wikiUrlMatcher = wikiUrlPattern.matcher(description);
+            while (wikiUrlMatcher.find()) {
+                wikiUrlMatcher.appendReplacement(sb, "<a href=\"$2\" class=\"linkInTable\">$1</a>");
             }
-            wikiUrlMatcher.appendTail( sb );
+            wikiUrlMatcher.appendTail(sb);
             description = sb.toString();
 
             // search for quoted links eg. "http://some.rul.com/read me/test spaces.html"
-            sb = new StringBuffer( description.length() );
-            Matcher quotedUrlMatcher = quotedUrlPattern.matcher( description );
-            while( quotedUrlMatcher.find() ) {
-                quotedUrlMatcher.appendReplacement( sb, "<a href=\"$1\" class=\"linkInTable\">$1</a>" );
+            sb = new StringBuffer(description.length());
+            Matcher quotedUrlMatcher = quotedUrlPattern.matcher(description);
+            while (quotedUrlMatcher.find()) {
+                quotedUrlMatcher.appendReplacement(sb, "<a href=\"$1\" class=\"linkInTable\">$1</a>");
             }
-            quotedUrlMatcher.appendTail( sb );
+            quotedUrlMatcher.appendTail(sb);
             description = sb.toString();
 
             // search for regular links(without spaces) eg. http://some.rul.com/read_me.txt
-            sb = new StringBuffer( description.length() );
-            Matcher withoutSpaceMatcher = withoutSpaceUrlPattern.matcher( description );
-            while( withoutSpaceMatcher.find() ) {
-                withoutSpaceMatcher.appendReplacement( sb, "<a href=\"$1\" class=\"linkInTable\">$1</a>" );
+            sb = new StringBuffer(description.length());
+            Matcher withoutSpaceMatcher = withoutSpaceUrlPattern.matcher(description);
+            while (withoutSpaceMatcher.find()) {
+                withoutSpaceMatcher.appendReplacement(sb, "<a href=\"$1\" class=\"linkInTable\">$1</a>");
             }
-            withoutSpaceMatcher.appendTail( sb );
+            withoutSpaceMatcher.appendTail(sb);
 
-            labelModel.setObject( sb.toString() );
-            label.setEscapeModelStrings( false );
+            labelModel.setObject(sb.toString());
+            label.setEscapeModelStrings(false);
         }
 
         return label;

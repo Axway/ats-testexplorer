@@ -44,39 +44,39 @@ import com.axway.ats.testexplorer.model.TestExplorerSession;
  */
 public abstract class TestcaseReportPage extends WebPage {
 
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID      = 1L;
 
-    protected String          reportHomeFolder;
-    
+    protected String            reportHomeFolder;
+
     // preserves the timeOffset for the current session
-    private HiddenField<String>       timeOffsetField                 = new HiddenField<>( "timeOffset",
-                                                                                           new Model<String>( "" ) );
-    
+    private HiddenField<String> timeOffsetField       = new HiddenField<>("timeOffset",
+                                                                          new Model<String>(""));
+
     // preserves whether when calculating all time stamps, requested by the current session, into consideration must be taken day-light saving
-    private HiddenField<String>       dayLightSavingOnField           = new HiddenField<>( "dayLightSavingOn",
-                                                                                           new Model<String>( "" ) );
+    private HiddenField<String> dayLightSavingOnField = new HiddenField<>("dayLightSavingOn",
+                                                                          new Model<String>(""));
 
     public TestcaseReportPage( PageParameters parameters ) throws IOException {
 
-        super( parameters );
+        super(parameters);
 
         reportHomeFolder = getAbsolutePathOfClass();
-        reportHomeFolder = IoUtils.normalizeDirPath( reportHomeFolder );
-        if( OperatingSystemType.getCurrentOsType().isWindows()
-            && reportHomeFolder.startsWith( SYSTEM_FILE_SEPARATOR ) ) {
+        reportHomeFolder = IoUtils.normalizeDirPath(reportHomeFolder);
+        if (OperatingSystemType.getCurrentOsType().isWindows()
+            && reportHomeFolder.startsWith(SYSTEM_FILE_SEPARATOR)) {
 
-            reportHomeFolder = reportHomeFolder.substring( 1 );
+            reportHomeFolder = reportHomeFolder.substring(1);
         }
-        reportHomeFolder = reportHomeFolder.substring( 0,
-                                                       reportHomeFolder.lastIndexOf( SYSTEM_FILE_SEPARATOR ) );
+        reportHomeFolder = reportHomeFolder.substring(0,
+                                                      reportHomeFolder.lastIndexOf(SYSTEM_FILE_SEPARATOR));
         // the current folder path is encoded (e.g. ' ' = '%20'). We need to decode it
-        reportHomeFolder = URLDecoder.decode( reportHomeFolder, "UTF-8" );
-        
-        add( timeOffsetField );
-        add( dayLightSavingOnField );
+        reportHomeFolder = URLDecoder.decode(reportHomeFolder, "UTF-8");
+
+        add(timeOffsetField);
+        add(dayLightSavingOnField);
 
         // AJAX handler for obtaining browser's time offset from UTC
-        add( new AbstractDefaultAjaxBehavior() {
+        add(new AbstractDefaultAjaxBehavior() {
 
             private static final long serialVersionUID = 1L;
 
@@ -84,19 +84,19 @@ public abstract class TestcaseReportPage extends WebPage {
             protected void respond( AjaxRequestTarget target ) {
 
                 IRequestParameters request = RequestCycle.get().getRequest().getRequestParameters();
-                int timeOffset = request.getParameterValue( "timeOffset" ).toInt();
-                TestExplorerSession teSession = ( TestExplorerSession ) Session.get();
-                teSession.setTimeOffset( timeOffset );
-                teSession.setDayLightSavingOn( request.getParameterValue( "dayLightSavingOn" ).toBoolean() );
+                int timeOffset = request.getParameterValue("timeOffset").toInt();
+                TestExplorerSession teSession = (TestExplorerSession) Session.get();
+                teSession.setTimeOffset(timeOffset);
+                teSession.setDayLightSavingOn(request.getParameterValue("dayLightSavingOn").toBoolean());
             }
 
             @Override
             protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
 
-                super.updateAjaxAttributes( attributes );
+                super.updateAjaxAttributes(attributes);
                 attributes.getDynamicExtraParameters()
-                          .add( "return {'timeOffset': $('#timeOffset').val(),"
-                                + "'dayLightSavingOn': $('#dayLightSavingOn').val() }" );
+                          .add("return {'timeOffset': $('#timeOffset').val(),"
+                               + "'dayLightSavingOn': $('#dayLightSavingOn').val() }");
             }
 
             @Override
@@ -106,12 +106,12 @@ public abstract class TestcaseReportPage extends WebPage {
                 // so we invert the result, before sending it to Wicket
                 String getTimeOffsetScript = ";var timeOffset = $('#timeOffset');timeOffset.val(new Date().getTimezoneOffset()*60*1000*-1);"
                                              + ";var dayLightSavingOn = $('#dayLightSavingOn');dayLightSavingOn.val(isDayLightSavingOn());";
-                response.render( OnLoadHeaderItem.forScript( getCallbackScript().toString() ) );
-                response.render( OnLoadHeaderItem.forScript( getTimeOffsetScript ) );
+                response.render(OnLoadHeaderItem.forScript(getCallbackScript().toString()));
+                response.render(OnLoadHeaderItem.forScript(getTimeOffsetScript));
             }
 
-        } );
-        
+        });
+
     }
 
     /**
@@ -127,14 +127,14 @@ public abstract class TestcaseReportPage extends WebPage {
 
         String location = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         // if the location ends with '.class, returns absolute path to the current class file
-        if( location.endsWith( ".class" ) ) {
+        if (location.endsWith(".class")) {
             return location;
         }
         // get the path in the package
-        String packagePath = this.getClass().getPackage().getName().replace( ".", "/" );
+        String packagePath = this.getClass().getPackage().getName().replace(".", "/");
 
         // returns the absolute path to the class file
-        return IoUtils.normalizeDirPath( location ) + IoUtils.normalizeFilePath( packagePath );
+        return IoUtils.normalizeDirPath(location) + IoUtils.normalizeFilePath(packagePath);
     }
 
     /**
@@ -145,15 +145,15 @@ public abstract class TestcaseReportPage extends WebPage {
      */
     protected String loadJsFileFromJar( String fullJsFilePath ) {
 
-        int indexJar = fullJsFilePath.indexOf( ".jar" ) + ".jar".length();
+        int indexJar = fullJsFilePath.indexOf(".jar") + ".jar".length();
         InputStream ioStream;
         try {
-            ioStream = IoUtils.readFileFromJar( fullJsFilePath.substring( 0, indexJar ),
-                                                fullJsFilePath.substring( indexJar ).replace( "\\", "/" ) );
-            return IoUtils.streamToString( ioStream );
-        } catch( IOException e ) {
-            throw new RuntimeException( "Error loading js file from within a jar file. Full file path is '"
-                                        + fullJsFilePath + "'", e );
+            ioStream = IoUtils.readFileFromJar(fullJsFilePath.substring(0, indexJar),
+                                               fullJsFilePath.substring(indexJar).replace("\\", "/"));
+            return IoUtils.streamToString(ioStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading js file from within a jar file. Full file path is '"
+                                       + fullJsFilePath + "'", e);
         }
     }
 }

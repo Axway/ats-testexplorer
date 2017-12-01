@@ -44,8 +44,8 @@ public class AttachmentsServlet extends HttpServlet {
 
     // repo dir
     private static String       repoFilesDir;
-    
-    private static final Logger LOG              = Logger.getLogger( AttachmentsServlet.class );
+
+    private static final Logger LOG              = Logger.getLogger(AttachmentsServlet.class);
 
     public void init() throws ServletException {
 
@@ -57,30 +57,30 @@ public class AttachmentsServlet extends HttpServlet {
 
         Object checkContextAttribute = request.getSession()
                                               .getServletContext()
-                                              .getAttribute( ContextListener.getAttachedFilesDir() );
+                                              .getAttribute(ContextListener.getAttachedFilesDir());
         // check if ats-attached-files property is set
-        if( checkContextAttribute == null ) {
-            LOG.error( "No attached files could be attached. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set." );
+        if (checkContextAttribute == null) {
+            LOG.error("No attached files could be attached. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.");
         } else {
-            response.setContentType( "text/html;charset=UTF-8" );
+            response.setContentType("text/html;charset=UTF-8");
             PrintWriter out = response.getWriter();
             // Check that we have a file upload request
-            if( !ServletFileUpload.isMultipartContent( request ) ) {
-                out.println( "<html>" );
-                out.println( "<head>" );
-                out.println( "<title>Servlet upload</title>" );
-                out.println( "</head>" );
-                out.println( "<body>" );
-                out.println( "<p>No file uploaded</p>" );
-                out.println( "</body>" );
-                out.println( "</html>" );
+            if (!ServletFileUpload.isMultipartContent(request)) {
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>Servlet upload</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<p>No file uploaded</p>");
+                out.println("</body>");
+                out.println("</html>");
                 return;
             }
 
             repoFilesDir = checkContextAttribute.toString();
             DiskFileItemFactory factory = new DiskFileItemFactory();
             // Create a new file upload handler
-            ServletFileUpload upload = new ServletFileUpload( factory );
+            ServletFileUpload upload = new ServletFileUpload(factory);
             // fileitem containing information about the attached file
             FileItem fileItem = null;
             FileItem currentElement = null;
@@ -89,72 +89,72 @@ public class AttachmentsServlet extends HttpServlet {
             int runId = 0;
             int suiteId = 0;
             int testcaseId = 0;
-            
+
             try {
                 // Parse the request to get file items.
-                List<?> fileItems = upload.parseRequest( request );
+                List<?> fileItems = upload.parseRequest(request);
                 // Process the uploaded file items
                 Iterator<?> i = fileItems.iterator();
-                while( i.hasNext() ) {
-                    currentElement = ( FileItem ) i.next();
+                while (i.hasNext()) {
+                    currentElement = (FileItem) i.next();
                     // check if this is the attached file
-                    if( "upfile".equals( currentElement.getFieldName() ) ) {
+                    if ("upfile".equals(currentElement.getFieldName())) {
                         fileItem = currentElement;
-                        attachedFile = getFileSimpleName( fileItem.getName() );
-                        if( attachedFile == null ) {
+                        attachedFile = getFileSimpleName(fileItem.getName());
+                        if (attachedFile == null) {
                             break;
                         }
-                    } else if( "dbName".equals( currentElement.getFieldName() ) ) {
-                        if( !StringUtils.isNullOrEmpty( currentElement.getString() ) )
+                    } else if ("dbName".equals(currentElement.getFieldName())) {
+                        if (!StringUtils.isNullOrEmpty(currentElement.getString()))
                             dbName = currentElement.getString();
-                    } else if( "runId".equals( currentElement.getFieldName() ) ) {
-                        runId = getIntValue( currentElement.getString() );
-                    } else if( "suiteId".equals( currentElement.getFieldName() ) ) {
-                        suiteId = getIntValue( currentElement.getString() );
-                    } else if( "testcaseId".equals( currentElement.getFieldName() ) ) {
-                        testcaseId = getIntValue( currentElement.getString() );
+                    } else if ("runId".equals(currentElement.getFieldName())) {
+                        runId = getIntValue(currentElement.getString());
+                    } else if ("suiteId".equals(currentElement.getFieldName())) {
+                        suiteId = getIntValue(currentElement.getString());
+                    } else if ("testcaseId".equals(currentElement.getFieldName())) {
+                        testcaseId = getIntValue(currentElement.getString());
                     }
                 }
                 // check if all values are valid
-                if( !StringUtils.isNullOrEmpty( attachedFile ) && !StringUtils.isNullOrEmpty( dbName ) && runId > 0
-                    && suiteId > 0 && testcaseId > 0 ) {
+                if (!StringUtils.isNullOrEmpty(attachedFile) && !StringUtils.isNullOrEmpty(dbName) && runId > 0
+                    && suiteId > 0 && testcaseId > 0) {
                     // copy the attached file to the corresponding directory
-                    File file = createAttachedFileDir( attachedFile, dbName, runId, suiteId, testcaseId );
-                    fileItem.write( file );
+                    File file = createAttachedFileDir(attachedFile, dbName, runId, suiteId, testcaseId);
+                    fileItem.write(file);
                     out.println("File uploaded to testcase " + testcaseId);
                 } else {
                     StringBuilder sb = new StringBuilder();
-                    if( StringUtils.isNullOrEmpty( attachedFile ) ) {
-                        sb.append( "Attached file name is null or empty!" );
-                        out.println( sb.toString() );
+                    if (StringUtils.isNullOrEmpty(attachedFile)) {
+                        sb.append("Attached file name is null or empty!");
+                        out.println(sb.toString());
                     }
-                    if( StringUtils.isNullOrEmpty( dbName ) ) {
-                        sb.append( "Database name is null of empty!" );
-                        out.println( sb.toString() );
+                    if (StringUtils.isNullOrEmpty(dbName)) {
+                        sb.append("Database name is null of empty!");
+                        out.println(sb.toString());
                     }
-                    if( runId <= 0 ) {
-                        sb.append( "RunId \"" + runId + "\" is not valid!" );
-                        out.println( sb.toString() );
+                    if (runId <= 0) {
+                        sb.append("RunId \"" + runId + "\" is not valid!");
+                        out.println(sb.toString());
                     }
-                    if( suiteId <= 0 ) {
-                        sb.append( "SuiteId \"" + suiteId + "\" is not valid!" );
-                        out.println( sb.toString() );
+                    if (suiteId <= 0) {
+                        sb.append("SuiteId \"" + suiteId + "\" is not valid!");
+                        out.println(sb.toString());
                     }
-                    if( testcaseId <= 0 ) {
-                        sb.append( "TestcaseId \"" + testcaseId + "\" is not valid!" );
-                        out.println( sb.toString() );
+                    if (testcaseId <= 0) {
+                        sb.append("TestcaseId \"" + testcaseId + "\" is not valid!");
+                        out.println(sb.toString());
                     }
-                    response.sendError( HttpServletResponse.SC_CONFLICT, sb.toString() );
-                    LOG.error( "The file could not be attached to the test!" );
+                    response.sendError(HttpServletResponse.SC_CONFLICT, sb.toString());
+                    LOG.error("The file could not be attached to the test!");
                 }
-            } catch( Exception ex ) {
+            } catch (Exception ex) {
                 String errMsg = ex.getMessage();
-                if( errMsg == null){
+                if (errMsg == null) {
                     errMsg = ex.getClass().getSimpleName();
                 }
-                response.sendError( HttpServletResponse.SC_CONFLICT, ExceptionUtils.getExceptionMsg( ex ) );
-                LOG.error( "The file was unable to be attached to the testcase! ", ex );
-            }finally {
+                response.sendError(HttpServletResponse.SC_CONFLICT, ExceptionUtils.getExceptionMsg(ex));
+                LOG.error("The file was unable to be attached to the testcase! ", ex);
+            } finally {
                 out.close();
             }
         }
@@ -164,9 +164,9 @@ public class AttachmentsServlet extends HttpServlet {
                              String value ) {
 
         try {
-            return Integer.parseInt( value );
-        } catch( NumberFormatException nfe ) {
-            LOG.debug( "Value \"" + value + "\" can`t be converted to int!" );
+            return Integer.parseInt(value);
+        } catch (NumberFormatException nfe) {
+            LOG.debug("Value \"" + value + "\" can`t be converted to int!");
         }
 
         return 0;
@@ -182,20 +182,20 @@ public class AttachmentsServlet extends HttpServlet {
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
         String baseDir = repoFilesDir + "/" + database;
         // check if there there is created folder for the current testcaseId
-        if( !fo.doesFileExist( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId ) ) {
-            fo.createDirectory( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId );
+        if (!fo.doesFileExist(baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId)) {
+            fo.createDirectory(baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId);
         }
 
-        return new File( baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId + "/" + attachedFile );
+        return new File(baseDir + "/" + runId + "/" + suiteId + "/" + testcaseId + "/" + attachedFile);
     }
 
     private String getFileSimpleName(
                                       String file ) {
 
-        if( !StringUtils.isNullOrEmpty( file ) ) {
-            return file.substring( file.lastIndexOf( '/' ) + 1, file.length() );
+        if (!StringUtils.isNullOrEmpty(file)) {
+            return file.substring(file.lastIndexOf('/') + 1, file.length());
         }
-        LOG.warn( "File \"" + file + "\" has no valid name!" );
+        LOG.warn("File \"" + file + "\" has no valid name!");
 
         return null;
     }
@@ -203,42 +203,42 @@ public class AttachmentsServlet extends HttpServlet {
     public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
                                                                                   IOException {
 
-        String runId = request.getParameter( "runId" );
-        String suiteId = request.getParameter( "suiteId" );
-        String testcaseId = request.getParameter( "testcaseId" );
-        String dbName = request.getParameter( "dbname" );
-        String fileName = request.getParameter( "fileName" );
+        String runId = request.getParameter("runId");
+        String suiteId = request.getParameter("suiteId");
+        String testcaseId = request.getParameter("testcaseId");
+        String dbName = request.getParameter("dbname");
+        String fileName = request.getParameter("fileName");
 
-        if( StringUtils.isNullOrEmpty( runId ) || StringUtils.isNullOrEmpty( suiteId )
-            || StringUtils.isNullOrEmpty( testcaseId ) || StringUtils.isNullOrEmpty( dbName )
-            || StringUtils.isNullOrEmpty( fileName ) ) {
-            response.getWriter().println( "GET method cannot be executed due to missing parameters!" );
+        if (StringUtils.isNullOrEmpty(runId) || StringUtils.isNullOrEmpty(suiteId)
+            || StringUtils.isNullOrEmpty(testcaseId) || StringUtils.isNullOrEmpty(dbName)
+            || StringUtils.isNullOrEmpty(fileName)) {
+            response.getWriter().println("GET method cannot be executed due to missing parameters!");
         } else {
 
-            String tomcatDir = System.getenv( "CATALINA_BASE" );
-            if( StringUtils.isNullOrEmpty( tomcatDir ) ) {
-                tomcatDir = System.getenv( "CATALINA_HOME" );
+            String tomcatDir = System.getenv("CATALINA_BASE");
+            if (StringUtils.isNullOrEmpty(tomcatDir)) {
+                tomcatDir = System.getenv("CATALINA_HOME");
             }
 
             LocalFileSystemOperations lfo = new LocalFileSystemOperations();
             String attachedFilePath = tomcatDir + "/ats-attached-files" + "/" + dbName + "/" + runId + "/"
                                       + suiteId + "/" + testcaseId + "/" + fileName;
-            if( !lfo.doesFileExist( attachedFilePath ) ) {
-                response.getWriter().println( "File '" + attachedFilePath
-                                              + "' does not exist. No attached filed could be showed." );
+            if (!lfo.doesFileExist(attachedFilePath)) {
+                response.getWriter().println("File '" + attachedFilePath
+                                             + "' does not exist. No attached filed could be showed.");
             }
 
-            String mimeType = getServletContext().getMimeType( attachedFilePath );
+            String mimeType = getServletContext().getMimeType(attachedFilePath);
 
-            response.addHeader( "mimeType", mimeType );
-            File attachedFile = new File( attachedFilePath );
+            response.addHeader("mimeType", mimeType);
+            File attachedFile = new File(attachedFilePath);
 
             byte[] buffer = new byte[10240];
 
             try (OutputStream output = response.getOutputStream();
-                    FileInputStream attachedFileIS = new FileInputStream( attachedFile )) {
-                for( int length = 0; ( length = attachedFileIS.read( buffer ) ) > 0; ) {
-                    output.write( buffer, 0, length );
+                    FileInputStream attachedFileIS = new FileInputStream(attachedFile)) {
+                for (int length = 0; (length = attachedFileIS.read(buffer)) > 0;) {
+                    output.write(buffer, 0, length);
                 }
             }
         }

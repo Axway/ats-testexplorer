@@ -35,7 +35,7 @@ import com.axway.ats.testexplorer.pages.testcase.TestcasePage;
 import com.axway.ats.testexplorer.pages.testcases.TestcasesPage;
 import com.inmethod.grid.column.WicketColumnAdapter;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class TestcasesTestcaseLinkColumn extends WicketColumnAdapter {
 
     private static final long serialVersionUID = 1L;
@@ -44,10 +44,10 @@ public class TestcasesTestcaseLinkColumn extends WicketColumnAdapter {
 
     public TestcasesTestcaseLinkColumn( TableColumn tableColumn ) {
 
-        super( tableColumn.getColumnId(), new PropertyColumn( new PropertyModel<TableColumn>( tableColumn,
-                                                                                              "columnName" ),
-                                                              tableColumn.getSortProperty(),
-                                                              tableColumn.getPropertyExpression() ) );
+        super(tableColumn.getColumnId(), new PropertyColumn(new PropertyModel<TableColumn>(tableColumn,
+                                                                                           "columnName"),
+                                                            tableColumn.getSortProperty(),
+                                                            tableColumn.getPropertyExpression()));
         this.tableColumn = tableColumn;
     }
 
@@ -57,9 +57,9 @@ public class TestcasesTestcaseLinkColumn extends WicketColumnAdapter {
                               String componentId,
                               IModel rowModel ) {
 
-        final Testcase testcase = ( Testcase ) rowModel.getObject();
+        final Testcase testcase = (Testcase) rowModel.getObject();
 
-        Link<TestcasesPage> link = new Link<TestcasesPage>( componentId ) {
+        Link<TestcasesPage> link = new Link<TestcasesPage>(componentId) {
 
             private static final long serialVersionUID = 1L;
 
@@ -68,10 +68,10 @@ public class TestcasesTestcaseLinkColumn extends WicketColumnAdapter {
 
                 PageParameters parameters = new PageParameters();
                 // pass the testcase id
-                parameters.add( "testcaseId", String.valueOf( testcase.testcaseId ) );
+                parameters.add("testcaseId", String.valueOf(testcase.testcaseId));
                 //pass database name
-                parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
-                return urlFor( TestcasePage.class, parameters );
+                parameters.add("dbname", ((TestExplorerSession) Session.get()).getDbName());
+                return urlFor(TestcasePage.class, parameters);
             }
 
             @Override
@@ -85,24 +85,24 @@ public class TestcasesTestcaseLinkColumn extends WicketColumnAdapter {
                                            final ComponentTag tag ) {
 
                 // make the tag <div wicket:id="item"> as link (<a wicket:id="item">)
-                tag.setName( "a" );
-                super.onComponentTag( tag );
+                tag.setName("a");
+                super.onComponentTag(tag);
             }
 
             @Override
             public void onComponentTagBody(
-                                               MarkupStream markupStream,
-                                               ComponentTag tag ) {
+                                            MarkupStream markupStream,
+                                            ComponentTag tag ) {
 
-                replaceComponentTagBody( markupStream,
-                                         tag,
-                                         "<span title=\"" + TestExplorerUtils.escapeHtmlCharacters( testcase.name )
-                                                 + "\">" + TestExplorerUtils.escapeHtmlCharacters( testcase.name )
-                                                 + "</span>" );
+                replaceComponentTagBody(markupStream,
+                                        tag,
+                                        "<span title=\"" + TestExplorerUtils.escapeHtmlCharacters(testcase.name)
+                                             + "\">" + TestExplorerUtils.escapeHtmlCharacters(testcase.name)
+                                             + "</span>");
             }
 
         };
-        link.add( new AttributeAppender( "class", new Model( "link" ), " " ) );
+        link.add(new AttributeAppender("class", new Model("link"), " "));
 
         return link;
     }

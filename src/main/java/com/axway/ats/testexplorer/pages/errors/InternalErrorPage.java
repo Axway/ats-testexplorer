@@ -33,7 +33,7 @@ public class InternalErrorPage extends WebPage {
      */
     public InternalErrorPage() {
 
-        add( homePageLink( "homePageLink" ) );
+        add(homePageLink("homePageLink"));
     }
 
     /**
@@ -43,8 +43,8 @@ public class InternalErrorPage extends WebPage {
     protected void setHeaders(
                                WebResponse response ) {
 
-        response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
-        super.setHeaders( response );
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        super.setHeaders(response);
     }
 
     /**

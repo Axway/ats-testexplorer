@@ -34,7 +34,7 @@ import com.axway.ats.testexplorer.pages.scenarios.ScenariosPage;
 import com.axway.ats.testexplorer.pages.testcases.TestcasesPage;
 import com.inmethod.grid.column.WicketColumnAdapter;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
 
     private static final long serialVersionUID = 1L;
@@ -43,10 +43,10 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
 
     public ScenarioTestcasesLinkColumn( TableColumn tableColumn ) {
 
-        super( tableColumn.getColumnId(), new PropertyColumn( new PropertyModel<TableColumn>( tableColumn,
-                                                                                              "columnName" ),
-                                                              tableColumn.getSortProperty(),
-                                                              tableColumn.getPropertyExpression() ) );
+        super(tableColumn.getColumnId(), new PropertyColumn(new PropertyModel<TableColumn>(tableColumn,
+                                                                                           "columnName"),
+                                                            tableColumn.getSortProperty(),
+                                                            tableColumn.getPropertyExpression()));
         this.tableColumn = tableColumn;
     }
 
@@ -56,9 +56,9 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
                               String componentId,
                               IModel rowModel ) {
 
-        final Scenario scenario = ( Scenario ) rowModel.getObject();
+        final Scenario scenario = (Scenario) rowModel.getObject();
 
-        Link<ScenariosPage> link = new Link<ScenariosPage>( componentId ) {
+        Link<ScenariosPage> link = new Link<ScenariosPage>(componentId) {
 
             private static final long serialVersionUID = 1L;
 
@@ -68,12 +68,12 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
                 PageParameters parameters = new PageParameters();
 
                 // pass the suite id
-                parameters.add( "suiteId", String.valueOf( scenario.suiteId ) );
+                parameters.add("suiteId", String.valueOf(scenario.suiteId));
                 // pass the scenario id
-                parameters.add( "scenarioId", String.valueOf( scenario.scenarioId ) );
+                parameters.add("scenarioId", String.valueOf(scenario.scenarioId));
                 //pass database name
-                parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
-                return urlFor( TestcasesPage.class, parameters );
+                parameters.add("dbname", ((TestExplorerSession) Session.get()).getDbName());
+                return urlFor(TestcasesPage.class, parameters);
             }
 
             @Override
@@ -87,8 +87,8 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
                                            final ComponentTag tag ) {
 
                 // make the tag <div wicket:id="item"> as link (<a wicket:id="item">)
-                tag.setName( "a" );
-                super.onComponentTag( tag );
+                tag.setName("a");
+                super.onComponentTag(tag);
             }
 
             @Override
@@ -96,13 +96,13 @@ public class ScenarioTestcasesLinkColumn extends WicketColumnAdapter {
                                             MarkupStream markupStream,
                                             ComponentTag tag ) {
 
-                replaceComponentTagBody( markupStream, tag, "<span title=\"" + scenario.name + "\">"
-                                                            + scenario.name + "</span>" );
+                replaceComponentTagBody(markupStream, tag, "<span title=\"" + scenario.name + "\">"
+                                                           + scenario.name + "</span>");
             }
 
         };
-        link.add( new AttributeAppender( "class", new Model( "link" ), " " ) );
-        link.add( new AttributeAppender( "class", new Model( "scenario-link" ), " " ) );
+        link.add(new AttributeAppender("class", new Model("link"), " "));
+        link.add(new AttributeAppender("class", new Model("scenario-link"), " "));
 
         return link;
     }

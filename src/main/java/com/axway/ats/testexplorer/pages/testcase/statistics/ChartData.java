@@ -29,26 +29,26 @@ import com.axway.ats.testexplorer.pages.model.SelectOption;
 
 public class ChartData implements Serializable {
 
-    private static final long             serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private String                        statLabel;
-    private String                        machineLabel;
-    private String                        unit;
-    private int                           testcaseId;
-    private int 						  statisticTypeId;
-    private int                           machineId;
+    private String            statLabel;
+    private String            machineLabel;
+    private String            unit;
+    private int               testcaseId;
+    private int               statisticTypeId;
+    private int               machineId;
 
-    private List<Long>                    timestamps       = new ArrayList<Long>();
-    private List<Float>                   axisValues       = new ArrayList<Float>();
-    private List<Float>                   axisAvgValues    = new ArrayList<Float>();
-    private List<Float>                   axisSumValues    = new ArrayList<Float>();
-    private List<Float>                   axisCountValues  = new ArrayList<Float>();
-    private List<Float>                   axisTotalValues  = new ArrayList<Float>();
+    private List<Long>        timestamps       = new ArrayList<Long>();
+    private List<Float>       axisValues       = new ArrayList<Float>();
+    private List<Float>       axisAvgValues    = new ArrayList<Float>();
+    private List<Float>       axisSumValues    = new ArrayList<Float>();
+    private List<Float>       axisCountValues  = new ArrayList<Float>();
+    private List<Float>       axisTotalValues  = new ArrayList<Float>();
 
-    private Long                          startTimestamp   = null;
+    private Long              startTimestamp   = null;
 
-    private StringBuilder                 jsMarkers        = new StringBuilder();
-    private int                           jsMarkersCount   = 0;
+    private StringBuilder     jsMarkers        = new StringBuilder();
+    private int               jsMarkersCount   = 0;
 
     public ChartData( String statLabel,
                       String machineLabel,
@@ -62,16 +62,16 @@ public class ChartData implements Serializable {
     public int getDisplayValuesMode() {
 
         int displayValuesMode = 0;
-        if( axisAvgValues.size() > 0 ) {
+        if (axisAvgValues.size() > 0) {
             displayValuesMode |= StatisticAggregatedType.AVERAGE;
         }
-        if( axisSumValues.size() > 0 ) {
+        if (axisSumValues.size() > 0) {
             displayValuesMode |= StatisticAggregatedType.SUM;
         }
-        if( axisCountValues.size() > 0 ) {
+        if (axisCountValues.size() > 0) {
             displayValuesMode |= StatisticAggregatedType.COUNT;
         }
-        if( axisTotalValues.size() > 0 ) {
+        if (axisTotalValues.size() > 0) {
             displayValuesMode |= StatisticAggregatedType.TOTALS;
         }
 
@@ -97,9 +97,9 @@ public class ChartData implements Serializable {
 
         return axisTotalValues.size() > 0;
     }
-    
+
     public String getLabel() {
-        
+
         return statLabel + " at " + machineLabel;
     }
 
@@ -107,8 +107,8 @@ public class ChartData implements Serializable {
 
         return statLabel + " (" + unit + ") at " + machineLabel;
     }
-    
-    public void setLabel(String statLabel) {
+
+    public void setLabel( String statLabel ) {
 
         this.statLabel = statLabel;
     }
@@ -129,37 +129,37 @@ public class ChartData implements Serializable {
 
         return unit;
     }
-    
+
     public void setTestcaseId( int testcaseId ) {
 
         this.testcaseId = testcaseId;
     }
-    
+
     public int getTestcaseId() {
 
         return this.testcaseId;
     }
-    
+
     public void setStatisticTypeId( int statisticTypeId ) {
 
         this.statisticTypeId = statisticTypeId;
     }
-    
+
     public int getStatisticTypeId() {
 
         return this.statisticTypeId;
     }
-    
+
     public void setMachineId( int machineId ) {
 
         this.machineId = machineId;
     }
-    
+
     public int getMachineId() {
 
         return this.machineId;
     }
-    
+
     /**
      *
      * @param displayValuesMode this mode is -1, 0, 1 or 2, described in the intParameters of the
@@ -170,23 +170,23 @@ public class ChartData implements Serializable {
                                          int displayValuesMode ) {
 
         List<Float> axisValuesList = null;
-        if( StatisticAggregatedType.isAverage( displayValuesMode ) ) {
+        if (StatisticAggregatedType.isAverage(displayValuesMode)) {
             axisValuesList = this.axisAvgValues;
-        } else if( StatisticAggregatedType.isSum( displayValuesMode ) ) {
+        } else if (StatisticAggregatedType.isSum(displayValuesMode)) {
             axisValuesList = this.axisSumValues;
-        } else if( StatisticAggregatedType.isTotals( displayValuesMode ) ) {
+        } else if (StatisticAggregatedType.isTotals(displayValuesMode)) {
             axisValuesList = this.axisTotalValues;
-        } else if( StatisticAggregatedType.isCount( displayValuesMode ) ) {
+        } else if (StatisticAggregatedType.isCount(displayValuesMode)) {
             axisValuesList = this.axisCountValues;
-        } else if( displayValuesMode < StatisticAggregatedType.AVERAGE ) {
+        } else if (displayValuesMode < StatisticAggregatedType.AVERAGE) {
             axisValuesList = this.axisValues;
         }
 
         StringBuilder sb = new StringBuilder();
-        for( float axisValue : axisValuesList ) {
-            sb.append( String.valueOf( axisValue ) ).append( "," );
+        for (float axisValue : axisValuesList) {
+            sb.append(String.valueOf(axisValue)).append(",");
         }
-        return sb.substring( 0, sb.length() - 1 );
+        return sb.substring(0, sb.length() - 1);
     }
 
     /**
@@ -206,20 +206,20 @@ public class ChartData implements Serializable {
                                float axisCountValue,
                                int displayValuesMode ) {
 
-        if( StatisticAggregatedType.isAverage( displayValuesMode ) ) {
-            this.axisAvgValues.add( axisAvgValue );
+        if (StatisticAggregatedType.isAverage(displayValuesMode)) {
+            this.axisAvgValues.add(axisAvgValue);
         }
-        if( StatisticAggregatedType.isSum( displayValuesMode ) ) {
-            this.axisSumValues.add( axisSumValue );
+        if (StatisticAggregatedType.isSum(displayValuesMode)) {
+            this.axisSumValues.add(axisSumValue);
         }
-        if( StatisticAggregatedType.isTotals( displayValuesMode ) ) {
-            this.axisTotalValues.add( axisTotalValue );
+        if (StatisticAggregatedType.isTotals(displayValuesMode)) {
+            this.axisTotalValues.add(axisTotalValue);
         }
-        if( StatisticAggregatedType.isCount( displayValuesMode ) ) {
-            this.axisCountValues.add( axisCountValue );
+        if (StatisticAggregatedType.isCount(displayValuesMode)) {
+            this.axisCountValues.add(axisCountValue);
         }
-        if( displayValuesMode == 0 ) {
-            this.axisValues.add( axisValue );
+        if (displayValuesMode == 0) {
+            this.axisValues.add(axisValue);
         }
     }
 
@@ -237,10 +237,10 @@ public class ChartData implements Serializable {
     public String getTimestampsAsString() {
 
         StringBuilder sb = new StringBuilder();
-        for( Long ts : timestamps ) {
-            sb.append( String.valueOf( ts.longValue() ) ).append( "," );
+        for (Long ts : timestamps) {
+            sb.append(String.valueOf(ts.longValue())).append(",");
         }
-        return sb.substring( 0, sb.length() - 1 );
+        return sb.substring(0, sb.length() - 1);
     }
 
     public String[] getTimestampsAndAxisValuesAsString(
@@ -248,73 +248,73 @@ public class ChartData implements Serializable {
                                                         int actionCount ) {
 
         Map<Long, List<Float>> timestampValuesMap = new HashMap<Long, List<Float>>();
-        TreeMap<Long, List<Float>> sortedTimestampValuesMap = new TreeMap<Long, List<Float>>( new ActionResponseValuesComparator( timestampValuesMap ) );
+        TreeMap<Long, List<Float>> sortedTimestampValuesMap = new TreeMap<Long, List<Float>>(new ActionResponseValuesComparator(timestampValuesMap));
         jsMarkersCount = 0;
-        for( int i = 0; i < timestamps.size(); i++ ) {
-            Long tsKey = timestamps.get( i );
-            if( !timestampValuesMap.containsKey( tsKey ) ) {
-                timestampValuesMap.put( tsKey, new ArrayList<Float>() );
+        for (int i = 0; i < timestamps.size(); i++) {
+            Long tsKey = timestamps.get(i);
+            if (!timestampValuesMap.containsKey(tsKey)) {
+                timestampValuesMap.put(tsKey, new ArrayList<Float>());
             }
-            timestampValuesMap.get( tsKey ).add( axisValues.get( i ) );
-            if( timestampValuesMap.get( tsKey ).size() > 1 ) {
+            timestampValuesMap.get(tsKey).add(axisValues.get(i));
+            if (timestampValuesMap.get(tsKey).size() > 1) {
                 jsMarkersCount++;
             }
         }
-        sortedTimestampValuesMap.putAll( timestampValuesMap );
-        Map<Long, List<Float>> minMaxValuesMap = getMinTimestampValuesMap( sortedTimestampValuesMap, actionCount );
+        sortedTimestampValuesMap.putAll(timestampValuesMap);
+        Map<Long, List<Float>> minMaxValuesMap = getMinTimestampValuesMap(sortedTimestampValuesMap, actionCount);
 
-        jsMarkers.delete( 0, jsMarkers.length() );
+        jsMarkers.delete(0, jsMarkers.length());
         StringBuilder tmpsStr = new StringBuilder();
         StringBuilder axisValsStr = new StringBuilder();
-        for( int i = 0; i < timestamps.size(); i++ ) {
+        for (int i = 0; i < timestamps.size(); i++) {
 
-            Long ts = timestamps.get( i );
-            String tmpsString = String.valueOf( ts.longValue() ) + ",";
-            if( tmpsStr.indexOf( tmpsString ) == -1 ) {
+            Long ts = timestamps.get(i);
+            String tmpsString = String.valueOf(ts.longValue()) + ",";
+            if (tmpsStr.indexOf(tmpsString) == -1) {
 
                 String axisString = null;
-                if( minMaxValuesMap.containsKey( ts ) ) {
-                    List<Float> valuesInThisTmpst = minMaxValuesMap.get( ts );
+                if (minMaxValuesMap.containsKey(ts)) {
+                    List<Float> valuesInThisTmpst = minMaxValuesMap.get(ts);
 
-                    axisString = calculateAvg( valuesInThisTmpst ) + ",";
-                } else if( timestampValuesMap.get( ts ).size() < 2 ) {
-                    axisString = String.valueOf( timestampValuesMap.get( ts ).get( 0 ) ) + ",";
+                    axisString = calculateAvg(valuesInThisTmpst) + ",";
+                } else if (timestampValuesMap.get(ts).size() < 2) {
+                    axisString = String.valueOf(timestampValuesMap.get(ts).get(0)) + ",";
                 } else {
 
                     //if minMaxValuesMap doesnt contain the element and if timestampValuesMap has more than two elements
                     continue;
                 }
-                tmpsStr.append( tmpsString );
-                axisValsStr.append( axisString );
+                tmpsStr.append(tmpsString);
+                axisValsStr.append(axisString);
             }
         }
 
-        return new String[]{ tmpsStr.substring( 0, tmpsStr.length() - 1 ),
-                axisValsStr.substring( 0, axisValsStr.length() - 1 ) };
+        return new String[]{ tmpsStr.substring(0, tmpsStr.length() - 1),
+                             axisValsStr.substring(0, axisValsStr.length() - 1) };
     }
 
     private String calculateAvg(
                                  List<Float> values ) {
 
         float avg = 0.0f;
-        for( Float value : values ) {
+        for (Float value : values) {
             avg += value;
         }
         avg = avg / values.size();
-        return String.format( "%.2f", avg );
+        return String.format("%.2f", avg);
     }
 
     public void addTimestamp(
                               long timestamp ) {
 
-        this.timestamps.add( timestamp );
+        this.timestamps.add(timestamp);
     }
 
     public void replaceTimestamp(
                                   int index,
                                   long timestamp ) {
 
-        this.timestamps.set( index, timestamp );
+        this.timestamps.set(index, timestamp);
     }
 
     public String getJsMarkersScript() {
@@ -329,9 +329,9 @@ public class ChartData implements Serializable {
 
     public Long getStartTimestamp() {
 
-        if( startTimestamp == null && !timestamps.isEmpty() ) {
+        if (startTimestamp == null && !timestamps.isEmpty()) {
 
-            return timestamps.get( 0 );
+            return timestamps.get(0);
         }
         return startTimestamp;
     }
@@ -356,40 +356,40 @@ public class ChartData implements Serializable {
 
         HashMap<Long, List<Float>> minMaxValuesMap = new HashMap<Long, List<Float>>();
         int i = 0;
-        for( Entry<Long, List<Float>> entry : map.entrySet() ) {
+        for (Entry<Long, List<Float>> entry : map.entrySet()) {
 
             List<Float> values = entry.getValue();
-            if( values.size() > 1 ) {
-                minMaxValuesMap.put( entry.getKey(), entry.getValue() );
+            if (values.size() > 1) {
+                minMaxValuesMap.put(entry.getKey(), entry.getValue());
                 i++;
             }
-            if( i >= 60 / actionCount ) {
+            if (i >= 60 / actionCount) {
                 break;
             }
         }
 
         i = 0;
-        for( Entry<Long, List<Float>> entry : map.descendingMap().entrySet() ) {
+        for (Entry<Long, List<Float>> entry : map.descendingMap().entrySet()) {
 
             List<Float> values = entry.getValue();
-            if( values.size() > 1 ) {
-                if( map.containsKey( entry.getKey() ) ) {
+            if (values.size() > 1) {
+                if (map.containsKey(entry.getKey())) {
                     break;
                 }
-                minMaxValuesMap.put( entry.getKey(), entry.getValue() );
+                minMaxValuesMap.put(entry.getKey(), entry.getValue());
                 i++;
             }
-            if( i >= 60 / actionCount ) {
+            if (i >= 60 / actionCount) {
                 break;
             }
         }
 
         return minMaxValuesMap;
     }
-    
+
     public ChartData newInstance() {
 
-        ChartData newInstance = new ChartData( this.statLabel, this.machineLabel, this.unit );
+        ChartData newInstance = new ChartData(this.statLabel, this.machineLabel, this.unit);
         newInstance.timestamps = this.timestamps;
         newInstance.axisAvgValues = this.axisAvgValues;
         newInstance.axisCountValues = this.axisCountValues;
@@ -424,20 +424,20 @@ class ActionResponseValuesComparator implements Comparator<Long> {
                         Long a,
                         Long b ) {
 
-        List<Float> aList = base.get( a );
-        List<Float> bList = base.get( b );
+        List<Float> aList = base.get(a);
+        List<Float> bList = base.get(b);
 
         int aValue = 0;
-        for( int i = 0; i < aList.size(); i++ ) {
-            aValue += aList.get( i );
+        for (int i = 0; i < aList.size(); i++) {
+            aValue += aList.get(i);
         }
 
         int bValue = 0;
-        for( int i = 0; i < bList.size(); i++ ) {
-            bValue += bList.get( i );
+        for (int i = 0; i < bList.size(); i++) {
+            bValue += bList.get(i);
         }
 
-        if( aValue >= bValue ) {
+        if (aValue >= bValue) {
             return -1;
         } else {
             return 1;

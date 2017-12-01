@@ -30,14 +30,14 @@ import com.axway.ats.core.utils.StringUtils;
 
 public class ContextListener implements ServletContextListener {
 
-    private static final Logger LOG = Logger.getLogger( ContextListener.class );
-    
+    private static final Logger LOG                     = Logger.getLogger(ContextListener.class);
+
     //set env var available for the current web app, where all attached filles will be stored
-    private static final String ATTACHED_FILES_DIR = "ats-attached-files";
+    private static final String ATTACHED_FILES_DIR      = "ats-attached-files";
     private static final String ATTACHED_FILES_PROPERTY = "ats.attached.files.dir";
-    
-    public static String getAttachedFilesDir(){
-        
+
+    public static String getAttachedFilesDir() {
+
         return ATTACHED_FILES_DIR;
     }
 
@@ -47,57 +47,57 @@ public class ContextListener implements ServletContextListener {
 
         LocalFileSystemOperations operations = new LocalFileSystemOperations();
 
-        String attachmentsDir = System.getProperty( ATTACHED_FILES_PROPERTY );
-        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
-            attachmentsDir = System.getenv( ATTACHED_FILES_PROPERTY );
+        String attachmentsDir = System.getProperty(ATTACHED_FILES_PROPERTY);
+        if (StringUtils.isNullOrEmpty(attachmentsDir)) {
+            attachmentsDir = System.getenv(ATTACHED_FILES_PROPERTY);
         }
-        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
-            attachmentsDir = getProperties().getProperty( ATTACHED_FILES_PROPERTY );
+        if (StringUtils.isNullOrEmpty(attachmentsDir)) {
+            attachmentsDir = getProperties().getProperty(ATTACHED_FILES_PROPERTY);
         }
-        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
-            attachmentsDir = System.getenv( "CATALINA_BASE" );
+        if (StringUtils.isNullOrEmpty(attachmentsDir)) {
+            attachmentsDir = System.getenv("CATALINA_BASE");
         }
-        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
-            attachmentsDir = System.getenv( "CATALINA_HOME" );
+        if (StringUtils.isNullOrEmpty(attachmentsDir)) {
+            attachmentsDir = System.getenv("CATALINA_HOME");
         }
 
-        if( StringUtils.isNullOrEmpty( attachmentsDir ) ) {
-            LOG.error( "No directory for attached files was configured. "
-                       + "You can set such directory in one of the following ways: " + "key '"
-                       + ATTACHED_FILES_PROPERTY
-                       + "' as a system variable, environment variable or property in the WEB-INF/classes/ats.config.properties configuration file in the Test Explorer war file. "
-                       + "Last option is to set 'CATALINA_BASE' or 'CATALINA_HOME' when running on Tomcat." );
+        if (StringUtils.isNullOrEmpty(attachmentsDir)) {
+            LOG.error("No directory for attached files was configured. "
+                      + "You can set such directory in one of the following ways: " + "key '"
+                      + ATTACHED_FILES_PROPERTY
+                      + "' as a system variable, environment variable or property in the WEB-INF/classes/ats.config.properties configuration file in the Test Explorer war file. "
+                      + "Last option is to set 'CATALINA_BASE' or 'CATALINA_HOME' when running on Tomcat.");
         } else {
-            String atsAttachedFiles = IoUtils.normalizeFilePath( attachmentsDir + "/" + ATTACHED_FILES_DIR );
-            if( !operations.doesFileExist( atsAttachedFiles ) ) {
+            String atsAttachedFiles = IoUtils.normalizeFilePath(attachmentsDir + "/" + ATTACHED_FILES_DIR);
+            if (!operations.doesFileExist(atsAttachedFiles)) {
                 try {
-                    operations.createDirectory( atsAttachedFiles );
-                } catch( FileSystemOperationException fsoe ) {
+                    operations.createDirectory(atsAttachedFiles);
+                } catch (FileSystemOperationException fsoe) {
                     sce.getServletContext().log(
-                                                 "Could not create directory for storing ATS attached files at "
-                                                 + atsAttachedFiles, fsoe );
+                                                "Could not create directory for storing ATS attached files at "
+                                                + atsAttachedFiles, fsoe);
                     return;
                 }
             }
 
             // setting folder path to the property
-            sce.getServletContext().setAttribute( ATTACHED_FILES_DIR, atsAttachedFiles );
+            sce.getServletContext().setAttribute(ATTACHED_FILES_DIR, atsAttachedFiles);
 
             sce.getServletContext()
-               .log( "ATS attached files directory is set to \"" + atsAttachedFiles + "\"." );
+               .log("ATS attached files directory is set to \"" + atsAttachedFiles + "\".");
         }
     }
-    
+
     private Properties getProperties() {
 
         Properties configProperties = new Properties();
 
         try {
-            configProperties.load( this.getClass()
-                                       .getClassLoader()
-                                       .getResourceAsStream( "ats.config.properties" ) );
-        } catch( IOException e ) {
-            LOG.error( "Can't load ats.config.properties file", e );
+            configProperties.load(this.getClass()
+                                      .getClassLoader()
+                                      .getResourceAsStream("ats.config.properties"));
+        } catch (IOException e) {
+            LOG.error("Can't load ats.config.properties file", e);
         }
 
         return configProperties;

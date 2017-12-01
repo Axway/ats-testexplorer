@@ -34,22 +34,22 @@ public class RunsByTypeDashboardHomePage extends BasePage {
     private static final long serialVersionUID = 1L;
 
     private List<String>      jsonDatas;
-    
+
     private Filter            filter;
 
     public RunsByTypeDashboardHomePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
 
         filter = new Filter();
 
-        add( filter );
+        add(filter);
 
         filter.performSearchOnPageLoad();
 
-        AjaxLink<String> modalTooltip = new AjaxLink<String>( "modalTooltip" ) {
+        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
 
             private static final long serialVersionUID = 1L;
 
@@ -60,19 +60,19 @@ public class RunsByTypeDashboardHomePage extends BasePage {
             }
         };
         //        modalTooltip.
-        modalTooltip.add( new WebMarkupContainer( "helpButton" ) );
+        modalTooltip.add(new WebMarkupContainer("helpButton"));
 
-        add( modalTooltip );
+        add(modalTooltip);
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
 
         try {
-            jsonDatas = new DashboardHomeUtils().initJsonData( filter.getSelectedProductAndVersionNames(),
-                                                               session.getDbReadConnection()
-                                                                      .getAllBuildTypes( "AND 1=1" ) );
-        } catch( DatabaseAccessException e ) {
-            error( "Unable to perform initial search" );
-            LOG.error( "Unable to perform initial search", e );
+            jsonDatas = new DashboardHomeUtils().initJsonData(filter.getSelectedProductAndVersionNames(),
+                                                              session.getDbReadConnection()
+                                                                     .getAllBuildTypes("AND 1=1"));
+        } catch (DatabaseAccessException e) {
+            error("Unable to perform initial search");
+            LOG.error("Unable to perform initial search", e);
         }
 
     }
@@ -81,7 +81,7 @@ public class RunsByTypeDashboardHomePage extends BasePage {
     public void renderHead(
                             IHeaderResponse response ) {
 
-        new DashboardHomeUtils().callJavaScript( response, jsonDatas );
+        new DashboardHomeUtils().callJavaScript(response, jsonDatas);
 
     }
 

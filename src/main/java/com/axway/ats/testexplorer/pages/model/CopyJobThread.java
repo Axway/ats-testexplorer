@@ -29,7 +29,7 @@ public class CopyJobThread extends Thread implements Serializable {
 
     private static final long                   serialVersionUID    = 1L;
 
-    protected static Logger                     LOG                 = Logger.getLogger( CopyJobThread.class );
+    protected static Logger                     LOG                 = Logger.getLogger(CopyJobThread.class);
 
     private String                              sourceHost;
     private int                                 sourcePort;
@@ -77,16 +77,16 @@ public class CopyJobThread extends Thread implements Serializable {
 
     public boolean areDbVersionsDifferent() {
 
-        if( isInitSuccessful ) {
+        if (isInitSuccessful) {
 
-            return !copyUtility.getSrcDbVersion().equals( copyUtility.getDstDbVersion() );
+            return !copyUtility.getSrcDbVersion().equals(copyUtility.getDstDbVersion());
         }
         return true;
     }
 
     public String getSrcDbVersion() {
 
-        if( isInitSuccessful ) {
+        if (isInitSuccessful) {
             return copyUtility.getSrcDbVersion();
         }
         return null;
@@ -94,7 +94,7 @@ public class CopyJobThread extends Thread implements Serializable {
 
     public String getDstDbVersion() {
 
-        if( isInitSuccessful ) {
+        if (isInitSuccessful) {
             return copyUtility.getDstDbVersion();
         }
         return null;
@@ -104,9 +104,9 @@ public class CopyJobThread extends Thread implements Serializable {
 
         return sourceHost;
     }
-    
+
     public int getSourcePort() {
-        
+
         return sourcePort;
     }
 
@@ -119,9 +119,9 @@ public class CopyJobThread extends Thread implements Serializable {
 
         return destinationHost;
     }
-    
+
     public int getDestinationPort() {
-        
+
         return destinationPort;
     }
 
@@ -142,12 +142,12 @@ public class CopyJobThread extends Thread implements Serializable {
     }
 
     public String getDbUsername() {
-    
+
         return dbUsername;
     }
 
     public String getDbPassword() {
-    
+
         return dbPassword;
     }
 
@@ -159,18 +159,19 @@ public class CopyJobThread extends Thread implements Serializable {
     public void addConsoleUpdateTimer(
                                        AjaxSelfUpdatingTimerBehavior consoleUpdateTimer ) {
 
-        consoleUpdateTimers.add( consoleUpdateTimer );
+        consoleUpdateTimers.add(consoleUpdateTimer);
     }
 
     protected void stopConsoleUpdateTimers() {
 
         // Stopping the console timers, but first wait for the last polling update
         try {
-            sleep( consoleUpdateTimers.get( 0 ).getUpdateInterval().getMilliseconds() );
-        } catch( InterruptedException e ) {
-            LOG.error( "CopyJobThread '"+getName()+", "+getId()+" interrupted while waiting for the last polling update." );
+            sleep(consoleUpdateTimers.get(0).getUpdateInterval().getMilliseconds());
+        } catch (InterruptedException e) {
+            LOG.error("CopyJobThread '" + getName() + ", " + getId()
+                      + " interrupted while waiting for the last polling update.");
         }
-        for( AjaxSelfUpdatingTimerBehavior consoleUpdateTimer : consoleUpdateTimers ) {
+        for (AjaxSelfUpdatingTimerBehavior consoleUpdateTimer : consoleUpdateTimers) {
             consoleUpdateTimer.stop(null);
         }
     }
@@ -178,14 +179,14 @@ public class CopyJobThread extends Thread implements Serializable {
     protected void addToWebConsole(
                                     Throwable throwable ) {
 
-        addToWebConsole( TestExplorerUtils.throwableToString( throwable ), true );
+        addToWebConsole(TestExplorerUtils.throwableToString(throwable), true);
     }
 
     protected void addToWebConsole(
                                     String message,
                                     boolean isError ) {
 
-        webConsole.add( TestExplorerUtils.buildConsoleMessage( message, isError ) );
+        webConsole.add(TestExplorerUtils.buildConsoleMessage(message, isError));
     }
 
 }

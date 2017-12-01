@@ -35,60 +35,60 @@ public class SuiteMessagePage extends BasePage {
 
     public SuiteMessagePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        String suiteId = TestExplorerUtils.extractPageParameter( parameters, "suiteId" );
-        if( suiteId != null ) {
+        String suiteId = TestExplorerUtils.extractPageParameter(parameters, "suiteId");
+        if (suiteId != null) {
             MessagesPanel.isSuite = true;
-            add( new MessagesPanel( "suite_message_info", suiteId ) );
+            add(new MessagesPanel("suite_message_info", suiteId));
         }
         // organize navigation links
         PageNavigation navigation = null;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                        .getNavigationForScenario( suiteId );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get navigation data for scenarios with suiteId=" + suiteId, e );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                              .getNavigationForScenario(suiteId);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get navigation data for scenarios with suiteId=" + suiteId, e);
         }
 
-        if( navigation != null ) {
-            addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
-            addNavigationLink( RunsPage.class,
-                               getRunsPageParameters( parameters ),
-                               "Runs",
-                               navigation.getRunName() );
-            addNavigationLink( SuitesPage.class,
-                               getSuitesPageParameters( parameters, navigation.getRunId() ),
-                               "Suites",
-                               navigation.getSuiteName() );
-            addNavigationLink( ScenariosPage.class,
-                               getScenariosPageParameters( parameters, suiteId ),
-                               "Scenarios",
-                               "ALL" );
+        if (navigation != null) {
+            addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
+            addNavigationLink(RunsPage.class,
+                              getRunsPageParameters(parameters),
+                              "Runs",
+                              navigation.getRunName());
+            addNavigationLink(SuitesPage.class,
+                              getSuitesPageParameters(parameters, navigation.getRunId()),
+                              "Suites",
+                              navigation.getSuiteName());
+            addNavigationLink(ScenariosPage.class,
+                              getScenariosPageParameters(parameters, suiteId),
+                              "Scenarios",
+                              "ALL");
 
-            setRunIdToRunCopyLink( navigation.getRunId() );
+            setRunIdToRunCopyLink(navigation.getRunId());
         }
 
-        add( new ScenariosPanel( this, "scenarios_info", suiteId ) );
+        add(new ScenariosPanel(this, "scenarios_info", suiteId));
     }
-    
-    private PageParameters getScenariosPageParameters(
-                                                      PageParameters parameters,
-                                                      String suiteId ) {
 
-       PageParameters newParams = new PageParameters();
-       newParams.add( "dbname", parameters.get( "dbname" ) );
-       newParams.add( "suiteId", suiteId );
-       return newParams;
-   }
+    private PageParameters getScenariosPageParameters(
+                                                       PageParameters parameters,
+                                                       String suiteId ) {
+
+        PageParameters newParams = new PageParameters();
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("suiteId", suiteId);
+        return newParams;
+    }
 
     private PageParameters getSuitesPageParameters(
                                                     PageParameters parameters,
                                                     String runId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "runId", runId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("runId", runId);
         return newParams;
     }
 
@@ -96,7 +96,7 @@ public class SuiteMessagePage extends BasePage {
                                                   PageParameters parameters ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
+        newParams.add("dbname", parameters.get("dbname"));
         return newParams;
     }
 

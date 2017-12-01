@@ -37,7 +37,7 @@ public class RunCopyPage extends BaseCopyPage {
 
     public RunCopyPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
         addCopyDetailsComponents();
     }
@@ -45,47 +45,47 @@ public class RunCopyPage extends BaseCopyPage {
     @Override
     protected void addCopyDetailsComponents() {
 
-        TextField<String> sourceHost = new TextField<String>( "sourceHost", sourceHostModel );
-        sourceHostModel.setObject( getTESession().getDbHost() );
-        form.add( sourceHost );
-        
+        TextField<String> sourceHost = new TextField<String>("sourceHost", sourceHostModel);
+        sourceHostModel.setObject(getTESession().getDbHost());
+        form.add(sourceHost);
+
         String srcPort = "";
-        if ( getTESession().getDbReadConnection() instanceof TestExplorerSQLServerDbReadAccess ) {
-            srcPort = DbConnSQLServer.DEFAULT_PORT+"";
-        } else if ( getTESession().getDbReadConnection() instanceof TestExplorerPGDbReadAccess ) {
-            srcPort = DbConnPostgreSQL.DEFAULT_PORT+"";
+        if (getTESession().getDbReadConnection() instanceof TestExplorerSQLServerDbReadAccess) {
+            srcPort = DbConnSQLServer.DEFAULT_PORT + "";
+        } else if (getTESession().getDbReadConnection() instanceof TestExplorerPGDbReadAccess) {
+            srcPort = DbConnPostgreSQL.DEFAULT_PORT + "";
         } else {
-            error( "Unable to determine source port as database server is neither MSSQL, nor PostgreSQL" );
+            error("Unable to determine source port as database server is neither MSSQL, nor PostgreSQL");
         }
-        
-        TextField<String> sourcePort = new TextField<String>( "sourcePort", sourcePortModel );
-        sourcePortModel.setObject( srcPort );
-        form.add( sourcePort );
 
-        TextField<String> sourceDbName = new TextField<String>( "sourceDbName", sourceDbNameModel );
-        sourceDbNameModel.setObject( getTESession().getDbName() );
-        form.add( sourceDbName );
+        TextField<String> sourcePort = new TextField<String>("sourcePort", sourcePortModel);
+        sourcePortModel.setObject(srcPort);
+        form.add(sourcePort);
 
-        TextField<String> sourceRunId = new TextField<String>( "sourceRunId", runIdModel );
+        TextField<String> sourceDbName = new TextField<String>("sourceDbName", sourceDbNameModel);
+        sourceDbNameModel.setObject(getTESession().getDbName());
+        form.add(sourceDbName);
+
+        TextField<String> sourceRunId = new TextField<String>("sourceRunId", runIdModel);
         String runId = getCurrentRunId();
-        if( runId == null ) {
+        if (runId == null) {
             runId = "";
         }
-        runIdModel.setObject( runId );
-        form.add( sourceRunId );
+        runIdModel.setObject(runId);
+        form.add(sourceRunId);
 
-        TextField<String> destinationHost = new TextField<String>( "destinationHost", destinationHostModel );
-        destinationHostModel.setObject( "" );
-        form.add( destinationHost );
-        
-        TextField<String> destinationPort = new TextField<String>( "destinationPort", destinationPortModel );
-        destinationPortModel.setObject( "" );
-        form.add( destinationPort );
+        TextField<String> destinationHost = new TextField<String>("destinationHost", destinationHostModel);
+        destinationHostModel.setObject("");
+        form.add(destinationHost);
 
-        TextField<String> destinationDbName = new TextField<String>( "destinationDbName",
-                                                                     destinationDbNameModel );
-        destinationDbNameModel.setObject( "" );
-        form.add( destinationDbName );
+        TextField<String> destinationPort = new TextField<String>("destinationPort", destinationPortModel);
+        destinationPortModel.setObject("");
+        form.add(destinationPort);
+
+        TextField<String> destinationDbName = new TextField<String>("destinationDbName",
+                                                                    destinationDbNameModel);
+        destinationDbNameModel.setObject("");
+        form.add(destinationDbName);
     }
 
     @Override
@@ -99,7 +99,8 @@ public class RunCopyPage extends BaseCopyPage {
         String destinationPort = destinationPortModel.getObject();
         String destinationDbName = destinationDbNameModel.getObject();
 
-        return "copy_run_" + sourceHost + "_" + sourcePort + "_" + sourceDbName + "_" + runIdString + "_to_" + destinationHost +
+        return "copy_run_" + sourceHost + "_" + sourcePort + "_" + sourceDbName + "_" + runIdString + "_to_"
+               + destinationHost +
                "_" + destinationPort +
                "_" + destinationDbName;
     }
@@ -113,13 +114,13 @@ public class RunCopyPage extends BaseCopyPage {
         String destinationHost = destinationHostModel.getObject();
         String destinationDbName = destinationDbNameModel.getObject();
 
-        CopyJobThread copyJobThread = new CopyRunJobThread( sourceHost, Integer.parseInt( sourcePortModel.getObject() ),
-                                                            sourceDbName, Integer.parseInt( runIdString ), destinationHost,
-                                                            Integer.parseInt( destinationPortModel.getObject() ), 
-                                                            destinationDbName, getTESession().getDbUser(),
-                                                            getTESession().getDbPassword(), webConsole );
+        CopyJobThread copyJobThread = new CopyRunJobThread(sourceHost, Integer.parseInt(sourcePortModel.getObject()),
+                                                           sourceDbName, Integer.parseInt(runIdString), destinationHost,
+                                                           Integer.parseInt(destinationPortModel.getObject()),
+                                                           destinationDbName, getTESession().getDbUser(),
+                                                           getTESession().getDbPassword(), webConsole);
 
-        copyJobThread.setThreadIdentifier( threadIdentifier );
+        copyJobThread.setThreadIdentifier(threadIdentifier);
 
         return copyJobThread;
     }
@@ -135,41 +136,42 @@ public class RunCopyPage extends BaseCopyPage {
         String destinationPort = destinationPortModel.getObject();
         String destinationDbName = destinationDbNameModel.getObject();
 
-        if( StringUtils.isNullOrEmpty( sourceHost ) || StringUtils.isNullOrEmpty( sourceDbName )
-            || StringUtils.isNullOrEmpty( destinationHost ) || StringUtils.isNullOrEmpty( destinationDbName )
-            || StringUtils.isNullOrEmpty( sourceRunId ) ) {
+        if (StringUtils.isNullOrEmpty(sourceHost) || StringUtils.isNullOrEmpty(sourceDbName)
+            || StringUtils.isNullOrEmpty(destinationHost) || StringUtils.isNullOrEmpty(destinationDbName)
+            || StringUtils.isNullOrEmpty(sourceRunId)) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "Please enter valid data in the text fields",
-                                                         true ) );
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("Please enter valid data in the text fields",
+                                                                 true));
             return false;
         }
-        
+
         // validate source port
         try {
-            Integer.parseInt( sourcePort );
-        } catch( NumberFormatException nfe ) {
+            Integer.parseInt(sourcePort);
+        } catch (NumberFormatException nfe) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "'" + sourcePort + "' is not a valid source port",
-                                                         true ) );
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("'" + sourcePort + "' is not a valid source port",
+                                                                 true));
             return false;
         }
-        
+
         // validate destination port
         try {
-            Integer.parseInt( destinationPort );
-        } catch( NumberFormatException nfe ) {
+            Integer.parseInt(destinationPort);
+        } catch (NumberFormatException nfe) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "'" + destinationPort + "' is not a valid destination port",
-                                                         true ) );
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("'" + destinationPort
+                                                                 + "' is not a valid destination port",
+                                                                 true));
             return false;
         }
-        
-        try {
-            Integer.parseInt( sourceRunId );
-        } catch( NumberFormatException nfe ) {
 
-            webConsole.add( TestExplorerUtils.buildConsoleMessage( "'" + sourceRunId + "' is not a valid source run id",
-                                                         true ) );
+        try {
+            Integer.parseInt(sourceRunId);
+        } catch (NumberFormatException nfe) {
+
+            webConsole.add(TestExplorerUtils.buildConsoleMessage("'" + sourceRunId + "' is not a valid source run id",
+                                                                 true));
             return false;
         }
         return true;

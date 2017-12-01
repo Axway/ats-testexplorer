@@ -36,21 +36,21 @@ public class RunsByTypeDashboardSuitePage extends BasePage {
 
     public RunsByTypeDashboardSuitePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
-        addNavigationLink( RunsByTypeDashboardHomePage.class,
-                           new PageParameters(),
-                           "Runs by type",
-                           parameters.get( "productName" ).toString() + "/"
-                                   + parameters.get( "versionName" ).toString() + "/"
-                                   + parameters.get( "type" ).toString() );
-        addNavigationLink( RunsByTypeDashboardRunPage.class,
-                           parameters,
-                           "Suites",
-                           parameters.get( "suiteName" ).toString() );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
+        addNavigationLink(RunsByTypeDashboardHomePage.class,
+                          new PageParameters(),
+                          "Runs by type",
+                          parameters.get("productName").toString() + "/"
+                                          + parameters.get("versionName").toString() + "/"
+                                          + parameters.get("type").toString());
+        addNavigationLink(RunsByTypeDashboardRunPage.class,
+                          parameters,
+                          "Suites",
+                          parameters.get("suiteName").toString());
 
-        AjaxLink<String> modalTooltip = new AjaxLink<String>( "modalTooltip" ) {
+        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
 
             private static final long serialVersionUID = 1L;
 
@@ -61,22 +61,22 @@ public class RunsByTypeDashboardSuitePage extends BasePage {
             }
         };
         //        modalTooltip.
-        modalTooltip.add( new WebMarkupContainer( "helpButton" ) );
+        modalTooltip.add(new WebMarkupContainer("helpButton"));
 
-        add( modalTooltip );
+        add(modalTooltip);
 
-        if( !parameters.isEmpty() ) {
+        if (!parameters.isEmpty()) {
             try {
                 jsonDatas = new DashboardSuiteUtils().initData(
-                                                               parameters.get( "suiteName" ).toString(),
-                                                               parameters.get( "type" ).toString(),
-                                                               parameters.get( "suiteBuild" ).toString(),
-                                                               parameters.get( "productName" ).toString(),
-                                                               parameters.get( "versionName" ).toString() );
-            } catch( DatabaseAccessException e ) {
-                LOG.error( "Unable to get testcases data.", e );
-                error( "Unable to get testcases data." );
-            } 
+                                                               parameters.get("suiteName").toString(),
+                                                               parameters.get("type").toString(),
+                                                               parameters.get("suiteBuild").toString(),
+                                                               parameters.get("productName").toString(),
+                                                               parameters.get("versionName").toString());
+            } catch (DatabaseAccessException e) {
+                LOG.error("Unable to get testcases data.", e);
+                error("Unable to get testcases data.");
+            }
 
         }
     }
@@ -85,11 +85,11 @@ public class RunsByTypeDashboardSuitePage extends BasePage {
     public void renderHead(
                             IHeaderResponse response ) {
 
-        if( !getPageParameters().isEmpty() ) {
-            new DashboardSuiteUtils().callJavaScript( response, jsonDatas );
+        if (!getPageParameters().isEmpty()) {
+            new DashboardSuiteUtils().callJavaScript(response, jsonDatas);
         } else {
             String errorScript = ";resize();";
-            response.render( OnLoadHeaderItem.forScript( errorScript ) );
+            response.render(OnLoadHeaderItem.forScript(errorScript));
         }
     }
 

@@ -42,8 +42,8 @@ public class PageExpiredErrorPage extends WebPage {
     protected void setHeaders(
                                WebResponse response ) {
 
-        response.setStatus( HttpServletResponse.SC_NOT_FOUND );
-        super.setHeaders( response );
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        super.setHeaders(response);
     }
 
     /**

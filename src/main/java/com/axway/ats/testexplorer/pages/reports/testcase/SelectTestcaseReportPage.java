@@ -52,63 +52,64 @@ public class SelectTestcaseReportPage extends BasePage {
 
     public SelectTestcaseReportPage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        testcaseId = TestExplorerUtils.extractPageParameter( parameters, "testcaseId" );
+        testcaseId = TestExplorerUtils.extractPageParameter(parameters, "testcaseId");
 
-        WebMarkupContainer mainContainer = new WebMarkupContainer( "mainContainer" );
-        add( mainContainer );
+        WebMarkupContainer mainContainer = new WebMarkupContainer("mainContainer");
+        add(mainContainer);
 
         PageNavigation navigation;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                  .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
-        } catch( DatabaseAccessException e ) {
-            error( "Could not read info about testcase with id " + testcaseId + "; CAUSE: "
-                   + e.getMessage() );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                              .getNavigationForTestcase(testcaseId,
+                                                                                        getTESession().getTimeOffset());
+        } catch (DatabaseAccessException e) {
+            error("Could not read info about testcase with id " + testcaseId + "; CAUSE: "
+                  + e.getMessage());
 
-            mainContainer.setVisible( false );
+            mainContainer.setVisible(false);
             return;
         }
 
         // Add fields describing the selected testcase
-        TextField<String> runNameTextField = new TextField<String>( "run_name",
-                                                                    new Model<String>( navigation.getRunName() ) );
-        runNameTextField.setEnabled( false );
-        mainContainer.add( runNameTextField );
+        TextField<String> runNameTextField = new TextField<String>("run_name",
+                                                                   new Model<String>(navigation.getRunName()));
+        runNameTextField.setEnabled(false);
+        mainContainer.add(runNameTextField);
 
-        TextField<String> runIdTextField = new TextField<String>( "run_id",
-                                                                  new Model<String>( navigation.getRunId() ) );
-        runIdTextField.setEnabled( false );
-        mainContainer.add( runIdTextField );
+        TextField<String> runIdTextField = new TextField<String>("run_id",
+                                                                 new Model<String>(navigation.getRunId()));
+        runIdTextField.setEnabled(false);
+        mainContainer.add(runIdTextField);
 
-        TextField<String> suiteNameTextField = new TextField<String>( "suite_name",
-                                                                      new Model<String>( navigation.getSuiteName() ) );
-        suiteNameTextField.setEnabled( false );
-        mainContainer.add( suiteNameTextField );
+        TextField<String> suiteNameTextField = new TextField<String>("suite_name",
+                                                                     new Model<String>(navigation.getSuiteName()));
+        suiteNameTextField.setEnabled(false);
+        mainContainer.add(suiteNameTextField);
 
-        TextField<String> scenarioNameTextField = new TextField<String>( "scenario_name",
-                                                                         new Model<String>( navigation.getScenarioName() ) );
-        scenarioNameTextField.setEnabled( false );
-        mainContainer.add( scenarioNameTextField );
+        TextField<String> scenarioNameTextField = new TextField<String>("scenario_name",
+                                                                        new Model<String>(navigation.getScenarioName()));
+        scenarioNameTextField.setEnabled(false);
+        mainContainer.add(scenarioNameTextField);
 
-        TextField<String> testcaseNameTextField = new TextField<String>( "testcase_name",
-                                                                         new Model<String>( navigation.getTestcaseName() ) );
-        testcaseNameTextField.setEnabled( false );
-        mainContainer.add( testcaseNameTextField );
+        TextField<String> testcaseNameTextField = new TextField<String>("testcase_name",
+                                                                        new Model<String>(navigation.getTestcaseName()));
+        testcaseNameTextField.setEnabled(false);
+        mainContainer.add(testcaseNameTextField);
 
-        TextField<String> testcaseIdTextField = new TextField<String>( "testcase_id",
-                                                                       new Model<String>( testcaseId ) );
-        testcaseIdTextField.setEnabled( false );
-        mainContainer.add( testcaseIdTextField );
+        TextField<String> testcaseIdTextField = new TextField<String>("testcase_id",
+                                                                      new Model<String>(testcaseId));
+        testcaseIdTextField.setEnabled(false);
+        mainContainer.add(testcaseIdTextField);
 
         // Add buttons that will create some reports about the selected testcase
         List<PluginParameters> pluginParameters = TestExplorerPluginsRepo.getInstance()
-                                                                         .getPluginParameters( PluginConfigurationParser.PLUGIN_TYPE.SINGLE_TESTCASE_REPORT );
+                                                                         .getPluginParameters(PluginConfigurationParser.PLUGIN_TYPE.SINGLE_TESTCASE_REPORT);
 
         // add plugin buttons, clicking a button forwards to the plugin web page 
-        ListView<PluginParameters> reportButtons = new ListView<PluginParameters>( "report_buttons",
-                                                                                   pluginParameters ) {
+        ListView<PluginParameters> reportButtons = new ListView<PluginParameters>("report_buttons",
+                                                                                  pluginParameters) {
 
             private static final long serialVersionUID = 1L;
 
@@ -117,26 +118,26 @@ public class SelectTestcaseReportPage extends BasePage {
 
                 final PluginParameters pluginParameters = item.getModelObject();
 
-                AjaxLink<String> aReportButton = new AjaxLink<String>( "report_button" ) {
+                AjaxLink<String> aReportButton = new AjaxLink<String>("report_button") {
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public void onClick( AjaxRequestTarget target ) {
 
-                        if( !StringUtils.isNullOrEmpty( testcaseId ) ) {
+                        if (!StringUtils.isNullOrEmpty(testcaseId)) {
 
                             PageParameters parameters = new PageParameters();
-                            parameters.add( "testcaseId", String.valueOf( testcaseId ) );
+                            parameters.add("testcaseId", String.valueOf(testcaseId));
 
-                            setResponsePage( pluginParameters.getPluginClass(), parameters );
+                            setResponsePage(pluginParameters.getPluginClass(), parameters);
                         }
                     }
                 };
-                aReportButton.add( new Label( "button_name", pluginParameters.getButtonName() ) );
-                item.add( aReportButton );
+                aReportButton.add(new Label("button_name", pluginParameters.getButtonName()));
+                item.add(aReportButton);
             }
         };
-        mainContainer.add( reportButtons );
+        mainContainer.add(reportButtons);
     }
 
     @Override

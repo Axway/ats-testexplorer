@@ -56,12 +56,12 @@ import com.inmethod.grid.common.ColumnsState;
 import com.inmethod.grid.toolbar.AbstractToolbar;
 import com.inmethod.grid.toolbar.paging.PagingNavigator;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" })
 public class PagingToolbar extends AbstractToolbar {
 
     private static final long  serialVersionUID = 1L;
 
-    private static Logger      LOG              = Logger.getLogger( PagingToolbar.class );
+    private static Logger      LOG              = Logger.getLogger(PagingToolbar.class);
 
     private Form<Object>       buttonsForm;
 
@@ -75,7 +75,7 @@ public class PagingToolbar extends AbstractToolbar {
      */
     public MainDataGrid getDataGrid() {
 
-        return ( MainDataGrid ) super.getGrid();
+        return (MainDataGrid) super.getGrid();
     }
 
     /**
@@ -86,7 +86,7 @@ public class PagingToolbar extends AbstractToolbar {
      */
     public PagingToolbar( MainDataGrid grid, List<TableColumn> columnDefinitions ) {
 
-        this( grid, columnDefinitions, null, MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT );
+        this(grid, columnDefinitions, null, MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT);
     }
 
     /**
@@ -98,41 +98,41 @@ public class PagingToolbar extends AbstractToolbar {
     public PagingToolbar( final MainDataGrid grid, List<TableColumn> columnDefinitions, String whatIsShowing,
                           int supportedOperations ) {
 
-        super( grid, null );
+        super(grid, null);
 
-        setOutputMarkupId( true );
+        setOutputMarkupId(true);
 
-        addToolbarButtons( supportedOperations );
-        addColumnsDialog( columnDefinitions );
+        addToolbarButtons(supportedOperations);
+        addColumnsDialog(columnDefinitions);
 
-        add( getResultsPerPageDropDown() );
-        add( newPagingNavigator( "navigatorPager" ) );
-        add( newNavigationLabel( "navigatorLabel", whatIsShowing ) );
+        add(getResultsPerPageDropDown());
+        add(newPagingNavigator("navigatorPager"));
+        add(newNavigationLabel("navigatorLabel", whatIsShowing));
     }
 
     private void addColumnsDialog( final List<TableColumn> dbColumnDefinitions ) {
 
         final MainDataGrid grid = getDataGrid();
 
-        Form<Object> form = new Form<Object>( "columnsForm" );
-        add( form );
+        Form<Object> form = new Form<Object>("columnsForm");
+        add(form);
 
-        final ColumnsDialog dialog = new ColumnsDialog( "modal", grid, dbColumnDefinitions );
-        dialog.setClickBkgToClose( true );
-        form.add( dialog );
+        final ColumnsDialog dialog = new ColumnsDialog("modal", grid, dbColumnDefinitions);
+        dialog.setClickBkgToClose(true);
+        form.add(dialog);
 
-        AjaxButton openChColumnsDialogButton = new AjaxButton( "chColsButton",
-                                                               new Model<String>( "Change columns" ) ) {
+        AjaxButton openChColumnsDialogButton = new AjaxButton("chColsButton",
+                                                              new Model<String>("Change columns")) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
 
-                super.updateAjaxAttributes( attributes );
+                super.updateAjaxAttributes(attributes);
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
-                ajaxCallListener.onPrecondition( "getTableColumnDefinitions(); " );
-                attributes.getAjaxCallListeners().add( ajaxCallListener );
+                ajaxCallListener.onPrecondition("getTableColumnDefinitions(); ");
+                attributes.getAjaxCallListeners().add(ajaxCallListener);
             }
 
             @Override
@@ -141,17 +141,17 @@ public class PagingToolbar extends AbstractToolbar {
                 // get column definitions from the JavaScript
                 String columnDefinitionString = form.getRequest()
                                                     .getPostParameters()
-                                                    .getParameterValue( "columnDefinitions" )
+                                                    .getParameterValue("columnDefinitions")
                                                     .toString();
 
                 // as List
-                List<TableColumn> jsColumnDefinitions = dialog.asList( columnDefinitionString );
+                List<TableColumn> jsColumnDefinitions = dialog.asList(columnDefinitionString);
 
-                for( TableColumn colDefinition : dbColumnDefinitions ) {
-                    if( jsColumnDefinitions.contains( colDefinition ) ) {
+                for (TableColumn colDefinition : dbColumnDefinitions) {
+                    if (jsColumnDefinitions.contains(colDefinition)) {
                         // add column id
-                        jsColumnDefinitions.get( jsColumnDefinitions.indexOf( colDefinition ) )
-                                           .setColumnId( colDefinition.getColumnId() );
+                        jsColumnDefinitions.get(jsColumnDefinitions.indexOf(colDefinition))
+                                           .setColumnId(colDefinition.getColumnId());
                     }
                 }
 
@@ -159,27 +159,27 @@ public class PagingToolbar extends AbstractToolbar {
                 ColumnsState cs = grid.getColumnState();
                 int index;
 
-                if( cs.getEntry( "check" ) != null ) {
+                if (cs.getEntry("check") != null) {
                     index = 1;
                 } else {
                     index = 0;
                 }
 
-                for( TableColumn col : jsColumnDefinitions ) {
+                for (TableColumn col : jsColumnDefinitions) {
 
-                    cs.setColumnIndex( col.getColumnId(), index++ );
-                    cs.setColumnWidth( col.getColumnId(), col.getInitialWidth() );
+                    cs.setColumnIndex(col.getColumnId(), index++);
+                    cs.setColumnWidth(col.getColumnId(), col.getInitialWidth());
                 }
-                grid.setColumnState( cs );
+                grid.setColumnState(cs);
 
                 //reload grid
-                target.add( grid );
+                target.add(grid);
 
                 //open column selection dialog
-                dialog.open( target );
+                dialog.open(target);
             }
         };
-        form.add( openChColumnsDialogButton );
+        form.add(openChColumnsDialogButton);
 
     }
 
@@ -188,21 +188,21 @@ public class PagingToolbar extends AbstractToolbar {
         final MainDataGrid grid = getDataGrid();
 
         final IDataSource<?> dataSource = grid.getDataSource();
-        buttonsForm = new Form<Object>( "toolbarButtonsForm" );
-        buttonsForm.setOutputMarkupId( true );
-        add( buttonsForm );
+        buttonsForm = new Form<Object>("toolbarButtonsForm");
+        buttonsForm.setOutputMarkupId(true);
+        add(buttonsForm);
 
-        defaultMode = new WebMarkupContainer( "defaultMode" );
-        defaultMode.setVisible( ( supportedOperations & MainDataGrid.OPERATION_EDIT ) > 0 );
+        defaultMode = new WebMarkupContainer("defaultMode");
+        defaultMode.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
 
-        editMode = new WebMarkupContainer( "editMode" );
-        editMode.setVisible( false );
+        editMode = new WebMarkupContainer("editMode");
+        editMode.setVisible(false);
 
-        buttonsForm.add( defaultMode );
-        buttonsForm.add( editMode );
+        buttonsForm.add(defaultMode);
+        buttonsForm.add(editMode);
 
         // add DELETE button for DEFAULT mode
-        AjaxButton deleteButton = new AjaxButton( "deleteButton" ) {
+        AjaxButton deleteButton = new AjaxButton("deleteButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -210,14 +210,14 @@ public class PagingToolbar extends AbstractToolbar {
             @Override
             protected void updateAjaxAttributes( AjaxRequestAttributes attributes ) {
 
-                super.updateAjaxAttributes( attributes );
+                super.updateAjaxAttributes(attributes);
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
                 int selectedItems = grid.getSelectedItems().size();
-                if( selectedItems > 0 ) {
-                    ajaxCallListener.onPrecondition( "return confirm('"
-                                                     + "Are you sure you want to delete the selected "
-                                                     + "item(s)?" + "');" );
-                    attributes.getAjaxCallListeners().add( ajaxCallListener );
+                if (selectedItems > 0) {
+                    ajaxCallListener.onPrecondition("return confirm('"
+                                                    + "Are you sure you want to delete the selected "
+                                                    + "item(s)?" + "');");
+                    attributes.getAjaxCallListeners().add(ajaxCallListener);
                 }
             }
 
@@ -226,43 +226,43 @@ public class PagingToolbar extends AbstractToolbar {
 
                 // collect the objects to delete
                 List<Object> objectsToDelete = new ArrayList<Object>();
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                    objectsToDelete.add( model.getObject() );
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                    objectsToDelete.add(model.getObject());
                 }
 
                 // delete
-                deleteObjects( objectsToDelete );
+                deleteObjects(objectsToDelete);
 
                 // the selected items were deleted, unselect them
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        deleteButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_DELETE ) > 0 );
-        defaultMode.add( deleteButton );
+        deleteButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_DELETE) > 0);
+        defaultMode.add(deleteButton);
 
         // add EDIT button for DEFAULT mode
-        AjaxButton editButton = new AjaxButton( "editButton" ) {
+        AjaxButton editButton = new AjaxButton("editButton") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                if( grid.getSelectedItems().size() > 0 ) {
-                    for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                        grid.setItemEdit( model, true );
+                if (grid.getSelectedItems().size() > 0) {
+                    for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                        grid.setItemEdit(model, true);
                     }
                     grid.switchToEditMode();
-                    target.add( grid );
+                    target.add(grid);
                 }
             }
         };
-        editButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_EDIT ) > 0 );
-        defaultMode.add( editButton );
+        editButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        defaultMode.add(editButton);
 
         //add MESSAGE button for run and suite  
-        AjaxButton messageButton = new AjaxButton( "messageButton" ) {
+        AjaxButton messageButton = new AjaxButton("messageButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -271,67 +271,67 @@ public class PagingToolbar extends AbstractToolbar {
 
                 PageParameters parameters = new PageParameters();
                 // pass database name
-                parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
+                parameters.add("dbname", ((TestExplorerSession) Session.get()).getDbName());
 
                 String id = null;
-                if( dataSource instanceof ScenariosDataSource ) {
-                    id = ( ( ScenariosDataSource ) dataSource ).getSuiteId();
-                    parameters.add( "suiteId", id );
-                    setResponsePage( SuiteMessagePage.class, parameters );
-                } else if( dataSource instanceof SuitesDataSource ) {
-                    id = ( ( SuitesDataSource ) dataSource ).getRunId();
-                    parameters.add( "runId", id );
-                    setResponsePage( RunMessagePage.class, parameters );
+                if (dataSource instanceof ScenariosDataSource) {
+                    id = ((ScenariosDataSource) dataSource).getSuiteId();
+                    parameters.add("suiteId", id);
+                    setResponsePage(SuiteMessagePage.class, parameters);
+                } else if (dataSource instanceof SuitesDataSource) {
+                    id = ((SuitesDataSource) dataSource).getRunId();
+                    parameters.add("runId", id);
+                    setResponsePage(RunMessagePage.class, parameters);
                 }
             }
         };
-        if( dataSource instanceof ScenariosDataSource ) {
-            messageButton.add( new Label( "button_label", "Suite messages" ) );
-        } else if( dataSource instanceof SuitesDataSource ) {
-            messageButton.add( new Label( "button_label", "Run messages" ) );
+        if (dataSource instanceof ScenariosDataSource) {
+            messageButton.add(new Label("button_label", "Suite messages"));
+        } else if (dataSource instanceof SuitesDataSource) {
+            messageButton.add(new Label("button_label", "Run messages"));
         }
-        messageButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_GET_LOG ) > 0 );
-        defaultMode.add( messageButton );
+        messageButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_GET_LOG) > 0);
+        defaultMode.add(messageButton);
 
         // add ADD TO COMPARE BASKET button for DEFAULT mode
-        AjaxButton addToCompareButton = new AjaxButton( "addToCompareButton" ) {
+        AjaxButton addToCompareButton = new AjaxButton("addToCompareButton") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
 
-                    ( ( TestExplorerSession ) Session.get() ).getCompareContainer()
-                                                             .addObject( model.getObject(),
-                                                                         ( ( BasePage ) getPage() ).getCurrentPath() );
+                    ((TestExplorerSession) Session.get()).getCompareContainer()
+                                                         .addObject(model.getObject(),
+                                                                    ((BasePage) getPage()).getCurrentPath());
                 }
-                target.add( ( ( BasePage ) getPage() ).getItemsCountLabel() );
+                target.add( ((BasePage) getPage()).getItemsCountLabel());
 
                 // unselect the items
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
 
-                target.appendJavaScript( "$(\".arrowUpIndicator\").stop(true,true).removeAttr('style').show().effect(\"shake\",{times:2},300).fadeOut('slow');" );
+                target.appendJavaScript("$(\".arrowUpIndicator\").stop(true,true).removeAttr('style').show().effect(\"shake\",{times:2},300).fadeOut('slow');");
             }
         };
-        addToCompareButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_ADD_TO_COMPARE ) > 0 );
-        defaultMode.add( addToCompareButton );
+        addToCompareButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_ADD_TO_COMPARE) > 0);
+        defaultMode.add(addToCompareButton);
 
         // add CREATE REPORT button for DEFAULT mode
-        AjaxButton createReportButton = new AjaxButton( "createReportButton" ) {
+        AjaxButton createReportButton = new AjaxButton("createReportButton") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                TestExplorerSession session = (TestExplorerSession) Session.get();
 
                 Collection<IModel<?>> selectedItems = grid.getSelectedItems();
-                if( selectedItems.isEmpty() ) {
-                    error( "Please select a test to create a report for" );
+                if (selectedItems.isEmpty()) {
+                    error("Please select a test to create a report for");
                     return;
                 }
 
@@ -341,50 +341,51 @@ public class PagingToolbar extends AbstractToolbar {
 
                 String testcaseId = null;
 
-                if( workingWithScenarios ) {
+                if (workingWithScenarios) {
                     // get the ID of the first selected scenario
                     int firstSuiteId = Integer.MAX_VALUE;
                     String firstScenarioName = "";
-                    for( IModel<?> model : selectedItems ) {
+                    for (IModel<?> model : selectedItems) {
                         Object obj = model.getObject();
-                        int thisSuiteId = Integer.parseInt( ( ( Scenario ) obj ).suiteId );
-                        if( thisSuiteId < firstSuiteId ) {
+                        int thisSuiteId = Integer.parseInt( ((Scenario) obj).suiteId);
+                        if (thisSuiteId < firstSuiteId) {
                             firstSuiteId = thisSuiteId;
-                            firstScenarioName = ( ( Scenario ) obj ).name;
+                            firstScenarioName = ((Scenario) obj).name;
                         }
                     }
 
                     try {
                         // get the ID of the first testcase
                         List<Testcase> testcases = session.getDbReadConnection()
-                                                          .getTestcases( 0, 1,
-                                                                         "where suiteId=" + firstSuiteId,
-                                                                         "testcaseId", true, ((TestExplorerSession)Session.get()).getTimeOffset() );
-                        if( testcases.size() < 1 ) {
-                            error( "Could not find testcase(s) for scenario with name '" + firstScenarioName
-                                   + "'and suite id " + firstSuiteId + "." );
+                                                          .getTestcases(0, 1,
+                                                                        "where suiteId=" + firstSuiteId,
+                                                                        "testcaseId", true,
+                                                                        ((TestExplorerSession) Session.get()).getTimeOffset());
+                        if (testcases.size() < 1) {
+                            error("Could not find testcase(s) for scenario with name '" + firstScenarioName
+                                  + "'and suite id " + firstSuiteId + ".");
                             return;
                         }
-                        testcaseId = testcases.get( 0 ).testcaseId;
-                    } catch( DatabaseAccessException e ) {
-                        error( "Could not fetch testcase(s) for scenario with name '" + firstScenarioName
-                               + "'and suite id " + firstSuiteId + "." );
+                        testcaseId = testcases.get(0).testcaseId;
+                    } catch (DatabaseAccessException e) {
+                        error("Could not fetch testcase(s) for scenario with name '" + firstScenarioName
+                              + "'and suite id " + firstSuiteId + ".");
                         return;
                     }
                 } else {
-                    testcaseId = ( ( Testcase ) selectedItems.iterator().next().getObject() ).testcaseId;
+                    testcaseId = ((Testcase) selectedItems.iterator().next().getObject()).testcaseId;
                 }
 
                 PageParameters parameters = new PageParameters();
-                parameters.add( "testcaseId", testcaseId );
-                setResponsePage( SelectTestcaseReportPage.class, parameters );
+                parameters.add("testcaseId", testcaseId);
+                setResponsePage(SelectTestcaseReportPage.class, parameters);
             }
         };
-        createReportButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT ) > 0 );
-        defaultMode.add( createReportButton );
+        createReportButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT) > 0);
+        defaultMode.add(createReportButton);
 
         // add APPLY button for EDIT mode
-        AjaxButton applyButton = new AjaxButton( "applyButton", grid.getForm() ) {
+        AjaxButton applyButton = new AjaxButton("applyButton", grid.getForm()) {
 
             private static final long serialVersionUID = 1L;
 
@@ -392,48 +393,48 @@ public class PagingToolbar extends AbstractToolbar {
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
                 boolean hasError = false;
-                for( IModel<?> model : ( Collection<IModel<?>> ) grid.getSelectedItems() ) {
-                    if( updateObject( model.getObject() ) ) {
+                for (IModel<?> model : (Collection<IModel<?>>) grid.getSelectedItems()) {
+                    if (updateObject(model.getObject())) {
 
-                        grid.setItemEdit( model, false );
+                        grid.setItemEdit(model, false);
                     } else {
 
                         hasError = true;
                     }
                 }
-                if( !hasError ) {
+                if (!hasError) {
 
                     grid.switchToDefaultMode();
                 }
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        applyButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_EDIT ) > 0 );
-        editMode.add( applyButton );
+        applyButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        editMode.add(applyButton);
 
         // add CANCEL button for DEFAULT mode
-        AjaxButton cancelButton = new AjaxButton( "cancelButton" ) {
+        AjaxButton cancelButton = new AjaxButton("cancelButton") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                    grid.setItemEdit( model, false );
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                    grid.setItemEdit(model, false);
                 }
                 grid.switchToDefaultMode();
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        cancelButton.setVisible( ( supportedOperations & MainDataGrid.OPERATION_EDIT ) > 0 );
-        cancelButton.setDefaultFormProcessing( false );
-        editMode.add( cancelButton );
+        cancelButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        cancelButton.setDefaultFormProcessing(false);
+        editMode.add(cancelButton);
 
         // add STATUS CHANGE buttons for DEFAULT mode
-        AjaxButton statusChangePassButton = new AjaxButton( "statusChangePassButton" ) {
+        AjaxButton statusChangePassButton = new AjaxButton("statusChangePassButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -442,22 +443,22 @@ public class PagingToolbar extends AbstractToolbar {
 
                 // collect the objects to change state to PASS
                 List<Object> objectsToPass = new ArrayList<Object>();
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                    objectsToPass.add( model.getObject() );
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                    objectsToPass.add(model.getObject());
                 }
 
-                changeTestcaseStatus( objectsToPass, 1 );
+                changeTestcaseStatus(objectsToPass, 1);
 
                 // unselect the selected items
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        statusChangePassButton.setVisible( ( supportedOperations
-                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
-        defaultMode.add( statusChangePassButton );
+        statusChangePassButton.setVisible( (supportedOperations
+                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        defaultMode.add(statusChangePassButton);
 
-        AjaxButton statusChangeFailButton = new AjaxButton( "statusChangeFailButton" ) {
+        AjaxButton statusChangeFailButton = new AjaxButton("statusChangeFailButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -466,22 +467,22 @@ public class PagingToolbar extends AbstractToolbar {
 
                 // collect the objects to change state to FAIL
                 List<Object> objectsToFail = new ArrayList<Object>();
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                    objectsToFail.add( model.getObject() );
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                    objectsToFail.add(model.getObject());
                 }
 
-                changeTestcaseStatus( objectsToFail, 0 );
+                changeTestcaseStatus(objectsToFail, 0);
 
                 // unselect the selected items
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        statusChangeFailButton.setVisible( ( supportedOperations
-                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
-        defaultMode.add( statusChangeFailButton );
+        statusChangeFailButton.setVisible( (supportedOperations
+                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        defaultMode.add(statusChangeFailButton);
 
-        AjaxButton statusChangeSkipButton = new AjaxButton( "statusChangeSkipButton" ) {
+        AjaxButton statusChangeSkipButton = new AjaxButton("statusChangeSkipButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -490,20 +491,20 @@ public class PagingToolbar extends AbstractToolbar {
 
                 // collect the objects to change state to SKIP
                 List<Object> objectsToSkip = new ArrayList<Object>();
-                for( IModel<?> model : ( Collection<IModel> ) grid.getSelectedItems() ) {
-                    objectsToSkip.add( model.getObject() );
+                for (IModel<?> model : (Collection<IModel>) grid.getSelectedItems()) {
+                    objectsToSkip.add(model.getObject());
                 }
 
-                changeTestcaseStatus( objectsToSkip, 2 );
+                changeTestcaseStatus(objectsToSkip, 2);
 
                 // unselect the selected items
                 grid.resetSelectedItems();
-                target.add( grid );
+                target.add(grid);
             }
         };
-        statusChangeSkipButton.setVisible( ( supportedOperations
-                                             & MainDataGrid.OPERATION_STATUS_CHANGE ) > 0 );
-        defaultMode.add( statusChangeSkipButton );
+        statusChangeSkipButton.setVisible( (supportedOperations
+                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        defaultMode.add(statusChangeSkipButton);
     }
 
     /**
@@ -520,23 +521,23 @@ public class PagingToolbar extends AbstractToolbar {
      */
     private boolean changeTestcaseStatus( List<Object> objects, int state ) {
 
-        if( objects.size() > 0 ) {
+        if (objects.size() > 0) {
 
-            TestExplorerDbWriteAccessInterface dbWriter = ( ( TestExplorerSession ) Session.get() ).getDbWriteConnection();
+            TestExplorerDbWriteAccessInterface dbWriter = ((TestExplorerSession) Session.get()).getDbWriteConnection();
 
-            Object anObject = objects.get( 0 );
+            Object anObject = objects.get(0);
             try {
-                if( anObject instanceof Scenario ) {
+                if (anObject instanceof Scenario) {
 
-                    dbWriter.changeTestcaseState( objects, null, state );
-                } else if( anObject instanceof Testcase ) {
+                    dbWriter.changeTestcaseState(objects, null, state);
+                } else if (anObject instanceof Testcase) {
 
-                    dbWriter.changeTestcaseState( null, objects, state );
+                    dbWriter.changeTestcaseState(null, objects, state);
                 }
                 return true;
-            } catch( DatabaseAccessException e ) {
+            } catch (DatabaseAccessException e) {
 
-                LOG.error( "Can't update testcase status", e );
+                LOG.error("Can't update testcase status", e);
             }
         }
         return false;
@@ -544,55 +545,55 @@ public class PagingToolbar extends AbstractToolbar {
 
     private Component getResultsPerPageDropDown() {
 
-        SelectOption[] options = new SelectOption[]{ new SelectOption( "20", "20" ),
-                                                     new SelectOption( "50", "50" ),
-                                                     new SelectOption( "100", "100" ),
-                                                     new SelectOption( "500", "500" ) };
-        ChoiceRenderer<SelectOption> choiceRenderer = new ChoiceRenderer<SelectOption>( "value", "key" );
-        DropDownChoice<SelectOption> dropDown = new DropDownChoice<SelectOption>( "resultsPerPage",
-                                                                                  getDataGrid().getRowsPerPageModel(),
-                                                                                  Arrays.asList( options ),
-                                                                                  choiceRenderer );
-        dropDown.add( new AjaxFormComponentUpdatingBehavior( "change" ) {
+        SelectOption[] options = new SelectOption[]{ new SelectOption("20", "20"),
+                                                     new SelectOption("50", "50"),
+                                                     new SelectOption("100", "100"),
+                                                     new SelectOption("500", "500") };
+        ChoiceRenderer<SelectOption> choiceRenderer = new ChoiceRenderer<SelectOption>("value", "key");
+        DropDownChoice<SelectOption> dropDown = new DropDownChoice<SelectOption>("resultsPerPage",
+                                                                                 getDataGrid().getRowsPerPageModel(),
+                                                                                 Arrays.asList(options),
+                                                                                 choiceRenderer);
+        dropDown.add(new AjaxFormComponentUpdatingBehavior("change") {
 
             private static final long serialVersionUID = 1L;
 
             protected void onUpdate( AjaxRequestTarget target ) {
 
-                SelectOption newSelectOption = ( SelectOption ) getComponent().getDefaultModel().getObject();
+                SelectOption newSelectOption = (SelectOption) getComponent().getDefaultModel().getObject();
                 MainDataGrid grid = getDataGrid();
-                grid.setRowsPerPage( Integer.parseInt( newSelectOption.getKey() ) );
-                target.add( grid );
+                grid.setRowsPerPage(Integer.parseInt(newSelectOption.getKey()));
+                target.add(grid);
             }
-        } );
-        dropDown.setOutputMarkupId( true );
+        });
+        dropDown.setOutputMarkupId(true);
         return dropDown;
     }
 
     private boolean deleteObjects( List<Object> objectsToDelete ) {
 
-        if( objectsToDelete.size() > 0 ) {
+        if (objectsToDelete.size() > 0) {
 
-            TestExplorerDbWriteAccessInterface dbWriter = ( ( TestExplorerSession ) Session.get() ).getDbWriteConnection();
-            Object anObjectToDelete = objectsToDelete.get( 0 );
+            TestExplorerDbWriteAccessInterface dbWriter = ((TestExplorerSession) Session.get()).getDbWriteConnection();
+            Object anObjectToDelete = objectsToDelete.get(0);
             try {
-                if( anObjectToDelete instanceof Run ) {
+                if (anObjectToDelete instanceof Run) {
 
-                    dbWriter.deleteRuns( objectsToDelete );
-                } else if( anObjectToDelete instanceof Suite ) {
+                    dbWriter.deleteRuns(objectsToDelete);
+                } else if (anObjectToDelete instanceof Suite) {
 
-                    dbWriter.deleteSuites( objectsToDelete );
-                } else if( anObjectToDelete instanceof Scenario ) {
+                    dbWriter.deleteSuites(objectsToDelete);
+                } else if (anObjectToDelete instanceof Scenario) {
 
-                    dbWriter.deleteScenarios( objectsToDelete );
-                } else if( anObjectToDelete instanceof Testcase ) {
+                    dbWriter.deleteScenarios(objectsToDelete);
+                } else if (anObjectToDelete instanceof Testcase) {
 
-                    dbWriter.deleteTestcase( objectsToDelete );
+                    dbWriter.deleteTestcase(objectsToDelete);
                 }
                 return true;
-            } catch( DatabaseAccessException e ) {
+            } catch (DatabaseAccessException e) {
 
-                LOG.error( "Can't delete object", e );
+                LOG.error("Can't delete object", e);
             }
         }
         return false;
@@ -600,68 +601,68 @@ public class PagingToolbar extends AbstractToolbar {
 
     private boolean updateObject( Object object ) {
 
-        TestExplorerDbWriteAccessInterface dbWriter = ( ( TestExplorerSession ) Session.get() ).getDbWriteConnection();
+        TestExplorerDbWriteAccessInterface dbWriter = ((TestExplorerSession) Session.get()).getDbWriteConnection();
         try {
-            if( object instanceof Run ) {
+            if (object instanceof Run) {
 
-                Run run = ( Run ) object;
-                if( run.runName == null ) {
+                Run run = (Run) object;
+                if (run.runName == null) {
                     run.runName = "";
                 }
-                if( run.productName == null ) {
+                if (run.productName == null) {
                     run.productName = "";
                 }
-                if( run.versionName == null ) {
+                if (run.versionName == null) {
                     run.versionName = "";
                 }
-                if( run.buildName == null ) {
+                if (run.buildName == null) {
                     run.buildName = "";
                 }
-                if( run.os == null ) {
+                if (run.os == null) {
                     run.os = "";
                 }
-                if( run.userNote == null ) {
+                if (run.userNote == null) {
                     run.userNote = "";
                 }
-                dbWriter.updateRun( run );
-            } else if( object instanceof Suite ) {
+                dbWriter.updateRun(run);
+            } else if (object instanceof Suite) {
 
-                Suite suite = ( Suite ) object;
-                if( suite.userNote == null ) {
+                Suite suite = (Suite) object;
+                if (suite.userNote == null) {
                     suite.userNote = "";
                 }
-                dbWriter.updateSuite( suite );
-            } else if( object instanceof Scenario ) {
+                dbWriter.updateSuite(suite);
+            } else if (object instanceof Scenario) {
 
-                Scenario scenario = ( Scenario ) object;
-                if( scenario.userNote == null ) {
+                Scenario scenario = (Scenario) object;
+                if (scenario.userNote == null) {
                     scenario.userNote = "";
                 }
-                dbWriter.updateScenario( scenario );
-            } else if( object instanceof Testcase ) {
+                dbWriter.updateScenario(scenario);
+            } else if (object instanceof Testcase) {
 
-                Testcase testcase = ( Testcase ) object;
-                if( testcase.userNote == null ) {
+                Testcase testcase = (Testcase) object;
+                if (testcase.userNote == null) {
                     testcase.userNote = "";
                 }
-                dbWriter.updateTestcase( testcase );
+                dbWriter.updateTestcase(testcase);
             }
             return true;
-        } catch( DatabaseAccessException e ) {
+        } catch (DatabaseAccessException e) {
 
-            LOG.error( "Can't update object", e );
+            LOG.error("Can't update object", e);
         }
         return false;
     }
 
     protected Component newNavigationLabel( String id, String whatIsShowing ) {
 
-        return new NavigatorLabel( id, getDataGrid(), whatIsShowing );
+        return new NavigatorLabel(id, getDataGrid(), whatIsShowing);
     }
 
     protected Component newPagingNavigator( String id ) {
 
-        return new PagingNavigator( id, getDataGrid() );
+        return new PagingNavigator(id, getDataGrid());
     }
 
     /**
@@ -674,19 +675,19 @@ public class PagingToolbar extends AbstractToolbar {
     protected void onConfigure() {
 
         super.onConfigure();
-        setVisible( getDataGrid().getTotalRowCount() != 0 );
+        setVisible(getDataGrid().getTotalRowCount() != 0);
     }
 
     public void switchToEditMode() {
 
-        defaultMode.setVisible( false );
-        editMode.setVisible( true );
+        defaultMode.setVisible(false);
+        editMode.setVisible(true);
     }
 
     public void switchToDefaultMode() {
 
-        defaultMode.setVisible( true );
-        editMode.setVisible( false );
+        defaultMode.setVisible(true);
+        editMode.setVisible(false);
     }
 
     public boolean isEditMode() {
@@ -696,7 +697,7 @@ public class PagingToolbar extends AbstractToolbar {
 
     public void reloadButtons() {
 
-        AjaxRequestTarget target = RequestCycle.get().find( AjaxRequestTarget.class );
-        target.add( buttonsForm );
+        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        target.add(buttonsForm);
     }
 }

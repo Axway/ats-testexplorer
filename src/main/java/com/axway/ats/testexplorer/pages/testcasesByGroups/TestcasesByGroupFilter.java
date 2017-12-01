@@ -61,100 +61,102 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
     private List<String>               selectedGroupNames;
     private List<String>               groupNames;
 
-    private DateTextField              searchByAfterDate    = DateTextField.forDatePattern( "search_by_after_date",
-                                                                                            new Model<Date>(),
-                                                                                            "dd.MM.yyyy" );
-    private DateTextField              searchByBeforeDate   = DateTextField.forDatePattern( "search_by_before_date",
-                                                                                            new Model<Date>(),
-                                                                                            "dd.MM.yyyy" );
+    private DateTextField              searchByAfterDate    = DateTextField.forDatePattern("search_by_after_date",
+                                                                                           new Model<Date>(),
+                                                                                           "dd.MM.yyyy");
+    private DateTextField              searchByBeforeDate   = DateTextField.forDatePattern("search_by_before_date",
+                                                                                           new Model<Date>(),
+                                                                                           "dd.MM.yyyy");
 
     private TextField<String>          searchByGroupContains;
 
-    private static Logger              LOG                  = Logger.getLogger( TestcasesByGroupFilter.class );
+    private static Logger              LOG                  = Logger.getLogger(TestcasesByGroupFilter.class);
 
     public TestcasesByGroupFilter( String id ) {
 
-        super( id );
+        super(id);
 
         searchByProduct = createSearchByProductComponent();
         searchByVersion = createSearchByVersionComponent();
         searchByAllGroups = createSearchByAllGroupsComponent();
-        searchByGroupContains = new TextField<String>( "search_by_group_contains", new Model<String>( "" ) );
-        searchByGroupContains.add( new OnChangeAjaxBehavior() {
+        searchByGroupContains = new TextField<String>("search_by_group_contains", new Model<String>(""));
+        searchByGroupContains.add(new OnChangeAjaxBehavior() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onUpdate( AjaxRequestTarget target ) {
 
-                if( StringUtils.isNullOrEmpty( searchByGroupContains.getModel().getObject() ) ) {
-                    TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                if (StringUtils.isNullOrEmpty(searchByGroupContains.getModel().getObject())) {
+                    TestExplorerSession session = (TestExplorerSession) Session.get();
                     try {
-                        groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
-                    } catch( DatabaseAccessException e ) {
-                        LOG.error( "Unable to get all group names", e );
-                        error( "Unable to get all group names" );
+                        groupNames = session.getDbReadConnection().getAllGroupNames(selectedProductName,
+                                                                                    selectedVersionNames);
+                    } catch (DatabaseAccessException e) {
+                        LOG.error("Unable to get all group names", e);
+                        error("Unable to get all group names");
                     }
                 } else {
                     groupNames = new ArrayList<String>();
                 }
 
                 selectedGroupNames = groupNames;
-                searchByAllGroups.getModel().setObject( selectedGroupNames );
-                searchByAllGroups.setChoices( groupNames );
-                target.add( searchByAllGroups );
+                searchByAllGroups.getModel().setObject(selectedGroupNames);
+                searchByAllGroups.setChoices(groupNames);
+                target.add(searchByAllGroups);
             }
-        } );
+        });
 
-        searchByAfterDate.setOutputMarkupId( true );
-        searchByAfterDate.add( DateValidator.maximum( new Date(), "dd.MM.yyyy" ) );
+        searchByAfterDate.setOutputMarkupId(true);
+        searchByAfterDate.add(DateValidator.maximum(new Date(), "dd.MM.yyyy"));
 
-        searchByBeforeDate.setOutputMarkupId( true );
+        searchByBeforeDate.setOutputMarkupId(true);
 
-        searchByGroupContains.setEscapeModelStrings( false );
-        searchByGroupContains.setOutputMarkupId( true );
+        searchByGroupContains.setEscapeModelStrings(false);
+        searchByGroupContains.setOutputMarkupId(true);
 
-        add( searchByProduct );
-        add( searchByVersion );
-        add( searchByAllGroups );
-        add( searchByAfterDate );
-        add( searchByBeforeDate );
-        add( searchByGroupContains );
+        add(searchByProduct);
+        add(searchByVersion);
+        add(searchByAllGroups);
+        add(searchByAfterDate);
+        add(searchByBeforeDate);
+        add(searchByGroupContains);
 
-        searchByAfterDate.add( new DatePicker().setShowOnFieldClick( true ).setAutoHide( true ) );
-        searchByBeforeDate.add( new DatePicker().setShowOnFieldClick( true ).setAutoHide( true ) );
+        searchByAfterDate.add(new DatePicker().setShowOnFieldClick(true).setAutoHide(true));
+        searchByBeforeDate.add(new DatePicker().setShowOnFieldClick(true).setAutoHide(true));
 
-        AjaxButton searchButton = new AjaxButton( "submit" ) {
+        AjaxButton searchButton = new AjaxButton("submit") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                if( StringUtils.isNullOrEmpty( selectedProductName ) && selectedVersionNames.size() == 0
+                if (StringUtils.isNullOrEmpty(selectedProductName) && selectedVersionNames.size() == 0
                     && selectedGroupNames.size() == 0
-                    && StringUtils.isNullOrEmpty( searchByGroupContains.getModel().getObject() )
-                    && StringUtils.isNullOrEmpty( searchByAfterDate.getInput() )
-                    && StringUtils.isNullOrEmpty( searchByBeforeDate.getInput() ) ) {
+                    && StringUtils.isNullOrEmpty(searchByGroupContains.getModel().getObject())
+                    && StringUtils.isNullOrEmpty(searchByAfterDate.getInput())
+                    && StringUtils.isNullOrEmpty(searchByBeforeDate.getInput())) {
                     return;
                 }
 
-                TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                TestExplorerSession session = (TestExplorerSession) Session.get();
                 TestcaseInfoPerGroupStorage perGroupStorage = null;
                 try {
                     perGroupStorage = session.getDbReadConnection()
-                                             .getTestcaseInfoPerGroupStorage( selectedProductName, 
-                                                                              selectedVersionNames, 
-                                                                              selectedGroupNames, 
-                                                                              searchByAfterDate.getValue(), 
-                                                                              searchByBeforeDate.getValue(),
-                                                                              searchByGroupContains.getModel().getObject() );
-                } catch( DatabaseAccessException e ) {
-                    LOG.error( "Unable to get Testcases and groups data", e );
-                    error( "Unable to get Testcases and groups data" );
+                                             .getTestcaseInfoPerGroupStorage(selectedProductName,
+                                                                             selectedVersionNames,
+                                                                             selectedGroupNames,
+                                                                             searchByAfterDate.getValue(),
+                                                                             searchByBeforeDate.getValue(),
+                                                                             searchByGroupContains.getModel()
+                                                                                                  .getObject());
+                } catch (DatabaseAccessException e) {
+                    LOG.error("Unable to get Testcases and groups data", e);
+                    error("Unable to get Testcases and groups data");
                 }
 
-                if( perGroupStorage != null ) {
+                if (perGroupStorage != null) {
                     String treemapData = perGroupStorage.generateTreemapData();
 
                     String testcasesIdsMap = perGroupStorage.generateTestcasesIdsMap();
@@ -164,22 +166,22 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
                                     + ");$('.filterHeader').click();populateFilterDataPanel("
                                     + getFilterData() + ");setTestcasesIdsMap(" + testcasesIdsMap + ");";
 
-                    target.appendJavaScript( script );
+                    target.appendJavaScript(script);
                 }
             }
 
             @Override
             protected void onError( AjaxRequestTarget target, Form<?> form ) {
 
-                super.onError( target, form );
+                super.onError(target, form);
             }
 
         };
-        add( searchButton );
+        add(searchButton);
         // search button is the button to trigger when user hit the enter key
-        this.setDefaultButton( searchButton );
+        this.setDefaultButton(searchButton);
 
-        add( new AjaxButton( "clear" ) {
+        add(new AjaxButton("clear") {
 
             private static final long serialVersionUID = 1L;
 
@@ -188,68 +190,68 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
                 selectedProductName = null;
 
-                selectedVersionNames = new ArrayList<String>( 1 );
-                versionNames = new ArrayList<String>( 1 );
+                selectedVersionNames = new ArrayList<String>(1);
+                versionNames = new ArrayList<String>(1);
 
-                selectedGroupNames = new ArrayList<String>( 1 );
-                groupNames = new ArrayList<String>( 1 );
+                selectedGroupNames = new ArrayList<String>(1);
+                groupNames = new ArrayList<String>(1);
 
-                searchByProduct.getModel().setObject( selectedProductName );
+                searchByProduct.getModel().setObject(selectedProductName);
 
-                searchByVersion.getModel().setObject( selectedVersionNames );
-                searchByVersion.setChoices( new ListModel<String>( versionNames ) );
+                searchByVersion.getModel().setObject(selectedVersionNames);
+                searchByVersion.setChoices(new ListModel<String>(versionNames));
 
-                searchByAllGroups.getModel().setObject( selectedGroupNames );
-                searchByAllGroups.setChoices( new ListModel<String>( groupNames ) );
+                searchByAllGroups.getModel().setObject(selectedGroupNames);
+                searchByAllGroups.setChoices(new ListModel<String>(groupNames));
 
-                searchByAfterDate.getModel().setObject( null );
+                searchByAfterDate.getModel().setObject(null);
                 searchByAfterDate.clearInput();
 
                 searchByBeforeDate.clearInput();
-                searchByBeforeDate.getModel().setObject( null );
+                searchByBeforeDate.getModel().setObject(null);
 
-                searchByGroupContains.getModel().setObject( null );
+                searchByGroupContains.getModel().setObject(null);
 
-                target.add( searchByProduct );
-                target.add( searchByVersion );
-                target.add( searchByAllGroups );
-                target.add( searchByAfterDate );
-                target.add( searchByBeforeDate );
-                target.add( searchByGroupContains );
+                target.add(searchByProduct);
+                target.add(searchByVersion);
+                target.add(searchByAllGroups);
+                target.add(searchByAfterDate);
+                target.add(searchByBeforeDate);
+                target.add(searchByGroupContains);
 
-                target.appendJavaScript( ";$('#chart_div').empty();populateFilterDataPanel(" + getFilterData()
-                                         + ");" );
+                target.appendJavaScript(";$('#chart_div').empty();populateFilterDataPanel(" + getFilterData()
+                                        + ");");
             }
-        } );
+        });
     }
-    
+
     public String getSelectedProductName() {
-    
+
         return selectedProductName;
     }
 
     public List<String> getSelectedVersionNames() {
-    
+
         return selectedVersionNames;
     }
 
     public List<String> getSelectedGroupNames() {
-    
+
         return selectedGroupNames;
     }
 
     public String getSearchByAfterDate() {
-    
+
         return searchByAfterDate.getValue();
     }
 
     public String getSearchByBeforeDate() {
-    
+
         return searchByBeforeDate.getValue();
     }
 
     public String getSearchByGroupContains() {
-    
+
         return searchByGroupContains.getModel().getObject();
     }
 
@@ -260,63 +262,63 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
         String productName = selectedProductName;
         String versionNames = null;
         String groupNames = null;
-        String groupContains = ( searchByGroupContains.getModelObject() == null )
-                                                                                  ? null
-                                                                                  : searchByGroupContains.getModel()
-                                                                                                         .getObject();
+        String groupContains = (searchByGroupContains.getModelObject() == null)
+                                                                                ? null
+                                                                                : searchByGroupContains.getModel()
+                                                                                                       .getObject();
 
-        String startedAfterDate = ( searchByAfterDate.getModelObject() == null )
+        String startedAfterDate = (searchByAfterDate.getModelObject() == null)
+                                                                               ? null
+                                                                               : (searchByAfterDate.getInput() == null)
+                                                                                                                        ? searchByAfterDate.getModelObject()
+                                                                                                                                           .toString()
+                                                                                                                        : searchByAfterDate.getInput();
+        String startedBeforeDate = (searchByBeforeDate.getModelObject() == null)
                                                                                  ? null
-                                                                                 : ( searchByAfterDate.getInput() == null )
-                                                                                                                            ? searchByAfterDate.getModelObject()
-                                                                                                                                               .toString()
-                                                                                                                            : searchByAfterDate.getInput();
-        String startedBeforeDate = ( searchByBeforeDate.getModelObject() == null )
-                                                                                   ? null
-                                                                                   : searchByBeforeDate.getInput();
+                                                                                 : searchByBeforeDate.getInput();
 
-        if( selectedVersionNames.size() > 0 ) {
+        if (selectedVersionNames.size() > 0) {
             StringBuilder versionNameStringBuilder = new StringBuilder();
 
-            for( int i = 0; i < selectedVersionNames.size(); i++ ) {
-                versionNameStringBuilder.append( selectedVersionNames.get( i ) );
-                if( i < selectedVersionNames.size() - 1 ) {
-                    versionNameStringBuilder.append( ", " );
+            for (int i = 0; i < selectedVersionNames.size(); i++) {
+                versionNameStringBuilder.append(selectedVersionNames.get(i));
+                if (i < selectedVersionNames.size() - 1) {
+                    versionNameStringBuilder.append(", ");
                 }
             }
             versionNames = versionNameStringBuilder.toString();
         }
 
-        if( selectedGroupNames.size() > 0 ) {
+        if (selectedGroupNames.size() > 0) {
             StringBuilder groupNameStringBuilder = new StringBuilder();
 
-            for( int i = 0; i < selectedGroupNames.size(); i++ ) {
-                groupNameStringBuilder.append( selectedGroupNames.get( i ) );
-                if( i < selectedGroupNames.size() - 1 ) {
-                    groupNameStringBuilder.append( ", " );
+            for (int i = 0; i < selectedGroupNames.size(); i++) {
+                groupNameStringBuilder.append(selectedGroupNames.get(i));
+                if (i < selectedGroupNames.size() - 1) {
+                    groupNameStringBuilder.append(", ");
                 }
             }
             groupNames = groupNameStringBuilder.toString();
         }
 
-        if( !StringUtils.isNullOrEmpty( groupContains ) ) {
-            sb.append( "{" )
-              .append( "'ProductName':'" + productName + "'," )
-              .append( "'VersionNames':'" + versionNames + "'," )
-              .append( "'GroupNames':'" + null + "'," )
-              .append( "'GroupContains':'" + groupContains + "'," )
-              .append( "'StartedAfter':'" + startedAfterDate + "'," )
-              .append( "'StartedBefore':'" + startedBeforeDate + "'" )
-              .append( "}" );
+        if (!StringUtils.isNullOrEmpty(groupContains)) {
+            sb.append("{")
+              .append("'ProductName':'" + productName + "',")
+              .append("'VersionNames':'" + versionNames + "',")
+              .append("'GroupNames':'" + null + "',")
+              .append("'GroupContains':'" + groupContains + "',")
+              .append("'StartedAfter':'" + startedAfterDate + "',")
+              .append("'StartedBefore':'" + startedBeforeDate + "'")
+              .append("}");
         } else {
-            sb.append( "{" )
-              .append( "'ProductName':'" + productName + "'," )
-              .append( "'VersionNames':'" + versionNames + "'," )
-              .append( "'GroupNames':'" + groupNames + "'," )
-              .append( "'GroupContains':'" + null + "'," )
-              .append( "'StartedAfter':'" + startedAfterDate + "'," )
-              .append( "'StartedBefore':'" + startedBeforeDate + "'" )
-              .append( "}" );
+            sb.append("{")
+              .append("'ProductName':'" + productName + "',")
+              .append("'VersionNames':'" + versionNames + "',")
+              .append("'GroupNames':'" + groupNames + "',")
+              .append("'GroupContains':'" + null + "',")
+              .append("'StartedAfter':'" + startedAfterDate + "',")
+              .append("'StartedBefore':'" + startedBeforeDate + "'")
+              .append("}");
         }
 
         return sb.toString();
@@ -324,194 +326,196 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
     private ListMultipleChoice<String> createSearchByVersionComponent() {
 
-        versionNames = new ArrayList<String>( 1 );
-        selectedVersionNames = new ArrayList<String>( 1 );
+        versionNames = new ArrayList<String>(1);
+        selectedVersionNames = new ArrayList<String>(1);
 
-        searchByVersion = new ListMultipleChoice<String>( "search_by_version",
-                                                          new ListModel<String>( selectedVersionNames ),
-                                                          versionNames );
-        searchByVersion.setEscapeModelStrings( false );
-        searchByVersion.setOutputMarkupId( true );
-        searchByVersion.add( new OnChangeAjaxBehavior() {
+        searchByVersion = new ListMultipleChoice<String>("search_by_version",
+                                                         new ListModel<String>(selectedVersionNames),
+                                                         versionNames);
+        searchByVersion.setEscapeModelStrings(false);
+        searchByVersion.setOutputMarkupId(true);
+        searchByVersion.add(new OnChangeAjaxBehavior() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onUpdate( AjaxRequestTarget target ) {
 
-                TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                TestExplorerSession session = (TestExplorerSession) Session.get();
                 try {
 
-                    groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
+                    groupNames = session.getDbReadConnection().getAllGroupNames(selectedProductName,
+                                                                                selectedVersionNames);
 
-                    selectedGroupNames = new ArrayList<String>( groupNames );
-                    searchByAllGroups.setChoices( groupNames );
-                    searchByAllGroups.getModel().setObject( selectedGroupNames );
-                    target.add( searchByAllGroups );
-                } catch( DatabaseAccessException e ) {
-                    error( "Unable to get group names" );
+                    selectedGroupNames = new ArrayList<String>(groupNames);
+                    searchByAllGroups.setChoices(groupNames);
+                    searchByAllGroups.getModel().setObject(selectedGroupNames);
+                    target.add(searchByAllGroups);
+                } catch (DatabaseAccessException e) {
+                    error("Unable to get group names");
                 }
             }
-        } );
+        });
 
         return searchByVersion;
     }
 
     private ListMultipleChoice<String> createSearchByAllGroupsComponent() {
 
-        groupNames = new ArrayList<String>( 1 );
-        selectedGroupNames = new ArrayList<String>( 1 );
+        groupNames = new ArrayList<String>(1);
+        selectedGroupNames = new ArrayList<String>(1);
 
-        searchByAllGroups = new ListMultipleChoice<String>( "search_by_all_groups",
-                                                            new ListModel<String>( selectedGroupNames ),
-                                                            groupNames );
+        searchByAllGroups = new ListMultipleChoice<String>("search_by_all_groups",
+                                                           new ListModel<String>(selectedGroupNames),
+                                                           groupNames);
 
-        searchByAllGroups.setEscapeModelStrings( false );
-        searchByAllGroups.setOutputMarkupId( true );
-        searchByAllGroups.add( new OnChangeAjaxBehavior() {
+        searchByAllGroups.setEscapeModelStrings(false);
+        searchByAllGroups.setOutputMarkupId(true);
+        searchByAllGroups.add(new OnChangeAjaxBehavior() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void onUpdate( AjaxRequestTarget target ) {
 
-                TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                TestExplorerSession session = (TestExplorerSession) Session.get();
                 try {
-                    
-                    groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
+
+                    groupNames = session.getDbReadConnection().getAllGroupNames(selectedProductName,
+                                                                                selectedVersionNames);
 
                     //selectedGroupNames = new ArrayList<String>( groupNames );
-                    searchByAllGroups.setChoices( groupNames );
-                    searchByAllGroups.getModel().setObject( selectedGroupNames );
-                    target.add( searchByAllGroups );
-                } catch( DatabaseAccessException e ) {
-                    error( "Unable to get group names" );
+                    searchByAllGroups.setChoices(groupNames);
+                    searchByAllGroups.getModel().setObject(selectedGroupNames);
+                    target.add(searchByAllGroups);
+                } catch (DatabaseAccessException e) {
+                    error("Unable to get group names");
                 }
 
-                searchByGroupContains.setModelObject( null );
-                target.add( searchByGroupContains );
+                searchByGroupContains.setModelObject(null);
+                target.add(searchByGroupContains);
             }
-        } );
+        });
 
         return searchByAllGroups;
     }
 
     private DropDownChoice<String> createSearchByProductComponent() {
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
 
         try {
-            productNames = ( ArrayList<String> ) session.getDbReadConnection()
-                                                        .getAllProductNames( "WHERE 1=1" );
+            productNames = (ArrayList<String>) session.getDbReadConnection()
+                                                      .getAllProductNames("WHERE 1=1");
 
             selectedProductName = null;
 
-            searchByProduct = new DropDownChoice<String>( "search_by_product",
-                                                          new PropertyModel<String>( this,
-                                                                                     "selectedProductName" ),
-                                                          productNames );
-            searchByProduct.setNullValid( false );
-            searchByProduct.setEscapeModelStrings( false );
-            searchByProduct.setOutputMarkupId( true );
-            searchByProduct.add( new OnChangeAjaxBehavior() {
+            searchByProduct = new DropDownChoice<String>("search_by_product",
+                                                         new PropertyModel<String>(this,
+                                                                                   "selectedProductName"),
+                                                         productNames);
+            searchByProduct.setNullValid(false);
+            searchByProduct.setEscapeModelStrings(false);
+            searchByProduct.setOutputMarkupId(true);
+            searchByProduct.add(new OnChangeAjaxBehavior() {
 
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 protected void onUpdate( AjaxRequestTarget target ) {
 
-                    TestExplorerSession session = ( TestExplorerSession ) Session.get();
+                    TestExplorerSession session = (TestExplorerSession) Session.get();
                     try {
                         versionNames = session.getDbReadConnection()
-                                              .getAllVersionNames( "WHERE productName = '"
-                                                                   + selectedProductName + "'" );
+                                              .getAllVersionNames("WHERE productName = '"
+                                                                  + selectedProductName + "'");
 
-                        selectedVersionNames = new ArrayList<String>( 1 );
-                        searchByVersion.getModel().setObject( selectedVersionNames );
+                        selectedVersionNames = new ArrayList<String>(1);
+                        searchByVersion.getModel().setObject(selectedVersionNames);
 
-                        searchByVersion.setChoices( versionNames );
-                        target.add( searchByVersion );
+                        searchByVersion.setChoices(versionNames);
+                        target.add(searchByVersion);
 
-                        groupNames = new ArrayList<String>( 1 );
-                        selectedGroupNames = new ArrayList<String>( 1 );
-                        searchByAllGroups.getModel().setObject( selectedGroupNames );
-                        searchByAllGroups.setChoices( groupNames );
-                        target.add( searchByAllGroups );
-                    } catch( DatabaseAccessException e ) {
-                        error( "Unable to get version names" );
+                        groupNames = new ArrayList<String>(1);
+                        selectedGroupNames = new ArrayList<String>(1);
+                        searchByAllGroups.getModel().setObject(selectedGroupNames);
+                        searchByAllGroups.setChoices(groupNames);
+                        target.add(searchByAllGroups);
+                    } catch (DatabaseAccessException e) {
+                        error("Unable to get version names");
                     }
                 }
-            } );
-        } catch( DatabaseAccessException e ) {
-            error( e.getMessage() );
+            });
+        } catch (DatabaseAccessException e) {
+            error(e.getMessage());
         }
         return searchByProduct;
     }
 
-
     public void performSearchOnPageLoad() {
 
-        if( productNames == null || productNames.size() == 0 ) {
+        if (productNames == null || productNames.size() == 0) {
             return;
         }
 
-        selectedProductName = productNames.get( productNames.size() - 1 );
-        searchByProduct.getModel().setObject( selectedProductName );
+        selectedProductName = productNames.get(productNames.size() - 1);
+        searchByProduct.getModel().setObject(selectedProductName);
 
-        TestExplorerSession session = ( TestExplorerSession ) Session.get();
+        TestExplorerSession session = (TestExplorerSession) Session.get();
         try {
 
             versionNames = session.getDbReadConnection()
-                                  .getAllVersionNames( "WHERE productName = '" + selectedProductName + "'" );
-            selectedVersionNames = Arrays.asList( versionNames.get( versionNames.size() - 1 ) );
-            searchByVersion.getModel().setObject( selectedVersionNames );
-            searchByVersion.setChoices( versionNames );
+                                  .getAllVersionNames("WHERE productName = '" + selectedProductName + "'");
+            selectedVersionNames = Arrays.asList(versionNames.get(versionNames.size() - 1));
+            searchByVersion.getModel().setObject(selectedVersionNames);
+            searchByVersion.setChoices(versionNames);
 
-            groupNames = session.getDbReadConnection().getAllGroupNames( selectedProductName, selectedVersionNames );
+            groupNames = session.getDbReadConnection().getAllGroupNames(selectedProductName, selectedVersionNames);
             selectedGroupNames = groupNames;
 
-            searchByAllGroups.getModel().setObject( selectedGroupNames );
-            searchByAllGroups.setChoices( new ListModel<String>( groupNames ) );
+            searchByAllGroups.getModel().setObject(selectedGroupNames);
+            searchByAllGroups.setChoices(new ListModel<String>(groupNames));
 
             String[] lastRunDateStart = session.getDbReadConnection()
-                                               .getRuns( 0, 1, "WHERE 1=1", "dateStart", false, ((TestExplorerSession)Session.get()).getTimeOffset() )
-                                               .get( 0 )
+                                               .getRuns(0, 1, "WHERE 1=1", "dateStart", false,
+                                                        ((TestExplorerSession) Session.get()).getTimeOffset())
+                                               .get(0)
                                                .getDateStartLong()
-                                               .split( " " )[0].split( "-" );
+                                               .split(" ")[0].split("-");
 
             searchByAfterDate.getModel()
-                             .setObject( new SimpleDateFormat( "dd.MM.yyyy" ).parse( lastRunDateStart[2] + "."
-                                                                                     + lastRunDateStart[1]
-                                                                                     + "."
-                                                                                     + lastRunDateStart[0] ) );
-        } catch( DatabaseAccessException e ) {
-            error( "Unable to perform initial search" );
-            LOG.error( "Unable to perform initial search", e );
-        } catch( ParseException e ) {
-            error( "Unable to parse date start for last run" );
-            LOG.error( "Unable to parse date start for last run", e );
+                             .setObject(new SimpleDateFormat("dd.MM.yyyy").parse(lastRunDateStart[2] + "."
+                                                                                 + lastRunDateStart[1]
+                                                                                 + "."
+                                                                                 + lastRunDateStart[0]));
+        } catch (DatabaseAccessException e) {
+            error("Unable to perform initial search");
+            LOG.error("Unable to perform initial search", e);
+        } catch (ParseException e) {
+            error("Unable to parse date start for last run");
+            LOG.error("Unable to parse date start for last run", e);
         }
     }
 
     @Override
     public boolean hasSelectedFields() {
 
-        if( !StringUtils.isNullOrEmpty( selectedProductName ) ) {
+        if (!StringUtils.isNullOrEmpty(selectedProductName)) {
             return true;
         }
-        if( selectedVersionNames.size() > 0 ) {
+        if (selectedVersionNames.size() > 0) {
             return true;
         }
-        if( selectedGroupNames.size() > 0 ) {
+        if (selectedGroupNames.size() > 0) {
             return true;
         }
-        if( !StringUtils.isNullOrEmpty( searchByGroupContains.getModelObject() ) ) {
+        if (!StringUtils.isNullOrEmpty(searchByGroupContains.getModelObject())) {
             return true;
         }
-        if( searchByAfterDate.getModelObject() != null ) {
+        if (searchByAfterDate.getModelObject() != null) {
             return true;
         }
-        if( searchByBeforeDate.getModelObject() != null ) {
+        if (searchByBeforeDate.getModelObject() != null) {
             return true;
         }
 
@@ -521,9 +525,9 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
     @Override
     public void renderHead( IHeaderResponse response ) {
 
-        super.renderHead( response );
-        if( hasSelectedFields() ) {
-            response.render( OnDomReadyHeaderItem.forScript( "$('.filterHeader').click()" ) );
+        super.renderHead(response);
+        if (hasSelectedFields()) {
+            response.render(OnDomReadyHeaderItem.forScript("$('.filterHeader').click()"));
         }
     }
 

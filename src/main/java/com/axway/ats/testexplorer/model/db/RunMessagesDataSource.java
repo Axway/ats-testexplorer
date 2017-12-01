@@ -19,7 +19,7 @@ import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.pages.model.messages.MessagesPanel;
 import com.inmethod.grid.IDataSource;
 
-@SuppressWarnings({ "rawtypes" })
+@SuppressWarnings( { "rawtypes" })
 public class RunMessagesDataSource extends MessagesDataSource implements IDataSource {
 
     private static final long serialVersionUID = 1L;
@@ -28,7 +28,7 @@ public class RunMessagesDataSource extends MessagesDataSource implements IDataSo
 
     public RunMessagesDataSource( MessagesPanel messagesPanel ) {
 
-        super( messagesPanel );
+        super(messagesPanel);
 
         this.messagesPanel = messagesPanel;
     }
@@ -36,12 +36,12 @@ public class RunMessagesDataSource extends MessagesDataSource implements IDataSo
     protected int getMessagesCount(
                                     TestExplorerDbReadAccessInterface dbAccess ) throws DatabaseAccessException {
 
-        return dbAccess.getRunMessagesCount( getWhereClause() );
+        return dbAccess.getRunMessagesCount(getWhereClause());
     }
 
     protected String getWhereClause() {
 
-        return messagesPanel.getMessageFilter().getWhereClause( "runId" );
+        return messagesPanel.getMessageFilter().getWhereClause("runId");
     }
 
     protected String checkMessageInstance() {

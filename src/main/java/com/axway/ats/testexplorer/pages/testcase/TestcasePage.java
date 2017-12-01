@@ -50,61 +50,62 @@ public class TestcasePage extends BasePage {
 
     public TestcasePage( PageParameters parameters ) {
 
-        super( parameters );
+        super(parameters);
 
-        currentTabIndex = TestExplorerUtils.extractPageParameter( parameters, "tab" );
-        testcaseId = TestExplorerUtils.extractPageParameter( parameters, "testcaseId" );
+        currentTabIndex = TestExplorerUtils.extractPageParameter(parameters, "tab");
+        testcaseId = TestExplorerUtils.extractPageParameter(parameters, "testcaseId");
 
         // organize navigation links
-        addNavigationLink( WelcomePage.class, new PageParameters(), "Home", null );
+        addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
         PageNavigation navigation = null;
         try {
-            navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                        .getNavigationForTestcase( testcaseId, getTESession().getTimeOffset() );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get navigation data for testcase with id=" + testcaseId, e );
+            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                              .getNavigationForTestcase(testcaseId,
+                                                                                        getTESession().getTimeOffset());
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get navigation data for testcase with id=" + testcaseId, e);
         }
 
-        if( navigation != null ) {
+        if (navigation != null) {
 
             runName = navigation.getRunName();
             suiteName = navigation.getSuiteName();
             scenarioName = navigation.getScenarioName();
-            testcaseName = TestExplorerUtils.escapeHtmlCharacters( navigation.getTestcaseName() );
+            testcaseName = TestExplorerUtils.escapeHtmlCharacters(navigation.getTestcaseName());
 
-            addNavigationLink( RunsPage.class, getRunsPageParameters( parameters ), "Runs", runName );
-            addNavigationLink( SuitesPage.class, getSuitesPageParameters( parameters, navigation.getRunId() ),
-                               "Suites", suiteName );
-            addNavigationLink( ScenariosPage.class,
-                               getScenariosPageParameters( parameters, navigation.getSuiteId() ), "Scenarios",
-                               scenarioName );
-            addNavigationLink( TestcasesPage.class,
-                               getTestcasesPageParameters( parameters, navigation.getSuiteId(),
-                                                           navigation.getScenarioId() ),
-                               "Testcases", testcaseName );
-            setRunIdToRunCopyLink( navigation.getRunId() );
+            addNavigationLink(RunsPage.class, getRunsPageParameters(parameters), "Runs", runName);
+            addNavigationLink(SuitesPage.class, getSuitesPageParameters(parameters, navigation.getRunId()),
+                              "Suites", suiteName);
+            addNavigationLink(ScenariosPage.class,
+                              getScenariosPageParameters(parameters, navigation.getSuiteId()), "Scenarios",
+                              scenarioName);
+            addNavigationLink(TestcasesPage.class,
+                              getTestcasesPageParameters(parameters, navigation.getSuiteId(),
+                                                         navigation.getScenarioId()),
+                              "Testcases", testcaseName);
+            setRunIdToRunCopyLink(navigation.getRunId());
 
-            navigationSuffix.setObject( buildStartEndDateString( navigation.getDateStart(),
-                                                                 navigation.getDateEnd() ) );
-            
-            add( new TestcasePanel( "testcase_panel", testcaseId, parameters ) );
+            navigationSuffix.setObject(buildStartEndDateString(navigation.getDateStart(),
+                                                               navigation.getDateEnd()));
 
-            singleTestIds.put( "runId", navigation.getRunId() );
-            singleTestIds.put( "suiteId", navigation.getSuiteId() );
-            singleTestIds.put( "scenarioId", navigation.getScenarioId() );
-            
+            add(new TestcasePanel("testcase_panel", testcaseId, parameters));
+
+            singleTestIds.put("runId", navigation.getRunId());
+            singleTestIds.put("suiteId", navigation.getSuiteId());
+            singleTestIds.put("scenarioId", navigation.getScenarioId());
+
         }
     }
 
     private String buildStartEndDateString( String startDate, String endDate ) {
 
-        StringBuilder sb = new StringBuilder( "" );
-        if( !StringUtils.isNullOrEmpty( startDate ) ) {
-            sb.append( "[START " + startDate );
-            if( !StringUtils.isNullOrEmpty( endDate ) ) {
-                sb.append( " - END " + endDate );
+        StringBuilder sb = new StringBuilder("");
+        if (!StringUtils.isNullOrEmpty(startDate)) {
+            sb.append("[START " + startDate);
+            if (!StringUtils.isNullOrEmpty(endDate)) {
+                sb.append(" - END " + endDate);
             }
-            sb.append( "]" );
+            sb.append("]");
         }
         return sb.toString();
     }
@@ -113,90 +114,90 @@ public class TestcasePage extends BasePage {
                                                        String scenarioId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "suiteId", suiteId );
-        newParams.add( "scenarioId", scenarioId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("suiteId", suiteId);
+        newParams.add("scenarioId", scenarioId);
         return newParams;
     }
 
     private PageParameters getScenariosPageParameters( PageParameters parameters, String suiteId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "suiteId", suiteId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("suiteId", suiteId);
         return newParams;
     }
 
     private PageParameters getSuitesPageParameters( PageParameters parameters, String runId ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
-        newParams.add( "runId", runId );
+        newParams.add("dbname", parameters.get("dbname"));
+        newParams.add("runId", runId);
         return newParams;
     }
 
     private PageParameters getRunsPageParameters( PageParameters parameters ) {
 
         PageParameters newParams = new PageParameters();
-        newParams.add( "dbname", parameters.get( "dbname" ) );
+        newParams.add("dbname", parameters.get("dbname"));
         return newParams;
     }
 
     @Override
     protected Component getTestcaseNavigationButtons() {
 
-        WebMarkupContainer testcaseNavigationButtons = new WebMarkupContainer( "testcaseNavigationButtons" );
-        testcaseNavigationButtons.setVisible( true );
+        WebMarkupContainer testcaseNavigationButtons = new WebMarkupContainer("testcaseNavigationButtons");
+        testcaseNavigationButtons.setVisible(true);
 
-        testcaseNavigationButtons.add( new AjaxLink<Object>( "goToPrevTestcase" ) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void onClick( AjaxRequestTarget target ) {
-
-                String newTestcaseId = getSpecificTestcaseId( testcaseId, runName, suiteName, scenarioName,
-                                                              testcaseName, false, false );
-                if( newTestcaseId == null ) {
-                    target.appendJavaScript( "alert('No previous run of this testcase')" );
-                } else {
-                    redirectToTestcase( newTestcaseId );
-                }
-            }
-        } );
-
-        testcaseNavigationButtons.add( new AjaxLink<Object>( "goToNextTestcase" ) {
+        testcaseNavigationButtons.add(new AjaxLink<Object>("goToPrevTestcase") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             public void onClick( AjaxRequestTarget target ) {
 
-                String newTestcaseId = getSpecificTestcaseId( testcaseId, runName, suiteName, scenarioName,
-                                                              testcaseName, true, false );
-                if( newTestcaseId == null ) {
-                    target.appendJavaScript( "alert('No next run of this testcase')" );
+                String newTestcaseId = getSpecificTestcaseId(testcaseId, runName, suiteName, scenarioName,
+                                                             testcaseName, false, false);
+                if (newTestcaseId == null) {
+                    target.appendJavaScript("alert('No previous run of this testcase')");
                 } else {
-                    redirectToTestcase( newTestcaseId );
+                    redirectToTestcase(newTestcaseId);
                 }
             }
-        } );
-        testcaseNavigationButtons.add( new AjaxLink<Object>( "goToLastTestcase" ) {
+        });
+
+        testcaseNavigationButtons.add(new AjaxLink<Object>("goToNextTestcase") {
 
             private static final long serialVersionUID = 1L;
 
             @Override
             public void onClick( AjaxRequestTarget target ) {
 
-                String newTestcaseId = getSpecificTestcaseId( testcaseId, runName, suiteName, scenarioName,
-                                                              testcaseName, true, true );
-                if( newTestcaseId == null ) {
-                    target.appendJavaScript( "alert('You are already at the last run of this testcase')" );
+                String newTestcaseId = getSpecificTestcaseId(testcaseId, runName, suiteName, scenarioName,
+                                                             testcaseName, true, false);
+                if (newTestcaseId == null) {
+                    target.appendJavaScript("alert('No next run of this testcase')");
                 } else {
-                    redirectToTestcase( newTestcaseId );
+                    redirectToTestcase(newTestcaseId);
                 }
             }
-        } );
+        });
+        testcaseNavigationButtons.add(new AjaxLink<Object>("goToLastTestcase") {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onClick( AjaxRequestTarget target ) {
+
+                String newTestcaseId = getSpecificTestcaseId(testcaseId, runName, suiteName, scenarioName,
+                                                             testcaseName, true, true);
+                if (newTestcaseId == null) {
+                    target.appendJavaScript("alert('You are already at the last run of this testcase')");
+                } else {
+                    redirectToTestcase(newTestcaseId);
+                }
+            }
+        });
 
         return testcaseNavigationButtons;
     }
@@ -204,14 +205,14 @@ public class TestcasePage extends BasePage {
     private void redirectToTestcase( String newTestcaseId ) {
 
         PageParameters parameters = new PageParameters();
-        parameters.add( "testcaseId", newTestcaseId );
+        parameters.add("testcaseId", newTestcaseId);
         //pass database name
-        parameters.add( "dbname", ( ( TestExplorerSession ) Session.get() ).getDbName() );
+        parameters.add("dbname", ((TestExplorerSession) Session.get()).getDbName());
         //pass current 'tab' index
-        if( currentTabIndex != null ) {
-            parameters.add( "tab", currentTabIndex );
+        if (currentTabIndex != null) {
+            parameters.add("tab", currentTabIndex);
         }
-        setResponsePage( TestcasePage.class, parameters );
+        setResponsePage(TestcasePage.class, parameters);
     }
 
     private String getSpecificTestcaseId( String currentTestcaseId, String runName, String suiteName,
@@ -219,12 +220,12 @@ public class TestcasePage extends BasePage {
                                           boolean getLast ) {
 
         try {
-            return ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                  .getSpecificTestcaseId( currentTestcaseId, runName,
-                                                                          suiteName, scenarioName, testName,
-                                                                          getNext, getLast );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Can't get next|pervious|last testcase id", e );
+            return ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                        .getSpecificTestcaseId(currentTestcaseId, runName,
+                                                                               suiteName, scenarioName, testName,
+                                                                               getNext, getLast);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Can't get next|pervious|last testcase id", e);
         }
         return null;
     }
@@ -233,7 +234,7 @@ public class TestcasePage extends BasePage {
     public Component getNavigationSuffixComponent() {
 
         navigationSuffix = new Model<String>();
-        return new Label( "navigation_suffix", navigationSuffix ).setEscapeModelStrings( false );
+        return new Label("navigation_suffix", navigationSuffix).setEscapeModelStrings(false);
     }
 
     @Override

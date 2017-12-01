@@ -40,7 +40,7 @@ public class RunCopyUtility extends CopyUtility {
                            String dbPassword,
                            List<String> webConsole ) throws DatabaseAccessException {
 
-        super( srcDbHost, srcDbPort, srcDbName, dstDbHost, dstDbPort, dstDbName, dbUser, dbPassword, webConsole );
+        super(srcDbHost, srcDbPort, srcDbName, dstDbHost, dstDbPort, dstDbName, dbUser, dbPassword, webConsole);
 
         this.srcRunId = srcRunId;
     }
@@ -48,35 +48,35 @@ public class RunCopyUtility extends CopyUtility {
     @Override
     public void doCopy() throws DatabaseAccessException, ParseException, DbEntityCopyException {
 
-        Run srcRun = loadRunById( srcRunId );
-        if( srcRun == null ) {
-            throw new DbEntityCopyException( "no run found for run id " + srcRunId );
+        Run srcRun = loadRunById(srcRunId);
+        if (srcRun == null) {
+            throw new DbEntityCopyException("no run found for run id " + srcRunId);
         }
-        int dstRunId = copyRun( srcRun );
+        int dstRunId = copyRun(srcRun);
 
-        List<Suite> srcSuites = loadSuites( srcRunId );
-        log( INDENT_SUITE, "[SUITE] start copying of " + srcSuites.size() + " suites" );
+        List<Suite> srcSuites = loadSuites(srcRunId);
+        log(INDENT_SUITE, "[SUITE] start copying of " + srcSuites.size() + " suites");
 
-        for( int iSuites = 0; iSuites < srcSuites.size(); iSuites++ ) {
+        for (int iSuites = 0; iSuites < srcSuites.size(); iSuites++) {
 
-            Suite srcSuite = srcSuites.get( iSuites );
-            int dstSuiteId = copySuite( srcSuite, dstRunId );
-            
+            Suite srcSuite = srcSuites.get(iSuites);
+            int dstSuiteId = copySuite(srcSuite, dstRunId);
+
             // save the current number of testcases
             int currentTestcasesCount = numberTestcases;
-            
-            List<Scenario> srcScenarios = loadScenarios( Integer.parseInt( srcSuite.suiteId ) );
-            log( INDENT_SCENARIO, "[SCENARIO] start copying of " + srcScenarios.size() + " scenarios" );
-            for( Scenario srcScenario : srcScenarios ) {
-                copyScenarioWithItsTestcases( srcSuite, srcScenario, dstSuiteId );
+
+            List<Scenario> srcScenarios = loadScenarios(Integer.parseInt(srcSuite.suiteId));
+            log(INDENT_SCENARIO, "[SCENARIO] start copying of " + srcScenarios.size() + " scenarios");
+            for (Scenario srcScenario : srcScenarios) {
+                copyScenarioWithItsTestcases(srcSuite, srcScenario, dstSuiteId);
             }
-            
+
             // check if the current suite has any testcases
-            if ( currentTestcasesCount < numberTestcases ) {
+            if (currentTestcasesCount < numberTestcases) {
                 // when starting a testcase, we set null for end timestamp of the suite,
                 // so here endSuite is invoked again
-                if( !StringUtils.isNullOrEmpty( srcSuite.getDateEnd() ) ) {
-                    this.dstDbWrite.endSuite( srcSuite.getEndTimestamp(), dstSuiteId, true );
+                if (!StringUtils.isNullOrEmpty(srcSuite.getDateEnd())) {
+                    this.dstDbWrite.endSuite(srcSuite.getEndTimestamp(), dstSuiteId, true);
                 }
             }
         }

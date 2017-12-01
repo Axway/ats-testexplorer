@@ -74,7 +74,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
     private static final long            serialVersionUID           = 1L;
 
-    private static Logger                LOG                        = Logger.getLogger( StatisticsPanel.class );
+    private static Logger                LOG                        = Logger.getLogger(StatisticsPanel.class);
 
     public static final String           SYSTEM_STATISTIC_CONTAINER = "System Statistic Container";
 
@@ -97,59 +97,59 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
     public StatisticsPanel( String id, PageParameters parameters, String testcaseIds, boolean isComparing ) {
 
-        super( id );
-        this.testcaseId = parseTestcaseIds( testcaseIds );
+        super(id);
+        this.testcaseId = parseTestcaseIds(testcaseIds);
 
-        this.dbName = parameters.get( "dbname" ).toString();
+        this.dbName = parameters.get("dbname").toString();
 
         globalMachineAliasModels.clear();
         globalMachineAliasLabels.clear();
 
         globalActionQueueAliasModels.clear();
 
-        chartsPanelContent = new WebMarkupContainer( "chartsPanelContent" );
-        noChartsPanelContent = new WebMarkupContainer( "noChartsPanelContent" );
+        chartsPanelContent = new WebMarkupContainer("chartsPanelContent");
+        noChartsPanelContent = new WebMarkupContainer("noChartsPanelContent");
 
-        systemStatisticsPanel = new DataPanel( this, "System statistics", "system" );
-        userStatisticsPanel = new DataPanel( this, "User activities", "user" );
-        actionStatisticsPanel = new DataPanel( this, "Action responses", "checkpoint" );
+        systemStatisticsPanel = new DataPanel(this, "System statistics", "system");
+        userStatisticsPanel = new DataPanel(this, "User activities", "user");
+        actionStatisticsPanel = new DataPanel(this, "Action responses", "checkpoint");
 
-        statsForm = new Form<Object>( "statsForm" );
+        statsForm = new Form<Object>("statsForm");
 
-        timeOffset = getTimeOffset( statsForm );
+        timeOffset = getTimeOffset(statsForm);
 
         // Get machines and statistic description for the current testcases
-        boolean thereAreSomeStatistics = loadStatisticDescriptions( timeOffset, isComparing );
-        noChartsPanelContent.setVisible( !thereAreSomeStatistics );
-        chartsPanelContent.setVisible( thereAreSomeStatistics );
-        statsForm.setVisible( thereAreSomeStatistics );
+        boolean thereAreSomeStatistics = loadStatisticDescriptions(timeOffset, isComparing);
+        noChartsPanelContent.setVisible(!thereAreSomeStatistics);
+        chartsPanelContent.setVisible(thereAreSomeStatistics);
+        statsForm.setVisible(thereAreSomeStatistics);
 
         // panels with statistic descriptions
-        displayStatisticDescriptions( statsForm );
+        displayStatisticDescriptions(statsForm);
 
         // updating the list containing the data for the ListView container
         updateDiagramTableContent();
-        statsForm.add( addChartGroupListView() );
+        statsForm.add(addChartGroupListView());
 
         // button collecting all statistic data and showing it in charts
         displayButton = getDisplayButton();
-        displayButton.add( new Label( "chartLink", "Display charts" ).setOutputMarkupId( true ) );
-        statsForm.add( displayButton );
+        displayButton.add(new Label("chartLink", "Display charts").setOutputMarkupId(true));
+        statsForm.add(displayButton);
 
         defaultDiagramName = "Diagram" + getTESession().getDiagramNameIndex();
         diagramNameModel = new Model<String>();
-        diagramNameModel.setObject( defaultDiagramName );
-        TextField<String> groupName = new TextField<String>( "diagramName", diagramNameModel );
-        groupName.setOutputMarkupId( true );
-        statsForm.add( groupName );
+        diagramNameModel.setObject(defaultDiagramName);
+        TextField<String> groupName = new TextField<String>("diagramName", diagramNameModel);
+        groupName.setOutputMarkupId(true);
+        statsForm.add(groupName);
 
         // submit button for appending chart data
         AjaxSubmitLink addChartButton = getAddDiagramButton();
-        statsForm.add( addChartButton );
+        statsForm.add(addChartButton);
 
-        chartsPanelContent.add( statsForm );
-        add( chartsPanelContent.setOutputMarkupId( true ) );
-        add( noChartsPanelContent );
+        chartsPanelContent.add(statsForm);
+        add(chartsPanelContent.setOutputMarkupId(true));
+        add(noChartsPanelContent);
     }
 
     /**
@@ -165,26 +165,26 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     private String parseTestcaseIds( String testcaseIds ) {
 
-        if( testcaseIds != null ) {
+        if (testcaseIds != null) {
 
-            if( testcaseIds.contains( "=" ) ) {
+            if (testcaseIds.contains("=")) {
                 testcaseAliases.clear();
                 StringBuilder sb = new StringBuilder();
-                String[] parts = testcaseIds.split( "[\\_]+" );
-                for( String part : parts ) {
-                    int aliasIndex = part.indexOf( '=' );
-                    if( aliasIndex > 0 ) {
-                        String testcaseId = part.substring( 0, aliasIndex );
-                        testcaseAliases.put( testcaseId, part.substring( aliasIndex + 1 ) );
-                        sb.append( testcaseId );
+                String[] parts = testcaseIds.split("[\\_]+");
+                for (String part : parts) {
+                    int aliasIndex = part.indexOf('=');
+                    if (aliasIndex > 0) {
+                        String testcaseId = part.substring(0, aliasIndex);
+                        testcaseAliases.put(testcaseId, part.substring(aliasIndex + 1));
+                        sb.append(testcaseId);
                     } else {
-                        sb.append( part );
+                        sb.append(part);
                     }
-                    sb.append( "," );
+                    sb.append(",");
                 }
-                testcaseIds = sb.substring( 0, sb.length() - 1 );
+                testcaseIds = sb.substring(0, sb.length() - 1);
             } else {
-                testcaseIds = testcaseIds.replace( "_", "," );
+                testcaseIds = testcaseIds.replace("_", ",");
             }
         }
 
@@ -196,126 +196,126 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     private ListView<DbStatisticDescription> addChartGroupListView() {
 
-        ListView<DbStatisticDescription> listViewChartGroup = new ListView<DbStatisticDescription>( "chartGroupRows",
-                                                                                                    listViewContent ) {
+        ListView<DbStatisticDescription> listViewChartGroup = new ListView<DbStatisticDescription>("chartGroupRows",
+                                                                                                   listViewContent) {
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void populateItem( final ListItem<DbStatisticDescription> item ) {
 
-                DbStatisticDescription statElement = listViewContent.get( item.getIndex() );
+                DbStatisticDescription statElement = listViewContent.get(item.getIndex());
 
-                if( statElement.name.equals( "HEADER" ) ) { // add the header row for the diagram table
-                    item.add( AttributeModifier.replace( "class", "chartGroupHeader" ) );
-                    Label removeIcon = new Label( "removeIcon" );
-                    removeIcon.add( AttributeModifier.append( "style", ";display:none;" ) );
-                    item.add( removeIcon );
-                    item.add( addDiagramHeaderName( "statName", "Name" ) );
+                if (statElement.name.equals("HEADER")) { // add the header row for the diagram table
+                    item.add(AttributeModifier.replace("class", "chartGroupHeader"));
+                    Label removeIcon = new Label("removeIcon");
+                    removeIcon.add(AttributeModifier.append("style", ";display:none;"));
+                    item.add(removeIcon);
+                    item.add(addDiagramHeaderName("statName", "Name"));
 
                     IModel<String> aliasModel = new Model<String>();
-                    aliasModel.setObject( "Alias" );
-                    TextField<String> alias = new TextField<String>( "alias", aliasModel );
-                    alias.setOutputMarkupId( true );
-                    alias.add( AttributeModifier.append( "style",
-                                                         ";background-color:transparent;border:0px;pointer-events:none;text-align: center;font-family:\"Times New Roman\",Times,serif;" ) );
-                    alias.add( AttributeModifier.replace( "class", "chartGroupHeader" ) );
-                    item.add( alias );
-                    item.add( addDiagramHeaderName( "startDate", "Start Time" ) );
-                    item.add( addDiagramHeaderName( "run", "Run" ) );
-                    item.add( addDiagramHeaderName( "suite", "Suite" ) );
-                    item.add( addDiagramHeaderName( "scenario", "Scenario" ) );
-                    item.add( addDiagramHeaderName( "testcase", "Testcase" ) );
+                    aliasModel.setObject("Alias");
+                    TextField<String> alias = new TextField<String>("alias", aliasModel);
+                    alias.setOutputMarkupId(true);
+                    alias.add(AttributeModifier.append("style",
+                                                       ";background-color:transparent;border:0px;pointer-events:none;text-align: center;font-family:\"Times New Roman\",Times,serif;"));
+                    alias.add(AttributeModifier.replace("class", "chartGroupHeader"));
+                    item.add(alias);
+                    item.add(addDiagramHeaderName("startDate", "Start Time"));
+                    item.add(addDiagramHeaderName("run", "Run"));
+                    item.add(addDiagramHeaderName("suite", "Suite"));
+                    item.add(addDiagramHeaderName("scenario", "Scenario"));
+                    item.add(addDiagramHeaderName("testcase", "Testcase"));
 
-                } else if( statElement.unit == null ) { // add diagram name row
+                } else if (statElement.unit == null) { // add diagram name row
 
-                    final AjaxButton deleteAllButton = new AjaxButton( "removeIcon" ) {
+                    final AjaxButton deleteAllButton = new AjaxButton("removeIcon") {
 
                         private static final long serialVersionUID = 1L;
 
                         @Override
                         public void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                            String diagramName = listViewContent.get( item.getIndex() ).name;
-                            getTESession().getDiagramContainer().remove( diagramName );
+                            String diagramName = listViewContent.get(item.getIndex()).name;
+                            getTESession().getDiagramContainer().remove(diagramName);
                             updateDiagramTableContent();
 
-                            target.add( statsForm );
+                            target.add(statsForm);
                         }
                     };
-                    deleteAllButton.add( AttributeModifier.replace( "class",
-                                                                    "fixGroupTableColumn removeAllItemsIcon" ) );
-                    item.add( deleteAllButton );
-                    item.add( AttributeModifier.replace( "class", "chartGroup" ) );
+                    deleteAllButton.add(AttributeModifier.replace("class",
+                                                                  "fixGroupTableColumn removeAllItemsIcon"));
+                    item.add(deleteAllButton);
+                    item.add(AttributeModifier.replace("class", "chartGroup"));
 
-                    item.add( new Label( "statName", "" ).setEscapeModelStrings( false ) );
-                    Label alias = new Label( "alias", "" );
+                    item.add(new Label("statName", "").setEscapeModelStrings(false));
+                    Label alias = new Label("alias", "");
                     // disable and change CSS of the input tag
-                    alias.add( AttributeModifier.append( "style",
-                                                         ";background-color:transparent;border:0px;pointer-events:none" ) );
-                    item.add( alias );
-                    item.add( new Label( "startDate", statElement.name ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "run", "" ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "suite", "" ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "scenario", "" ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "testcase", "" ).setEscapeModelStrings( false ) );
+                    alias.add(AttributeModifier.append("style",
+                                                       ";background-color:transparent;border:0px;pointer-events:none"));
+                    item.add(alias);
+                    item.add(new Label("startDate", statElement.name).setEscapeModelStrings(false));
+                    item.add(new Label("run", "").setEscapeModelStrings(false));
+                    item.add(new Label("suite", "").setEscapeModelStrings(false));
+                    item.add(new Label("scenario", "").setEscapeModelStrings(false));
+                    item.add(new Label("testcase", "").setEscapeModelStrings(false));
 
                 } else { // add diagram content
-                    List<String> rowValues = getStatisticNavigation( statElement );
-                    final AjaxButton deleteButton = new AjaxButton( "removeIcon" ) {
+                    List<String> rowValues = getStatisticNavigation(statElement);
+                    final AjaxButton deleteButton = new AjaxButton("removeIcon") {
 
                         private static final long serialVersionUID = 1L;
 
                         @Override
                         public void onSubmit( AjaxRequestTarget target, Form<?> form ) {
 
-                            deleteSingleRowFromDiagramList( item );
+                            deleteSingleRowFromDiagramList(item);
                             updateDiagramTableContent();
 
-                            target.add( statsForm );
+                            target.add(statsForm);
                         }
                     };
-                    item.add( deleteButton );
-                    item.add( new Label( "statName", rowValues.get( 5 ) ).setEscapeModelStrings( false ) );
+                    item.add(deleteButton);
+                    item.add(new Label("statName", rowValues.get(5)).setEscapeModelStrings(false));
                     IModel<String> aliasModel = null;
-                    DbStatisticDescription currentElement = listViewContent.get( item.getIndex() );
+                    DbStatisticDescription currentElement = listViewContent.get(item.getIndex());
                     String currentElementKey = null;
-                    if( currentElement.getStatisticId() != 0 && currentElement.machineId != 0 ) {
-                        currentElementKey = getDiagramName( item.getIndex() ) + "_"
+                    if (currentElement.getStatisticId() != 0 && currentElement.machineId != 0) {
+                        currentElementKey = getDiagramName(item.getIndex()) + "_"
                                             + currentElement.testcaseStarttime + "_"
                                             + currentElement.getStatisticId() + "_"
                                             + currentElement.machineId;
                     } else {
-                        currentElementKey = getDiagramName( item.getIndex() ) + "_"
+                        currentElementKey = getDiagramName(item.getIndex()) + "_"
                                             + currentElement.testcaseStarttime + "_"
                                             + currentElement.getName() + "_" + currentElement.getParentName();
                     }
                     // using diagramName+testcaseStartTime+statisticTypeId+machineId or testcaseStartTime+name+queueName for key
-                    IModel<String> alias = getTESession().getStatisticsAliasModels().get( currentElementKey );
-                    if( alias != null && alias.getObject() != null ) {
+                    IModel<String> alias = getTESession().getStatisticsAliasModels().get(currentElementKey);
+                    if (alias != null && alias.getObject() != null) {
                         aliasModel = alias;
                     } else {
                         aliasModel = new Model<String>();
                     }
-                    getTESession().getStatisticsAliasModels().put( currentElementKey, aliasModel );
-                    item.add( new TextField<String>( "alias", aliasModel ).setOutputMarkupId( true ) );
-                    item.add( new Label( "startDate", rowValues.get( 4 ) ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "run", rowValues.get( 0 ) ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "suite", rowValues.get( 1 ) ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "scenario", rowValues.get( 2 ) ).setEscapeModelStrings( false ) );
-                    item.add( new Label( "testcase", rowValues.get( 3 ) ).setEscapeModelStrings( false ) );
+                    getTESession().getStatisticsAliasModels().put(currentElementKey, aliasModel);
+                    item.add(new TextField<String>("alias", aliasModel).setOutputMarkupId(true));
+                    item.add(new Label("startDate", rowValues.get(4)).setEscapeModelStrings(false));
+                    item.add(new Label("run", rowValues.get(0)).setEscapeModelStrings(false));
+                    item.add(new Label("suite", rowValues.get(1)).setEscapeModelStrings(false));
+                    item.add(new Label("scenario", rowValues.get(2)).setEscapeModelStrings(false));
+                    item.add(new Label("testcase", rowValues.get(3)).setEscapeModelStrings(false));
                 }
             };
         };
-        listViewChartGroup.setOutputMarkupId( true );
+        listViewChartGroup.setOutputMarkupId(true);
 
         return listViewChartGroup;
     }
 
     private String getDiagramName( int rowIndex ) {
 
-        for( int row = rowIndex - 1; row >= 0; row-- ) {
-            DbStatisticDescription currentElement = listViewContent.get( row );
-            if( currentElement.unit == null ) {
+        for (int row = rowIndex - 1; row >= 0; row--) {
+            DbStatisticDescription currentElement = listViewContent.get(row);
+            if (currentElement.unit == null) {
                 return currentElement.name;
             }
         }
@@ -325,9 +325,9 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
     private Label addDiagramHeaderName( String wicketId, String value ) {
 
-        Label label = new Label( wicketId, value );
-        label.setEscapeModelStrings( false );
-        label.add( AttributeModifier.append( "style", "text-align: center;" ) );
+        Label label = new Label(wicketId, value);
+        label.setEscapeModelStrings(false);
+        label.add(AttributeModifier.append("style", "text-align: center;"));
 
         return label;
     }
@@ -339,44 +339,44 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     private void deleteSingleRowFromDiagramList( ListItem<DbStatisticDescription> item ) {
 
-        DbStatisticDescription deletedRow = listViewContent.get( item.getIndex() );
+        DbStatisticDescription deletedRow = listViewContent.get(item.getIndex());
 
         // loop listview table to the first diagram title element(backwards)
-        for( int i = item.getIndex(); i >= 0; i-- ) {
-            if( listViewContent.get( i ).unit == null ) {
+        for (int i = item.getIndex(); i >= 0; i--) {
+            if (listViewContent.get(i).unit == null) {
                 // get the diagram name
-                String selectedDiagramName = listViewContent.get( i ).name;
+                String selectedDiagramName = listViewContent.get(i).name;
                 // get all diagrams from the session
                 Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> allDiagrams = getTESession().getDiagramContainer();
-                for( Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramName : allDiagrams.entrySet() ) {
+                for (Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramName : allDiagrams.entrySet()) {
                     // find the diagram by name, whose row should be removed 
-                    if( selectedDiagramName.equals( diagramName.getKey() ) ) {
-                        for( LinkedHashMap<String, List<DbStatisticDescription>> diagramContent : diagramName.getValue() ) {
+                    if (selectedDiagramName.equals(diagramName.getKey())) {
+                        for (LinkedHashMap<String, List<DbStatisticDescription>> diagramContent : diagramName.getValue()) {
                             // find the row by testcaseId
-                            String testcaseId = String.valueOf( deletedRow.testcaseId );
-                            if( diagramContent.containsKey( testcaseId ) ) {
-                                List<DbStatisticDescription> statisticsList = diagramContent.get( testcaseId );
-                                for( int statIndex = 0; statIndex < statisticsList.size(); statIndex++ ) {
-                                    DbStatisticDescription stat = statisticsList.get( statIndex );
-                                    if( stat.name.equals( deletedRow.name )
-                                        && stat.machineId == deletedRow.machineId ) {
+                            String testcaseId = String.valueOf(deletedRow.testcaseId);
+                            if (diagramContent.containsKey(testcaseId)) {
+                                List<DbStatisticDescription> statisticsList = diagramContent.get(testcaseId);
+                                for (int statIndex = 0; statIndex < statisticsList.size(); statIndex++) {
+                                    DbStatisticDescription stat = statisticsList.get(statIndex);
+                                    if (stat.name.equals(deletedRow.name)
+                                        && stat.machineId == deletedRow.machineId) {
                                         // get and add the modifies map
                                         LinkedHashMap<String, List<DbStatisticDescription>> mapToBeModified = diagramContent;
-                                        mapToBeModified.get( testcaseId ).remove( statIndex );
+                                        mapToBeModified.get(testcaseId).remove(statIndex);
                                         // if the diagram is empty, we have to delete it too
-                                        if( mapToBeModified.get( testcaseId ).isEmpty() ) {
-                                            mapToBeModified.remove( testcaseId );
+                                        if (mapToBeModified.get(testcaseId).isEmpty()) {
+                                            mapToBeModified.remove(testcaseId);
                                         }
                                         List<LinkedHashMap<String, List<DbStatisticDescription>>> diagramTestcasesList = diagramName.getValue();
-                                        diagramTestcasesList.remove( diagramContent );
-                                        if( !mapToBeModified.isEmpty() ) {
-                                            diagramTestcasesList.add( mapToBeModified );
-                                            allDiagrams.put( diagramName.getKey(), diagramTestcasesList );
+                                        diagramTestcasesList.remove(diagramContent);
+                                        if (!mapToBeModified.isEmpty()) {
+                                            diagramTestcasesList.add(mapToBeModified);
+                                            allDiagrams.put(diagramName.getKey(), diagramTestcasesList);
                                         }
-                                        if( diagramTestcasesList.isEmpty() ) {
-                                            allDiagrams.remove( diagramName.getKey() );
+                                        if (diagramTestcasesList.isEmpty()) {
+                                            allDiagrams.remove(diagramName.getKey());
                                         } else {
-                                            allDiagrams.put( diagramName.getKey(), diagramTestcasesList );
+                                            allDiagrams.put(diagramName.getKey(), diagramTestcasesList);
                                         }
                                         return;
                                     }
@@ -396,37 +396,38 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
     private List<String> getStatisticNavigation( DbStatisticDescription statistic ) {
 
         List<String> statisticNavigation = new ArrayList<String>();
-        SimpleDateFormat dateFormatter = new SimpleDateFormat( "MMM dd HH:mm:ss" );
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MMM dd HH:mm:ss");
 
-        if( statistic.unit != null ) {
-            if( getPage() instanceof BasePage ) {
+        if (statistic.unit != null) {
+            if (getPage() instanceof BasePage) {
                 try {
-                    PageNavigation navigation = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                         .getNavigationForTestcase( String.valueOf( statistic.testcaseId ), getTESession().getTimeOffset() );
-                    statisticNavigation.add( navigation.getRunName() );
-                    statisticNavigation.add( navigation.getSuiteName() );
-                    statisticNavigation.add( navigation.getScenarioName() );
-                    statisticNavigation.add( navigation.getTestcaseName() );
-                    statisticNavigation.add( navigation.getDateStart() );
-                } catch( DatabaseAccessException e ) {
-                    LOG.error( "Navigation for element '" + statistic.name + "' cannot be get!" );
+                    PageNavigation navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                     .getNavigationForTestcase(String.valueOf(statistic.testcaseId),
+                                                                                                               getTESession().getTimeOffset());
+                    statisticNavigation.add(navigation.getRunName());
+                    statisticNavigation.add(navigation.getSuiteName());
+                    statisticNavigation.add(navigation.getScenarioName());
+                    statisticNavigation.add(navigation.getTestcaseName());
+                    statisticNavigation.add(navigation.getDateStart());
+                } catch (DatabaseAccessException e) {
+                    LOG.error("Navigation for element '" + statistic.name + "' cannot be get!");
                 }
             } else {
-                List<Testcase> testcaseLists = ( ( TestExplorerSession ) Session.get() ).getCompareContainer()
-                                                                                        .getTestcasesList();
-                for( Testcase testcase : testcaseLists ) {
-                    if( testcase.testcaseId.equals( String.valueOf( statistic.testcaseId ) ) ) {
-                        statisticNavigation.add( testcase.runName );
-                        statisticNavigation.add( testcase.suiteName );
-                        statisticNavigation.add( testcase.scenarioName );
-                        statisticNavigation.add( testcase.name );
-                        statisticNavigation.add( dateFormatter.format( testcase.getDateStart() ) );
+                List<Testcase> testcaseLists = ((TestExplorerSession) Session.get()).getCompareContainer()
+                                                                                    .getTestcasesList();
+                for (Testcase testcase : testcaseLists) {
+                    if (testcase.testcaseId.equals(String.valueOf(statistic.testcaseId))) {
+                        statisticNavigation.add(testcase.runName);
+                        statisticNavigation.add(testcase.suiteName);
+                        statisticNavigation.add(testcase.scenarioName);
+                        statisticNavigation.add(testcase.name);
+                        statisticNavigation.add(dateFormatter.format(testcase.getDateStart()));
                     }
                 }
             }
-            statisticNavigation.add( statistic.name );
+            statisticNavigation.add(statistic.name);
         } else {
-            statisticNavigation.add( statistic.name );
+            statisticNavigation.add(statistic.name);
         }
 
         return statisticNavigation;
@@ -434,9 +435,9 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
     private void displayStatisticDescriptions( Form<Object> statsForm ) {
 
-        this.systemStatisticsPanel.displayStatisticDescriptions( statsForm );
-        this.userStatisticsPanel.displayStatisticDescriptions( statsForm );
-        this.actionStatisticsPanel.displayStatisticDescriptions( statsForm );
+        this.systemStatisticsPanel.displayStatisticDescriptions(statsForm);
+        this.userStatisticsPanel.displayStatisticDescriptions(statsForm);
+        this.actionStatisticsPanel.displayStatisticDescriptions(statsForm);
     }
 
     /**
@@ -444,7 +445,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     private AjaxSubmitLink getAddDiagramButton() {
 
-        AjaxSubmitLink addDiagramButton = new AjaxSubmitLink( "addDiagramButton" ) {
+        AjaxSubmitLink addDiagramButton = new AjaxSubmitLink("addDiagramButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -453,40 +454,40 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
                 // get the statistics, that should be added to the diagram
                 List<DbStatisticDescription> selectedStatistics = getSelectedStatistics();
-                if( selectedStatistics.size() > 0 ) {
+                if (selectedStatistics.size() > 0) {
                     String diagramName = diagramNameModel.getObject();
-                    if( defaultDiagramName.equals( diagramName ) ) {
-                        getTESession().setDiagramNameIndex( getTESession().getDiagramNameIndex() + 1 );
+                    if (defaultDiagramName.equals(diagramName)) {
+                        getTESession().setDiagramNameIndex(getTESession().getDiagramNameIndex() + 1);
                         defaultDiagramName = "Diagram" + getTESession().getDiagramNameIndex();
                     }
                     // check if there is already existing diagram with the same name and if do, we will add the new statistics to it
                     Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> allDiagrams = getTESession().getDiagramContainer();
-                    if( allDiagrams.containsKey( diagramName ) ) {
-                        List<LinkedHashMap<String, List<DbStatisticDescription>>> diagram = allDiagrams.get( diagramName );
-                        for( LinkedHashMap<String, List<DbStatisticDescription>> testcase : diagram ) {
-                            if( testcase.containsKey( testcaseId ) ) {
-                                for( DbStatisticDescription stat : selectedStatistics ) {
-                                    if( !testcase.get( testcaseId ).contains( stat ) ) {
-                                        testcase.get( testcaseId ).add( stat );
+                    if (allDiagrams.containsKey(diagramName)) {
+                        List<LinkedHashMap<String, List<DbStatisticDescription>>> diagram = allDiagrams.get(diagramName);
+                        for (LinkedHashMap<String, List<DbStatisticDescription>> testcase : diagram) {
+                            if (testcase.containsKey(testcaseId)) {
+                                for (DbStatisticDescription stat : selectedStatistics) {
+                                    if (!testcase.get(testcaseId).contains(stat)) {
+                                        testcase.get(testcaseId).add(stat);
                                     }
                                 }
                             } else {
-                                testcase.put( testcaseId, selectedStatistics );
-                                getTESession().getDiagramContainer().put( diagramName, diagram );
+                                testcase.put(testcaseId, selectedStatistics);
+                                getTESession().getDiagramContainer().put(diagramName, diagram);
                             }
                         }
                     } else {
                         LinkedHashMap<String, List<DbStatisticDescription>> newDiagram = new LinkedHashMap<String, List<DbStatisticDescription>>();
-                        newDiagram.put( testcaseId, selectedStatistics );
+                        newDiagram.put(testcaseId, selectedStatistics);
                         List<LinkedHashMap<String, List<DbStatisticDescription>>> diagram = new ArrayList<LinkedHashMap<String, List<DbStatisticDescription>>>();
-                        diagram.add( newDiagram );
-                        getTESession().getDiagramContainer().put( diagramName, diagram );
+                        diagram.add(newDiagram);
+                        getTESession().getDiagramContainer().put(diagramName, diagram);
                     }
                 }
                 // update the content of the diagram table
                 updateDiagramTableContent();
 
-                diagramNameModel.setObject( "Diagram" + getTESession().getDiagramNameIndex() );
+                diagramNameModel.setObject("Diagram" + getTESession().getDiagramNameIndex());
 
                 // uncheck all selected statistics
                 String uncheckCheckboxes = "checkboxes = document.getElementsByTagName('input');"
@@ -494,13 +495,13 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                                            + "if(checkboxes[i].type.toLowerCase() == 'checkbox') {"
                                            + "if(checkboxes[i].checked == true){" + "checkboxes[i].click();"
                                            + "}}}";
-                target.appendJavaScript( uncheckCheckboxes );
+                target.appendJavaScript(uncheckCheckboxes);
 
                 String scrollToTop = "$('html,body').scrollTop(0);";
-                target.appendJavaScript( scrollToTop );
+                target.appendJavaScript(scrollToTop);
 
-                target.add( statsForm );
-                super.onSubmit( target, form );
+                target.add(statsForm);
+                super.onSubmit(target, form);
             }
         };
 
@@ -514,17 +515,17 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
         Map<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> allDiagrams = getTESession().getDiagramContainer();
         DbStatisticDescription header = new DbStatisticDescription();
         header.name = "HEADER";
-        if( allDiagrams != null && !allDiagrams.isEmpty() ) {
+        if (allDiagrams != null && !allDiagrams.isEmpty()) {
             // add the header row only if there is any content
-            listViewContent.add( header );
+            listViewContent.add(header);
             // iterate by diagram name
-            for( Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramNameEntry : allDiagrams.entrySet() ) {
-                listViewContent.add( new DbStatisticDescription( diagramNameEntry.getKey(), null ) );
-                for( LinkedHashMap<String, List<DbStatisticDescription>> testcases : diagramNameEntry.getValue() ) {
+            for (Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> diagramNameEntry : allDiagrams.entrySet()) {
+                listViewContent.add(new DbStatisticDescription(diagramNameEntry.getKey(), null));
+                for (LinkedHashMap<String, List<DbStatisticDescription>> testcases : diagramNameEntry.getValue()) {
                     // iterate by testcaseId
-                    for( List<DbStatisticDescription> testcase : testcases.values() ) {
-                        for( DbStatisticDescription stat : testcase ) {
-                            listViewContent.add( stat.newInstance() );
+                    for (List<DbStatisticDescription> testcase : testcases.values()) {
+                        for (DbStatisticDescription stat : testcase) {
+                            listViewContent.add(stat.newInstance());
                         }
                     }
                 }
@@ -537,7 +538,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     private AjaxButton getDisplayButton() {
 
-        displayButton = new AjaxButton( "displayButton" ) {
+        displayButton = new AjaxButton("displayButton") {
 
             private static final long serialVersionUID = 1L;
 
@@ -548,60 +549,60 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                 List<DbStatisticDescription> noDiagramStatistics = getSelectedStatistics();
                 PageParameters parameters = new PageParameters();
 
-                if( getTESession().getDiagramContainer().size() > 0 || noDiagramStatistics.size() > 0 ) {
+                if (getTESession().getDiagramContainer().size() > 0 || noDiagramStatistics.size() > 0) {
 
                     // here we will get all statistics that are not added to any group
-                    if( noDiagramStatistics.size() > 0 ) {
-                        parameters.add( "Diagram", getParameterValue( noDiagramStatistics, null ) );
+                    if (noDiagramStatistics.size() > 0) {
+                        parameters.add("Diagram", getParameterValue(noDiagramStatistics, null));
                     }
 
                     // here we will add the grouped statistics
-                    for( Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> allDiagrams : getTESession().getDiagramContainer()
-                                                                                                                              .entrySet() ) {
+                    for (Entry<String, List<LinkedHashMap<String, List<DbStatisticDescription>>>> allDiagrams : getTESession().getDiagramContainer()
+                                                                                                                              .entrySet()) {
                         String parameterName = allDiagrams.getKey();
                         StringBuilder parameterValue = new StringBuilder();
-                        for( LinkedHashMap<String, List<DbStatisticDescription>> diagramValue : allDiagrams.getValue() ) {
-                            for( Entry<String, List<DbStatisticDescription>> testcase : diagramValue.entrySet() ) {
-                                parameterValue.append( getParameterValue( testcase.getValue(),
-                                                                          parameterName ) );
+                        for (LinkedHashMap<String, List<DbStatisticDescription>> diagramValue : allDiagrams.getValue()) {
+                            for (Entry<String, List<DbStatisticDescription>> testcase : diagramValue.entrySet()) {
+                                parameterValue.append(getParameterValue(testcase.getValue(),
+                                                                        parameterName));
                             }
-                            parameterValue.deleteCharAt( parameterValue.length() - 1 );
-                            parameterValue.append( "_" );
+                            parameterValue.deleteCharAt(parameterValue.length() - 1);
+                            parameterValue.append("_");
                         }
 
                         // if is start/end with '_'/',' we will delete it, it is not needed
-                        if( parameterValue.toString().startsWith( "_" ) ) {
-                            parameterValue.delete( 0, 1 );
+                        if (parameterValue.toString().startsWith("_")) {
+                            parameterValue.delete(0, 1);
                         }
-                        if( parameterValue.toString().endsWith( "_" ) ) {
-                            parameterValue.deleteCharAt( parameterValue.length() - 1 );
+                        if (parameterValue.toString().endsWith("_")) {
+                            parameterValue.deleteCharAt(parameterValue.length() - 1);
                         }
-                        if( parameterValue.toString().endsWith( "," ) ) {
-                            parameterValue.deleteCharAt( parameterValue.length() - 1 );
+                        if (parameterValue.toString().endsWith(",")) {
+                            parameterValue.deleteCharAt(parameterValue.length() - 1);
                         }
-                        parameters.add( parameterName, parameterValue );
+                        parameters.add(parameterName, parameterValue);
                     }
                 }
 
-                if( parameters.isEmpty() ) {
+                if (parameters.isEmpty()) {
                     String noStatisticsSelectedAlert = "alert('No statistics are selected to be displayed.');";
-                    target.appendJavaScript( noStatisticsSelectedAlert );
+                    target.appendJavaScript(noStatisticsSelectedAlert);
                 } else {
-                    parameters.add( "dbname", dbName );
-                    parameters.add( "timeOffSet", timeOffset );
-                    parameters.add( "currentTestcase", testcaseId );
+                    parameters.add("dbname", dbName);
+                    parameters.add("timeOffSet", timeOffset);
+                    parameters.add("currentTestcase", testcaseId);
                     // unselected all selected statistics
                     String uncheckAllCheckboxes = "checkboxes = document.getElementsByTagName('input');"
                                                   + "for(var i = 0; i < checkboxes.length; i++) {"
                                                   + "if(checkboxes[i].type.toLowerCase() == 'checkbox') {"
                                                   + "if(checkboxes[i].checked == true){"
                                                   + "checkboxes[i].click();" + "}}}";
-                    target.appendJavaScript( uncheckAllCheckboxes );
+                    target.appendJavaScript(uncheckAllCheckboxes);
 
                     String scrollToTop = "$('html,body').scrollTop(0);";
-                    target.appendJavaScript( scrollToTop );
+                    target.appendJavaScript(scrollToTop);
 
-                    setResponsePage( ChartsPage.class, parameters );
+                    setResponsePage(ChartsPage.class, parameters);
                 }
             }
         };
@@ -613,38 +614,38 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                                              String diagramName ) {
 
         StringBuilder parameterValue = new StringBuilder();
-        for( DbStatisticDescription stat : diagramStatistics ) {
+        for (DbStatisticDescription stat : diagramStatistics) {
             int statisticId = stat.statisticId;
             int testcaseId = stat.testcaseId;
             // check if there is alias set
             String aliasModelKey = null;
-            if( statisticId != 0 && stat.machineId != 0 ) {
+            if (statisticId != 0 && stat.machineId != 0) {
                 aliasModelKey = diagramName + "_" + stat.testcaseStarttime + "_" + statisticId + "_"
                                 + stat.machineId;
             } else {
                 aliasModelKey = diagramName + "_" + stat.testcaseStarttime + "_" + stat.name + "_"
                                 + stat.parentName;
             }
-            IModel<String> model = getTESession().getStatisticsAliasModels().get( aliasModelKey );
-            if( model != null ) {
+            IModel<String> model = getTESession().getStatisticsAliasModels().get(aliasModelKey);
+            if (model != null) {
                 String statAlias = model.getObject();
-                if( statAlias != null ) {
-                    stat.alias = statAlias.replace( "_", "" ).trim();
+                if (statAlias != null) {
+                    stat.alias = statAlias.replace("_", "").trim();
                 } else {
                     stat.alias = null;
                 }
             }
-            parameterValue.append( testcaseId );
-            if( statisticId != 0 ) {
-                parameterValue.append( ":" + statisticId )
-                              .append( ":" + stat.machineId )
-                              .append( ":" + stat.alias )
-                              .append( "," );
+            parameterValue.append(testcaseId);
+            if (statisticId != 0) {
+                parameterValue.append(":" + statisticId)
+                              .append(":" + stat.machineId)
+                              .append(":" + stat.alias)
+                              .append(",");
             } else {
-                parameterValue.append( ":" + stat.parentName )
-                              .append( ":" + stat.name )
-                              .append( ":" + stat.alias )
-                              .append( "," );
+                parameterValue.append(":" + stat.parentName)
+                              .append(":" + stat.name)
+                              .append(":" + stat.alias)
+                              .append(",");
             }
         }
 
@@ -655,9 +656,9 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
         List<DbStatisticDescription> chartDiagram = new ArrayList<DbStatisticDescription>();
 
-        chartDiagram.addAll( addSelectedChartData( systemStatisticsPanel.getMachineDescriptions() ) );
-        chartDiagram.addAll( addSelectedChartData( actionStatisticsPanel.getMachineDescriptions() ) );
-        chartDiagram.addAll( addSelectedChartData( userStatisticsPanel.getMachineDescriptions() ) );
+        chartDiagram.addAll(addSelectedChartData(systemStatisticsPanel.getMachineDescriptions()));
+        chartDiagram.addAll(addSelectedChartData(actionStatisticsPanel.getMachineDescriptions()));
+        chartDiagram.addAll(addSelectedChartData(userStatisticsPanel.getMachineDescriptions()));
 
         return chartDiagram;
     }
@@ -665,10 +666,10 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
     private List<DbStatisticDescription> addSelectedChartData( Set<MachineDescription> loadedStatistics ) {
 
         List<DbStatisticDescription> chartGroup = new ArrayList<DbStatisticDescription>();
-        for( MachineDescription statistic : loadedStatistics ) {
-            for( DbStatisticDescription statDescr : statistic.getStatDescriptionsList() ) {
-                if( statistic.getStatDescriptionSelectionModel( statDescr ).getObject() == true ) {
-                    chartGroup.add( statDescr );
+        for (MachineDescription statistic : loadedStatistics) {
+            for (DbStatisticDescription statDescr : statistic.getStatDescriptionsList()) {
+                if (statistic.getStatDescriptionSelectionModel(statDescr).getObject() == true) {
+                    chartGroup.add(statDescr);
                 }
             }
         }
@@ -677,14 +678,14 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
 
     private float getTimeOffset( Form<?> form ) {
 
-        if( form.getRequest().getPostParameters().getParameterNames().contains( "tio" ) ) {
+        if (form.getRequest().getPostParameters().getParameterNames().contains("tio")) {
 
-            String value = form.getRequest().getPostParameters().getParameterValue( "tio" ).toString();
-            if( value != null ) {
+            String value = form.getRequest().getPostParameters().getParameterValue("tio").toString();
+            if (value != null) {
                 try {
-                    return Float.parseFloat( value );
-                } catch( Exception e ) {
-                    LOG.error( "Can't parse TimeOffset value (timeOffset=" + value + ")", e );
+                    return Float.parseFloat(value);
+                } catch (Exception e) {
+                    LOG.error("Can't parse TimeOffset value (timeOffset=" + value + ")", e);
                 }
             }
         }
@@ -696,7 +697,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      */
     protected List<StatisticDescription> loadSystemAndUserStatisticDescriptions( float timeOffset ) {
 
-        if( testcaseId == null ) {
+        if (testcaseId == null) {
             return new ArrayList<StatisticDescription>();
         }
         try {
@@ -705,15 +706,15 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
              * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
              * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
              * */
-            List<StatisticDescription> statisticDescriptions = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                                        .getSystemStatisticDescriptions( timeOffset,
-                                                                                                                                         whereClause,
-                                                                                                                                         testcaseAliases,
-                                                                                                                                         0,/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/
-                                                                                                                                         ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
+            List<StatisticDescription> statisticDescriptions = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                                    .getSystemStatisticDescriptions(timeOffset,
+                                                                                                                                    whereClause,
+                                                                                                                                    testcaseAliases,
+                                                                                                                                    0, /*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/
+                                                                                                                                    ((TestExplorerSession) Session.get()).isDayLightSavingOn());
             return statisticDescriptions;
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Error loading system statistic descriptions", e );
+        } catch (DatabaseAccessException e) {
+            LOG.error("Error loading system statistic descriptions", e);
             return new ArrayList<StatisticDescription>();
         }
     }
@@ -722,22 +723,22 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
      * Load action response statistics
      */
     protected List<StatisticDescription> loadChechpointStatisticDescriptions( float timeOffset ) {
-        
-        if( testcaseId == null ) {
+
+        if (testcaseId == null) {
             return new ArrayList<StatisticDescription>();
         }
 
         Map<String, Integer> numberOfCheckpointsPerQueueMap = null;
         try {
-            numberOfCheckpointsPerQueueMap = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                      .getNumberOfCheckpointsPerQueue( testcaseId );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Error getting the number of checkpoints per queue", e );
+            numberOfCheckpointsPerQueueMap = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                  .getNumberOfCheckpointsPerQueue(testcaseId);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Error getting the number of checkpoints per queue", e);
             return new ArrayList<StatisticDescription>();
         }
-        
+
         // no checkpoints
-        if( numberOfCheckpointsPerQueueMap == null ) {
+        if (numberOfCheckpointsPerQueueMap == null) {
             return new ArrayList<StatisticDescription>();
         }
 
@@ -747,30 +748,30 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
              * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
              * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
              * */
-            List<StatisticDescription> statisticDescriptions = ( ( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                                                                        .getCheckpointStatisticDescriptions( timeOffset,
-                                                                                                                                             whereClause,
-                                                                                                                                             new HashSet<String>(),
-                                                                                                                                             0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
-                                                                                                                                             ( ( TestExplorerSession ) Session.get() ).isDayLightSavingOn() );
-            return getStatisticDescriptionWithCheckpoints( statisticDescriptions,
-                                                           numberOfCheckpointsPerQueueMap );
-        } catch( DatabaseAccessException e ) {
-            LOG.error( "Error loading action response statistic descriptions", e );
+            List<StatisticDescription> statisticDescriptions = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                                    .getCheckpointStatisticDescriptions(timeOffset,
+                                                                                                                                        whereClause,
+                                                                                                                                        new HashSet<String>(),
+                                                                                                                                        0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset()*/,
+                                                                                                                                        ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+            return getStatisticDescriptionWithCheckpoints(statisticDescriptions,
+                                                          numberOfCheckpointsPerQueueMap);
+        } catch (DatabaseAccessException e) {
+            LOG.error("Error loading action response statistic descriptions", e);
             return new ArrayList<StatisticDescription>();
         }
     }
-    
+
     private List<StatisticDescription>
             getStatisticDescriptionWithCheckpoints( List<StatisticDescription> statisticDescriptions,
                                                     Map<String, Integer> numberOfCheckpointsPerQueueMap ) {
 
         List<StatisticDescription> statisticDescriptionsWithCheckpoints = new ArrayList<StatisticDescription>();
 
-        for( StatisticDescription statDesc : statisticDescriptions ) {
-            if( numberOfCheckpointsPerQueueMap.containsKey( statDesc.queueName )
-                && numberOfCheckpointsPerQueueMap.get( statDesc.queueName ) > 0 ) {
-                statisticDescriptionsWithCheckpoints.add( statDesc );
+        for (StatisticDescription statDesc : statisticDescriptions) {
+            if (numberOfCheckpointsPerQueueMap.containsKey(statDesc.queueName)
+                && numberOfCheckpointsPerQueueMap.get(statDesc.queueName) > 0) {
+                statisticDescriptionsWithCheckpoints.add(statDesc);
             }
         }
 

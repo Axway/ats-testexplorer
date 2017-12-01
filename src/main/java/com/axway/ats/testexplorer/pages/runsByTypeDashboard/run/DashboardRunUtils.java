@@ -37,68 +37,72 @@ public class DashboardRunUtils implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger     LOG              = Logger.getLogger( DashboardRunUtils.class );
+    private static Logger     LOG              = Logger.getLogger(DashboardRunUtils.class);
 
     public void callJavaScript( Object responseOrTarget, String[] jsonDatas ) {
 
         String script = ";setRunsData(" + jsonDatas[0] + ");setSuitesData(" + jsonDatas[1] + ");setChartData("
                         + jsonDatas[2] + ");setStatusData(" + jsonDatas[3] + ");setDbName(\""
-                        + ( ( TestExplorerSession ) Session.get() ).getDbName() + "\");resize();";
+                        + ((TestExplorerSession) Session.get()).getDbName() + "\");resize();";
 
-        if( responseOrTarget instanceof IHeaderResponse ) {
-            ( ( IHeaderResponse ) responseOrTarget ).render( OnLoadHeaderItem.forScript( script ) );
-        } else if( responseOrTarget instanceof AjaxRequestTarget ) {
-            ( ( AjaxRequestTarget ) responseOrTarget ).appendJavaScript( script );
+        if (responseOrTarget instanceof IHeaderResponse) {
+            ((IHeaderResponse) responseOrTarget).render(OnLoadHeaderItem.forScript(script));
+        } else if (responseOrTarget instanceof AjaxRequestTarget) {
+            ((AjaxRequestTarget) responseOrTarget).appendJavaScript(script);
         } else {
-            LOG.error( "Argument is not of type '" + IHeaderResponse.class.getName() + "' or '"
-                       + AjaxRequestTarget.class.getName() + "', but '"
-                       + responseOrTarget.getClass().getName() + "'" );
+            LOG.error("Argument is not of type '" + IHeaderResponse.class.getName() + "' or '"
+                      + AjaxRequestTarget.class.getName() + "', but '"
+                      + responseOrTarget.getClass().getName() + "'");
         }
 
     }
 
-    public String[] initData( String productName, String versionName, String buildType ) throws DatabaseAccessException {
+    public String[] initData( String productName, String versionName,
+                              String buildType ) throws DatabaseAccessException {
 
-        StringBuilder chartData = new StringBuilder( "[[" );
-        StringBuilder runsData = new StringBuilder( "[[[" );
-        StringBuilder statusData = new StringBuilder( "[[" );
-        StringBuilder suitesData = new StringBuilder( "[[[" );
-        
+        StringBuilder chartData = new StringBuilder("[[");
+        StringBuilder runsData = new StringBuilder("[[[");
+        StringBuilder statusData = new StringBuilder("[[");
+        StringBuilder suitesData = new StringBuilder("[[[");
+
         List<Run> runs = null;
-        if( "unspecified".equals( buildType ) ) {
-            runs = (( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                           .getUnspecifiedRuns( productName, versionName );
+        if ("unspecified".equals(buildType)) {
+            runs = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                        .getUnspecifiedRuns(productName, versionName);
         } else {
-            runs = (( TestExplorerSession ) Session.get() ).getDbReadConnection()
-                                                           .getSpecificProductVersionBuildRuns( productName, versionName, buildType );
+            runs = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                        .getSpecificProductVersionBuildRuns(productName, versionName,
+                                                                                            buildType);
         }
 
-
-        if( runs == null || runs.size() == 0 ) {
+        if (runs == null || runs.size() == 0) {
             return new String[]{ "[[[]]]", "[[[]]]", "[[]]", "[[]]" };
         }
 
-        chartData.append( initChartData( runs, buildType ) );
-        runsData.append( initRunsData( runs ) );
-        statusData.append( initStatusData( runs ) );
+        chartData.append(initChartData(runs, buildType));
+        runsData.append(initRunsData(runs));
+        statusData.append(initStatusData(runs));
 
         List<Suite> suites = null;
-        if( "unspecified".equals( buildType ) ) {
-            suites = (( TestExplorerSession ) Session.get() ).getDbReadConnection().getUnspecifiedSuites( productName, versionName );
+        if ("unspecified".equals(buildType)) {
+            suites = ((TestExplorerSession) Session.get()).getDbReadConnection().getUnspecifiedSuites(productName,
+                                                                                                      versionName);
         } else {
-            suites = (( TestExplorerSession ) Session.get() ).getDbReadConnection().getSpecificProductVersionBuildSuites( productName, versionName, buildType );
+            suites = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                          .getSpecificProductVersionBuildSuites(productName,
+                                                                                                versionName, buildType);
         }
 
-        if( suites == null || suites.size() == 0 ) {
-            suitesData.append( "" );
+        if (suites == null || suites.size() == 0) {
+            suitesData.append("");
         } else {
-            suitesData.append( initSuitesData( suites, runs ) );
+            suitesData.append(initSuitesData(suites, runs));
         }
 
-        chartData.append( "]]" );
-        runsData.append( "]]]" );
-        suitesData.append( "]]]" );
-        statusData.append( "]]" );
+        chartData.append("]]");
+        runsData.append("]]]");
+        suitesData.append("]]]");
+        statusData.append("]]");
 
         return new String[]{ runsData.toString(), suitesData.toString(), chartData.toString(),
                              statusData.toString() };
@@ -109,21 +113,21 @@ public class DashboardRunUtils implements Serializable {
 
         StringBuilder data = new StringBuilder();
 
-        ArrayList<String> names = new ArrayList<String>( 1 );
-        ArrayList<String> lastBuilds = new ArrayList<String>( 1 );
+        ArrayList<String> names = new ArrayList<String>(1);
+        ArrayList<String> lastBuilds = new ArrayList<String>(1);
 
-        for( Suite suite : suites ) {
-            names.add( suite.name );
-            for( Run run : runs ) {
-                lastBuilds.add( run.buildName + "///" + suite.name );
+        for (Suite suite : suites) {
+            names.add(suite.name);
+            for (Run run : runs) {
+                lastBuilds.add(run.buildName + "///" + suite.name);
             }
         }
 
-        Set<String> uniqueNames = new HashSet<String>( names );
+        Set<String> uniqueNames = new HashSet<String>(names);
 
-        for( String name : uniqueNames ) {
+        for (String name : uniqueNames) {
 
-            String lastBuild = extractLastBuild( name, lastBuilds );
+            String lastBuild = extractLastBuild(name, lastBuilds);
             String lastRun = null;
             int totalRuns = 0;
             String thisRun = null;
@@ -131,9 +135,9 @@ public class DashboardRunUtils implements Serializable {
             String id = null;
             String runId = null;
 
-            for( Suite suite : suites ) {
+            for (Suite suite : suites) {
 
-                if( suite.name.equals( name ) ) {
+                if (suite.name.equals(name)) {
                     try {
                         /*if( lastRun == null ) {
                             lastRun = suite.dateStart.substring( 0, suite.dateStart.indexOf( " " ) );
@@ -148,31 +152,31 @@ public class DashboardRunUtils implements Serializable {
                         }*/
                         runId = suite.runId;
                         lastRun = suite.getDateStartLong()
-                                       .substring( 0, suite.getDateStartLong().indexOf( " " ) );
+                                       .substring(0, suite.getDateStartLong().indexOf(" "));
                         thisRun = suite.testcasesPassedPercent;
                         id = suite.suiteId;
                         totalRuns++;
-                        if( StringUtils.isNullOrEmpty( lastBuild ) ) {
+                        if (StringUtils.isNullOrEmpty(lastBuild)) {
                             lastBuild = "";
                         }
-                        allRuns += Math.floor( Float.parseFloat( thisRun.replace( "%", "" ).trim() ) );
-                    } catch( Exception e ) {
-                        LOG.error( "Unable to parse allRuns value to float.", e );
+                        allRuns += Math.floor(Float.parseFloat(thisRun.replace("%", "").trim()));
+                    } catch (Exception e) {
+                        LOG.error("Unable to parse allRuns value to float.", e);
                     }
                 }
 
             }
 
-            data.append( "{" )
-                .append( "\"Name\":\"" + name + "\"," )
-                .append( "\"Last Build\":\"" + lastBuild + "\"," )
-                .append( "\"Last Run\":\"" + lastRun + "\"," )
-                .append( "\"Total Runs\":\"" + totalRuns + "\"," )
-                .append( "\"This Run\":\"" + thisRun + "\"," )
-                .append( "\"All Runs\":\"" + ( int ) Math.floor( ( allRuns / totalRuns ) ) + "%\"," )
-                .append( "\"Id\":\"" + id + "\"," )
-                .append( "\"runId\":\"" + runId + "\"" )
-                .append( "}," );
+            data.append("{")
+                .append("\"Name\":\"" + name + "\",")
+                .append("\"Last Build\":\"" + lastBuild + "\",")
+                .append("\"Last Run\":\"" + lastRun + "\",")
+                .append("\"Total Runs\":\"" + totalRuns + "\",")
+                .append("\"This Run\":\"" + thisRun + "\",")
+                .append("\"All Runs\":\"" + (int) Math.floor( (allRuns / totalRuns)) + "%\",")
+                .append("\"Id\":\"" + id + "\",")
+                .append("\"runId\":\"" + runId + "\"")
+                .append("},");
         }
 
         return data.toString();
@@ -182,29 +186,29 @@ public class DashboardRunUtils implements Serializable {
 
         int idx = -1;
 
-        for( int i = 0; i < lastBuilds.size(); i++ ) {
-            String lastBuild = lastBuilds.get( i );
-            if( lastBuild.contains( "///" + name ) ) {
+        for (int i = 0; i < lastBuilds.size(); i++) {
+            String lastBuild = lastBuilds.get(i);
+            if (lastBuild.contains("///" + name)) {
                 idx = i;
             }
         }
 
-        if( idx == -1 ) {
+        if (idx == -1) {
             return "no data";
         } else {
-            return lastBuilds.get( idx ).substring( 0, lastBuilds.get( idx ).indexOf( "/" ) );
+            return lastBuilds.get(idx).substring(0, lastBuilds.get(idx).indexOf("/"));
         }
     }
 
     private String initStatusData( List<Run> runs ) {
 
-        if( runs == null || runs.size() < 1 ) {
+        if (runs == null || runs.size() < 1) {
             return "{}";
         }
 
-        return "{'Last Run Status':'" + ( ( runs.get( runs.size() - 1 ).testcasesFailed >= 1 )
-                                                                                               ? "FAIL"
-                                                                                               : "PASS" )
+        return "{'Last Run Status':'" + ( (runs.get(runs.size() - 1).testcasesFailed >= 1)
+                                                                                           ? "FAIL"
+                                                                                           : "PASS")
                + "'}";
     }
 
@@ -212,16 +216,16 @@ public class DashboardRunUtils implements Serializable {
 
         StringBuilder data = new StringBuilder();
 
-        for( Run run : runs ) {
-            data.append( "{" )
-                .append( "\"_id\":\"" + run.runName + "\"," )
-                .append( "\"Build\":\"" + run.buildName + "\"," )
-                .append( "\"Status\":\"" + "OK" + "\"," )
-                .append( "\"Result\":\"" + ( ( run.testcasesFailed >= 1 )
-                                                                          ? "FAIL"
-                                                                          : "PASS" )
-                         + "\"" )
-                .append( "}," );
+        for (Run run : runs) {
+            data.append("{")
+                .append("\"_id\":\"" + run.runName + "\",")
+                .append("\"Build\":\"" + run.buildName + "\",")
+                .append("\"Status\":\"" + "OK" + "\",")
+                .append("\"Result\":\"" + ( (run.testcasesFailed >= 1)
+                                                                       ? "FAIL"
+                                                                       : "PASS")
+                        + "\"")
+                .append("},");
         }
 
         return data.toString();
@@ -233,27 +237,27 @@ public class DashboardRunUtils implements Serializable {
 
         int passedRuns = 0;
 
-        for( Run run : runs ) {
-            if( run.testcasesFailed == 0 ) {
+        for (Run run : runs) {
+            if (run.testcasesFailed == 0) {
                 passedRuns++;
             }
         }
 
-        titles[0] = runs.get( runs.size() - 1 ).productName;
-        titles[1] = runs.get( runs.size() - 1 ).versionName;
+        titles[0] = runs.get(runs.size() - 1).productName;
+        titles[1] = runs.get(runs.size() - 1).versionName;
         titles[2] = buildType;
         titles[3] = "Total Iterations: " + runs.size();
-        titles[4] = Math.floor( ( ( float ) passedRuns / ( float ) runs.size() ) * 100.0 ) + "% Passing";
+        titles[4] = Math.floor( ((float) passedRuns / (float) runs.size()) * 100.0) + "% Passing";
 
         StringBuilder data = new StringBuilder();
 
-        data.append( "{" )
-            .append( "\"product\":\"" + ( titles[0] ) + "\"," )
-            .append( "\"version\":\"" + ( titles[1] ) + "\"," )
-            .append( "\"type\":\"" + ( titles[2] ) + "\"," )
-            .append( "\"totalIterations\":\"" + ( titles[3] ) + "\"," )
-            .append( "\"passingRate\":\"" + ( titles[4] ) + "\"" )
-            .append( "}" );
+        data.append("{")
+            .append("\"product\":\"" + (titles[0]) + "\",")
+            .append("\"version\":\"" + (titles[1]) + "\",")
+            .append("\"type\":\"" + (titles[2]) + "\",")
+            .append("\"totalIterations\":\"" + (titles[3]) + "\",")
+            .append("\"passingRate\":\"" + (titles[4]) + "\"")
+            .append("}");
 
         return data.toString();
 
