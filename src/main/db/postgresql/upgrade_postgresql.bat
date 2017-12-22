@@ -1,8 +1,8 @@
 @echo off
 
 :: Note the trailing space at the beginning
-set OLD_DB_VERSION=4.0.2
-set NEW_DB_VERSION=4.0.3
+set OLD_DB_VERSION=4.0.3
+set NEW_DB_VERSION=4.1.0
 
 set /p DB_NAME=Enter Database name:
 
