@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DB_NAME=
-NEW_DB_VERSION="4.0.3"
+NEW_DB_VERSION="4.1.0"
 NEEDS_UPGRADE=false
 read -p 'Enter Database name: ' DB_NAME
 
