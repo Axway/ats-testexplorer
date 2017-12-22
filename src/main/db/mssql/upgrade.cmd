@@ -1,6 +1,6 @@
 @echo off
-set NEW_DB_VERSION=4.0.3
-set CURRENT_DB_VERSION=4.0.2
+set NEW_DB_VERSION=4.1.0
+set CURRENT_DB_VERSION=4.0.3
 
 echo Upgrading TestExplorer Database from version %CURRENT_DB_VERSION% to %NEW_DB_VERSION%
 
