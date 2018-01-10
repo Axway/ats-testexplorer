@@ -66,7 +66,7 @@ public class TestExplorerPluginsRepo {
         // find all jars, they will be checked for plugins inside
         List<String> jarFiles = getJarFilesReference(webappsHome);
 
-        LOG.debug("Searching for Test Explorer plugins in " + webappsHome);
+        LOG.debug("Searching for Test Explorer plugins in '" + webappsHome + "'");
         loadPlugins(jarFiles);
     }
 
@@ -126,7 +126,9 @@ public class TestExplorerPluginsRepo {
             webapps = webapps.substring(1);
         }
 
-        return webapps;
+        // next replacement appears to be needed when loading files 
+        // from folder with whitespace in the path
+        return webapps.replaceAll("%20", " ");
     }
 
     /**
