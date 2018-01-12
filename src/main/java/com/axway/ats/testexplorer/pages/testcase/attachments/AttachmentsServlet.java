@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.ExceptionUtils;
+import com.axway.ats.core.utils.IoUtils;
 import com.axway.ats.core.utils.StringUtils;
 
 public class AttachmentsServlet extends HttpServlet {
@@ -192,8 +193,8 @@ public class AttachmentsServlet extends HttpServlet {
     private String getFileSimpleName(
                                       String file ) {
 
-        if (!StringUtils.isNullOrEmpty(file)) {
-            return file.substring(file.lastIndexOf('/') + 1, file.length());
+        if( !StringUtils.isNullOrEmpty( file ) ) {
+            return IoUtils.getFileName( file );
         }
         LOG.warn("File \"" + file + "\" has no valid name!");
 
