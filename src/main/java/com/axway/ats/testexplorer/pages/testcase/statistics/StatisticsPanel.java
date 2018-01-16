@@ -260,7 +260,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                     item.add(new Label("testcase", "").setEscapeModelStrings(false));
 
                 } else { // add diagram content
-                    List<String> rowValues = getStatisticNavigation(statElement);
+                    List<String> statNavigationTokens = getStatisticNavigation(statElement);
                     final AjaxButton deleteButton = new AjaxButton("removeIcon") {
 
                         private static final long serialVersionUID = 1L;
@@ -275,7 +275,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                         }
                     };
                     item.add(deleteButton);
-                    item.add(new Label("statName", rowValues.get(5)).setEscapeModelStrings(false));
+                    item.add(new Label("statName", statElement.name).setEscapeModelStrings(false));
                     IModel<String> aliasModel = null;
                     DbStatisticDescription currentElement = listViewContent.get(item.getIndex());
                     String currentElementKey = null;
@@ -298,11 +298,11 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                     }
                     getTESession().getStatisticsAliasModels().put(currentElementKey, aliasModel);
                     item.add(new TextField<String>("alias", aliasModel).setOutputMarkupId(true));
-                    item.add(new Label("startDate", rowValues.get(4)).setEscapeModelStrings(false));
-                    item.add(new Label("run", rowValues.get(0)).setEscapeModelStrings(false));
-                    item.add(new Label("suite", rowValues.get(1)).setEscapeModelStrings(false));
-                    item.add(new Label("scenario", rowValues.get(2)).setEscapeModelStrings(false));
-                    item.add(new Label("testcase", rowValues.get(3)).setEscapeModelStrings(false));
+                    item.add(new Label("startDate", statNavigationTokens.get(4)).setEscapeModelStrings(false));
+                    item.add(new Label("run", statNavigationTokens.get(0)).setEscapeModelStrings(false));
+                    item.add(new Label("suite", statNavigationTokens.get(1)).setEscapeModelStrings(false));
+                    item.add(new Label("scenario", statNavigationTokens.get(2)).setEscapeModelStrings(false));
+                    item.add(new Label("testcase", statNavigationTokens.get(3)).setEscapeModelStrings(false));
                 }
             };
         };
@@ -399,35 +399,40 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
         SimpleDateFormat dateFormatter = new SimpleDateFormat("MMM dd HH:mm:ss");
 
         if (statistic.unit != null) {
-            if (getPage() instanceof BasePage) {
+
+            // check if the testcase this statistic is coming from, is already in the compare basket
+            Testcase parentTestcase = null;
+            List<Testcase> comparedTestcase = ((TestExplorerSession) Session.get()).getCompareContainer()
+                                                                                   .getTestcasesList();
+            for (Testcase testcase : comparedTestcase) {
+                if (testcase.testcaseId.equals(String.valueOf(statistic.testcaseId))) {
+                    parentTestcase = testcase;
+                    break;
+                }
+            }
+
+            if (parentTestcase != null) {
+                // we found the needed testcase in the compare basket
+                statisticNavigation.add(parentTestcase.runName);
+                statisticNavigation.add(parentTestcase.suiteName);
+                statisticNavigation.add(parentTestcase.scenarioName);
+                statisticNavigation.add(parentTestcase.name);
+                statisticNavigation.add(dateFormatter.format(parentTestcase.getStartTimestamp()));
+            } else {
+                // we need to load the testcase information from the DB
                 try {
-                    PageNavigation navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
-                                                                                     .getNavigationForTestcase(String.valueOf(statistic.testcaseId),
-                                                                                                               getTESession().getTimeOffset());
-                    statisticNavigation.add(navigation.getRunName());
-                    statisticNavigation.add(navigation.getSuiteName());
-                    statisticNavigation.add(navigation.getScenarioName());
-                    statisticNavigation.add(navigation.getTestcaseName());
-                    statisticNavigation.add(navigation.getDateStart());
+                    PageNavigation testcaseNavigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                                             .getNavigationForTestcase(String.valueOf(statistic.testcaseId),
+                                                                                                                       getTESession().getTimeOffset());
+                    statisticNavigation.add(testcaseNavigation.getRunName());
+                    statisticNavigation.add(testcaseNavigation.getSuiteName());
+                    statisticNavigation.add(testcaseNavigation.getScenarioName());
+                    statisticNavigation.add(testcaseNavigation.getTestcaseName());
+                    statisticNavigation.add(testcaseNavigation.getDateStart());
                 } catch (DatabaseAccessException e) {
                     LOG.error("Navigation for element '" + statistic.name + "' cannot be get!");
                 }
-            } else {
-                List<Testcase> testcaseLists = ((TestExplorerSession) Session.get()).getCompareContainer()
-                                                                                    .getTestcasesList();
-                for (Testcase testcase : testcaseLists) {
-                    if (testcase.testcaseId.equals(String.valueOf(statistic.testcaseId))) {
-                        statisticNavigation.add(testcase.runName);
-                        statisticNavigation.add(testcase.suiteName);
-                        statisticNavigation.add(testcase.scenarioName);
-                        statisticNavigation.add(testcase.name);
-                        statisticNavigation.add(dateFormatter.format(testcase.getDateStart()));
-                    }
-                }
             }
-            statisticNavigation.add(statistic.name);
-        } else {
-            statisticNavigation.add(statistic.name);
         }
 
         return statisticNavigation;
