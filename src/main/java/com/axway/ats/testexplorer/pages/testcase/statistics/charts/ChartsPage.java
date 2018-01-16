@@ -45,40 +45,44 @@ public class ChartsPage extends BasePage {
         add(new ChartsPanel("chart_panel", parameters));
         testcaseId = parameters.get("currentTestcase").toOptionalString();
 
-        // organize navigation links
+        // add Home navigation link
         addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
-        PageNavigation navigation = null;
-        try {
-            navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
-                                                              .getNavigationForTestcase(testcaseId,
-                                                                                        getTESession().getTimeOffset());
-        } catch (DatabaseAccessException e) {
-            LOG.error("Can't get navigation data for testcase with id=" + testcaseId, e);
-        }
 
-        if (navigation != null) {
+        // add rest of navigation links only when we are not comparing testcases as
+        // the navigation always leads to just 1 testcase
+        if (!testcaseId.contains(",")) {
+            PageNavigation navigation = null;
+            try {
+                navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
+                                                                  .getNavigationForTestcase(testcaseId,
+                                                                                            getTESession().getTimeOffset());
+            } catch (DatabaseAccessException e) {
+                LOG.error("Can't get navigation data for testcase with id=" + testcaseId, e);
+            }
 
-            runName = navigation.getRunName();
-            suiteName = navigation.getSuiteName();
-            scenarioName = navigation.getScenarioName();
-            testcaseName = TestExplorerUtils.escapeHtmlCharacters(navigation.getTestcaseName());
+            if (navigation != null) {
 
-            addNavigationLink(RunsPage.class, getRunsPageParameters(parameters), "Runs", runName);
-            addNavigationLink(SuitesPage.class, getSuitesPageParameters(parameters, navigation.getRunId()),
-                              "Suites", suiteName);
-            addNavigationLink(ScenariosPage.class,
-                              getScenariosPageParameters(parameters, navigation.getSuiteId()), "Scenarios",
-                              scenarioName);
-            addNavigationLink(TestcasesPage.class,
-                              getTestcasesPageParameters(parameters, navigation.getSuiteId(),
-                                                         navigation.getScenarioId()),
-                              "Testcases", testcaseName);
-            setRunIdToRunCopyLink(navigation.getRunId());
+                runName = navigation.getRunName();
+                suiteName = navigation.getSuiteName();
+                scenarioName = navigation.getScenarioName();
+                testcaseName = TestExplorerUtils.escapeHtmlCharacters(navigation.getTestcaseName());
 
-            singleTestIds.put("runId", navigation.getRunId());
-            singleTestIds.put("suiteId", navigation.getSuiteId());
-            singleTestIds.put("scenarioId", navigation.getScenarioId());
+                addNavigationLink(RunsPage.class, getRunsPageParameters(parameters), "Runs", runName);
+                addNavigationLink(SuitesPage.class, getSuitesPageParameters(parameters, navigation.getRunId()),
+                                  "Suites", suiteName);
+                addNavigationLink(ScenariosPage.class,
+                                  getScenariosPageParameters(parameters, navigation.getSuiteId()), "Scenarios",
+                                  scenarioName);
+                addNavigationLink(TestcasesPage.class,
+                                  getTestcasesPageParameters(parameters, navigation.getSuiteId(),
+                                                             navigation.getScenarioId()),
+                                  "Testcases", testcaseName);
+                setRunIdToRunCopyLink(navigation.getRunId());
 
+                singleTestIds.put("runId", navigation.getRunId());
+                singleTestIds.put("suiteId", navigation.getSuiteId());
+                singleTestIds.put("scenarioId", navigation.getScenarioId());
+            }
         }
     }
 
