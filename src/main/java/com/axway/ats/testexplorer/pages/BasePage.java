@@ -333,46 +333,45 @@ public abstract class BasePage extends WebPage implements IAjaxIndicatorAware {
             @Override
             public void onClick( AjaxRequestTarget target ) {
 
-                boolean isRunVisible = runGrid.isVisible();
+                boolean isTestLocationDetailsVisible = runGrid.isVisible();
                 String runId = singleTestIds.get("runId");
                 String suiteId = singleTestIds.get("suiteId");
                 String scenarioId = singleTestIds.get("scenarioId");
 
-                if (!isRunVisible) {
-                    RunsPanel runs = new RunsPanel(runId);
+                if( runId != null ) {
+                    RunsPanel runs = new RunsPanel( runId );
 
-                    createSingleGrid(testDetails, runGrid, "singleRun", new RunsDataSource(runId),
-                                     runs.getColumns(null), runs.getTableColumnDefinitions());
-                }
+                    createSingleGrid( testDetails, runGrid, "singleRun", new RunsDataSource( runId ),
+                                      runs.getColumns( null ), runs.getTableColumnDefinitions() );
+                    runGrid.setVisible(!isTestLocationDetailsVisible);
+                    target.add(runGrid);
 
-                if (currentClass != SuitesPage.class) {
-                    if (!isRunVisible) {
-                        SuitesPanel suites = new SuitesPanel(suiteId);
+                    if( suiteId != null ) {
+                        SuitesPanel suites = new SuitesPanel( suiteId );
 
-                        createSingleGrid(testDetails, suiteGrid, "singleSuite",
-                                         new SuitesDataSource(runId, suiteId), suites.getColumns(),
-                                         suites.getTableColumnDefinitions());
-                    }
-                    suiteGrid.setVisible(!isRunVisible);
-                    target.add(suiteGrid);
+                        createSingleGrid( testDetails, suiteGrid, "singleSuite",
+                                          new SuitesDataSource( runId, suiteId ), suites.getColumns(),
+                                          suites.getTableColumnDefinitions() );
+                        suiteGrid.setVisible( !isTestLocationDetailsVisible );
+                        target.add( suiteGrid );
 
-                    if (currentClass != ScenariosPage.class) {
-                        if (!isRunVisible) {
-                            ScenariosPanel scenarios = new ScenariosPanel(scenarioId);
+                        if( scenarioId != null ) {
+                            ScenariosPanel scenarios = new ScenariosPanel( scenarioId );
 
-                            createSingleGrid(testDetails, scenarioGrid, "singleScenario",
-                                             new ScenariosDataSource(suiteId, scenarioId),
-                                             scenarios.getColumns(), scenarios.getTableColumnDefinitions());
+                            createSingleGrid( testDetails, scenarioGrid, "singleScenario",
+                                              new ScenariosDataSource( suiteId, scenarioId ),
+                                              scenarios.getColumns(), scenarios.getTableColumnDefinitions() );
+                            scenarioGrid.setVisible( !isTestLocationDetailsVisible );
+                            target.add( scenarioGrid );
                         }
-                        scenarioGrid.setVisible(!isRunVisible);
-                        target.add(scenarioGrid);
                     }
+                } else {
+                    // nothing to do here, do not modify anything
+                    return;
                 }
+                
                 // here we will call JS function to show the navigation test details
-                target.appendJavaScript("showOrHideTestDetails(" + !isRunVisible + ")");
-
-                runGrid.setVisible(!isRunVisible);
-                target.add(runGrid);
+                target.appendJavaScript("showOrHideTestDetails(" + !isTestLocationDetailsVisible + ")");
                 target.add(testDetails);
             }
         };
