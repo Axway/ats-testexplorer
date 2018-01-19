@@ -29,7 +29,7 @@ import com.axway.ats.testexplorer.pages.scenarios.ScenariosPage;
 import com.axway.ats.testexplorer.pages.suites.SuitesPage;
 import com.axway.ats.testexplorer.pages.testcases.TestcasesPage;
 
-public class ChartsPage extends BasePage {
+public class ChartsBasePage extends BasePage {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,11 +39,11 @@ public class ChartsPage extends BasePage {
     private String            testcaseName;
     private String            testcaseId;
 
-    public ChartsPage( PageParameters parameters ) {
+    public ChartsBasePage( PageParameters parameters ) {
 
         super(parameters);
-        add(new ChartsPanel("chart_panel", parameters));
         testcaseId = parameters.get("currentTestcase").toOptionalString();
+        add(new ChartsBasePanel("charts_base_panel", testcaseId, parameters));
 
         // add Home navigation link
         addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);

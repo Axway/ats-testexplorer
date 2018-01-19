@@ -46,7 +46,7 @@ import com.axway.ats.log.autodb.entities.Testcase;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.model.db.PageNavigation;
-import com.axway.ats.testexplorer.pages.testcase.statistics.charts.ChartsPage;
+import com.axway.ats.testexplorer.pages.testcase.statistics.charts.ChartsBasePage;
 
 /**
  * Types of statistics: 
@@ -607,7 +607,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                     String scrollToTop = "$('html,body').scrollTop(0);";
                     target.appendJavaScript(scrollToTop);
 
-                    setResponsePage(ChartsPage.class, parameters);
+                    setResponsePage(ChartsBasePage.class, parameters);
                 }
             }
         };
