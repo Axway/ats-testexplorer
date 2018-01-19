@@ -71,14 +71,20 @@ public class StatisticContainer implements Serializable {
         statDescriptions.put(statisticDescriptionIndexInContainer, statDescription);
     }
 
-    public boolean isStatisticAvailableForThisContainer(
-                                                         DbStatisticDescription newStatDescription ) {
+    public boolean isStatisticPresentInThisContainer( DbStatisticDescription newStatDescription,
+                                                         boolean instanceOfStatisticPanel ) {
 
-        for (DbStatisticDescription statDescription : statDescriptions.values()) {
+        for( DbStatisticDescription statDescription : statDescriptions.values() ) {
             // statistic containers keep one entry of a statistic description for all testcases
-            if (statDescription.getUidNoMatterTestcaseAndMachine()
-                               .equals(newStatDescription.getUidNoMatterTestcaseAndMachine())) {
-                return true;
+            if( instanceOfStatisticPanel ) {
+                if( statDescription.getUidNoMatterTestcaseAndMachine()
+                                   .equals( newStatDescription.getUidNoMatterTestcaseAndMachine() ) ) {
+                    return true;
+                }
+            } else {
+                if( statDescription.getUid().equals( newStatDescription.getUid() ) ) {
+                    return true;
+                }
             }
         }
         return false;

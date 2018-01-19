@@ -119,11 +119,12 @@ public class DataPanel implements Serializable {
      */
     public void addStatisticDescription(
                                          DbStatisticDescription statDescription,
-                                         boolean isComparing ) {
+                                         boolean isComparing,
+                                         boolean instanceOfStatisticPanel ) {
 
         if (isProcessStatistic(statDescription) && !isParentProcessStatistic(statDescription)) {
             // this is a process statistic description
-            addProcessStatisticDescription(statDescription, isComparing);
+            addProcessStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel );
         } else {
             // this is a regular statistic description
 
@@ -140,8 +141,8 @@ public class DataPanel implements Serializable {
                 container = new StatisticContainer(containerIndexInDataPanel, containerName);
                 statContainers.put(containerIndexInDataPanel, container);
             }
-            if (!container.isStatisticAvailableForThisContainer(statDescription)) {
-                container.addStatisticDescription(statDescription);
+            if (!container.isStatisticPresentInThisContainer(statDescription, instanceOfStatisticPanel)) {
+                container.addStatisticDescription(statDescription );
             }
 
             addToRightMachine(statDescription, isComparing);
@@ -156,7 +157,8 @@ public class DataPanel implements Serializable {
 
     private void addProcessStatisticDescription(
                                                  DbStatisticDescription statDescription,
-                                                 boolean isComparing ) {
+                                                 boolean isComparing,
+                                                 boolean instanceOfStatisticPanel ) {
 
         // add to the right container
         String containerName = statDescription.parentName;
@@ -168,7 +170,7 @@ public class DataPanel implements Serializable {
             container = new StatisticContainer(containerIndexInDataPanel, containerName);
             statContainers.put(containerIndexInDataPanel, container);
         }
-        if (!container.isStatisticAvailableForThisContainer(statDescription)) {
+        if (!container.isStatisticPresentInThisContainer(statDescription, instanceOfStatisticPanel)) {
             container.addStatisticDescription(statDescription);
         }
 
@@ -258,7 +260,9 @@ public class DataPanel implements Serializable {
 
                 // add parent table line if needed
                 String statParent = statDescription.parentName;
-                if (!StringUtils.isNullOrEmpty(statParent) && !lastStatParent.equals(statParent)) {
+                if( !StringUtils.isNullOrEmpty( statParent )
+                    && !statParent.equals( StatisticsPanel.SYSTEM_STATISTIC_CONTAINER )
+                    && !lastStatParent.equals( statParent ) ) {
                     columns = new ArrayList<StatisticsTableCell>();
                     columns.add(NBSP_EMPTY_CELL);
                     if (statParent.startsWith(PROCESS_STAT_PREFIX)) {
@@ -502,12 +506,13 @@ public class DataPanel implements Serializable {
         columns = new ArrayList<StatisticsTableCell>();
         columns.add(new StatisticsTableCell("&nbsp;", false));
         rows.add(columns);
-        if (!StringUtils.isNullOrEmpty(queueName)) {
+        if( !StringUtils.isNullOrEmpty( queueName )
+            && !queueName.equals( StatisticsPanel.SYSTEM_STATISTIC_CONTAINER ) ) {
 
             columns = new ArrayList<StatisticsTableCell>();
-            columns.add(new StatisticsTableCell("<i>" + queueName + "</i>", false));
-            columns.add(new StatisticsTableCell("&nbsp;", false));
-            rows.add(columns);
+            columns.add( new StatisticsTableCell( "<i>" + queueName + "</i>", false ) );
+            columns.add( new StatisticsTableCell( "&nbsp;", false ) );
+            rows.add( columns );
         }
 
         StatisticsTableCell minCellLabel = new StatisticsTableCell("<div class=\"statDetailsMVal\">Min</div>", false);
@@ -527,7 +532,7 @@ public class DataPanel implements Serializable {
 
                 String statName = dbStatDesc.alias;
                 if (StringUtils.isNullOrEmpty(statName) || "null".equals(statName)) {
-                    statName = statDescription.name;
+                    statName = statDescription.name + " at " + statDescription.getMachineName();
                 }
                 columns.add(new StatisticsTableCell("<b>" + statName + "<span class=\"statUnit\">("
                                                     + statDescription.unit + ")</span></b>", false));

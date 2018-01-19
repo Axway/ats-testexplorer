@@ -48,6 +48,10 @@ public abstract class BaseStatisticsPanel extends Panel {
 
     protected boolean loadStatisticDescriptions( float timeOffSet, boolean isComparing ) {
 
+        boolean instanceOfStatisticPanel = true;
+        if( ! ( this instanceof StatisticsPanel ) ) {
+            instanceOfStatisticPanel = false;
+        }
         // load statistics descriptions from Statistics table
         List<StatisticDescription> dbStatisticDescriptions = loadSystemAndUserStatisticDescriptions(timeOffSet);
         for (StatisticDescription dbStatDescription : dbStatisticDescriptions) {
@@ -71,10 +75,10 @@ public abstract class BaseStatisticsPanel extends Panel {
 
             if (SQLServerDbReadAccess.MACHINE_NAME_FOR_ATS_AGENTS.equalsIgnoreCase(dbStatDescription.machineName)) {
                 // this is a user activity statistic
-                this.userStatisticsPanel.addStatisticDescription(statDescription, isComparing);
+                this.userStatisticsPanel.addStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel );
             } else {
                 // this is a system statistic
-                this.systemStatisticsPanel.addStatisticDescription(statDescription, isComparing);
+                this.systemStatisticsPanel.addStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel );
             }
         }
 
@@ -99,7 +103,7 @@ public abstract class BaseStatisticsPanel extends Panel {
                                                                                     dbStatDescription.avgValue,
                                                                                     dbStatDescription.maxValue,
                                                                                     dbStatDescription.numberMeasurements);
-                this.actionStatisticsPanel.addStatisticDescription(statDescription, isComparing);
+                this.actionStatisticsPanel.addStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel );
             }
         }
 

@@ -46,13 +46,13 @@ import com.axway.ats.log.autodb.entities.Testcase;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 import com.axway.ats.testexplorer.model.db.PageNavigation;
-import com.axway.ats.testexplorer.pages.BasePage;
 import com.axway.ats.testexplorer.pages.testcase.statistics.charts.ChartsPage;
 
 /**
- * Types of statistics: 1. System - hardware resource usage 2. User activity -
- * how many users are running some action at a given moment 3. Action responses
- * - how long time it took to execute an action
+ * Types of statistics: 
+ * 1. System - hardware resource usage 
+ * 2. User activity - how many users are running some action at a given moment 
+ * 3. Action responses - how long time it took to execute an action
  *
  * System and user activity statistics are stored in same DB table.
  *
