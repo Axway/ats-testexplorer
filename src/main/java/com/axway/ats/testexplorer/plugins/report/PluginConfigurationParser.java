@@ -160,7 +160,7 @@ public class PluginConfigurationParser {
 
                 // accept the plugin info
                 pluginsInfo.put(name, parameters);
-                LOG.info("Loaded Test Explorer plugin pluginName '" + name + "'");
+                LOG.info("Loaded Test Explorer plugin '" + name + "'");
             }
         }
 
