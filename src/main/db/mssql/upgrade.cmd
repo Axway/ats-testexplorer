@@ -1,18 +1,56 @@
 @echo off
+@setlocal enabledelayedexpansion enableextensions
+
+:: save the starting folder location
+set START_FOLDER=%cd%
+
 set NEW_DB_VERSION=4.1.0
 set CURRENT_DB_VERSION=4.0.3
+
+:: navigate to the upgrade file directory
+cd  /d "%~dp0"
 
 echo Upgrading TestExplorer Database from version %CURRENT_DB_VERSION% to %NEW_DB_VERSION%
 
 echo Current upgrade could take more time especially on large databases. Please do not close console before success/fail message is displayed
 
 echo It is recommended that you backup your database before continue!
-set /p ans=Are you sure you want to continue? [y/n]^>
-if /i "%ans%" NEQ "y" if /i "%ans%" NEQ "yes" goto End
 
-set /p logdbname=Enter Database Name to upgrade:
+rem get the command line parameter if there is such
+set CMD_ARGUMENT=%~1
 
+set HELP=false
+IF [%CMD_ARGUMENT%]==[--help] set HELP=true
+IF [%CMD_ARGUMENT%]==[/?] set HELP=true
+IF "%HELP%" == "true" (
+    echo add the database name as a parameter for silent upgrade
+)
 
+:set_dbname
+IF [%CMD_ARGUMENT%]==[] (
+	set /p DB_NAME=Enter Database Name to upgrade:
+) ELSE (
+	set DB_NAME=%CMD_ARGUMENT%
+)
+
+REM check if there is database with this name and write the result to file
+osql /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%DB_NAME%'" -h-1 /o db_list.txt
+
+FindStr %DB_NAME% db_list.txt > NUL
+
+IF %ERRORLEVEL% NEQ 0 (
+	IF [%CMD_ARGUMENT%]==[] (
+		echo Such database does not exists. Please choose another name
+		GOTO :set_dbname
+	) ELSE (
+		echo Such database does not exists. Now will exit
+		del /f /q db_list.txt
+		exit 1
+	)
+)
+
+rem delete the db_list.txt file
+del /f /q db_list.txt
 
 :: ##################   CHECK DB VERSION    ##################################
 type nul > tempCheckVersion.sql
@@ -30,7 +68,7 @@ echo ELSE                                                                       
 echo     PRINT 'Upgrading to version: ' + @newVersion;                                                  >> tempCheckVersion.sql
 echo GO                                                                                                 >> tempCheckVersion.sql
 
-sqlcmd /E /b /V 5 /d "%logdbname%" /i tempCheckVersion.sql
+sqlcmd /E /b /V 5 /d "%DB_NAME%" /i tempCheckVersion.sql
 IF %ERRORLEVEL% NEQ 0 goto stopUpgrade
 
 
@@ -39,21 +77,21 @@ IF %ERRORLEVEL% NEQ 0 goto stopUpgrade
 del /f /q tempCheckVersion.sql
 type nul > tempUpgradeDBScript.sql
 
-echo use [%logdbname%]                                                          >> tempUpgradeDBScript.sql
+echo use [%DB_NAME%]                                                          >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo PRINT GETDATE()                                                            >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET ANSI_NULLS ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET ANSI_NULLS ON                             >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET ANSI_PADDING ON                           >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET ANSI_PADDING ON                           >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET ANSI_WARNINGS ON                          >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET ANSI_WARNINGS ON                          >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET ARITHABORT ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET ARITHABORT ON                             >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET CONCAT_NULL_YIELDS_NULL ON                >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET CONCAT_NULL_YIELDS_NULL ON                >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%logdbname%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%DB_NAME%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%_draft' WHERE [key] = 'version' >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
@@ -78,18 +116,31 @@ GOTO End
 :upgradeFailed
 rem del /f /q tempUpgradeDBScript.sql
 echo ERROR - upgrade failed. Check the 'upgrade.log' file for the errors.
-GOTO End
+IF [%CMD_ARGUMENT%]==[] (
+	pause
+) ELSE (
+	exit 2
+)
 
 :: ##################   STOPING UPGRADE PROCEDURE   ########################
 :stopUpgrade
 del /f /q tempCheckVersion.sql
 echo Upgrade aborted. No changes are made to the database.
-GOTO End
-
+IF [%CMD_ARGUMENT%]==[] (
+	pause
+	exit
+) ELSE (
+	exit 3
+)
 
 :: ##################    THE END    ########################################
 :End
-pause
+echo Upgrade completed. Check upgrade.log file for potential errors.
+IF [%CMD_ARGUMENT%]==[] (
+	pause
+) ELSE (
+	exit 0
+)
 
-@echo on
-exit
+rem return to the start folder
+cd /d %START_FOLDER%
