@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 OLD_DB_VERSION=4.0.3
-NEW_DB_VERSION="4.1.0"
+NEW_DB_VERSION="4.0.4"
 NEEDS_UPGRADE=false
 
 # save the starting folder location
@@ -23,8 +23,7 @@ FIRST_CMD_ARGUMENT="$1"
 SECOND_CMD_ARGUMENT="$2"
 
 if [[ "$FIRST_CMD_ARGUMENT" == "/?" || "$FIRST_CMD_ARGUMENT" == "--help" ]] ; then
-	echo "Add the database name as first parameter and database password as second parameter for silent upgrade"
-	read -n1 -rsp $'Press any key to exit...\n'
+	echo "Please specify the database name as first parameter and database password as second parameter for silent upgrade"
 	exit
 fi
 
@@ -92,8 +91,6 @@ if [ "$NEEDS_UPGRADE" = true ]; then
 	if [ ! -z "$FIRST_CMD_ARGUMENT" ];
 		then
 			exit 0
-		else
-			read -n1 -rsp $'Press any key to exit...\n'
 		fi
 	
 	# back to the starting folder location
@@ -104,8 +101,6 @@ else
 	if [ ! -z "$FIRST_CMD_ARGUMENT" ];
 	then
 		exit 3
-	else
-		read -n1 -rsp $'Press any key to exit...\n'
 	fi	
 fi
 

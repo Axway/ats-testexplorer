@@ -4,7 +4,7 @@
 :: save the starting folder location
 set START_FOLDER=%cd%
 
-set NEW_DB_VERSION=4.1.0
+set NEW_DB_VERSION=4.0.4
 set CURRENT_DB_VERSION=4.0.3
 
 :: navigate to the upgrade file directory
@@ -23,14 +23,29 @@ set HELP=false
 IF [%CMD_ARGUMENT%]==[--help] set HELP=true
 IF [%CMD_ARGUMENT%]==[/?] set HELP=true
 IF "%HELP%" == "true" (
-    echo add the database name as a parameter for silent upgrade
+    echo Please specify the database name as a parameter for silent upgrade
+)
+
+:: check if the script is executed manually
+set INTERACTIVE=0
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set INTERACTIVE=1
+
+IF %INTERACTIVE% == 0 (
+	SET CONSOLE_MODE_USED=true
+) ELSE (
+	IF [%FIRST_CMD_ARGUMENT%]==[] (
+		SET MANUAL_MODE_USED=true
+	) ELSE (
+		SET SILENT_MODE_USED=true
+	)
 )
 
 :set_dbname
-IF [%CMD_ARGUMENT%]==[] (
-	set /p DB_NAME=Enter Database Name to upgrade:
-) ELSE (
+IF %SILENT_MODE_USED% == true (
 	set DB_NAME=%CMD_ARGUMENT%
+) ELSE (
+	set /p DB_NAME=Enter Database Name to upgrade:
 )
 
 REM check if there is database with this name and write the result to file
@@ -39,13 +54,13 @@ osql /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases whe
 FindStr %DB_NAME% db_list.txt > NUL
 
 IF %ERRORLEVEL% NEQ 0 (
-	IF [%CMD_ARGUMENT%]==[] (
-		echo Such database does not exists. Please choose another name
-		GOTO :set_dbname
-	) ELSE (
-		echo Such database does not exists. Now will exit
+	IF %SILENT_MODE_USED% == true (
+		echo Such database does not exists. Upgrade abort
 		del /f /q db_list.txt
 		exit 1
+	) ELSE (
+		echo Such database does not exists. Please choose another name
+		GOTO :set_dbname
 	)
 )
 
@@ -109,38 +124,38 @@ IF %ERRORLEVEL% NEQ 0 goto upgradeFailed
 :: ##################   UPGRADE SUCCESS     ################################
 del /f /q tempUpgradeDBScript.sql
 echo Upgrade Completed. Check the 'upgrade.log' for details.
-GOTO End
+GOTO :End
 
 
 :: ##################   UPGRADE FAILED  ####################################
 :upgradeFailed
 rem del /f /q tempUpgradeDBScript.sql
 echo ERROR - upgrade failed. Check the 'upgrade.log' file for the errors.
-IF [%CMD_ARGUMENT%]==[] (
-	pause
-) ELSE (
+IF %SILENT_MODE_USED% == true (
 	exit 2
+) ELSE (
+	GOTO :End
 )
 
 :: ##################   STOPING UPGRADE PROCEDURE   ########################
 :stopUpgrade
 del /f /q tempCheckVersion.sql
 echo Upgrade aborted. No changes are made to the database.
-IF [%CMD_ARGUMENT%]==[] (
-	pause
-	exit
-) ELSE (
+IF %SILENT_MODE_USED% == true (
 	exit 3
+) ELSE (
+	GOTO :End
 )
 
 :: ##################    THE END    ########################################
 :End
 echo Upgrade completed. Check upgrade.log file for potential errors.
-IF [%CMD_ARGUMENT%]==[] (
+IF %MANUAL_MODE_USED% == true (
 	pause
+	exit
+) ELSE IF %CONSOLE_MODE_USED% == true (
+	rem return to the start folder
+	cd /d %START_FOLDER%
 ) ELSE (
 	exit 0
 )
-
-rem return to the start folder
-cd /d %START_FOLDER%

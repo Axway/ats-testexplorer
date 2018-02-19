@@ -17,8 +17,7 @@ touch install.log
 CMD_ARGUMENT="$1"
 
 if [[ "$CMD_ARGUMENT" == "/?" || "$CMD_ARGUMENT" == "--help" ]] ; then
-	echo "Add the database name as first parameter and database password as second parameter for silent install"
-	read -n1 -rsp $'Press any key to exit...\n'
+	echo "Please specify the database name as first parameter and database password as second parameter for silent install"
 	exit
 fi
 
@@ -46,7 +45,7 @@ until [ "$DATABASE_EXISTS" == 0 ]; do
 	then
 		if [ ! -z "$CMD_ARGUMENT" ];
 		then
-			echo Database name "$CMD_ARGUMENT" already exist. Now will exit
+			echo Database name "$CMD_ARGUMENT" already exist. Install abort
 			exit 1
 		else
 			echo Database name "$CMD_ARGUMENT" already exist. Please choose another name
@@ -67,21 +66,17 @@ NUM_OF_ERRORS=`cat install.log | grep 'ERROR:' | wc -l`
 
 
 if [[ "$NUM_OF_ERRORS" == 0 ]]; then
-	echo "Installing of \"$DB_NAME\" completed. See install.log file for potential errors"
+	echo "Installing of \"$DB_NAME\" completed. Logs are located in install.log file"
 	if [ ! -z "$CMD_ARGUMENT" ];
 	then
 		exit 2
-	else
-		read -n1 -rsp $'Press any key to exit...\n'
 	fi
 else
 	echo "Errors during install: $NUM_OF_ERRORS"
-	echo "Installing of \"$DB_NAME\" was not successful. See install.log file for errors"
+	echo "Installing of \"$DB_NAME\" was not successful. Logs are located in install.log file"
 	if [ ! -z "$CMD_ARGUMENT" ];
 	then
 		exit 0
-	else
-		read -n1 -rsp $'Press any key to exit...\n'
 	fi
 fi
 

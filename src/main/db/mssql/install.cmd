@@ -22,14 +22,29 @@ set HELP=false
 IF [%CMD_ARGUMENT%]==[--help] set HELP=true
 IF [%CMD_ARGUMENT%]==[/?] set HELP=true
 IF "%HELP%" == "true" (
-    echo Add the database name as a parameter for silent install
+    echo Please specify the database name as a parameter for silent install
+)
+
+:: check if the script is executed manually
+set INTERACTIVE=0
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set INTERACTIVE=1
+
+IF %INTERACTIVE% == 0 (
+	SET CONSOLE_MODE_USED=true
+) ELSE (
+	IF [%FIRST_CMD_ARGUMENT%]==[] (
+		SET MANUAL_MODE_USED=true
+	) ELSE (
+		SET SILENT_MODE_USED=true
+	)
 )
 
 :set_dbname 
-IF [%CMD_ARGUMENT%]==[] (
-    SET /P dbname=Enter Test Explorer database name:
-) ELSE (
+IF %SILENT_MODE_USED% == true (
     set dbname=%CMD_ARGUMENT%
+) ELSE (
+    SET /P dbname=Enter Test Explorer database name:
 )
 
 REM check if there is already database with this name and write the result to file
@@ -45,12 +60,12 @@ del /f /q check_dbname.txt
 
 REM check if there is already database with the same name, if so back to set a new name
 IF [%file_cont%] EQU [%dbname%] ( 
-	IF [%CMD_ARGUMENT%]==[] (
-	echo Such database already exists. Please choose another name 
-		GOTO :set_dbname
-	) ELSE (
-	echo Such database already exists. Now will exit
+	 IF %SILENT_MODE_USED% == true (
+		echo Such database already exists. Now will exit
 		exit 1
+	) ELSE (
+		echo Such database already exists. Please choose another name 
+		GOTO :set_dbname
 	)
 )
 
@@ -112,11 +127,11 @@ echo USE [%dbname%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 
 IF %ERRORLEVEL% NEQ 0 (
-	echo Check install.log file for errors.
-	IF [%CMD_ARGUMENT%]==[] (
-		pause
-		) ELSE (
-		exit 2
+	echo Installation was not successful
+IF %CONSOLE_MODE_USED% == true (
+		exit 0
+	) ELSE (
+		GOTO :end
 	)
 )
 
@@ -125,20 +140,26 @@ osql /E /d master /i tempCreateDBScript.sql /o install.log
 IF %ERRORLEVEL% NEQ 0 (
 	del /q /f tempCreateDBScript.sql
 	echo Installation was not successful. Check install.log file for errors.
-	IF [%CMD_ARGUMENT%]==[] (
-		pause
+	IF %CONSOLE_MODE_USED% == true (
+		exit 0
 	) ELSE (
-		exit 3
+		GOTO :end
 	)
 ) ELSE (
 	del /q /f tempCreateDBScript.sql
 	echo Installation completed. Check install.log file for potential errors.
-	IF [%CMD_ARGUMENT%]==[] (
-		pause
-	) ELSE (
+	IF %CONSOLE_MODE_USED% == true (
 		exit 0
+	) ELSE (
+		GOTO :end
 	)
 )
 
 rem return to the start folder
-cd /d %START_FOLDER%
+:end
+IF %CONSOLE_MODE_USED% == true (
+	cd /d %START_FOLDER%
+) ELSE IF %CONSOLE_MODE_USED% == true (
+	pause
+	exit
+)

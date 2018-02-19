@@ -3,11 +3,6 @@
 :: save the starting folder location
 set START_FOLDER=%cd%
 
-:: check if the script is executed manually
-set INTERACTIVE=0
-echo %cmdcmdline% | find /i "%~0" >nul
-if not errorlevel 1 set INTERACTIVE=1
-
 :: navigate to the install file directory
 cd  /d "%~dp0"
 
@@ -27,16 +22,30 @@ set HELP=false
 IF [%FIRST_CMD_ARGUMENT%]==[--help] set HELP=true
 IF [%FIRST_CMD_ARGUMENT%]==[/?] set HELP=true
 IF "%HELP%" == "true" (
-    echo Add the database name as first parameter and database password as second parameter for silent upgrade
-    pause
-	exit
+    echo Please specify the database name as first parameter and database password as second parameter for silent install
+    GOTO :end
+)
+
+:: check if the script is executed manually
+set INTERACTIVE=0
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set INTERACTIVE=1
+
+IF %INTERACTIVE% == 0 (
+	SET CONSOLE_MODE_USED=true
+) ELSE (
+	IF [%FIRST_CMD_ARGUMENT%]==[] (
+		SET MANUAL_MODE_USED=true
+	) ELSE (
+		SET SILENT_MODE_USED=true
+	)
 )
 
 :set_dbname
-IF [%FIRST_CMD_ARGUMENT%]==[] (
-	set /p DB_NAME=Enter Database name:
-) ELSE (
+IF "%SILENT_MODE_USED%" == "true" (
 	set DB_NAME=%FIRST_CMD_ARGUMENT%
+) ELSE (
+	set /p DB_NAME=Enter Database name:
 )
 
 rem set password
@@ -47,38 +56,25 @@ IF NOT [%SECOND_CMD_ARGUMENT%]==[] (
 :: see if database exists
 psql -U postgres -l > db_list.txt
 IF %ERRORLEVEL% NEQ 0 (
-	echo There was problem getting checking for database existence
+	echo There was problem checking for database existence
 	echo Check if the provided password is correct
-	IF %INTERACTIVE% == 0 (
-		GOTO :end
+	IF "%SILENT_MODE_USED%" == "true" (
+		del /f /q db_list.txt
+		exit 1
 	) ELSE (
-		IF [%FIRST_CMD_ARGUMENT%]==[] (
-			pause 
-			exit
-		) ELSE (
-			del /f /q db_list.txt
-			exit 1
-		)
+		GOTO :end
 	)
 )
 
 findstr /m %DB_NAME% db_list.txt
 IF %ERRORLEVEL%==0 (
-	IF %INTERACTIVE% == 0 (
-		rem remove the command parameter values
-		set FIRST_CMD_ARGUMENT=
-
-		echo Such database already exists. Please choose another name
-		GOTO :set_dbname
+	IF "%SILENT_MODE_USED%" == "true" (
+		echo Such database already exists. Rerun the script with different name or drop the database. Installation aborted.
+		del /f /q db_list.txt
+		exit 2
 	) ELSE (
-		IF [%FIRST_CMD_ARGUMENT%]==[] (
-			echo Such database already exists. Please choose another name
-			GOTO :set_dbname
-		) ELSE (
-			echo Such database already exists. Now will exit
-			del /f /q db_list.txt
-			exit 2
-		)
+		echo Database with the same name already exists. Please choose another name or drop the database.
+		GOTO :set_dbname
 	)
 ) else (
 	echo Installing "%DB_NAME% ..."
@@ -92,14 +88,13 @@ IF %ERRORLEVEL%==0 (
 del /f /q db_list.txt
 
 echo Installation completed. Check install.log file for potential errors.
-IF NOT %INTERACTIVE% == 0 (
-	IF [%FIRST_CMD_ARGUMENT%]==[] (
-		pause
-	) ELSE (
-		exit 0
-	)
+:end
+IF "%CONSOLE_MODE_USED%" == "true" (
+	rem return to the start folder
+	cd /d %START_FOLDER%
+) ELSE IF "%MANUAL_MODE_USED%" == "true" (
+	pause
+	exit
+) ELSE (
+	exit 0
 )
-
-rem return to the start folder
-cd /d %START_FOLDER%
-
