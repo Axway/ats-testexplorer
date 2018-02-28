@@ -42,7 +42,7 @@ IF %INTERACTIVE% == 0 (
 )
 
 :set_dbname
-IF %SILENT_MODE_USED% == true (
+IF "%SILENT_MODE_USED%" == "true" (
 	set DB_NAME=%CMD_ARGUMENT%
 ) ELSE (
 	set /p DB_NAME=Enter Database Name to upgrade:
@@ -54,7 +54,7 @@ osql /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases whe
 FindStr %DB_NAME% db_list.txt > NUL
 
 IF %ERRORLEVEL% NEQ 0 (
-	IF %SILENT_MODE_USED% == true (
+	IF "%SILENT_MODE_USED%" == "true" (
 		echo Such database does not exists. Upgrade abort
 		del /f /q db_list.txt
 		exit 1
@@ -131,7 +131,7 @@ GOTO :End
 :upgradeFailed
 rem del /f /q tempUpgradeDBScript.sql
 echo ERROR - upgrade failed. Check the 'upgrade.log' file for the errors.
-IF %SILENT_MODE_USED% == true (
+IF "%SILENT_MODE_USED%" == "true" (
 	exit 2
 ) ELSE (
 	GOTO :End
@@ -141,7 +141,7 @@ IF %SILENT_MODE_USED% == true (
 :stopUpgrade
 del /f /q tempCheckVersion.sql
 echo Upgrade aborted. No changes are made to the database.
-IF %SILENT_MODE_USED% == true (
+IF "%SILENT_MODE_USED%" == "true" (
 	exit 3
 ) ELSE (
 	GOTO :End
@@ -150,10 +150,10 @@ IF %SILENT_MODE_USED% == true (
 :: ##################    THE END    ########################################
 :End
 echo Upgrade completed. Check upgrade.log file for potential errors.
-IF %MANUAL_MODE_USED% == true (
+IF "%MANUAL_MODE_USED%" == "true" (
 	pause
 	exit
-) ELSE IF %CONSOLE_MODE_USED% == true (
+) ELSE IF "%CONSOLE_MODE_USED%" == "true" (
 	rem return to the start folder
 	cd /d %START_FOLDER%
 ) ELSE (

@@ -41,7 +41,7 @@ IF %INTERACTIVE% == 0 (
 )
 
 :set_dbname 
-IF %SILENT_MODE_USED% == true (
+IF "%SILENT_MODE_USED%" == "true" (
     set dbname=%CMD_ARGUMENT%
 ) ELSE (
     SET /P dbname=Enter Test Explorer database name:
@@ -60,7 +60,7 @@ del /f /q check_dbname.txt
 
 REM check if there is already database with the same name, if so back to set a new name
 IF [%file_cont%] EQU [%dbname%] ( 
-	 IF %SILENT_MODE_USED% == true (
+	 IF "%SILENT_MODE_USED%" == "true" (
 		echo Such database already exists. Now will exit
 		exit 1
 	) ELSE (
@@ -128,7 +128,7 @@ echo GO >> tempCreateDBScript.sql
 
 IF %ERRORLEVEL% NEQ 0 (
 	echo Installation was not successful
-IF %CONSOLE_MODE_USED% == true (
+IF "%CONSOLE_MODE_USED%" == "true" (
 		exit 0
 	) ELSE (
 		GOTO :end
@@ -140,7 +140,7 @@ osql /E /d master /i tempCreateDBScript.sql /o install.log
 IF %ERRORLEVEL% NEQ 0 (
 	del /q /f tempCreateDBScript.sql
 	echo Installation was not successful. Check install.log file for errors.
-	IF %CONSOLE_MODE_USED% == true (
+	IF "%CONSOLE_MODE_USED%" == "true" (
 		exit 0
 	) ELSE (
 		GOTO :end
@@ -148,7 +148,7 @@ IF %ERRORLEVEL% NEQ 0 (
 ) ELSE (
 	del /q /f tempCreateDBScript.sql
 	echo Installation completed. Check install.log file for potential errors.
-	IF %CONSOLE_MODE_USED% == true (
+	IF "%CONSOLE_MODE_USED%" == "true" (
 		exit 0
 	) ELSE (
 		GOTO :end
@@ -157,9 +157,9 @@ IF %ERRORLEVEL% NEQ 0 (
 
 rem return to the start folder
 :end
-IF %CONSOLE_MODE_USED% == true (
+IF "%CONSOLE_MODE_USED%" == "true" (
 	cd /d %START_FOLDER%
-) ELSE IF %CONSOLE_MODE_USED% == true (
+) ELSE IF "%CONSOLE_MODE_USED%" == "true" (
 	pause
 	exit
 )
