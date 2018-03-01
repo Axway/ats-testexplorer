@@ -4,7 +4,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.0.4-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
@@ -17,7 +17,7 @@
         <maven.min.version>3.0.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <ats.framework.version>4.1.0-SNAPSHOT</ats.framework.version>
+        <ats.framework.version>4.0.4-SNAPSHOT</ats.framework.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <apache.commons-lang.version>2.4</apache.commons-lang.version>
         <apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>

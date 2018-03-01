@@ -26,7 +26,7 @@ ________________________________________________________________________________
 													  Storing timestamp in UTC format in database and showing then in the browser according to the user locale
 													  Combining testcase statistics in more than one chart
 	8           |   4.0.3       |  22-12-2017   |
-	9           |   4.1.0       |  xx-xx-xxxx   |
+	9           |   4.0.4       |  01-03-2018   |
 		
 													  
 		                                              
