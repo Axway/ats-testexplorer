@@ -33,7 +33,7 @@ if not errorlevel 1 set INTERACTIVE=1
 IF %INTERACTIVE% == 0 (
 	SET CONSOLE_MODE_USED=true
 ) ELSE (
-	IF [%FIRST_CMD_ARGUMENT%]==[] (
+	IF [%CMD_ARGUMENT%]==[] (
 		SET MANUAL_MODE_USED=true
 	) ELSE (
 		SET SILENT_MODE_USED=true
@@ -128,8 +128,8 @@ echo GO >> tempCreateDBScript.sql
 
 IF %ERRORLEVEL% NEQ 0 (
 	echo Installation was not successful
-IF "%CONSOLE_MODE_USED%" == "true" (
-		exit 0
+	IF "%SILENT_MODE_USED%" == "true" (
+		exit 2
 	) ELSE (
 		GOTO :end
 	)
@@ -140,15 +140,15 @@ osql /E /d master /i tempCreateDBScript.sql /o install.log
 IF %ERRORLEVEL% NEQ 0 (
 	del /q /f tempCreateDBScript.sql
 	echo Installation was not successful. Check install.log file for errors.
-	IF "%CONSOLE_MODE_USED%" == "true" (
-		exit 0
+	IF "%SILENT_MODE_USED%" == "true" (
+		exit 3
 	) ELSE (
 		GOTO :end
 	)
 ) ELSE (
 	del /q /f tempCreateDBScript.sql
 	echo Installation completed. Check install.log file for potential errors.
-	IF "%CONSOLE_MODE_USED%" == "true" (
+	IF "%SILENT_MODE_USED%" == "true" (
 		exit 0
 	) ELSE (
 		GOTO :end
@@ -159,7 +159,7 @@ rem return to the start folder
 :end
 IF "%CONSOLE_MODE_USED%" == "true" (
 	cd /d %START_FOLDER%
-) ELSE IF "%CONSOLE_MODE_USED%" == "true" (
+) ELSE IF "%MANUAL_MODE_USED%" == "true" (
 	pause
 	exit
 )

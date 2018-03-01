@@ -34,7 +34,7 @@ if not errorlevel 1 set INTERACTIVE=1
 IF %INTERACTIVE% == 0 (
 	SET CONSOLE_MODE_USED=true
 ) ELSE (
-	IF [%FIRST_CMD_ARGUMENT%]==[] (
+	IF [%CMD_ARGUMENT%]==[] (
 		SET MANUAL_MODE_USED=true
 	) ELSE (
 		SET SILENT_MODE_USED=true
