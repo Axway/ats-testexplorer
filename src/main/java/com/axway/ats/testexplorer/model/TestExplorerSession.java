@@ -65,6 +65,7 @@ public class TestExplorerSession extends WebSession {
     private String                                                                 dbName           = "";
     private String                                                                 dbVersion        = null;
     private String                                                                 dbHost           = "127.0.0.1";
+    private int                                                                    dbPort;
     private String                                                                 dbUser;
     private String                                                                 dbPassword;
     private int                                                                    rowsPerPage      = 50;
@@ -112,6 +113,20 @@ public class TestExplorerSession extends WebSession {
         if (configProperties.getProperty("db.host") != null) {
             dbHost = configProperties.getProperty("db.host").trim();
         }
+        if (configProperties.getProperty("db.port") != null) {
+            try {
+                dbPort = Integer.parseInt(configProperties.getProperty("db.port").trim());
+            } catch (NumberFormatException e) {
+                LOG.error("Could not obtain db port from file 'ats.config.properties'. Its value will be set to the default one for MSSQL databases ("
+                          + DbConnSQLServer.DEFAULT_PORT + ")", e);
+                dbPort = DbConnSQLServer.DEFAULT_PORT;
+            }
+
+        } else {
+            LOG.error("Could not obtain db port from file 'ats.config.properties'. Its value will be set to the default one for MSSQL databases ("
+                      + DbConnSQLServer.DEFAULT_PORT + ")");
+            dbPort = DbConnSQLServer.DEFAULT_PORT;
+        }
         if (configProperties.getProperty("db.user") != null) {
             dbUser = configProperties.getProperty("db.user").trim();
         }
@@ -129,7 +144,7 @@ public class TestExplorerSession extends WebSession {
         if (this.dbReadConnection == null || !this.dbName.equals(dbName)) {
 
             TestExplorerDbReadAccessInterface dbReadConnection = null;
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbName, dbUser, dbPassword)) {
+            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
 
                 // load the DB read connection access class
                 dbReadConnection = loadSQLServerDbReadAccessClass(dbName);
@@ -137,7 +152,7 @@ public class TestExplorerSession extends WebSession {
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbReadConnection).checkConnection();
 
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbName, dbUser, dbPassword)) {
+            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
 
                 // load the DB read connection access class
                 dbReadConnection = loadPGDbReadAccessClass(dbName);
@@ -146,7 +161,8 @@ public class TestExplorerSession extends WebSession {
                 ((AbstractDbAccess) dbReadConnection).checkConnection();
 
             } else {
-                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost
+                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost + ":"
+                                                  + dbPort
                                                   + "' contains database with name '" + dbName + "'");
             }
 
@@ -177,13 +193,13 @@ public class TestExplorerSession extends WebSession {
         TestExplorerDbWriteAccessInterface dbWriteConnection = null;
         if (this.dbWriteConnection == null || !this.dbName.equals(dbName)) {
 
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbName, dbUser, dbPassword)) {
+            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
                 // load the DB write connection access class
                 dbWriteConnection = loadSQLServerDbWriteAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbWriteConnection).checkConnection();
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbName, dbUser, dbPassword)) {
+            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
                 // load the DB write connection access class
                 dbWriteConnection = loadPGDbWriteAccessClass(dbName);
 
@@ -391,7 +407,7 @@ public class TestExplorerSession extends WebSession {
             Class<? extends TestExplorerDbReadAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass(TestExplorerDbReadAccessInterface.class);
             // make a new instance
             Constructor<? extends TestExplorerDbReadAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor(DbConnSQLServer.class);
-            DbConnSQLServer mssqlConn = new DbConnSQLServer(dbHost, dbName, dbUser, dbPassword);
+            DbConnSQLServer mssqlConn = new DbConnSQLServer(dbHost, dbPort, dbName, dbUser, dbPassword, null);
             dbConnection = dbAccessConstructor.newInstance(mssqlConn);
         } catch (Exception e) {
             throw new DatabaseAccessException("Unable to load DB read access class '" + dbAccessClassName
@@ -423,7 +439,7 @@ public class TestExplorerSession extends WebSession {
             Class<? extends TestExplorerDbWriteAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass(TestExplorerDbWriteAccessInterface.class);
             // make a new instance
             Constructor<? extends TestExplorerDbWriteAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor(DbConnSQLServer.class);
-            DbConnSQLServer mssqlConn = new DbConnSQLServer(dbHost, dbName, dbUser, dbPassword);
+            DbConnSQLServer mssqlConn = new DbConnSQLServer(dbHost, dbPort, dbName, dbUser, dbPassword, null);
             dbConnection = dbAccessConstructor.newInstance(mssqlConn);
         } catch (Exception e) {
             throw new DatabaseAccessException("Unable to load DB write access class '" + dbAccessClassName
@@ -454,7 +470,7 @@ public class TestExplorerSession extends WebSession {
             Class<? extends TestExplorerDbReadAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass(TestExplorerDbReadAccessInterface.class);
             // make a new instance
             Constructor<? extends TestExplorerDbReadAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor(DbConnPostgreSQL.class);
-            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL(dbHost, dbName, dbUser, dbPassword);
+            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL(dbHost, dbPort, dbName, dbUser, dbPassword, null);
             dbConnection = dbAccessConstructor.newInstance(psqlConn);
         } catch (Exception e) {
             throw new DatabaseAccessException("Unable to load DB read access class '" + dbAccessClassName
@@ -486,7 +502,7 @@ public class TestExplorerSession extends WebSession {
             Class<? extends TestExplorerDbWriteAccessInterface> dbAccessImplementation = dbAccessClass.asSubclass(TestExplorerDbWriteAccessInterface.class);
             // make a new instance
             Constructor<? extends TestExplorerDbWriteAccessInterface> dbAccessConstructor = dbAccessImplementation.getConstructor(DbConnPostgreSQL.class);
-            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL(dbHost, dbName, dbUser, dbPassword);
+            DbConnPostgreSQL psqlConn = new DbConnPostgreSQL(dbHost, dbPort, dbName, dbUser, dbPassword, null);
             dbConnection = dbAccessConstructor.newInstance(psqlConn);
         } catch (Exception e) {
             throw new DatabaseAccessException("Unable to load DB write access class '" + dbAccessClassName
