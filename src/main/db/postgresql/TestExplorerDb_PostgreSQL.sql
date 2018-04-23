@@ -23,7 +23,7 @@ CREATE TABLE "tInternal" (
     value varchar(256) NOT NULL
 );
 
-INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.5_draft');
+INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.1.0_draft');
 INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '13');
 INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '13');
 INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_13', now());
@@ -2313,7 +2313,7 @@ $func$ LANGUAGE plpgsql;
 
 
 /* Record the version w/o _draft as complete installation */
-UPDATE "tInternal" SET value ='4.0.5' WHERE key = 'version';
+UPDATE "tInternal" SET value ='4.1.0' WHERE key = 'version';
 
 CREATE FUNCTION sp_populate_checkpoint_summary(_loadQueueId INTEGER, _name VARCHAR(255), 
                                                      _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER)
