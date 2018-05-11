@@ -35,14 +35,14 @@ INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.1.0_draft')
 GO
 
 /****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '13')
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '14')
 GO
 
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '13')
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '14')
 GO
 
-INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_13', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_14', SYSDATETIME());
 GO
 
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable] ******/

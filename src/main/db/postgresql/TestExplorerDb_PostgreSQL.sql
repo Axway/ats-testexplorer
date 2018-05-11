@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.1.0_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '13');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '13');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_13', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '14');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '14');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_14', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -1077,7 +1077,7 @@ DECLARE
     _testcaseId INTEGER;
 BEGIN
     DROP TABLE IF EXISTS "tmpTestcases";
-    CREATE TABLE IF NOT EXISTS "tmpTestcases" (
+    CREATE TEMP TABLE IF NOT EXISTS "tmpTestcases" (
         	testcaseId integer      PRIMARY KEY,
             scenarioId integer      NOT NULL,
             suiteId    integer      NOT NULL,
@@ -1841,7 +1841,7 @@ END;
 $func$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION sp_get_number_of_checkpoints_per_queue(testcaseIds VARCHAR(100))
+CREATE FUNCTION sp_get_number_of_checkpoints_per_queue(testcaseIds VARCHAR(100))
 RETURNS TABLE (
     name VARCHAR(255),
     numberOfQueue BIGINT
@@ -1849,7 +1849,7 @@ RETURNS TABLE (
 DECLARE
     _sql VARCHAR(8000);
 BEGIN
-    _sql := 'SELECT tLoadQueues".name,
+    _sql := 'SELECT "tLoadQueues".name,
              count("tLoadQueues".name) as numberOfQueue
              FROM ' || $$"tCheckpoints"$$ || '
              INNER JOIN ' || $$"tCheckpointsSummary"$$ || ' on ("tCheckpointsSummary".checkpointSummaryId = "tCheckpoints".checkpointSummaryId)
