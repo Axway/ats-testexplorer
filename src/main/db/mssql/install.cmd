@@ -76,7 +76,7 @@ echo USE [master] > tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 echo CREATE DATABASE [%dbname%]  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_dbcmptlevel @dbname=N'%dbname%', @new_cmptlevel=80 >> tempCreateDBScript.sql
+echo EXEC dbo.sp_dbcmptlevel @dbname=N'%dbname%', @new_cmptlevel=100 >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 echo ALTER DATABASE [%dbname%] SET ANSI_NULL_DEFAULT OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
