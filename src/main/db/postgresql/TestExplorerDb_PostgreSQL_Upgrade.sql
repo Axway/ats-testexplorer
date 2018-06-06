@@ -144,3 +144,78 @@ BEGIN
   RAISE WARNING '#14 INTERNAL VERSION UPGRADE FOOTER - END';
 END
 $$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#15 INTERNAL VERSION UPGRADE HEADER - START';
+END
+$$;
+INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_15', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#15 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'start CREATE OR REPLACE function sp_insert_message';
+END
+$$;
+
+
+CREATE FUNCTION sp_insert_message( _testcaseId INTEGER, _messageTypeId INTEGER , _message TEXT , 
+                                  _escapeHtml boolean , _machine VARCHAR(255) , _threadName VARCHAR(255) 
+                                  , _timestamp TIMESTAMP)
+RETURNS VOID AS $$
+DECLARE
+    uniqueMessageId  INTEGER;
+    messageChunk     VARCHAR(3952);
+    parentMessageId  INTEGER;
+    pos              INTEGER DEFAULT 1;
+    chunkSize        INTEGER DEFAULT 3950;
+    machineId        INTEGER;
+BEGIN
+    machineId := "getMachineId" (_machine);
+    WHILE pos*2 <= LENGTH(_message) LOOP
+        messageChunk := SUBSTRING(_message, pos, chunkSize);
+        uniqueMessageId := "getUniqueMessageId"( messageChunk );
+        -- insert the message
+        -- VARCHAR uses 2 bytes per char, so we have to double 'chunkSize' in order to compare it with LENGTH
+        IF LENGTH(_message) > chunkSize*2 AND pos = 1 THEN
+            INSERT INTO "tMessages"
+                (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
+            VALUES
+                (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, IDENT_CURRENT('tMessages'));
+        ELSE
+            INSERT INTO "tMessages"
+            (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
+            VALUES
+            (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, parentMessageId);
+        END IF;
+        pos := pos + chunkSize;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'end CREATE OR REPLACE function sp_insert_message';
+END
+$$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#15 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='15' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#15 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;

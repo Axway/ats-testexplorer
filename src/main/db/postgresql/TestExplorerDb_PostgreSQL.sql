@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.1.0_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '14');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '14');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_14', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '15');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '15');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_15', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -1441,7 +1441,7 @@ RETURNS VOID AS $$
 DECLARE
     uniqueMessageId  INTEGER;
     messageChunk     VARCHAR(3952);
-    _parentMessageId INTEGER;
+    parentMessageId  INTEGER;
     pos              INTEGER DEFAULT 1;
     chunkSize        INTEGER DEFAULT 3950;
     machineId        INTEGER;
@@ -1456,13 +1456,12 @@ BEGIN
             INSERT INTO "tMessages"
                 (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
             VALUES
-                (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, _uniqueMessageId, machineId, _threadName, IDENT_CURRENT('tMessages'));
-            _parentMessageId = IDENT_CURRENT('tMessages');
+                (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, IDENT_CURRENT('tMessages'));
         ELSE
             INSERT INTO "tMessages"
             (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
             VALUES
-            (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, _parentMessageId);
+            (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, parentMessageId);
         END IF;
         pos := pos + chunkSize;
     END LOOP;
@@ -2311,10 +2310,6 @@ BEGIN
 END;
 $func$ LANGUAGE plpgsql;
 
-
-/* Record the version w/o _draft as complete installation */
-UPDATE "tInternal" SET value ='4.1.0' WHERE key = 'version';
-
 CREATE FUNCTION sp_populate_checkpoint_summary(_loadQueueId INTEGER, _name VARCHAR(255), 
                                                      _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER)
 RETURNS INTEGER AS $func$
@@ -2561,3 +2556,7 @@ BEGIN
     
 END
 $func$ LANGUAGE plpgsql;
+
+
+/* Record the version w/o _draft as complete installation */
+UPDATE "tInternal" SET value ='4.1.0' WHERE key = 'version';
