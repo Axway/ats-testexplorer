@@ -166,7 +166,7 @@ END
 $$;
 
 
-CREATE FUNCTION sp_insert_message( _testcaseId INTEGER, _messageTypeId INTEGER , _message TEXT , 
+CREATE OR REPLACE FUNCTION sp_insert_message( _testcaseId INTEGER, _messageTypeId INTEGER , _message TEXT , 
                                   _escapeHtml boolean , _machine VARCHAR(255) , _threadName VARCHAR(255) 
                                   , _timestamp TIMESTAMP)
 RETURNS VOID AS $$
@@ -185,10 +185,12 @@ BEGIN
         -- insert the message
         -- VARCHAR uses 2 bytes per char, so we have to double 'chunkSize' in order to compare it with LENGTH
         IF LENGTH(_message) > chunkSize*2 AND pos = 1 THEN
+			parentMessageId := (SELECT last_value FROM "tMessages_messageid_seq");
+			parentMessageId := parentMessageId + 1;
             INSERT INTO "tMessages"
                 (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
             VALUES
-                (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, IDENT_CURRENT('tMessages'));
+                (_testcaseId, _messageTypeId, _timestamp, _escapeHtml, uniqueMessageId, machineId, _threadName, parentMessageId);
         ELSE
             INSERT INTO "tMessages"
             (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
