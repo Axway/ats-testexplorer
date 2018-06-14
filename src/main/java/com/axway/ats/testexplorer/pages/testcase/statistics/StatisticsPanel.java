@@ -596,6 +596,7 @@ public class StatisticsPanel extends BaseStatisticsPanel implements IAjaxIndicat
                     parameters.add("dbname", dbName);
                     parameters.add("timeOffSet", timeOffset);
                     parameters.add("currentTestcase", testcaseId);
+                    parameters.add( "tab", "2" );
                     // unselected all selected statistics
                     String uncheckAllCheckboxes = "checkboxes = document.getElementsByTagName('input');"
                                                   + "for(var i = 0; i < checkboxes.length; i++) {"

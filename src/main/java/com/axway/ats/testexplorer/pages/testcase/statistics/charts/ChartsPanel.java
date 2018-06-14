@@ -124,24 +124,25 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 if (attr.getValue() != null && !attr.getValue().isEmpty()) {
                     this.timeOffSet = Float.parseFloat(attr.getValue().toString());
                 }
-            } else if (!"dbname".equals(attr.getKey()) && !"currentTestcase".equals(attr.getKey())) {
+            } else if( !"dbname".equals( attr.getKey() ) && !"currentTestcase".equals( attr.getKey() )
+                       && !"tab".equals( attr.getKey() ) ) {
                 List<DbStatisticDescription> sysUserStats = new ArrayList<DbStatisticDescription>();
                 List<DbStatisticDescription> actionStats = new ArrayList<DbStatisticDescription>();
-                for (String stat : attr.getValue().toString().split(",")) {
-                    DbStatisticDescription statData = DbStatisticDescription.fromURL(stat);
-                    testcaseIds.add(statData.testcaseId);
-                    if (statData.statisticId != -1) {
-                        sysUserStats.add(statData);
+                for( String stat : attr.getValue().toString().split( "," ) ) {
+                    DbStatisticDescription statData = DbStatisticDescription.fromURL( stat );
+                    testcaseIds.add( statData.testcaseId );
+                    if( statData.statisticId != -1 ) {
+                        sysUserStats.add( statData );
                     } else {
-                        actionNames.add(statData.name);
-                        actionStats.add(statData);
+                        actionNames.add( statData.name );
+                        actionStats.add( statData );
                     }
                 }
-                if (!sysUserStats.isEmpty()) {
-                    userAndSystemStatistics.put(attr.getKey(), sysUserStats);
+                if( !sysUserStats.isEmpty() ) {
+                    userAndSystemStatistics.put( attr.getKey(), sysUserStats );
                 }
-                if (!actionStats.isEmpty()) {
-                    actionStatistics.put(attr.getKey(), actionStats);
+                if( !actionStats.isEmpty() ) {
+                    actionStatistics.put( attr.getKey(), actionStats );
                 }
             }
         }

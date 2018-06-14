@@ -57,18 +57,7 @@ public class ChartsBasePanel extends Panel {
     private void addMultiTabbedPanel( final String testcaseId, final PageParameters parameters ) {
         
         List<ITab> tabs = new ArrayList<ITab>();
-        
-        tabs.add(new AbstractTab(new Model<String>("Charts")) {
-
-            private static final long serialVersionUID = 1L;
-
-            public Panel getPanel(
-                                   String panelId ) {
-
-                return new ChartsPanel(panelId, parameters);
-            }
-        });
-        
+               
         tabs.add(new AbstractTab(new Model<String>("Messages")) {
 
             private static final long serialVersionUID = 1L;
@@ -88,6 +77,17 @@ public class ChartsBasePanel extends Panel {
                                    String panelId ) {
 
                 return new LoadQueuesPanel(panelId, testcaseId);
+            }
+        });
+        
+        tabs.add(new AbstractTab(new Model<String>("Statistics")) {
+
+            private static final long serialVersionUID = 1L;
+
+            public Panel getPanel(
+                                   String panelId ) {
+
+                return new ChartsPanel(panelId, parameters);
             }
         });
 
