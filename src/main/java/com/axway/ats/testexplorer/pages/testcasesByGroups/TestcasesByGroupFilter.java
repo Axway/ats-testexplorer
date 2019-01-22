@@ -591,12 +591,6 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
         // we want to always show the filter expanded
         jsScript.append("$('.filterHeader').click()");
         if (hasTooManyTestcases) {
-            long maxHeapSize = Runtime.getRuntime().maxMemory();
-            if (maxHeapSize / (1000 * 1000) >= 0) {
-                maxHeapSize = 1; // The heap is around 1MB
-            } else {
-                maxHeapSize /= (1000 * 1000);
-            }
             jsScript.append(";alert('" + getLowHeapMemoryMessage() + "')");
             hasTooManyTestcases = false; // clear the flag so we pop the alert only once
         }
