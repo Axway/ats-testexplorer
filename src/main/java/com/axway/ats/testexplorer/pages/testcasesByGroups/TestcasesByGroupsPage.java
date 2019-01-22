@@ -30,13 +30,15 @@ import com.axway.ats.testexplorer.pages.WelcomePage;
 
 public class TestcasesByGroupsPage extends BasePage {
 
-    private static final long                serialVersionUID = 1L;
+    private static final long                serialVersionUID        = 1L;
 
     private String                           treemapData;
 
     private String                           testcasesIdsMap;
 
     private String                           filterData;
+
+    private boolean                          initialSearchSuccessful = false;
 
     private transient TestcasesByGroupFilter filter;
 
@@ -46,11 +48,30 @@ public class TestcasesByGroupsPage extends BasePage {
 
         addNavigationLink(WelcomePage.class, new PageParameters(), "Home", null);
 
+        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onClick(
+                                 AjaxRequestTarget target ) {
+                
+            }
+        };
+        //modalTooltip.
+        modalTooltip.add(new WebMarkupContainer("helpButton"));
+
+        add(modalTooltip);
+
         filter = new TestcasesByGroupFilter("searchForm");
 
         add(filter);
 
-        filter.performSearchOnPageLoad();
+        initialSearchSuccessful = filter.performSearchOnPageLoad();
+
+        if (!initialSearchSuccessful) {
+            return;
+        }
 
         filterData = filter.getFilterData();
 
@@ -75,21 +96,6 @@ public class TestcasesByGroupsPage extends BasePage {
             testcasesIdsMap = perGroupStorage.generateTestcasesIdsMap();
         }
 
-        AjaxLink<String> modalTooltip = new AjaxLink<String>("modalTooltip") {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void onClick(
-                                 AjaxRequestTarget target ) {
-
-            }
-        };
-        //modalTooltip.
-        modalTooltip.add(new WebMarkupContainer("helpButton"));
-
-        add(modalTooltip);
-
     }
 
     @Override
@@ -97,6 +103,10 @@ public class TestcasesByGroupsPage extends BasePage {
                             IHeaderResponse response ) {
 
         super.renderHead(response);
+
+        if (!initialSearchSuccessful) {
+            return;
+        }
 
         TestExplorerSession session = (TestExplorerSession) Session.get();
 

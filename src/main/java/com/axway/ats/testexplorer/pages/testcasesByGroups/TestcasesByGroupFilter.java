@@ -47,30 +47,35 @@ import com.axway.ats.testexplorer.pages.model.filtering.IFilter;
 
 public class TestcasesByGroupFilter extends Form<String> implements IFilter {
 
-    private static final long          serialVersionUID     = 1L;
+    private static final long          serialVersionUID                = 1L;
+
+    private static final String        TOO_MANY_TESTCASES_WARN_MESSAGE = "There are too many testcases. "
+                                                                         + "Please increase the heap of the web application before requesting any report on that page. Currently the heap size is around %s MB";
 
     private DropDownChoice<String>     searchByProduct;
     private List<String>               productNames;
     private String                     selectedProductName;
 
     private ListMultipleChoice<String> searchByVersion;
-    private List<String>               selectedVersionNames = new ArrayList<String>();
-    private List<String>               versionNames         = new ArrayList<String>();
+    private List<String>               selectedVersionNames            = new ArrayList<String>();
+    private List<String>               versionNames                    = new ArrayList<String>();
 
     private ListMultipleChoice<String> searchByAllGroups;
     private List<String>               selectedGroupNames;
     private List<String>               groupNames;
 
-    private DateTextField              searchByAfterDate    = DateTextField.forDatePattern("search_by_after_date",
-                                                                                           new Model<Date>(),
-                                                                                           "dd.MM.yyyy");
-    private DateTextField              searchByBeforeDate   = DateTextField.forDatePattern("search_by_before_date",
-                                                                                           new Model<Date>(),
-                                                                                           "dd.MM.yyyy");
+    private DateTextField              searchByAfterDate               = DateTextField.forDatePattern("search_by_after_date",
+                                                                                                      new Model<Date>(),
+                                                                                                      "dd.MM.yyyy");
+    private DateTextField              searchByBeforeDate              = DateTextField.forDatePattern("search_by_before_date",
+                                                                                                      new Model<Date>(),
+                                                                                                      "dd.MM.yyyy");
 
     private TextField<String>          searchByGroupContains;
 
-    private static Logger              LOG                  = Logger.getLogger(TestcasesByGroupFilter.class);
+    private static Logger              LOG                             = Logger.getLogger(TestcasesByGroupFilter.class);
+
+    private boolean                    hasTooManyTestcases             = false;
 
     public TestcasesByGroupFilter( String id ) {
 
@@ -452,10 +457,30 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
         return searchByProduct;
     }
 
-    public void performSearchOnPageLoad() {
+    /**
+     * Performs initial search via the default search query
+     * @return true if the search is successful, false otherwise
+     * */
+    public boolean performSearchOnPageLoad() {
 
         if (productNames == null || productNames.size() == 0) {
-            return;
+            return false;
+        }
+
+        // Since ATS needs to execute queries over all of the database's data
+        // this can result in OOM exceptions.
+        // So check how much test data is in the DB and log a warning if it is too much
+        // What means too much, it depends, but ATS says testcases count >= 1k
+        try {
+            if (!isFreeHeapSpaceEnough()) {
+                hasTooManyTestcases = true;
+                LOG.warn(getLowHeapMemoryMessage());
+                return false;
+            }
+        } catch (Exception e) {
+            error("Unable to get testcases count");
+            LOG.error("Unable to get testcases count", e);
+            return false;
         }
 
         selectedProductName = productNames.get(productNames.size() - 1);
@@ -491,10 +516,46 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
         } catch (DatabaseAccessException e) {
             error("Unable to perform initial search");
             LOG.error("Unable to perform initial search", e);
+            return false;
         } catch (ParseException e) {
             error("Unable to parse date start for last run");
             LOG.error("Unable to parse date start for last run", e);
+            return false;
         }
+
+        return true;
+    }
+
+    private String getLowHeapMemoryMessage() {
+
+        long maxHeapSize = Runtime.getRuntime().maxMemory(); // return the max heap size in bytes
+        if (maxHeapSize / (1000 * 1000) <= 0) {
+            maxHeapSize = 1; // The heap is around 1MB and the rounding errors will show it like it is 0 (zero). So set it to 1 (MB) instead
+        } else {
+            maxHeapSize /= (1000 * 1000); // convert it to MB
+        }
+
+        return String.format(TOO_MANY_TESTCASES_WARN_MESSAGE, maxHeapSize);
+    }
+
+    /**
+     * Checks if the remaining heap size is enough to serve the upcoming request.</br>
+     * Approximately one testcase treemap data consumes around 750 bytes of data.
+     * 
+     * @return true if the free heap space is enough, false other wise
+     * @throws DatabaseAccessException 
+     * */
+    private boolean isFreeHeapSpaceEnough() throws DatabaseAccessException {
+
+        long heapFreeSize = Runtime.getRuntime().freeMemory();
+
+        TestExplorerSession session = (TestExplorerSession) Session.get();
+        int count = session.getDbReadConnection().getTestcasesCount("WHERE 1=1");
+
+        long neededSize = count * 750;
+
+        return heapFreeSize > neededSize;
+
     }
 
     @Override
@@ -526,9 +587,21 @@ public class TestcasesByGroupFilter extends Form<String> implements IFilter {
     public void renderHead( IHeaderResponse response ) {
 
         super.renderHead(response);
-        if (hasSelectedFields()) {
-            response.render(OnDomReadyHeaderItem.forScript("$('.filterHeader').click()"));
+        StringBuilder jsScript = new StringBuilder();
+        // we want to always show the filter expanded
+        jsScript.append("$('.filterHeader').click()");
+        if (hasTooManyTestcases) {
+            long maxHeapSize = Runtime.getRuntime().maxMemory();
+            if (maxHeapSize / (1000 * 1000) >= 0) {
+                maxHeapSize = 1; // The heap is around 1MB
+            } else {
+                maxHeapSize /= (1000 * 1000);
+            }
+            jsScript.append(";alert('" + getLowHeapMemoryMessage() + "')");
+            hasTooManyTestcases = false; // clear the flag so we pop the alert only once
         }
+        response.render(OnDomReadyHeaderItem.forScript(jsScript.toString()));
+
     }
 
 }
