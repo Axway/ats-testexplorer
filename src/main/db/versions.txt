@@ -29,7 +29,10 @@ ________________________________________________________________________________
 	    13          |   4.0.3       |  22-12-2017   | No real change in db scripts from 4.0.2
 	    13          |   4.0.4       |  01-03-2018   | No real change in db scripts from 4.0.3
 	    13          |   4.0.5       |  23-04-2018   | No real change in db scripts from 4.0.4
-        11          |   4.x.x       |  xx-xx-2018   |
+        15          |   4.0.6       |  xx-xx-2019   | Change SQL server compatibility version from 80 to 100
+                                                    | Fix bug in PgSQL regarding sp_insert_message. Now as in SQL server, the messages have parentMessageId
+        xx          |   4.1.0       x  xx-xx-xxxx   |
+                                                      
 		
 													  
 		                                              
