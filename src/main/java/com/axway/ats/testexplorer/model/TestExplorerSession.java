@@ -31,18 +31,19 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 
+import com.axway.ats.common.dbaccess.DbKeys;
 import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.dbaccess.postgresql.DbConnPostgreSQL;
 import com.axway.ats.log.autodb.AbstractDbAccess;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.TestExplorerApplication;
-import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbReadAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbReadAccessInterface;
-import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbWriteAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerDbWriteAccessInterface;
 import com.axway.ats.testexplorer.model.db.TestExplorerPGDbReadAccess;
 import com.axway.ats.testexplorer.model.db.TestExplorerPGDbWriteAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbReadAccess;
+import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbWriteAccess;
 import com.axway.ats.testexplorer.pages.model.TableColumn;
 import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescription;
 
@@ -81,6 +82,14 @@ public class TestExplorerSession extends WebSession {
     public TestExplorerSession( Request request ) {
 
         super(request);
+
+        if (System.getProperty(DbKeys.CONNECTION_RETRY_COUNT) == null) {
+            System.setProperty(DbKeys.CONNECTION_RETRY_COUNT, "1"); // will try only once to connect to DB
+        }
+
+        if (System.getProperty(DbKeys.CONNECTION_RETRY_TIMEOUT) == null) {
+            System.setProperty(DbKeys.CONNECTION_RETRY_TIMEOUT, "0"); // no wait between connection retries
+        }
 
         configure();
 
@@ -141,29 +150,59 @@ public class TestExplorerSession extends WebSession {
 
     public final void initializeDbReadConnection( String dbName ) throws DatabaseAccessException {
 
+        TestExplorerDbReadAccessInterface dbReadConnection = null;
         if (this.dbReadConnection == null || !this.dbName.equals(dbName)) {
 
-            TestExplorerDbReadAccessInterface dbReadConnection = null;
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
+            String availableDbType = null;
+            if (String.valueOf(DbConnSQLServer.DEFAULT_PORT).equals(String.valueOf(dbPort))) {
 
+                checkIfMssqlAvailable(dbName);
+                availableDbType = DbConnSQLServer.DATABASE_TYPE;
+            } else if (String.valueOf(DbConnPostgreSQL.DEFAULT_PORT).equals(String.valueOf(dbPort))) {
+
+                checkIfPgsqlAvailable(dbName);
+                availableDbType = DbConnPostgreSQL.DATABASE_TYPE;
+            } else {
+
+                Throwable mssqlException = null;
+                Throwable pgsqlException = null;
+
+                try {
+                    checkIfMssqlAvailable(dbName);
+                    availableDbType = DbConnSQLServer.DATABASE_TYPE;
+                } catch (Exception e) {
+                    mssqlException = e;
+                }
+
+                try {
+                    checkIfPgsqlAvailable(dbName);
+                    availableDbType = DbConnPostgreSQL.DATABASE_TYPE;
+                } catch (Exception e) {
+                    pgsqlException = e;
+                }
+
+                if (mssqlException != null && pgsqlException != null) {
+                    LOG.error(mssqlException);
+                    LOG.error(pgsqlException);
+                    throw new DatabaseAccessException("Neither Mssql, nor Pgsql ATS LOG database available. See log for details");
+                }
+            }
+
+            if (availableDbType.equals(DbConnSQLServer.DATABASE_TYPE)) {
                 // load the DB read connection access class
                 dbReadConnection = loadSQLServerDbReadAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbReadConnection).checkConnection();
-
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
-
+            } else if (availableDbType.equals(DbConnPostgreSQL.DATABASE_TYPE)) {
                 // load the DB read connection access class
                 dbReadConnection = loadPGDbReadAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbReadConnection).checkConnection();
-
             } else {
-                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost + ":"
-                                                  + dbPort
-                                                  + "' contains database with name '" + dbName + "'");
+                throw new UnsupportedOperationException("Could not use database '" + availableDbType
+                                                        + "' as an ATS LOG database");
             }
 
             // we are able to connect, so keep this connection
@@ -186,6 +225,44 @@ public class TestExplorerSession extends WebSession {
                 ((TestExplorerApplication) getApplication()).setColumnDefinition(dbName, dbColumnDefinition);
             }
         }
+
+    }
+
+    private void checkIfPgsqlAvailable( String dbName ) throws DatabaseAccessException {
+
+        LOG.info("Checking connectivity to [" + DbConnPostgreSQL.DATABASE_TYPE + "] ATS LOG database ...");
+
+        try {
+            DbUtils.checkPgsqlDatabaseAvailability(dbHost,
+                                                   dbPort,
+                                                   dbName,
+                                                   dbUser,
+                                                   dbPassword);
+
+            LOG.info("[" + DbConnPostgreSQL.DATABASE_TYPE + "] ATS LOG DB available: YES");
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Unable to connect to " + DbConnPostgreSQL.DATABASE_TYPE
+                                              + " ATS Log database.", e);
+        }
+    }
+
+    private void checkIfMssqlAvailable( String dbName ) throws DatabaseAccessException {
+
+        LOG.info("Checking connectivity to [" + DbConnSQLServer.DATABASE_TYPE + "] ATS LOG database ...");
+
+        try {
+            DbUtils.checkMssqlDatabaseAvailability(dbHost,
+                                                   dbPort,
+                                                   dbName,
+                                                   dbUser,
+                                                   dbPassword);
+
+            LOG.info("[" + DbConnSQLServer.DATABASE_TYPE + "] ATS LOG DB available: YES");
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Unable to connect to " + DbConnSQLServer.DATABASE_TYPE
+                                              + " ATS Log database.", e);
+        }
+
     }
 
     public final void initializeDbWriteConnection( String dbName ) throws DatabaseAccessException {
@@ -193,21 +270,55 @@ public class TestExplorerSession extends WebSession {
         TestExplorerDbWriteAccessInterface dbWriteConnection = null;
         if (this.dbWriteConnection == null || !this.dbName.equals(dbName)) {
 
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
+            String availableDbType = null;
+            if (String.valueOf(DbConnSQLServer.DEFAULT_PORT).equals(String.valueOf(dbPort))) {
+
+                checkIfMssqlAvailable(dbName);
+                availableDbType = DbConnSQLServer.DATABASE_TYPE;
+            } else if (String.valueOf(DbConnPostgreSQL.DEFAULT_PORT).equals(String.valueOf(dbPort))) {
+
+                checkIfPgsqlAvailable(dbName);
+                availableDbType = DbConnPostgreSQL.DATABASE_TYPE;
+            } else {
+
+                Throwable mssqlException = null;
+                Throwable pgsqlException = null;
+
+                try {
+                    checkIfMssqlAvailable(dbName);
+                    availableDbType = DbConnSQLServer.DATABASE_TYPE;
+                } catch (Exception e) {
+                    mssqlException = e;
+                }
+
+                try {
+                    checkIfPgsqlAvailable(dbName);
+                    availableDbType = DbConnPostgreSQL.DATABASE_TYPE;
+                } catch (Exception e) {
+                    pgsqlException = e;
+                }
+
+                if (mssqlException != null && pgsqlException != null) {
+                    LOG.error(mssqlException);
+                    LOG.error(pgsqlException);
+                    throw new DatabaseAccessException("Neither Mssql, nor Pgsql ATS LOG database available. See log for details");
+                }
+            }
+            if (availableDbType.equals(DbConnSQLServer.DATABASE_TYPE)) {
                 // load the DB write connection access class
                 dbWriteConnection = loadSQLServerDbWriteAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbWriteConnection).checkConnection();
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
+            } else if (availableDbType.equals(DbConnPostgreSQL.DATABASE_TYPE)) {
                 // load the DB write connection access class
                 dbWriteConnection = loadPGDbWriteAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbWriteConnection).checkConnection();
             } else {
-                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost
-                                                  + "' contains database with name '" + dbName + "'");
+                throw new UnsupportedOperationException("Could not use database '" + availableDbType
+                                                        + "' as an ATS LOG database");
             }
 
             // we are able to connect, so keep this connection
@@ -283,6 +394,11 @@ public class TestExplorerSession extends WebSession {
     public String getDbName() {
 
         return this.dbName;
+    }
+    
+    public String getDbPort() {
+        
+        return String.valueOf(this.dbPort);
     }
 
     public String getDbVersion() {

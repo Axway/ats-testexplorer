@@ -200,8 +200,11 @@ public class WelcomePage extends BasePage {
             getTESession().initializeDbReadConnection(dbName);
             return true;
         } catch (DatabaseAccessException e) {
-            error("Unable to connect to database '" + dbName + "': " + e.getMessage());
-            LOG.error("Unable to connect to database '" + dbName + "'", e);
+            String errorMessage = "Unable to connect to database '" + dbName + "' at " + getTESession().getDbHost()
+                                  + ":"
+                                  + getTESession().getDbPort() + " as user '" + getTESession().getDbUser() + "'";
+            error(errorMessage);
+            LOG.error(errorMessage, e);
             return false;
         }
     }
