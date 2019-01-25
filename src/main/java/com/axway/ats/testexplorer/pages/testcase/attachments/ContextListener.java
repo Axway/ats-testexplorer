@@ -32,9 +32,10 @@ public class ContextListener implements ServletContextListener {
 
     private static final Logger LOG                     = Logger.getLogger(ContextListener.class);
 
-    //set env var available for the current web app, where all attached filles will be stored
+    // directory name, relative to the attached files parent, where all attached files will be stored
     private static final String ATTACHED_FILES_DIR      = "ats-attached-files";
-    private static final String ATTACHED_FILES_PROPERTY = "ats.attached.files.dir";
+    /** Parent directory where attached files directory will be created */
+    private static final String ATTACHED_FILES_PARENT_DIR = "ats.attached.files.dir";
 
     public static String getAttachedFilesDir() {
 
@@ -47,12 +48,12 @@ public class ContextListener implements ServletContextListener {
 
         LocalFileSystemOperations operations = new LocalFileSystemOperations();
 
-        String attachmentsDir = System.getProperty(ATTACHED_FILES_PROPERTY);
+        String attachmentsDir = System.getProperty(ATTACHED_FILES_PARENT_DIR);
         if (StringUtils.isNullOrEmpty(attachmentsDir)) {
-            attachmentsDir = System.getenv(ATTACHED_FILES_PROPERTY);
+            attachmentsDir = System.getenv(ATTACHED_FILES_PARENT_DIR);
         }
         if (StringUtils.isNullOrEmpty(attachmentsDir)) {
-            attachmentsDir = getProperties().getProperty(ATTACHED_FILES_PROPERTY);
+            attachmentsDir = getProperties().getProperty(ATTACHED_FILES_PARENT_DIR);
         }
         if (StringUtils.isNullOrEmpty(attachmentsDir)) {
             attachmentsDir = System.getenv("CATALINA_BASE");
@@ -62,9 +63,9 @@ public class ContextListener implements ServletContextListener {
         }
 
         if (StringUtils.isNullOrEmpty(attachmentsDir)) {
-            LOG.error("No directory for attached files was configured. "
+            LOG.error("Directory for attached files is not configured. "
                       + "You can set such directory in one of the following ways: " + "key '"
-                      + ATTACHED_FILES_PROPERTY
+                      + ATTACHED_FILES_PARENT_DIR
                       + "' as a system variable, environment variable or property in the WEB-INF/classes/ats.config.properties configuration file in the Test Explorer war file. "
                       + "Last option is to set 'CATALINA_BASE' or 'CATALINA_HOME' when running on Tomcat.");
         } else {
