@@ -3277,7 +3277,38 @@ IF @@ERROR <> 0 --error has happened
 ELSE
     COMMIT
 GO
-
+/****** Object:  StoredProcedure [dbo].[sp_insert_checkpoints]    Script Date: 01/31/2019 15:52:37 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+CREATE PROCEDURE [dbo].[sp_insert_checkpoints]
+@query varchar(MAX)
+AS
+BEGIN
+	BEGIN TRAN InsertCheckpointsTransaction
+		DECLARE @get_app_lock_res INT
+		EXEC @get_app_lock_res = sp_getapplock @Resource = 'InsertCheckpointsTransaction Lock ID', @LockMode = 'Exclusive';
+		IF @get_app_lock_res < 0
+		BEGIN
+			-- error getting lock
+			-- client will see there was an error as @RowsInserted stays 0
+			RETURN;
+		END
+		BEGIN
+			EXEC(@query)
+		END
+		IF @@ERROR <> 0 --error has happened
+    	BEGIN
+			ROLLBACK
+		END
+		ELSE
+		BEGIN
+    		COMMIT
+    	END
+END
+GO
 /****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistics]    Script Date: 06/28/2011 16:05:37 ******/
 SET ANSI_NULLS ON
 GO

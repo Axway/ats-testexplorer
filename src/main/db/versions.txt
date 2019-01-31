@@ -31,7 +31,7 @@ ________________________________________________________________________________
 	    13          |   4.0.5       |  23-04-2018   | No real change in db scripts from 4.0.4
         15          |   4.0.6       |  xx-xx-2019   | Change SQL server compatibility version from 80 to 100
                                                     | Fix bug in PgSQL regarding sp_insert_message. Now as in SQL server, the messages have parentMessageId
-        xx          |   4.1.0       x  xx-xx-xxxx   |
+        16          |   4.1.0       x  xx-xx-xxxx   | Add new procedure sp_insert_checkpoints, that speed up checkpoints insertions (go figure), when batch mode is used
                                                       
 		
 													  

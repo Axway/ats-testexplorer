@@ -2435,6 +2435,13 @@ BEGIN
 END;
 $func$ LANGUAGE plpgsql;
 
+CREATE FUNCTION sp_insert_checkpoints(_query TEXT)
+RETURNS VOID as $func$
+BEGIN
+	EXECUTE _query;
+END;
+$func$ LANGUAGE plpgsql;
+
 CREATE FUNCTION sp_end_checkpoint(_checkpointSummaryId INTEGER, _checkpointId INTEGER, _responseTime INTEGER, _transferSize BIGINT, _result INTEGER, _mode INTEGER, 
 								  _endTime TIMESTAMP, OUT rowsInserted INTEGER)
 RETURNS INTEGER AS $func$
