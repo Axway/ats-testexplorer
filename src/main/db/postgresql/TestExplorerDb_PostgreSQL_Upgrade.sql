@@ -34,3 +34,15 @@ BEGIN
   RAISE WARNING 'end CREATE function sp_insert_checkpoints';
 END
 $$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='16' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;
