@@ -144,7 +144,8 @@ public class TestExplorerSession extends WebSession {
         if (this.dbReadConnection == null || !this.dbName.equals(dbName)) {
 
             TestExplorerDbReadAccessInterface dbReadConnection = null;
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
+            Exception mssqlException = DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword);
+            if (mssqlException == null) {
 
                 // load the DB read connection access class
                 dbReadConnection = loadSQLServerDbReadAccessClass(dbName);
@@ -152,18 +153,24 @@ public class TestExplorerSession extends WebSession {
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbReadConnection).checkConnection();
 
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
-
-                // load the DB read connection access class
-                dbReadConnection = loadPGDbReadAccessClass(dbName);
-
-                // if the next command do not fail, we have a working connection
-                ((AbstractDbAccess) dbReadConnection).checkConnection();
-
             } else {
-                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost + ":"
-                                                  + dbPort
-                                                  + "' contains database with name '" + dbName + "'");
+                Exception pgsqlException = DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser,
+                                                                                 dbPassword);
+                if (pgsqlException == null) {
+                    // load the DB read connection access class
+                    dbReadConnection = loadPGDbReadAccessClass(dbName);
+
+                    // if the next command do not fail, we have a working connection
+                    ((AbstractDbAccess) dbReadConnection).checkConnection();
+                } else {
+                    String errMsg = "Neither MSSQL, nor PostgreSQL server at '" + dbHost + ":"
+                                    + dbPort +
+                                    "' has database with name '" + dbName
+                                    + "'. Exception for MSSQL is : \n\t" + mssqlException
+                                    + "\n\nException for PostgreSQL is: \n\t"
+                                    + pgsqlException;
+                    throw new DatabaseAccessException(errMsg);
+                }
             }
 
             // we are able to connect, so keep this connection
@@ -193,21 +200,31 @@ public class TestExplorerSession extends WebSession {
         TestExplorerDbWriteAccessInterface dbWriteConnection = null;
         if (this.dbWriteConnection == null || !this.dbName.equals(dbName)) {
 
-            if (DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
+            Exception mssqlException = DbUtils.isMSSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword);
+            if (mssqlException == null) {
                 // load the DB write connection access class
                 dbWriteConnection = loadSQLServerDbWriteAccessClass(dbName);
 
                 // if the next command do not fail, we have a working connection
                 ((AbstractDbAccess) dbWriteConnection).checkConnection();
-            } else if (DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser, dbPassword)) {
-                // load the DB write connection access class
-                dbWriteConnection = loadPGDbWriteAccessClass(dbName);
-
-                // if the next command do not fail, we have a working connection
-                ((AbstractDbAccess) dbWriteConnection).checkConnection();
             } else {
-                throw new DatabaseAccessException("Neither MSSQL, nor PostgreSQL database server at '" + dbHost
-                                                  + "' contains database with name '" + dbName + "'");
+                Exception pgsqlException = DbUtils.isPostgreSQLDatabaseAvailable(dbHost, dbPort, dbName, dbUser,
+                                                                                 dbPassword);
+                if (pgsqlException == null) {
+                    // load the DB write connection access class
+                    dbWriteConnection = loadPGDbWriteAccessClass(dbName);
+
+                    // if the next command do not fail, we have a working connection
+                    ((AbstractDbAccess) dbWriteConnection).checkConnection();
+                } else {
+                    String errMsg = "Neither MSSQL, nor PostgreSQL server at '" + dbHost + ":"
+                                    + dbPort +
+                                    "' has database with name '" + dbName
+                                    + "'. Exception for MSSQL is : \n\t" + mssqlException
+                                    + "\n\nException for PostgreSQL is: \n\t"
+                                    + pgsqlException;
+                    throw new DatabaseAccessException(errMsg);
+                }
             }
 
             // we are able to connect, so keep this connection
