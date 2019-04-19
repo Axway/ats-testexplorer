@@ -1,84 +1,125 @@
 #!/usr/bin/env bash
 
-# save the starting folder location
-START_FOLDER="$PWD"
+DATABASE_NAME=""
+SILENT_INSTALL=false
+SCRIPT_LOCATION_DIRECTORY=`dirname $0`
+TEMP_INSTALL_SCRIPTS_FILE="$SCRIPT_LOCATION_DIRECTORY/tmpInstallDbScript.sql"
+INSTALL_LOG_FILE="$SCRIPT_LOCATION_DIRECTORY/install.log"
 
-# navigate to the install file directory
-cd `dirname $0`
 
-# delete previous tmpInstallDbScript.sql if one exists
-rm -rf tmpInstallDbScript.sql
-touch tmpInstallDbScript.sql
+function print_help {
+	echo "usage: $0 -n <DATABASE_NAME> -p <PGPASSWORD> -h print this text"
+}
 
-# delete previous install.log if one exists
-rm -rf install.log
-touch install.log
 
-CMD_ARGUMENT="$1"
-
-if [[ "$CMD_ARGUMENT" == "/?" || "$CMD_ARGUMENT" == "--help" ]] ; then
-	echo "Please specify the database name as first parameter and database password as second parameter for silent install"
-	exit
-fi
-
-# change password if needed
-if [ ! -z "$2" ];
-then
-	export PGPASSWORD="$2"
-fi
-
-DATABASE_EXISTS=1
-until [ "$DATABASE_EXISTS" == 0 ]; do		
-
-	if [ -z "$CMD_ARGUMENT" ];
-	then
-		read -p 'Enter Database name: ' DB_NAME
-	else
-		DB_NAME="$CMD_ARGUMENT"
-	fi
-		
-	# see if database exists
-	# psql -U postgres -h localhost -l | grep $DB_NAME | wc -l`
-	DATABASE_EXISTS=`psql -U postgres -h localhost -l | grep $DB_NAME | wc -l`
-	
-	if [ "$DATABASE_EXISTS" != 0 ];
-	then
-		if [ ! -z "$CMD_ARGUMENT" ];
-		then
-			echo Database name "$CMD_ARGUMENT" already exist. Install abort
+# process user input arguments
+while getopts "n:p:h" option; do
+	case $option in
+		n)
+			DATABASE_NAME=$OPTARG
+			SILENT_INSTALL=true
+		;;
+		p)
+			export PGPASSWORD=$OPTARG
+		;;
+		h)
+			print_help
+			exit 0
+		;;
+		\?)
+			echo "Invallid option: -$option"
+			print_help
 			exit 1
-		else
-			echo Database name "$CMD_ARGUMENT" already exist. Please choose another name
-		fi
-	fi
+		;;
+	esac
 done
-		
 
-echo "Installing \"$DB_NAME ..."
-echo "CREATE DATABASE \"$DB_NAME\";" >> tmpInstallDbScript.sql
-echo " " >> tmpInstallDbScript.sql
-echo "\connect $DB_NAME" >> tmpInstallDbScript.sql
-echo " " >> tmpInstallDbScript.sql
-cat TestExplorerDb_PostgreSQL.sql >> tmpInstallDbScript.sql
-
-psql -U postgres -h localhost -a -f tmpInstallDbScript.sql | grep 'ERROR:' > install.log
-NUM_OF_ERRORS=`cat install.log | grep 'ERROR:' | wc -l`
-
-
-if [[ "$NUM_OF_ERRORS" == 0 ]]; then
-	echo "Installing of \"$DB_NAME\" completed. Logs are located in install.log file"
-	if [ ! -z "$CMD_ARGUMENT" ];
+if [ "$SILENT_INSTALL" == true ];
+then
+	# check if password is correct
+	PASSWORD_CORRECT=`psql -U postgres -h localhost -w -c "SELECT 1" | grep 1 | wc -l`
+	if [ "$PASSWORD_CORRECT" -ge 1 ];
 	then
+		echo "Password for postgres user is CORRECT!"
+		DATABASE_EXISTS=`psql -U postgres -h localhost -l -w | grep $DATABASE_NAME | wc -l`
+		if [ "$DATABASE_EXISTS" -ge "1" ];
+		then
+		    echo "Database with name \"$DATABASE_NAME\" already exists. Aborting silent install."
+			exit 3
+		fi
+	else
+		echo "Password for postgres user is NOT CORRECT or other error occurred!. Aborting silent install"
 		exit 2
 	fi
 else
-	echo "Errors during install: $NUM_OF_ERRORS"
-	echo "Installing of \"$DB_NAME\" was not successful. Logs are located in install.log file"
-	if [ ! -z "$CMD_ARGUMENT" ];
+    # check if password is correct
+	for i in 1 2 3
+	do
+	    read -p "Enter postgresql password [$i/3]: " PASSWORD
+	    export PGPASSWORD=$PASSWORD
+		PASSWORD_CORRECT=`psql -U postgres -h localhost -w -c "SELECT 1" | grep 1 | wc -l`
+		if [ "$PASSWORD_CORRECT" -ge 1 ];
+		then
+			echo "Password for postgres user is CORRECT!"
+			break
+		else
+			echo "Password for postgres user is NOT CORRECT or other error occurred!"
+			export PGPASSWORD=""
+		fi
+	done
+	if [ -z "$PGPASSWORD" ];
 	then
-		exit 0
+		echo "Password authentication for user 'postgres' failed after 3 attempts. Aborting install"
+		exit 4
 	fi
+	DATABASE_EXISTS=1
+	while [ "$DATABASE_EXISTS" -ge "1" ]
+	do
+	    read -p "Enter postgresql database name: " DATABASE_NAME
+		DATABASE_EXISTS=`psql -U postgres -h localhost -l -w | grep $DATABASE_NAME | wc -l`
+		[ "$DATABASE_EXISTS" -ge "1" ] && echo "Database with name \"$DATABASE_NAME\" already exists"
+	done
 fi
 
-# back to the starting folder location
-cd $START_FOLDER
+echo "Begin installation of ATS LOG database \"$DATABASE_NAME\" ..."
+
+[ -f $TEMP_INSTALL_SCRIPTS_FILE ] && rm $TEMP_INSTALL_SCRIPTS_FILE
+touch $TEMP_INSTALL_SCRIPTS_FILE
+if [ ! -f $TEMP_INSTALL_SCRIPTS_FILE ];
+then
+	echo "Could not create file \"$TEMP_INSTALL_SCRIPTS_FILE\" in directory [$SCRIPT_LOCATION_DIRECTORY]. Error code is: [$?]. Aborting install"
+	exit 5
+fi
+[ -f $INSTALL_LOG_FILE ] && rm $INSTALL_LOG_FILE
+touch $INSTALL_LOG_FILE
+if [ ! -f $INSTALL_LOG_FILE ];
+then
+	echo "Could not create file \"$INSTALL_LOG_FILE\" in directory [$SCRIPT_LOCATION_DIRECTORY]. Error code is: [$?]. Aborting install"
+	exit 6
+fi
+
+echo "CREATE DATABASE \"$DATABASE_NAME\";" >> $TEMP_INSTALL_SCRIPTS_FILE
+echo " " >> $TEMP_INSTALL_SCRIPTS_FILE
+echo "\connect $DATABASE_NAME" >> $TEMP_INSTALL_SCRIPTS_FILE
+echo " " >> $TEMP_INSTALL_SCRIPTS_FILE
+if [ ! -f "$SCRIPT_LOCATION_DIRECTORY/TestExplorerDb_PostgreSQL.sql" ];
+then
+	echo "File \"TestExplorerDb_PostgreSQL.sql\" does not exist in directory [$SCRIPT_LOCATION_DIRECTORY]. Aborting install"
+	exit 7
+fi
+cat "$SCRIPT_LOCATION_DIRECTORY/TestExplorerDb_PostgreSQL.sql" >> $TEMP_INSTALL_SCRIPTS_FILE
+if [ $? -gt 0 ];
+then
+	echo "Could not write install content to \"$TEMP_INSTALL_SCRIPTS_FILE\". Aborting install"
+	exit 8
+fi
+
+psql -U postgres -h localhost -w -a -f $TEMP_INSTALL_SCRIPTS_FILE > $INSTALL_LOG_FILE
+if [ $? -gt 0 ];
+then
+	echo "There were errors while installing database. See $INSTALL_LOG_FILE file for information"
+	exit 9
+else
+	echo "Successfull installation of database \"$DATABASE_NAME\""
+fi
+

@@ -1,100 +1,127 @@
-@echo off
+@ECHO OFF
+SETLOCAL
 
-:: save the starting folder location
-set START_FOLDER=%cd%
+SET SCRIPT_NAME=%0
+SET DATABASE_NAME=""
+SET PGPASSWORD=""
+SET SILENT_INSTALL=0
+SET SCRIPT_LOCATION_DIRECTORY=%~dp0
+SET TEMP_INSTALL_SCRIPTS_FILE=%SCRIPT_LOCATION_DIRECTORY%\tmpInstallDbScript.sql
+SET INSTALL_LOG_FILE=%SCRIPT_LOCATION_DIRECTORY%\install.log
 
-:: navigate to the install file directory
-cd  /d "%~dp0"
-
-:: delete previous tmpInstallDbScript.sql if one exists
-del /f /q tmpInstallDbScript.sql
-type nul >tmpInstallDbScript.sql
-
-:: delete previous install.log if one exists
-del /f /q install.log
-type nul >install.log
-
-rem get the command line arguments, if there is such
-set FIRST_CMD_ARGUMENT=%~1
-set SECOND_CMD_ARGUMENT=%~2
-
-set HELP=false
-IF [%FIRST_CMD_ARGUMENT%]==[--help] set HELP=true
-IF [%FIRST_CMD_ARGUMENT%]==[/?] set HELP=true
-IF "%HELP%" == "true" (
-    echo Please specify the database name as first parameter and database password as second parameter for silent install
-    GOTO :end
-)
-
-:: check if the script is executed manually
-set INTERACTIVE=0
-echo %cmdcmdline% | find /i "%~0" >nul
-if not errorlevel 1 set INTERACTIVE=1
-
-IF %INTERACTIVE% == 0 (
-	SET CONSOLE_MODE_USED=true
-) ELSE (
-	IF [%FIRST_CMD_ARGUMENT%]==[] (
-		SET MANUAL_MODE_USED=true
+:args
+	SET PARAM=%~1
+	SET ARG=%~2
+	IF "%PARAM%" EQU "" (
+		GOTO :check_install_mode
+	)
+	IF "%PARAM%" EQU "-n" (
+		SET DATABASE_NAME=%ARG%
+		SHIFT
+		SHIFT
+	) ELSE IF "%PARAM%" EQU "-p" (
+		SET PGPASSWORD=%ARG%
+		SHIFT
+		SHIFT
+	) ELSE IF "%PARAM%" EQU "--help" (
+		GOTO :print_help
 	) ELSE (
-		SET SILENT_MODE_USED=true
+		echo Wrong parameter %PARAM%
+		GOTO :print_help
+	)
+GOTO :args
+
+
+:check_install_mode
+IF %DATABASE_NAME% NEQ "" (
+	IF %PGPASSWORD% NEQ "" (
+		SET SILENT_INSTALL=1
 	)
 )
-
-:set_dbname
-IF "%SILENT_MODE_USED%" == "true" (
-	set DB_NAME=%FIRST_CMD_ARGUMENT%
+IF %SILENT_INSTALL% EQU 1 (
+	GOTO :check_password
 ) ELSE (
-	set /p DB_NAME=Enter Database name:
+	SET /p DATABASE_NAME=Enter Database name:
+	SET /p PGPASSWORD=Enter postgres password:
+	GOTO :check_password
 )
 
-rem set password
-IF NOT [%SECOND_CMD_ARGUMENT%]==[] (
-    set PGPASSWORD=%SECOND_CMD_ARGUMENT%
-)
-
-:: see if database exists
-psql -U postgres -l > db_list.txt
-IF %ERRORLEVEL% NEQ 0 (
-	echo There was problem checking for database existence
-	echo Check if the provided password is correct
-	IF "%SILENT_MODE_USED%" == "true" (
-		del /f /q db_list.txt
-		exit 1
-	) ELSE (
-		GOTO :end
+:check_password
+	IF EXIST query.txt DEL /F query.txt
+	IF EXIST query.txt (
+		echo Could not create file query.txt. Installation aborted
+		GOTO :EOF
 	)
-)
-
-findstr /m %DB_NAME% db_list.txt
-IF %ERRORLEVEL%==0 (
-	IF "%SILENT_MODE_USED%" == "true" (
-		echo Such database already exists. Rerun the script with different name or drop the database. Installation aborted.
-		del /f /q db_list.txt
-		exit 2
+	psql -U postgres -h localhost -w -c "SELECT 1" > query.txt
+	findstr /m "1" query.txt > nul
+	IF %ERRORLEVEL% NEQ 0 (
+		echo Error occurred while checking postgres login
+		IF EXIST query.txt DEL /F query.txt
+		GOTO :EOF
 	) ELSE (
-		echo Database with the same name already exists. Please choose another name or drop the database.
-		GOTO :set_dbname
+		GOTO :check_db_exists
 	)
-) else (
-	echo Installing "%DB_NAME% ..."
-	echo CREATE DATABASE "%DB_NAME%"; >> tmpInstallDbScript.sql
-	echo. >> tmpInstallDbScript.sql
-	echo \connect %DB_NAME% >> tmpInstallDbScript.sql
-	type TestExplorerDB_PostgreSQL.sql >> tmpInstallDbScript.sql
-	psql.exe -U postgres -a -f tmpInstallDbScript.sql | FINDSTR 'ERROR:' > install.log
-	echo Installing of "%DB_NAME%" completed. See install.log file for errors
-)
-del /f /q db_list.txt
+GOTO :EOF
 
-echo Installation completed. Check install.log file for potential errors.
-:end
-IF "%CONSOLE_MODE_USED%" == "true" (
-	rem return to the start folder
-	cd /d %START_FOLDER%
-) ELSE IF "%MANUAL_MODE_USED%" == "true" (
-	pause
-	exit
-) ELSE (
-	exit 0
-)
+:check_db_exists
+	IF EXIST query.txt DEL /F query.txt
+	IF EXIST query.txt (
+		echo Could not create file query.txt. Installation aborted
+		GOTO :EOF
+	)
+	psql -U postgres -h localhost -d %DATABASE_NAME% -w -c "SELECT !@##$%^&" 2> query.txt
+	findstr /m "!@##$%^&" query.txt > nul
+	IF %ERRORLEVEL% EQU 0 (
+		echo Database with name "%DATABASE_NAME%%" already exists
+		IF EXIST query.txt DEL /F query.txt
+		GOTO :EOF
+	) ELSE (
+		IF EXIST query.txt DEL /F query.txt
+		GOTO :install
+	)
+GOTO :EOF
+
+:install
+	echo Begin installation of PostgreSQL ATS Log database %DATABASE_NAME% ...
+	IF EXIST %TEMP_INSTALL_SCRIPTS_FILE% DEL /F %TEMP_INSTALL_SCRIPTS_FILE%
+	TYPE nul >%TEMP_INSTALL_SCRIPTS_FILE%
+	IF NOT EXIST %TEMP_INSTALL_SCRIPTS_FILE% (
+		echo Could not create file \"%TEMP_INSTALL_SCRIPTS_FILE%\" in directory [%SCRIPT_LOCATION_DIRECTORY%]. Error code is: [%ERRORLEVEL%]. Aborting install
+		EXIT 1
+	)
+	IF EXIST %INSTALL_LOG_FILE% DEL /F %INSTALL_LOG_FILE%
+	TYPE nul >%INSTALL_LOG_FILE%
+	IF NOT EXIST %INSTALL_LOG_FILE% (
+		echo Could not create file \"%INSTALL_LOG_FILE%\" in directory [%SCRIPT_LOCATION_DIRECTORY%]. Error code is: [%ERRORLEVEL%]. Aborting install
+		EXIT 2
+	)
+	echo CREATE DATABASE "%DATABASE_NAME%"; >> %TEMP_INSTALL_SCRIPTS_FILE%
+	echo. >> %TEMP_INSTALL_SCRIPTS_FILE%
+	echo \connect %DATABASE_NAME% >> %TEMP_INSTALL_SCRIPTS_FILE%
+	IF NOT EXIST %SCRIPT_LOCATION_DIRECTORY%\\TestExplorerDb_PostgreSQL.sql (
+		echo File \"TestExplorerDb_PostgreSQL.sql\" does not exist in directory [%SCRIPT_LOCATION_DIRECTORY%]. Aborting install
+		EXIT 3
+	)
+	TYPE TestExplorerDB_PostgreSQL.sql >> %TEMP_INSTALL_SCRIPTS_FILE%
+	IF %ERRORLEVEL% NEQ 0 (
+		echo "Could not write install content to \"%$TEMP_INSTALL_SCRIPTS_FILE%\". Aborting install"
+		EXIT 4
+	)
+	psql -U postgres -h localhost -w -a -f %TEMP_INSTALL_SCRIPTS_FILE% > nul 2> %INSTALL_LOG_FILE%
+	findstr /m "ERROR:" %INSTALL_LOG_FILE% > nul
+	IF %ERRORLEVEL% EQU 0 (
+		echo Install unsuccessfull! There were errors while installing the database. See [%INSTALL_LOG_FILE%] for more information.
+		EXIT 5
+	)
+	findstr /m "FATAL:" %INSTALL_LOG_FILE% > nul
+	IF %ERRORLEVEL% EQU 0 (
+		echo Install unsuccessfull! There were errors while installing the database. See [%INSTALL_LOG_FILE%] for more information.
+		EXIT 6
+	)
+	echo Installation completed successfully.
+GOTO :EOF
+
+:print_help
+	echo usage: %SCRIPT_NAME% -n DATABASE_NAME (the database's name) -p PGPASSWORD (the postgres user's password) --help
+GOTO:EOF
+ENDLOCAL
