@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.6_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '15');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '15');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_15', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '16');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '16');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_16', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -87,6 +87,13 @@ CREATE TABLE "tRunMetainfo" (
 CREATE TABLE "tScenarioMetainfo" (
   metainfoId serial       PRIMARY KEY,
   scenarioId integer      NOT NULL,
+  name       varchar(50)  NOT NULL,
+  value      varchar(512) NOT NULL
+);
+
+CREATE TABLE "tTestcaseMetainfo" (
+  metainfoId serial       PRIMARY KEY,
+  testcaseId integer      NOT NULL,
   name       varchar(50)  NOT NULL,
   value      varchar(512) NOT NULL
 );
@@ -239,8 +246,13 @@ REFERENCES "tScenarios" (scenarioId)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+ALTER TABLE "tTestcaseMetainfo" ADD CONSTRAINT FK_tTestcaseMetainfo_tTestcases FOREIGN KEY(testcaseId)
+REFERENCES "tTestcases" (testcaseId)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
 /*
-ALTER TABLE [dbo].[tScenarioMetainfo] CHECK CONSTRAINT [FK_tScenarioMetainfo_tScenarios]
+ALTER TABLE [dbo].[tTestcaseMetainfo] CHECK CONSTRAINT [FK_tTestcaseMetainfo_tTestcases]
 */
 
 ALTER TABLE "tRunMessages" ADD CONSTRAINT FK_tRunMessages_tMessageTypes FOREIGN KEY(messageTypeId) 
@@ -1148,6 +1160,14 @@ BEGIN
 		
 		DELETE FROM "tTestcases" WHERE "tTestcases".testcaseId = CAST(idToken AS INTEGER);
 	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION sp_add_testcase_metainfo(_testcaseId INTEGER, metaKey VARCHAR(50), metaValue VARCHAR(50), OUT rowsInserted INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+	INSERT INTO "tTestcaseMetainfo" (testcaseId, "name", "value") VALUES (_testcaseId, metaKey, metaValue);
+	GET DIAGNOSTICS rowsInserted = ROW_COUNT;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -221,3 +221,72 @@ BEGIN
   RAISE WARNING '#15 INTERNAL VERSION UPGRADE FOOTER - END';
 END
 $$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE HEADER - START';
+END
+$$;
+INSERT INTO "tInternal" (key, value) VALUES ('Upgrade_to_intVer_16', NOW());
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE HEADER - END';
+END
+$$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'start CREATE TABLE "tTestcaseMetainfo"';
+END
+$$;
+
+CREATE TABLE "tTestcaseMetainfo" (
+  metainfoId serial       PRIMARY KEY,
+  testcaseId integer      NOT NULL,
+  name       varchar(50)  NOT NULL,
+  value      varchar(512) NOT NULL
+);
+
+ALTER TABLE "tTestcaseMetainfo" ADD CONSTRAINT FK_tTestcaseMetainfo_tTestcases FOREIGN KEY(testcaseId)
+REFERENCES "tTestcases" (testcaseId)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'end CREATE TABLE "tTestcaseMetainfo"';
+END
+$$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_add_testcase_metainfo';
+END
+$$;
+
+CREATE OR REPLACE FUNCTION sp_add_testcase_metainfo(_testcaseId INTEGER, metaKey VARCHAR(50), metaValue VARCHAR(50), OUT rowsInserted INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+	INSERT INTO "tTestcaseMetainfo" (testcaseId, "name", "value") VALUES (_testcaseId, metaKey, metaValue);
+	GET DIAGNOSTICS rowsInserted = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_add_testcase_metainfo';
+END
+$$;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE FOOTER - START';
+END
+$$;
+UPDATE "tInternal" SET value='16' WHERE key='internalVersion';
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING '#16 INTERNAL VERSION UPGRADE FOOTER - END';
+END
+$$;

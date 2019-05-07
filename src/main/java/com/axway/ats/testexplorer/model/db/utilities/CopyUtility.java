@@ -45,6 +45,7 @@ import com.axway.ats.log.autodb.entities.Statistic;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.log.autodb.entities.Suite;
 import com.axway.ats.log.autodb.entities.Testcase;
+import com.axway.ats.log.autodb.entities.TestcaseMetainfo;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.log.autodb.model.IDbReadAccess;
 import com.axway.ats.log.autodb.model.IDbWriteAccess;
@@ -461,6 +462,14 @@ public abstract class CopyUtility {
             "[SCENARIO META INFO] start copying of " + scenarioMetaInfos.size() + " scenario metainfo pairs");
         for (ScenarioMetaInfo smi : scenarioMetaInfos) {
             this.dstDbWrite.addScenarioMetainfo(dstTestcaseId, smi.name, smi.value, true);
+        }
+
+        // TESTCASE META INFO
+        List<TestcaseMetainfo> testcaseMetaInfos = this.srcDbRead.getTestcaseMetainfo((Integer.parseInt(srcTestcase.testcaseId)));
+        log(INDENT_TEST_CONTENT,
+            "[TESTCASE META INFO] start copying of " + testcaseMetaInfos.size() + " testcase metainfo pairs");
+        for (TestcaseMetainfo tmi : testcaseMetaInfos) {
+            this.dstDbWrite.addTestcaseMetainfo(dstTestcaseId, tmi.name, tmi.value, true);
         }
 
     }
