@@ -7,8 +7,8 @@ ________________________________________________________________________________
         2           |   3.11.0      |  01-07-2016   |   Add tRunMetainfo and tScenarioMetainfo tables
                                                         Add sp_add_run_metainfo and sp_add_scenario_metainfo stored procedures
 
-        3           |   3.11.0      |  16-08-2016   |   Fixes for the last internal upgrade
-                    |               |               |   Major database re-factoring:
+        3           |   3.11.0      |  16-08-2016   | Fixes for the last internal upgrade
+                    |               |               | Major database re-factoring:
                                                            From now on Testcases are no more children Scenarios, but are children of Suites.
                                                            There is only one row in tScenarios for each scenario. A scenario is defined by its "fullName" which contains the java class package and the java method name.
                                                            tScenarios serves as a test code repository. When many executions of a scenario are made, we add a new row in tTestcases and nothing in tScenarios.
@@ -22,17 +22,18 @@ ________________________________________________________________________________
 ***     4        ***|   3.11.0      |  20-10-2016   | ATS OFFICIAL RELEASE
         5        ***|   4.0.0       |  30-03-2017   | ATS OFFICIAL RELEASE (First Open source release)
         5           |   4.0.1       |  31-03-2017   | No real change in db scripts from 4.0.0
-	    13          |   4.0.2       |  20-11-2017   | Adding PostgreSQL as a alternative database server.
-													  Storing timestamp in UTC format in database and showing then in the browser according to the user locale
-													  Combining testcase statistics in more than one chart
-													  Since 4.0.0 and 4.0.1 are the same in case of db scripts, update to 4.0.2 can be done from both 4.0.0 and 4.0.1
-	    13          |   4.0.3       |  22-12-2017   | No real change in db scripts from 4.0.2
-	    13          |   4.0.4       |  01-03-2018   | No real change in db scripts from 4.0.3
-	    13          |   4.0.5       |  23-04-2018   | No real change in db scripts from 4.0.4
-        11          |   4.x.x       |  xx-xx-2018   |
-		
-													  
-		                                              
+        13          |   4.0.2       |  20-11-2017   | Adding PostgreSQL as a alternative database server.
+                                                        Storing timestamp in UTC format in database and showing then in the browser according to the user locale
+                                                        Combining testcase statistics in more than one chart
+                                                        Since 4.0.0 and 4.0.1 are the same in case of db scripts, update to 4.0.2 can be done from both 4.0.0 and 4.0.1
+        13          |   4.0.3       |  22-12-2017   | No real change in db scripts from 4.0.2
+        13          |   4.0.4       |  01-03-2018   | No real change in db scripts from 4.0.3
+        13          |   4.0.5       |  23-04-2018   | No real change in db scripts from 4.0.4.
+		                                                DB: Compatible with SQL Server before version 2016
+        11          |   4.x.x       |  xx-xx-2019   | DB: Technically supports many versions  >= 2008
+		                                              Metainfo (key-value pairs) could be associated to testcase in addition to already supported run and scenario.
+
+
 
 
 
