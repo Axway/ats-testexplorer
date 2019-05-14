@@ -29,9 +29,9 @@ ________________________________________________________________________________
         13          |   4.0.3       |  22-12-2017   | No real change in db scripts from 4.0.2
         13          |   4.0.4       |  01-03-2018   | No real change in db scripts from 4.0.3
         13          |   4.0.5       |  23-04-2018   | No real change in db scripts from 4.0.4.
-		                                                DB: Compatible with SQL Server before version 2016
-        11          |   4.x.x       |  xx-xx-2019   | DB: Technically supports many versions  >= 2008
-		                                              Metainfo (key-value pairs) could be associated to testcase in addition to already supported run and scenario.
+                                                        DB: Compatible with SQL Server before version 2016
+        11          |   4.x.x       |  xx-xx-2019   | DB: Supports versions  >= 2008
+                                                        Metainfo (key-value pairs) could be associated to testcase in addition to already supported run and scenario.
 
 
 
