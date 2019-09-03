@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NEW_DB_VERSION=4.1.0
+NEW_DB_VERSION=4.0.6
 CURRENT_DB_VERSION=4.0.5
 
 INTERACTIVE_MODE=0
@@ -88,18 +88,21 @@ fi
 [ -e "$LOG_FILE_LOCATION" ] && rm $LOG_FILE_LOCATION
 touch $LOG_FILE_LOCATION
 
-# find the version of the provided db
-DB_VERSION=`$SQLCMD_LOCATION -S localhost -U SA -P $SA_PASSWORD -d $DB_NAME -Q "SELECT value FROM tInternal WHERE [key]='version'" | grep '[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}.*'`
+# find the version of the provided DB
+# Options for the filtering the result: -h -1 --> do not show headers, dashes; set nocount on --> does not show "(x rows selected)"; xargs - trim string, remove spaces after the actual value;
+DB_VERSION=`$SQLCMD_LOCATION -S localhost -U SA -P $SA_PASSWORD -d $DB_NAME -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs`
 if [ "$DB_VERSION" ==  $NEW_DB_VERSION ];
 then
 	echo "There is no need to upgrade. The current DB version is $NEW_DB_VERSION"
 	exit 4
-elif [ "$DB_VERSION" != "$CURRENT_DB_VERSION" ]
+else if [ "$DB_VERSION" != "$CURRENT_DB_VERSION" ]
+  then
 	echo "This script upgrades only databases with version $CURRENT_DB_VERSION. Your database's version is $DB_VERSION. You must upgrade it incrementally to $CURRENT_DB_VERSION (e.g 4.0.0 - to 4.0.1, 4.0.1 - to 4.0.2, etc)"
 	exit 5
+  fi
 fi
 
-echo "use [$DB_NAME]"                                                               >> tempUpgradeDBScript.sql
+echo "use [$DB_NAME]"                                                               > tempUpgradeDBScript.sql
 echo "GO"                                                                           >> tempUpgradeDBScript.sql
 echo "PRINT GETDATE()"                                                              >> tempUpgradeDBScript.sql
 echo "GO"                                                                           >> tempUpgradeDBScript.sql
@@ -122,6 +125,9 @@ echo "-- end of Upgrade script"                                                 
 echo "GO"                                                                           >> tempUpgradeDBScript.sql
 echo "UPDATE tInternal SET value = '$NEW_DB_VERSION' WHERE [key] = 'version'"       >> tempUpgradeDBScript.sql
 echo "GO"                                                                           >> tempUpgradeDBScript.sql
+
+# execute generated script
+$SQLCMD_LOCATION -i tempUpgradeDBScript.sql -S localhost -U SA -P $SA_PASSWORD -o $LOG_FILE_LOCATION
 
 echo "Upgrade Completed. Check the '$LOG_FILE_LOCATION' for details."
 
