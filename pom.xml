@@ -4,7 +4,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.6-SNAPSHOT</version>
+    <version>4.0.6</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
@@ -452,7 +452,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-core</artifactId>
-            <version>${ats.framework.version}</version>
+            <version>4.0.6</version>
             <exclusions>
             	<exclusion>
             		<groupId>javax.mail</groupId>
@@ -487,7 +487,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-log</artifactId>
-            <version>${ats.framework.version}</version>
+            <version>4.0.6</version>
             <exclusions>
             	<exclusion>
             		<groupId>javax.mail</groupId>
@@ -587,7 +587,7 @@
         <connection>scm:git:https://github.com/Axway/ats-testexplorer.git</connection>
         <developerConnection>scm:git:git@github.com:Axway/ats-testexplorer.git</developerConnection>
         <url>https://github.com/Axway/ats-testexplorer</url>
-      <tag>v4.0.0</tag>
+      <tag>4.0.6</tag>
   </scm>
 
     <developers>
