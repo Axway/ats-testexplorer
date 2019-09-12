@@ -31,7 +31,7 @@ SET ANSI_PADDING ON
 GO
 
 /****** Record the version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.6_draft')
+INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.7_draft')
 GO
 
 /****** Record the initial version ******/
@@ -3591,6 +3591,6 @@ GO
 GO
 
 /****** Record the version w/o _draft as complete installation ******/
-UPDATE tInternal SET [value]='4.0.6' WHERE [key] = 'version';
+UPDATE tInternal SET [value]='4.0.7' WHERE [key] = 'version';
 GO
 
