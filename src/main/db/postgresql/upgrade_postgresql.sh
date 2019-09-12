@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_DB_VERSION=4.0.5
-NEW_DB_VERSION=4.0.6
+OLD_DB_VERSION=4.0.6
+NEW_DB_VERSION=4.0.7
 NEEDS_UPGRADE=false
 
 # save the starting folder location
