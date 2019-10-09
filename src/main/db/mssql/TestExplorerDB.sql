@@ -198,7 +198,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[tMachines](
     [machineId] [int] IDENTITY(1,1) NOT NULL,
-    [machineName] [varchar](255) NOT NULL,
+    [machineName] [varchar](255) UNIQUE NOT NULL,
     [machineAlias] [varchar](100) NULL,
     [machineInfo] [ntext] NULL,
  CONSTRAINT [PK_tMachines] PRIMARY KEY CLUSTERED
