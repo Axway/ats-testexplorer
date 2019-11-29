@@ -37,7 +37,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.SQLServerDbReadAccess;
+import com.axway.ats.log.autodb.io.SQLServerDbReadAccess;
 
 /**
  * See the javadoc for ChartsPanel class to see how this class stays in the hierarchy

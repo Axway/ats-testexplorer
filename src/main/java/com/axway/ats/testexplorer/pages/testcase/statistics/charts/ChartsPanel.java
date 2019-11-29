@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.mapper.parameter.INamedParameters.NamedPair;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-import com.axway.ats.log.autodb.SQLServerDbReadAccess;
+import com.axway.ats.log.autodb.io.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.entities.Statistic;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
@@ -56,33 +56,33 @@ import com.axway.ats.testexplorer.pages.testcase.statistics.DbStatisticDescripti
 import com.axway.ats.testexplorer.pages.testcase.statistics.MachineDescription;
 import com.axway.ats.testexplorer.pages.testcase.statistics.StatisticsTableCell;
 
-@SuppressWarnings( { "unchecked", "rawtypes" })
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 public class ChartsPanel extends BaseStatisticsPanel {
 
-    private static final long                         serialVersionUID        = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private static final Logger                       LOG                     = Logger.getLogger(ChartsPanel.class);
+    private static final Logger LOG = Logger.getLogger(ChartsPanel.class);
 
-    private static final String                       NBSP                    = "&nbsp;";
-    private static final int                          MAX_LABEL_LENGTH        = 130;
+    private static final String NBSP             = "&nbsp;";
+    private static final int    MAX_LABEL_LENGTH = 130;
 
-    private static final String                       NO_DATA_HTML            = "<div id=\"chartid\"><span class=\"nodata\">No data to display</span></div>";
+    private static final String NO_DATA_HTML = "<div id=\"chartid\"><span class=\"nodata\">No data to display</span></div>";
 
-    private Form<Object>                              chartsPanelContent;
+    private Form<Object> chartsPanelContent;
 
-    private float                                     timeOffSet;
-    private Set<Integer>                              testcaseIds             = new HashSet<Integer>();
-    private Set<String>                               actionNames             = new HashSet<String>();
+    private float        timeOffSet;
+    private Set<Integer> testcaseIds = new HashSet<Integer>();
+    private Set<String>  actionNames = new HashSet<String>();
 
-    private int                                       chartId                 = 0;
+    private int chartId = 0;
 
     // the deltas for each testcase's start time and the earliest start time
-    protected Map<Integer, Long>                      testcaseStarttimeDeltas;
+    protected Map<Integer, Long> testcaseStarttimeDeltas;
 
     private Map<String, List<DbStatisticDescription>> userAndSystemStatistics = new LinkedHashMap<String, List<DbStatisticDescription>>();
     private Map<String, List<DbStatisticDescription>> actionStatistics        = new LinkedHashMap<String, List<DbStatisticDescription>>();
 
-    private Map<String, List<DbStatisticDescription>> diagramContent          = new LinkedHashMap<String, List<DbStatisticDescription>>();
+    private Map<String, List<DbStatisticDescription>> diagramContent = new LinkedHashMap<String, List<DbStatisticDescription>>();
 
     public ChartsPanel( String id, PageParameters parameters ) {
 
@@ -124,25 +124,25 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 if (attr.getValue() != null && !attr.getValue().isEmpty()) {
                     this.timeOffSet = Float.parseFloat(attr.getValue().toString());
                 }
-            } else if( !"dbname".equals( attr.getKey() ) && !"currentTestcase".equals( attr.getKey() )
-                       && !"tab".equals( attr.getKey() ) ) {
+            } else if (!"dbname".equals(attr.getKey()) && !"currentTestcase".equals(attr.getKey())
+                       && !"tab".equals(attr.getKey())) {
                 List<DbStatisticDescription> sysUserStats = new ArrayList<DbStatisticDescription>();
                 List<DbStatisticDescription> actionStats = new ArrayList<DbStatisticDescription>();
-                for( String stat : attr.getValue().toString().split( "," ) ) {
-                    DbStatisticDescription statData = DbStatisticDescription.fromURL( stat );
-                    testcaseIds.add( statData.testcaseId );
-                    if( statData.statisticId != -1 ) {
-                        sysUserStats.add( statData );
+                for (String stat : attr.getValue().toString().split(",")) {
+                    DbStatisticDescription statData = DbStatisticDescription.fromURL(stat);
+                    testcaseIds.add(statData.testcaseId);
+                    if (statData.statisticId != -1) {
+                        sysUserStats.add(statData);
                     } else {
-                        actionNames.add( statData.name );
-                        actionStats.add( statData );
+                        actionNames.add(statData.name);
+                        actionStats.add(statData);
                     }
                 }
-                if( !sysUserStats.isEmpty() ) {
-                    userAndSystemStatistics.put( attr.getKey(), sysUserStats );
+                if (!sysUserStats.isEmpty()) {
+                    userAndSystemStatistics.put(attr.getKey(), sysUserStats);
                 }
-                if( !actionStats.isEmpty() ) {
-                    actionStatistics.put( attr.getKey(), actionStats );
+                if (!actionStats.isEmpty()) {
+                    actionStatistics.put(attr.getKey(), actionStats);
                 }
             }
         }
@@ -168,16 +168,18 @@ public class ChartsPanel extends BaseStatisticsPanel {
             try {
                 String whereClause = "where ss.testcaseId in ( " + uniqueTestcaseIds
                                      + " ) and ss.statsTypeId in ( " + uniqueStatisticIds + " )";
-                /* 
+                /*
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
-                                                                                 .getSystemStatisticDescriptions(timeOffSet,
-                                                                                                                 whereClause,
-                                                                                                                 new HashMap<String, String>(),
-                                                                                                                 0/* ( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
-                                                                                                                 ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                                                                                 .getSystemStatisticDescriptions(
+                                                                                         timeOffSet,
+                                                                                         whereClause,
+                                                                                         new HashMap<String, String>(),
+                                                                                         0/* ( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                         ((TestExplorerSession) Session.get())
+                                                                                                 .isDayLightSavingOn());
                 return statisticDescriptions;
             } catch (DatabaseAccessException e) {
                 LOG.error("Error loading system statistic descriptions", e);
@@ -217,16 +219,18 @@ public class ChartsPanel extends BaseStatisticsPanel {
             try {
                 String whereClause = " where tt.testcaseId in (" + uniqueTestcaseIds + ") AND chs.name in ( "
                                      + actions + " ) AND c.name in ( " + actionParents + " ) ";
-                /* 
+                /*
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
                 List<StatisticDescription> statisticDescriptions = getTESession().getDbReadConnection()
-                                                                                 .getCheckpointStatisticDescriptions(this.timeOffSet,
-                                                                                                                     whereClause,
-                                                                                                                     expectedActions,
-                                                                                                                     0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
-                                                                                                                     ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                                                                                 .getCheckpointStatisticDescriptions(
+                                                                                         this.timeOffSet,
+                                                                                         whereClause,
+                                                                                         expectedActions,
+                                                                                         0/*( ( TestExplorerSession ) Session.get() ).getTimeOffset() */,
+                                                                                         ((TestExplorerSession) Session.get())
+                                                                                                 .isDayLightSavingOn());
                 return statisticDescriptions;
             } catch (DatabaseAccessException e) {
                 LOG.error("Error loading action response statistic descriptions", e);
@@ -427,7 +431,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 String uniqueMachineIds = StringUtils.join(machineIds, ",");
                 String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
 
-                /* 
+                /*
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
@@ -458,7 +462,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 String uniqueMachineIds = StringUtils.join(machineIds, ",");
                 String uniqueTestcaseIds = StringUtils.join(testcaseIds, ",");
 
-                /* 
+                /*
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
@@ -516,7 +520,7 @@ public class ChartsPanel extends BaseStatisticsPanel {
                 actions.setLength(actions.length() - 1);
                 actionParents.setLength(actionParents.length() - 1);
 
-                /* 
+                /*
                  * Due to internal working of the charting/drawing JavaScript library ( Chronoscope ),
                  * timeOffset is passed as 0, and not as TestExplorerSession.getTimeOffset()
                  * */
@@ -528,7 +532,8 @@ public class ChartsPanel extends BaseStatisticsPanel {
                                                                                     expectedActions,
                                                                                     new HashSet<String>(),
                                                                                     0/*((TestExplorerSession)Session.get()).getTimeOffset() */,
-                                                                                    ((TestExplorerSession) Session.get()).isDayLightSavingOn());
+                                                                                    ((TestExplorerSession) Session.get())
+                                                                                            .isDayLightSavingOn());
                 if (statistics.size() > 0) {
                     List<ChartData> statisticsChartData = new ArrayList<ChartData>();
                     // convert statistics data into chart data
@@ -709,8 +714,10 @@ public class ChartsPanel extends BaseStatisticsPanel {
         scriptString.append("\t\t\tview.getChart().redraw();\n");
         scriptString.append("\t\t\tlargeview=view;\n");
         scriptString.append("\t\t});\n}\n");
-        scriptString.append("if (!loaded && typeof(chronoscope)!=\"undefined\" && chronoscope != null) onChronoscopeLoaded(chronoscope);\n");
-        scriptString.append("if (typeof(refreshButtonClicked)==\"undefined\" || !refreshButtonClicked) location.hash = '#chart';\n");
+        scriptString.append(
+                "if (!loaded && typeof(chronoscope)!=\"undefined\" && chronoscope != null) onChronoscopeLoaded(chronoscope);\n");
+        scriptString.append(
+                "if (typeof(refreshButtonClicked)==\"undefined\" || !refreshButtonClicked) location.hash = '#chart';\n");
         scriptString.append("});\n");
         scriptString.append("</script>\n");
         scriptString.append("<div class=\"chartid\" id=\"chartid" + chartNumber + "\"></div>\n");
@@ -776,8 +783,8 @@ public class ChartsPanel extends BaseStatisticsPanel {
     }
 
     /**
-    * @return statistic details component with all Min, Avg and Max values
-    */
+     * @return statistic details component with all Min, Avg and Max values
+     */
     private Component getStatisticsDetailsComponent() {
 
         List<List<StatisticsTableCell>> rows = new ArrayList<List<StatisticsTableCell>>();
@@ -796,8 +803,9 @@ public class ChartsPanel extends BaseStatisticsPanel {
         rows.addAll(userStatisticsPanel.generateStatisticDetailRows(mergedMachineDescriptions, diagramContent));
         rows.addAll(actionStatisticsPanel.generateStatisticDetailRows(mergedMachineDescriptions, diagramContent));
 
-        ListView<List<StatisticsTableCell>> statisticDetailsTable = new ListView<List<StatisticsTableCell>>("statDetailsRows",
-                                                                                                            rows) {
+        ListView<List<StatisticsTableCell>> statisticDetailsTable = new ListView<List<StatisticsTableCell>>(
+                "statDetailsRows",
+                rows) {
 
             private static final long serialVersionUID = 1L;
 
@@ -863,8 +871,8 @@ public class ChartsPanel extends BaseStatisticsPanel {
     }
 
     private List<MachineDescription> mergeMachineDescriptions(
-                                                               List<MachineDescription> mergedMachineDescriptions,
-                                                               Set<MachineDescription> machineDescriptions ) {
+            List<MachineDescription> mergedMachineDescriptions,
+            Set<MachineDescription> machineDescriptions ) {
 
         for (MachineDescription machineDescription : machineDescriptions) {
             boolean machineFound = false;

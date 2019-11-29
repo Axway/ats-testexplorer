@@ -33,7 +33,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.AbstractDbAccess;
+import com.axway.ats.log.autodb.io.AbstractDbAccess;
 import com.axway.ats.log.autodb.entities.CheckpointSummary;
 import com.axway.ats.log.autodb.entities.LoadQueue;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;

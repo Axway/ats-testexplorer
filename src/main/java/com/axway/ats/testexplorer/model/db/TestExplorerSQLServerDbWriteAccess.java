@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
@@ -33,7 +32,7 @@ import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.SQLServerDbWriteAccess;
+import com.axway.ats.log.autodb.io.SQLServerDbWriteAccess;
 import com.axway.ats.log.autodb.SqlRequestFormatter;
 import com.axway.ats.log.autodb.entities.Machine;
 import com.axway.ats.log.autodb.entities.Run;
@@ -60,11 +59,11 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
         StringBuilder runIds = new StringBuilder();
         for (Object obj : objectsToDelete) {
 
-            runIds.append( ((Run) obj).runId);
+            runIds.append(((Run) obj).runId);
             runIds.append(",");
 
             // delete all attached to the current run files
-            deleteAttachedFilesToRun( ((Run) obj).runId);
+            deleteAttachedFilesToRun(((Run) obj).runId);
         }
         runIds.delete(runIds.length() - 1, runIds.length());
 
@@ -109,10 +108,10 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
 
         StringBuilder suiteIds = new StringBuilder();
         for (Object obj : objectsToDelete) {
-            suiteIds.append( ((Suite) obj).suiteId);
+            suiteIds.append(((Suite) obj).suiteId);
             suiteIds.append(",");
 
-            deleteAttachedFilesToSuite( ((Suite) obj).suiteId);
+            deleteAttachedFilesToSuite(((Suite) obj).suiteId);
         }
         suiteIds.delete(suiteIds.length() - 1, suiteIds.length());
 
@@ -168,7 +167,7 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
         StringBuilder scenarioIds = new StringBuilder();
         String suiteId = ((Scenario) objectsToDelete.get(0)).suiteId; // all scenarios belong to the same suite
         for (Object obj : objectsToDelete) {
-            scenarioIds.append( ((Scenario) obj).scenarioId);
+            scenarioIds.append(((Scenario) obj).scenarioId);
             scenarioIds.append(",");
         }
 
@@ -205,14 +204,14 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
         if (scenarios != null) {
 
             for (Object scenario : scenarios) {
-                sb.append( ((Scenario) scenario).scenarioId);
+                sb.append(((Scenario) scenario).scenarioId);
                 sb.append(",");
             }
             scenarioIds = sb.delete(sb.length() - 1, sb.length()).toString();
         } else {
 
             for (Object obj : testcases) {
-                sb.append( ((Testcase) obj).testcaseId);
+                sb.append(((Testcase) obj).testcaseId);
                 sb.append(",");
             }
             testcaseIds = sb.delete(sb.length() - 1, sb.length()).toString();
@@ -443,14 +442,15 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
      * Update column definition table in DB
      */
     public void updateDBColumnDefinitionTable( List<TableColumn> objectsToUpdate ) throws DatabaseAccessException,
-                                                                                   SQLException {
+                                                                                          SQLException {
 
         final String errMsg = "Unable to update the database table ";
         Connection connection = getConnection();
         PreparedStatement updateStatement = null;
         try {
-            updateStatement = connection.prepareStatement("UPDATE tColumnDefinition SET columnPosition=?, isVisible =?, "
-                                                          + "columnLength=? WHERE columnName=? AND parentTable =?;");
+            updateStatement = connection.prepareStatement(
+                    "UPDATE tColumnDefinition SET columnPosition=?, isVisible =?, "
+                    + "columnLength=? WHERE columnName=? AND parentTable =?;");
 
             for (TableColumn element : objectsToUpdate) {
 

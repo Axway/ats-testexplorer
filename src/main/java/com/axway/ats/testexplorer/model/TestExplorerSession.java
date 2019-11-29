@@ -34,7 +34,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.dbaccess.postgresql.DbConnPostgreSQL;
-import com.axway.ats.log.autodb.AbstractDbAccess;
+import com.axway.ats.log.autodb.io.AbstractDbAccess;
 import com.axway.ats.log.autodb.exceptions.DatabaseAccessException;
 import com.axway.ats.testexplorer.TestExplorerApplication;
 import com.axway.ats.testexplorer.model.db.TestExplorerSQLServerDbReadAccess;

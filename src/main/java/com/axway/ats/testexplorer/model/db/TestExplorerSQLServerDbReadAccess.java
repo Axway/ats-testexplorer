@@ -35,7 +35,7 @@ import org.apache.wicket.Session;
 import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.mssql.DbConnSQLServer;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.SQLServerDbReadAccess;
+import com.axway.ats.log.autodb.io.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.SqlRequestFormatter;
 import com.axway.ats.log.autodb.entities.Run;
 import com.axway.ats.log.autodb.entities.Suite;

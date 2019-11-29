@@ -33,7 +33,7 @@ import com.axway.ats.core.dbaccess.DbUtils;
 import com.axway.ats.core.dbaccess.postgresql.DbConnPostgreSQL;
 import com.axway.ats.core.filesystem.LocalFileSystemOperations;
 import com.axway.ats.core.utils.StringUtils;
-import com.axway.ats.log.autodb.PGDbWriteAccess;
+import com.axway.ats.log.autodb.io.PGDbWriteAccess;
 import com.axway.ats.log.autodb.SqlRequestFormatter;
 import com.axway.ats.log.autodb.entities.Machine;
 import com.axway.ats.log.autodb.entities.Run;

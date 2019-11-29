@@ -25,7 +25,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-import com.axway.ats.log.autodb.SQLServerDbReadAccess;
+import com.axway.ats.log.autodb.io.SQLServerDbReadAccess;
 import com.axway.ats.log.autodb.entities.StatisticDescription;
 import com.axway.ats.testexplorer.model.TestExplorerSession;
 
