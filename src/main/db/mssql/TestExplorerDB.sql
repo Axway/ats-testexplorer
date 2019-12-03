@@ -2671,7 +2671,7 @@ CREATE        PROCEDURE [dbo].[sp_insert_message]
 ,@threadName VARCHAR(255)
 ,@timestamp DATETIME
 
-,@RowsInserted INT =0 OUT
+,@RowsInserted INT =0
 
 AS
 
@@ -2737,7 +2737,7 @@ CREATE        PROCEDURE [dbo].[sp_insert_run_message]
 ,@threadName VARCHAR(255)
 ,@timestamp DATETIME
 
-,@RowsInserted INT =0 OUT
+,@RowsInserted INT =0
 
 AS
 
@@ -2794,7 +2794,7 @@ CREATE        PROCEDURE [dbo].[sp_insert_suite_message]
 ,@threadName VARCHAR(255)
 ,@timestamp DATETIME
 
-,@RowsInserted INT =0 OUT
+,@RowsInserted INT =0
 
 AS
 
@@ -3086,6 +3086,66 @@ BEGIN
     SET @checkpointSummaryId = @@IDENTITY
 END
 GO
+/****** Object:  StoredProcedure [dbo].[sp_update_checkpoint_summary]    Script Date: 12/2/2019 2:56:32 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE  PROCEDURE [dbo].[sp_update_checkpoint_summary] 
+
+@checkpointSummaryId INT,
+@numPassed INT,
+@numFailed INT,
+@numRunning INT,
+@minResponseTime INT,
+@maxResponseTime INT,
+@avgResponseTime FLOAT,
+@minTransferRate FLOAT,
+@maxTransferRate FLOAT,
+@avgTransferRate FLOAT
+
+AS
+
+-- As this procedure is usually called from more more than one thread (from 1 or more ATS agents)
+-- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,
+-- they all see the needed summary checkpoint is not present and they all create one. This is wrong!
+-- The fix is to make sure that only 1 thread at a time executes this stored procedure and all other threads are blocked.
+-- This is done by using a lock with exlusive mode. The lock is automatically released at the end of the transaction.
+
+BEGIN TRAN UpdateCheckpointSummary
+DECLARE @get_app_lock_res INT
+EXEC @get_app_lock_res = sp_getapplock @Resource = 'UpdateCheckpointSummary Lock ID', @LockMode = 'Exclusive'; 
+
+IF @get_app_lock_res < 0
+    -- error getting lock
+    -- client will see there was an error as @RowsInserted stays 0
+    RETURN;
+
+BEGIN
+
+UPDATE tCheckpointsSummary
+   SET     numPassed = numPassed+@numPassed,
+           @numFailed = numFailed+@numFailed,
+		   @numRunning = numRunning+@numRunning,
+		   minResponseTime = CASE WHEN @minResponseTime < minResponseTime THEN @minResponseTime ELSE minResponseTime END,
+           maxResponseTime = CASE WHEN @maxResponseTime > maxResponseTime THEN @maxResponseTime ELSE maxResponseTime END,
+
+           avgResponseTime = ((avgResponseTime * numPassed) + (@avgResponseTime * @numPassed)) / (numPassed + @numPassed),
+
+            minTransferRate = CASE WHEN @minTransferRate < minTransferRate THEN @minTransferRate ELSE minTransferRate END,
+            maxTransferRate = CASE WHEN @maxTransferRate > maxTransferRate THEN @maxTransferRate ELSE maxTransferRate END,
+
+           avgTransferRate = ((avgTransferRate * numPassed) + (@avgTransferRate * @numPassed)) / (numPassed  +@numPassed)
+   WHERE checkpointSummaryId = @checkpointSummaryId
+END
+
+IF @@ERROR <> 0 --error has happened
+    ROLLBACK
+ELSE
+    COMMIT
+GO
 /****** Object:  StoredProcedure [dbo].[sp_start_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
 SET ANSI_NULLS ON
 GO
@@ -3305,7 +3365,7 @@ BEGIN
             END
 
     -- insert in DETAILS table when running FULL mode - it keeps 1 row for EACH value of a checkpoint
-    --   @mode == 0 -> SHORT mode
+   --   @mode == 0 -> SHORT mode
     --   @mode != 0 -> FULL mode
     IF @mode != 0
     BEGIN
