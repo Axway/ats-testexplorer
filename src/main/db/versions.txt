@@ -32,7 +32,8 @@ ________________________________________________________________________________
                                                         DB: Compatible with SQL Server before version 2016
         16          |   4.0.6       |  05-09-2019   | DB: Supports versions  >= 2008
                                                         Metainfo (key-value pairs) could be associated to testcase in addition to already supported run and scenario.
-        18          |   4.0.7       | xx-xx-202x    | DB: Support for logging with Microsoft JDBC driver. New function for update of checkpoint summaries and remove OUT parameters for insert messages procedures (4.0.7-M1)
+        17          |   4.0.7       | 09-10-2019    | DB: Added check for uniquness of the machineName in tMachines table (4.0.7-M2) 
+        18          |   4.0.7       | 03-12-2019    | DB: Support for logging with Microsoft JDBC driver. New function for update of checkpoint summaries and remove OUT parameters for insert messages procedures (4.0.7-M2)
 
 
 
