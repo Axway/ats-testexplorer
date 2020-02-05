@@ -365,7 +365,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.19</version> <!-- 6.19 max version with Java 7 compatibility -->
+                        <version>8.29</version> <!-- 6.19 max version with Java 7 compatibility -->
                     </dependency>
                 </dependencies>
                 <executions>
