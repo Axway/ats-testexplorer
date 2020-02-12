@@ -286,19 +286,18 @@ BEGIN
 
 UPDATE tCheckpointsSummary
    SET     numPassed = numPassed+@numPassed,
-           @numFailed = numFailed+@numFailed,
-		   @numRunning = numRunning+@numRunning,
-		   minResponseTime = CASE WHEN @minResponseTime < minResponseTime THEN @minResponseTime ELSE minResponseTime END,
+           numFailed = numFailed+@numFailed,
+           numRunning = numRunning+@numRunning,
+           minResponseTime = CASE WHEN @minResponseTime < minResponseTime THEN @minResponseTime ELSE minResponseTime END,
            maxResponseTime = CASE WHEN @maxResponseTime > maxResponseTime THEN @maxResponseTime ELSE maxResponseTime END,
 
+           minTransferRate = CASE WHEN @minTransferRate < minTransferRate THEN @minTransferRate ELSE minTransferRate END,
+           maxTransferRate = CASE WHEN @maxTransferRate > maxTransferRate THEN @maxTransferRate ELSE maxTransferRate END,
+
            avgResponseTime = ((avgResponseTime * numPassed) + (@avgResponseTime * @numPassed)) / (numPassed + @numPassed),
-
-            minTransferRate = CASE WHEN @minTransferRate < minTransferRate THEN @minTransferRate ELSE minTransferRate END,
-            maxTransferRate = CASE WHEN @maxTransferRate > maxTransferRate THEN @maxTransferRate ELSE maxTransferRate END,
-
            avgTransferRate = ((avgTransferRate * numPassed) + (@avgTransferRate * @numPassed)) / (numPassed  +@numPassed)
-   WHERE checkpointSummaryId = @checkpointSummaryId
-END
+   WHERE checkpointSummaryId = @checkpointSummaryId;
+END 
 
 IF @@ERROR <> 0 --error has happened
     ROLLBACK
