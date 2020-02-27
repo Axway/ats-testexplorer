@@ -34,9 +34,7 @@ GOTO :args
 
 :check_install_mode
 IF %DATABASE_NAME% NEQ "" (
-	IF %PGPASSWORD% NEQ "" (
-		SET SILENT_INSTALL=1
-	)
+    SET SILENT_INSTALL=1
 )
 IF %SILENT_INSTALL% EQU 1 (
 	GOTO :check_password
