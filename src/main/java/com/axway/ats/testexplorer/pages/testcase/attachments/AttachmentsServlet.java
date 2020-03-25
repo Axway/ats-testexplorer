@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,57 +41,67 @@ import com.axway.ats.core.utils.StringUtils;
 
 public class AttachmentsServlet extends HttpServlet {
 
-    private static final long   serialVersionUID = 1L;
+    private static final long   serialVersionUID                 = 1L;
+    private static final String ERROR_FILE_COULD_NOT_BE_ATTACHED = "The file could not be attached to the test!";
 
     // repo dir
-    private static String       repoFilesDir;
+    private static String repoFilesDir;
 
-    private static final Logger LOG              = Logger.getLogger(AttachmentsServlet.class);
+    private static final Logger LOG = Logger.getLogger(AttachmentsServlet.class);
 
     public void init() throws ServletException {
 
     }
 
     public void doPost(
-                        HttpServletRequest request,
-                        HttpServletResponse response ) throws ServletException, IOException {
+            HttpServletRequest request,
+            HttpServletResponse response ) throws ServletException, IOException {
 
         Object checkContextAttribute = request.getSession()
                                               .getServletContext()
                                               .getAttribute(ContextListener.getAttachedFilesDir());
         // check if ats-attached-files property is set
         if (checkContextAttribute == null) {
-            LOG.error("No attached files could be attached. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.");
+            LOG.error("File could not be attached. \nPossible reason could be that neither 'CATALINA_HOME' "
+                      + " nor 'CATALINA_BASE' Tomcat environment variables are set.");
+            response.setContentType("text/plain;charset=UTF-8");
+            try (PrintWriter out = response.getWriter()) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.println(
+                        "File attachment servlet is not properly configured. Check application startup error messages. "
+                        + "File is not uploaded.");
+                out.flush();
+            }
+            return;
         } else {
             response.setContentType("text/html;charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            // Check that we have a file upload request
-            if (!ServletFileUpload.isMultipartContent(request)) {
-                out.println("<html>");
-                out.println("<head>");
-                out.println("<title>Servlet upload</title>");
-                out.println("</head>");
-                out.println("<body>");
-                out.println("<p>No file uploaded</p>");
-                out.println("</body>");
-                out.println("</html>");
-                return;
-            }
+            try (PrintWriter out = response.getWriter()) {
+                // Check that we have a file upload request
+                if (!ServletFileUpload.isMultipartContent(request)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.println("<html>");
+                    out.println("  <head><title>Servlet upload error</title></head>");
+                    out.println("<body>");
+                    out.println("  <p>Not a multipart request. File not uploaded.</p>");
+                    out.println("</body>");
+                    out.println("</html>");
+                    out.flush();
+                    return;
+                }
 
-            repoFilesDir = checkContextAttribute.toString();
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            // Create a new file upload handler
-            ServletFileUpload upload = new ServletFileUpload(factory);
-            // fileitem containing information about the attached file
-            FileItem fileItem = null;
-            FileItem currentElement = null;
-            String dbName = "";
-            String attachedFile = "";
-            int runId = 0;
-            int suiteId = 0;
-            int testcaseId = 0;
+                repoFilesDir = checkContextAttribute.toString();
+                DiskFileItemFactory factory = new DiskFileItemFactory();
+                // Create a new file upload handler
+                ServletFileUpload upload = new ServletFileUpload(factory);
+                // fileitem containing information about the attached file
+                FileItem fileItem = null;
+                FileItem currentElement = null;
+                String dbName = "";
+                String attachedFile = "";
+                int runId = 0;
+                int suiteId = 0;
+                int testcaseId = 0;
 
-            try {
                 // Parse the request to get file items.
                 List<?> fileItems = upload.parseRequest(request);
                 // Process the uploaded file items
@@ -127,26 +137,22 @@ public class AttachmentsServlet extends HttpServlet {
                     StringBuilder sb = new StringBuilder();
                     if (StringUtils.isNullOrEmpty(attachedFile)) {
                         sb.append("Attached file name is null or empty!");
-                        out.println(sb.toString());
                     }
                     if (StringUtils.isNullOrEmpty(dbName)) {
                         sb.append("Database name is null of empty!");
-                        out.println(sb.toString());
                     }
                     if (runId <= 0) {
-                        sb.append("RunId \"" + runId + "\" is not valid!");
-                        out.println(sb.toString());
+                        sb.append("runId parameter is not valid!");
                     }
                     if (suiteId <= 0) {
-                        sb.append("SuiteId \"" + suiteId + "\" is not valid!");
-                        out.println(sb.toString());
+                        sb.append("suiteId parameter is not valid!");
                     }
                     if (testcaseId <= 0) {
-                        sb.append("TestcaseId \"" + testcaseId + "\" is not valid!");
-                        out.println(sb.toString());
+                        sb.append("testcaseId parameter is not valid!");
                     }
-                    response.sendError(HttpServletResponse.SC_CONFLICT, sb.toString());
-                    LOG.error("The file could not be attached to the test!");
+                    response.setStatus(HttpServletResponse.SC_CONFLICT);
+                    out.println(sb.toString());
+                    LOG.error(ERROR_FILE_COULD_NOT_BE_ATTACHED);
                 }
             } catch (Exception ex) {
                 String errMsg = ex.getMessage();
@@ -154,31 +160,22 @@ public class AttachmentsServlet extends HttpServlet {
                     errMsg = ex.getClass().getSimpleName();
                 }
                 response.sendError(HttpServletResponse.SC_CONFLICT, ExceptionUtils.getExceptionMsg(ex));
-                LOG.error("The file was unable to be attached to the testcase! ", ex);
-            } finally {
-                out.close();
+                LOG.error(ERROR_FILE_COULD_NOT_BE_ATTACHED, ex);
             }
         }
     }
 
-    private int getIntValue(
-                             String value ) {
+    private int getIntValue( String value ) {
 
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
-            LOG.debug("Value \"" + value + "\" can`t be converted to int!");
+            LOG.debug("Value \"" + value + "\" can't be converted to int!");
         }
-
         return 0;
     }
 
-    private File createAttachedFileDir(
-                                        String attachedFile,
-                                        String database,
-                                        int runId,
-                                        int suiteId,
-                                        int testcaseId ) {
+    private File createAttachedFileDir( String attachedFile, String database, int runId, int suiteId, int testcaseId ) {
 
         LocalFileSystemOperations fo = new LocalFileSystemOperations();
         String baseDir = repoFilesDir + "/" + database;
@@ -191,10 +188,10 @@ public class AttachmentsServlet extends HttpServlet {
     }
 
     private String getFileSimpleName(
-                                      String file ) {
+            String file ) {
 
-        if( !StringUtils.isNullOrEmpty( file ) ) {
-            return IoUtils.getFileName( file );
+        if (!StringUtils.isNullOrEmpty(file)) {
+            return IoUtils.getFileName(file);
         }
         LOG.warn("File \"" + file + "\" has no valid name!");
 
@@ -202,7 +199,7 @@ public class AttachmentsServlet extends HttpServlet {
     }
 
     public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-                                                                                  IOException {
+                                                                                         IOException {
 
         String runId = request.getParameter("runId");
         String suiteId = request.getParameter("suiteId");
@@ -238,7 +235,7 @@ public class AttachmentsServlet extends HttpServlet {
 
             try (OutputStream output = response.getOutputStream();
                     FileInputStream attachedFileIS = new FileInputStream(attachedFile)) {
-                for (int length = 0; (length = attachedFileIS.read(buffer)) > 0;) {
+                for (int length = 0; (length = attachedFileIS.read(buffer)) > 0; ) {
                     output.write(buffer, 0, length);
                 }
             }
