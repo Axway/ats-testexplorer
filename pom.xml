@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.axway.ats.testexplorer</groupId>
@@ -8,7 +9,8 @@
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
-        ATS Web application for exploring ongoing and passed test executions of projects using ATS DB logging (ATS Framework)
+        ATS Web application for exploring ongoing and passed test executions of projects using ATS DB logging (ATS
+        Framework)
     </description>
     <url>https://github.com/Axway/ats-testexplorer</url>
     <properties>
@@ -16,14 +18,29 @@
         <java.classlevel.version>1.7</java.classlevel.version> <!-- Output class compliance level -->
         <maven.min.version>3.2.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <ats.framework.version>4.0.7-SNAPSHOT</ats.framework.version>
-        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+
+        <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+        <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
+
+        <!-- nexus deployment plugin versions -->
+        <org.sonatype.plugins.nexus.staging.maven.plugin.version>1.6.7
+        </org.sonatype.plugins.nexus.staging.maven.plugin.version>
+        <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
+        <org.apache.maven.scm>1.8.1</org.apache.maven.scm>
+        <!-- Maven GPG plugin properties -->
+        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+        <gpg.skip>true</gpg.skip> <!-- skip maven gpg execution. Enable via -Dgpg.skip=false -->
+        <gpg.executable>gpg2</gpg.executable>
+
+        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <apache.commons-lang.version>2.4</apache.commons-lang.version>
         <apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>
         <apache.commons-pool.version>1.5.5</apache.commons-pool.version>
-		<apache.commons-compress.version>1.10</apache.commons-compress.version>
-        <apache.wicket.version>1.5.11</apache.wicket.version>
+        <apache.commons-compress.version>1.10</apache.commons-compress.version>
 
         <apache.wicket.version>7.3.0</apache.wicket.version>
         <inmethod.grid.version>7.3.0</inmethod.grid.version>
@@ -32,27 +49,12 @@
         <commons-io.version>2.5</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
 
-        <!-- jTDS: LGPL MsSQL JDBC driver. Version since 1.3.0 require JavaSE 7 -->
-        <net.sourceforge.jtds.version>1.2.7</net.sourceforge.jtds.version>
+        <!-- jTDS: LGPL MsSQL JDBC driver -->
+        <net.sourceforge.jtds.version>1.3.1</net.sourceforge.jtds.version>
         <joda-time.version>2.3</joda-time.version>
         <log4j.version>1.2.17</log4j.version>
         <org.slf4j.version>1.5.8</org.slf4j.version>
         <build.number>SNAPSHOT</build.number>
-
-        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <maven-war-plugin.version>3.1.0</maven-war-plugin.version>
-        <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-
-        <maven.enforcer.plugin.version>3.0.0-M2</maven.enforcer.plugin.version>
-        <!-- Travis CI plugin versions -->
-        <org.sonatype.plugins.nexus.staging.maven.plugin.version>1.6.7</org.sonatype.plugins.nexus.staging.maven.plugin.version>
-        <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
-        <org.apache.maven.plugins.maven.javadoc.plugin.version>2.9.1</org.apache.maven.plugins.maven.javadoc.plugin.version>
-        <org.apache.maven.scm>1.8.1</org.apache.maven.scm>
-        <!-- Maven GPG plugin properties -->
-        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
-        <gpg.skip>true</gpg.skip> <!-- skip maven gpg execution. Enable via -Dgpg.skip=false -->
-        <gpg.executable>gpg2</gpg.executable>
     </properties>
 
     <build>
@@ -77,7 +79,7 @@
                                     </pluginExecutionFilter>
                                     <action>
                                         <!-- M2E should ignore the plugin -->
-                                        <execute />
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -128,7 +130,7 @@
                                     <artifactId>commons-pool</artifactId>
                                     <version>${apache.commons-pool.version}</version>
                                 </artifactItem>
-								<artifactItem>
+                                <artifactItem>
                                     <groupId>org.apache.commons</groupId>
                                     <artifactId>commons-compress</artifactId>
                                     <version>${apache.commons-compress.version}</version>
@@ -275,8 +277,8 @@
                 <configuration>
                     <!-- <webXml>src\main\webapp\WEB-INF\web.xml</webXml> -->
                     <!-- <archiveClasses>true</archiveClasses> -->
-					<attachClasses>true</attachClasses>
-					<classesClassifier>classes</classesClassifier>
+                    <attachClasses>true</attachClasses>
+                    <classesClassifier>classes</classesClassifier>
 
                     <archive>
                         <manifest>
@@ -333,13 +335,13 @@
                     </execution>
                 </executions>
             </plugin>
-			<plugin>
+            <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${maven.enforcer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-rules</id>
-						<phase>validate</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
@@ -399,42 +401,44 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-            
+
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-javadoc-plugin</artifactId>
-               <version>${org.apache.maven.plugins.maven.javadoc.plugin.version}</version>
-               <configuration>
-                   <!-- disables JDK 8 doclint javadoc feature, so all javadoc errors are treated as warnings -->
-                   <!-- due to being not available in JDK 7, building it via it, will cause build error -->
-                   <additionalparam>-Xdoclint:none</additionalparam>
-                   <quiet>true</quiet> <!-- Travis-related: reduce size of console log -->
-               </configuration>
-               <executions>
-                   <execution>
-                       <id>attach-javadocs</id>
-                       <goals>
-                           <goal>jar</goal>
-                       </goals>
-                   </execution>
-               </executions>
-           </plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <source>8</source>
+                    <!-- disables JDK 8 doclint javadoc feature, so all javadoc errors are treated as warnings -->
+                    <!-- due to being not available in JDK 7, building it via it, will cause build error -->
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <quiet>true</quiet> <!-- Travis-related: reduce size of console log -->
+                    <!--<failOnWarnings>false</failOnWarnings>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Used only when deploying new release version -->
-           <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-gpg-plugin</artifactId>
-               <version>${maven.gpg.plugin.version}</version>
-               <executions>
-                   <execution>
-                       <id>sign-artifacts</id>
-                       <phase>verify</phase>
-                       <goals>
-                           <goal>sign</goal>
-                       </goals>
-                   </execution>
-               </executions>
-           </plugin>
-           <plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven.gpg.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${maven.release.plugin.version}</version>
                 <dependencies>
@@ -452,47 +456,47 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-core</artifactId>
-            <version>4.0.7-SNAPSHOT</version>
+            <version>${ats.framework.version}</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>javax.mail</groupId>
-            		<artifactId>mail</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>com.axway.ats.expectj</groupId>
-            		<artifactId>ats-expectj</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>com.datastax.cassandra</groupId>
-            		<artifactId>cassandra-driver-core</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>org.bouncycastle</groupId>
-            		<artifactId>bcprov-jdk15on</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>com.jcraft</groupId>
-            		<artifactId>jsch</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>mysql</groupId>
-            		<artifactId>mysql-connector-java</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>dom4j</groupId>
-            		<artifactId>dom4j</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.axway.ats.expectj</groupId>
+                    <artifactId>ats-expectj</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.datastax.cassandra</groupId>
+                    <artifactId>cassandra-driver-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.jcraft</groupId>
+                    <artifactId>jsch</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-log</artifactId>
-            <version>4.0.7-SNAPSHOT</version>
+            <version>${ats.framework.version}</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>javax.mail</groupId>
-            		<artifactId>mail</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -587,31 +591,13 @@
         <connection>scm:git:https://github.com/Axway/ats-testexplorer.git</connection>
         <developerConnection>scm:git:git@github.com:Axway/ats-testexplorer.git</developerConnection>
         <url>https://github.com/Axway/ats-testexplorer</url>
-      <tag>v4.0.0</tag>
-  </scm>
+        <tag>v4.0.0</tag>
+    </scm>
 
     <developers>
         <developer>
-            <name>Angel Todorov</name>
-            <email>atodorov@axway.com</email>
-            <organization>Axway</organization>
-            <organizationUrl>http://www.axway.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Nikolay Gogovski</name>
-            <email>ngogovski@axway.com</email>
-            <organization>Axway</organization>
-            <organizationUrl>http://www.axway.com</organizationUrl>
-        </developer>
-        <developer>
             <name>Svilen Dikov</name>
             <email>sdikov@axway.com</email>
-            <organization>Axway</organization>
-            <organizationUrl>http://www.axway.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Radoslav Kostadinov</name>
-            <email>rkostadinov@axway.com</email>
             <organization>Axway</organization>
             <organizationUrl>http://www.axway.com</organizationUrl>
         </developer>
