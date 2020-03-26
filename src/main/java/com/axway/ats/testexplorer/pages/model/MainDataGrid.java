@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,33 +32,32 @@ import com.inmethod.grid.common.ColumnsState;
 import com.inmethod.grid.datagrid.DataGrid;
 import com.inmethod.grid.toolbar.NoRecordsToolbar;
 
-@SuppressWarnings( { "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" } )
 public class MainDataGrid extends DataGrid {
 
-    private static final long    serialVersionUID         = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private PagingToolbar        topToolbar;
+    private PagingToolbar topToolbar;
 
-    private PagingToolbar        bottomToolbar;
+    private PagingToolbar bottomToolbar;
 
     private IModel<SelectOption> rowsPerPageModel;
 
-    public static final int      OPERATION_DELETE         = 0x01;
-    public static final int      OPERATION_EDIT           = 0x02;
-    public static final int      OPERATION_ADD_TO_COMPARE = 0x04;
-    public static final int      OPERATION_STATUS_CHANGE  = 0x08;
-    public static final int      OPERATION_CREATE_REPORT  = 0x10;
-    public static final int      OPERATION_GET_LOG        = 0x20;
+    public static final int OPERATION_DELETE         = 0x01;
+    public static final int OPERATION_EDIT           = 0x02;
+    public static final int OPERATION_ADD_TO_COMPARE = 0x04;
+    public static final int OPERATION_STATUS_CHANGE  = 0x08;
+    public static final int OPERATION_CREATE_REPORT  = 0x10;
+    public static final int OPERATION_GET_LOG        = 0x20;
 
     /**
      * Crates a new {@link MainDataGrid} instance.
      *
-     * @param id
-     *            component id
-     * @param dataSource
-     *            data source used to fetch the data
-     * @param columns
-     *            list of grid columns
+     * @param id component id
+     * @param dataSource data source used to fetch the data
+     * @param columns list of grid columns
+     * @param columnDefinitions list of grid column definitions
+     * @param whatIsShowing label data
      */
     public MainDataGrid( String id,
                          IDataSource dataSource,
@@ -81,14 +80,14 @@ public class MainDataGrid extends DataGrid {
     }
 
     private void init(
-                       List<TableColumn> columnDefinitions,
-                       String whatIsShowing,
-                       int supportedOperations ) {
+            List<TableColumn> columnDefinitions,
+            String whatIsShowing,
+            int supportedOperations ) {
 
         // prevent from automatically checking checkboxes (cached) from the browser, on page Reload
         getForm().add(AttributeModifier.replace("autocomplete", "off"));
 
-        setRowsPerPage( ((TestExplorerSession) Session.get()).getRowsPerPage());
+        setRowsPerPage(((TestExplorerSession) Session.get()).getRowsPerPage());
 
         topToolbar = new PagingToolbar(this, columnDefinitions, whatIsShowing, supportedOperations);
         addTopToolbar(topToolbar);
@@ -117,7 +116,7 @@ public class MainDataGrid extends DataGrid {
     }
 
     public void setGridColumnsState(
-                                     List<TableColumn> columnDefinitions ) {
+            List<TableColumn> columnDefinitions ) {
 
         ColumnsState cs = new ColumnsState(getAllColumns());
         for (TableColumn column : columnDefinitions) {
@@ -130,7 +129,7 @@ public class MainDataGrid extends DataGrid {
 
         if (this.rowsPerPageModel == null) {
 
-            String rppString = String.valueOf( ((TestExplorerSession) Session.get()).getRowsPerPage());
+            String rppString = String.valueOf(((TestExplorerSession) Session.get()).getRowsPerPage());
             this.rowsPerPageModel = new Model<SelectOption>(new SelectOption(rppString, rppString));
         }
         return this.rowsPerPageModel;
@@ -138,7 +137,7 @@ public class MainDataGrid extends DataGrid {
 
     @Override
     public DataGrid setRowsPerPage(
-                                    int rowsPerPage ) {
+            int rowsPerPage ) {
 
         ((TestExplorerSession) Session.get()).setRowsPerPage(rowsPerPage);
         String rppString = String.valueOf(rowsPerPage);
@@ -148,8 +147,8 @@ public class MainDataGrid extends DataGrid {
 
     @Override
     public void onItemSelectionChanged(
-                                        IModel item,
-                                        boolean newValue ) {
+            IModel item,
+            boolean newValue ) {
 
         super.onItemSelectionChanged(item, newValue);
 

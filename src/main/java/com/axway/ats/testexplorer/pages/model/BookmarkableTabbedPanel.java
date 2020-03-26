@@ -42,7 +42,7 @@ public class BookmarkableTabbedPanel extends TabbedPanel<ITab> {
     * @param id component id
     * @param tabs list of ITab objects used to represent tabs
     * @param pageParameters Container for parameters to a requested page. A
-    * parameter for the selected tab will be inserted.
+    *     parameter for the selected tab will be inserted.
     */
     public BookmarkableTabbedPanel( String id,
                                     List<ITab> tabs,
@@ -67,6 +67,7 @@ public class BookmarkableTabbedPanel extends TabbedPanel<ITab> {
     * for this tab will not contain any tab specific information. If you want to
     * display the first tab by default, you can use the constructor without this
     * parameter.
+    * @param tabParameterName name
     * @param pageParameters Container for parameters to a requested page. A
     * parameter for the selected tab will be inserted.
     */

@@ -90,10 +90,10 @@ public class PluginConfigurationParser {
      * @param jarFilePath - the jar containing the XMl we will parse
      * 
      * @return [plugin name , [parameters map] ]
-     * @throws ParserConfigurationException 
-     * @throws SAXException 
-     * @throws IOException 
-     * @throws PluginLoadException 
+     * @throws ParserConfigurationException in case of a parsing error
+     * @throws SAXException in case of a parsing error
+     * @throws IOException in case of an error
+     * @throws PluginLoadException in case of an error
      */
     public Map<String, Map<String, String>> parse( InputStream inputStream,
                                                    String jarFilePath ) throws IOException, SAXException,

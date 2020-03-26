@@ -73,8 +73,8 @@ public class TestExplorerPluginsRepo {
     /**
      * Get all parameters of some plugin
      * 
-     * @param type
-     * @return
+     * @param type type of the plugin
+     * @return list of plugin parameters
      */
     public List<PluginParameters> getPluginParameters( PluginConfigurationParser.PLUGIN_TYPE type ) {
 
@@ -88,9 +88,9 @@ public class TestExplorerPluginsRepo {
 
     /**
      * Get the name of all plugins of some particular type
-     * 
-     * @param type
-     * @return
+     *
+     * @param type type of the plugin
+     * @return list of names
      */
     private List<String> getPluginNamesForType( PluginConfigurationParser.PLUGIN_TYPE type ) {
 
@@ -135,7 +135,7 @@ public class TestExplorerPluginsRepo {
      * Browse a folder for jar files (not recursively)
      *
      * @param folder the folder to search into
-     * @return a list with all found jars
+     * @return a list with all found JARs
      */
     private List<String> getJarFilesReference( String folder ) {
 
@@ -158,7 +158,7 @@ public class TestExplorerPluginsRepo {
     /**
      * Search for plugins in all provided jars and try to load them
      * 
-     * @param jarFiles the jars to look through
+     * @param jarFiles the JARs to look through
      */
     private void loadPlugins( List<String> jarFiles ) {
 

@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,15 +52,15 @@ import com.inmethod.grid.datagrid.DataGrid;
 
 public class ColumnsDialog extends WebMarkupContainer {
 
-    private static Logger     LOG              = Logger.getLogger(ColumnsDialog.class);
+    private static Logger LOG = Logger.getLogger(ColumnsDialog.class);
 
     private static final long serialVersionUID = 1L;
 
-    private boolean           clickBkgToClose  = false;
+    private boolean clickBkgToClose = false;
 
     private List<TableColumn> dbColumnDefinitions;
 
-    @SuppressWarnings( { "rawtypes" })
+    @SuppressWarnings( { "rawtypes" } )
     public ColumnsDialog( String id,
                           final DataGrid grid,
                           List<TableColumn> columnDefinitions ) {
@@ -78,7 +78,7 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             protected void populateItem(
-                                         final Item<TableColumn> item ) {
+                    final Item<TableColumn> item ) {
 
                 final TableColumn column = item.getModelObject();
 
@@ -91,7 +91,7 @@ public class ColumnsDialog extends WebMarkupContainer {
 
                     @Override
                     protected void onEvent(
-                                            AjaxRequestTarget target ) {
+                            AjaxRequestTarget target ) {
 
                         TableColumn tableColumn = (TableColumn) this.getComponent().getDefaultModelObject();
                         tableColumn.setVisible(!tableColumn.isVisible());
@@ -129,7 +129,7 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             protected void updateAjaxAttributes(
-                                                 AjaxRequestAttributes attributes ) {
+                    AjaxRequestAttributes attributes ) {
 
                 super.updateAjaxAttributes(attributes);
                 AjaxCallListener ajaxCallListener = new AjaxCallListener();
@@ -139,8 +139,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             protected void onSubmit(
-                                     AjaxRequestTarget target,
-                                     Form<?> form ) {
+                    AjaxRequestTarget target,
+                    Form<?> form ) {
 
                 String columnDefinitionsString = form.getRequest()
                                                      .getPostParameters()
@@ -175,8 +175,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             public void renderHead(
-                                    Component component,
-                                    IHeaderResponse response ) {
+                    Component component,
+                    IHeaderResponse response ) {
 
                 if (autoAddToHeader()) {
 
@@ -246,8 +246,8 @@ public class ColumnsDialog extends WebMarkupContainer {
      * Override and return false to suppress static JavaScript and CSS
      * contributions. (May be desired if you are concatenating / compressing
      * resources as part of build process)
-     * 
-     * @return
+     *
+     * @return flag whether  static JS and CSS should be returned
      */
     protected boolean autoAddToHeader() {
 
@@ -256,7 +256,7 @@ public class ColumnsDialog extends WebMarkupContainer {
 
     @Override
     protected void onComponentTag(
-                                   ComponentTag tag ) {
+            ComponentTag tag ) {
 
         super.onComponentTag(tag);
         tag.put("class", "settingsoverlaycontent");
@@ -264,22 +264,20 @@ public class ColumnsDialog extends WebMarkupContainer {
 
     /**
      * Open using the current Ajax context.
-     * 
-     * @param target
+     * @param target target for use/update
      */
     public void open(
-                      AjaxRequestTarget target ) {
+            AjaxRequestTarget target ) {
 
         target.appendJavaScript(getOpenString());
     }
 
     /**
      * Close using the current Ajax context.
-     * 
-     * @param target
+     * @param target target for use/update
      */
     public void close(
-                       AjaxRequestTarget target ) {
+            AjaxRequestTarget target ) {
 
         target.appendJavaScript(getCloseString());
     }
@@ -287,8 +285,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Return a Behavior which when applied to a Component will add an "onclick"
      * event handler that will open this Dialog.
-     * 
-     * @return
+     *
+     * @return {@link Behavior} to be used
      */
     public Behavior getClickToOpenBehaviour() {
 
@@ -298,8 +296,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             public void onComponentTag(
-                                        Component component,
-                                        ComponentTag tag ) {
+                    Component component,
+                    ComponentTag tag ) {
 
                 tag.put("click", getOpenString());
             }
@@ -309,8 +307,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Return a Behavior which when applied to a Component will add an "onclick"
      * event handler that will close this Dialog.
-     * 
-     * @return
+     *
+     @return {@link Behavior} to be used
      */
     public Behavior getClickToCloseBehaviour() {
 
@@ -320,8 +318,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
             @Override
             public void onComponentTag(
-                                        Component component,
-                                        ComponentTag tag ) {
+                    Component component,
+                    ComponentTag tag ) {
 
                 tag.put("click", getCloseString());
             }
@@ -331,8 +329,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Returns the JavaScript required to open the dialog in the client browser.
      * Override to prefix or postfix with your own JavaScript code.
-     * 
-     * @return
+     *
+     * @return the JavaScript string
      */
     protected String getOpenString() {
 
@@ -361,8 +359,8 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Returns the JavaScript required to close the dialog in the client
      * browser. Override to prefix or postfix with your own JavaScript code.
-     * 
-     * @return
+     *
+     * @return the JavaScript string
      */
     protected String getCloseString() {
 
@@ -374,8 +372,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
     /**
      * Override to enable BGI frame IE6 support.
-     * 
-     * @return
+     *
+     * @return whether IE6 is supported
      */
     public boolean isSupportIE6() {
 
@@ -384,8 +382,8 @@ public class ColumnsDialog extends WebMarkupContainer {
 
     /**
      * True if clicking the background will close the dialog.
-     * 
-     * @return
+     *
+     * @return the value
      */
     public boolean isClickBkgToClose() {
 
@@ -395,11 +393,11 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Set whether the dialog should close when the user clicks the background
      * (default: false);
-     * 
-     * @param clickBkgToClose
+     *
+     * @param clickBkgToClose the flag value
      */
     public void setClickBkgToClose(
-                                    boolean clickBkgToClose ) {
+            boolean clickBkgToClose ) {
 
         this.clickBkgToClose = clickBkgToClose;
     }
@@ -412,7 +410,7 @@ public class ColumnsDialog extends WebMarkupContainer {
      * @return {@link List} of {@link TableColumn}s
      */
     protected List<TableColumn> asList(
-                                        String columnDefinitionsString ) {
+            String columnDefinitionsString ) {
 
         List<TableColumn> tableColumns = new ArrayList<TableColumn>();
 
@@ -450,12 +448,12 @@ public class ColumnsDialog extends WebMarkupContainer {
      * Set column properties to each element from the jsColDefinitions list and
      * add the missing not visible columns
      *
-     * @param dbColDefinitions
-     * @param jsColDefinitions
+     * @param dbColDefinitions database data for the columns
+     * @param jsColDefinitions final list for displaying
      */
     public void orderTableColumns(
-                                   List<TableColumn> dbColDefinitions,
-                                   List<TableColumn> jsColDefinitions ) {
+            List<TableColumn> dbColDefinitions,
+            List<TableColumn> jsColDefinitions ) {
 
         for (TableColumn dbCol : dbColDefinitions) {
 
@@ -493,14 +491,13 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Send a list with updated column states to be saved to the database
      *
-     * @param jsColDefinitions
-     *            column definitions List from the Test Explorer
-     * @throws DatabaseAccessException
-     * @throws SQLException
+     * @param jsColDefinitions column definitions List from the Test Explorer
+     * @throws DatabaseAccessException in case of an error
+     * @throws SQLException in case of an error
      */
     public void saveColumnDefinitionsToDb(
-                                           List<TableColumn> jsColDefinitions ) throws DatabaseAccessException,
-                                                                                SQLException {
+            List<TableColumn> jsColDefinitions ) throws DatabaseAccessException,
+                                                        SQLException {
 
         TestExplorerDbWriteAccessInterface dbWriter = ((TestExplorerSession) Session.get()).getDbWriteConnection();
         dbWriter.updateDBColumnDefinitionTable(jsColDefinitions);
@@ -509,13 +506,10 @@ public class ColumnsDialog extends WebMarkupContainer {
     /**
      * Update the column list used by the Test Explorer
      *
-     * @param oldDBList
-     *            column definitions List with the old records
      * @param jsColDefinitions
      *            column definition List with the new records
      */
-    private void modifyDBColumnDefinitionList(
-                                               List<TableColumn> jsColDefinitions ) {
+    private void modifyDBColumnDefinitionList( List<TableColumn> jsColDefinitions ) {
 
         String dbName = ((TestExplorerSession) Session.get()).getDbName();
         List<TableColumn> oldDBList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);

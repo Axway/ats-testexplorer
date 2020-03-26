@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,14 +56,14 @@ import com.inmethod.grid.common.ColumnsState;
 import com.inmethod.grid.toolbar.AbstractToolbar;
 import com.inmethod.grid.toolbar.paging.PagingNavigator;
 
-@SuppressWarnings( { "rawtypes", "unchecked" })
+@SuppressWarnings( { "rawtypes", "unchecked" } )
 public class PagingToolbar extends AbstractToolbar {
 
-    private static final long  serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private static Logger      LOG              = Logger.getLogger(PagingToolbar.class);
+    private static Logger LOG = Logger.getLogger(PagingToolbar.class);
 
-    private Form<Object>       buttonsForm;
+    private Form<Object> buttonsForm;
 
     private WebMarkupContainer defaultMode;
 
@@ -81,8 +81,8 @@ public class PagingToolbar extends AbstractToolbar {
     /**
      * Constructor
      *
-     * @param grid
-     *      data grid
+     * @param grid  data grid
+     * @param columnDefinitions column data
      */
     public PagingToolbar( MainDataGrid grid, List<TableColumn> columnDefinitions ) {
 
@@ -92,8 +92,10 @@ public class PagingToolbar extends AbstractToolbar {
     /**
      * Constructor
      *
-     * @param grid
-     *      data grid
+     * @param grid  data grid
+     * @param columnDefinitions column data
+     * @param whatIsShowing label data
+     * @param supportedOperations set of lags for supported operations
      */
     public PagingToolbar( final MainDataGrid grid, List<TableColumn> columnDefinitions, String whatIsShowing,
                           int supportedOperations ) {
@@ -193,7 +195,7 @@ public class PagingToolbar extends AbstractToolbar {
         add(buttonsForm);
 
         defaultMode = new WebMarkupContainer("defaultMode");
-        defaultMode.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        defaultMode.setVisible((supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
 
         editMode = new WebMarkupContainer("editMode");
         editMode.setVisible(false);
@@ -238,7 +240,7 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        deleteButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_DELETE) > 0);
+        deleteButton.setVisible((supportedOperations & MainDataGrid.OPERATION_DELETE) > 0);
         defaultMode.add(deleteButton);
 
         // add EDIT button for DEFAULT mode
@@ -258,7 +260,7 @@ public class PagingToolbar extends AbstractToolbar {
                 }
             }
         };
-        editButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        editButton.setVisible((supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
         defaultMode.add(editButton);
 
         //add MESSAGE button for run and suite  
@@ -290,7 +292,7 @@ public class PagingToolbar extends AbstractToolbar {
         } else if (dataSource instanceof SuitesDataSource) {
             messageButton.add(new Label("button_label", "Run messages"));
         }
-        messageButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_GET_LOG) > 0);
+        messageButton.setVisible((supportedOperations & MainDataGrid.OPERATION_GET_LOG) > 0);
         defaultMode.add(messageButton);
 
         // add ADD TO COMPARE BASKET button for DEFAULT mode
@@ -307,16 +309,17 @@ public class PagingToolbar extends AbstractToolbar {
                                                          .addObject(model.getObject(),
                                                                     ((BasePage) getPage()).getCurrentPath());
                 }
-                target.add( ((BasePage) getPage()).getItemsCountLabel());
+                target.add(((BasePage) getPage()).getItemsCountLabel());
 
                 // unselect the items
                 grid.resetSelectedItems();
                 target.add(grid);
 
-                target.appendJavaScript("$(\".arrowUpIndicator\").stop(true,true).removeAttr('style').show().effect(\"shake\",{times:2},300).fadeOut('slow');");
+                target.appendJavaScript(
+                        "$(\".arrowUpIndicator\").stop(true,true).removeAttr('style').show().effect(\"shake\",{times:2},300).fadeOut('slow');");
             }
         };
-        addToCompareButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_ADD_TO_COMPARE) > 0);
+        addToCompareButton.setVisible((supportedOperations & MainDataGrid.OPERATION_ADD_TO_COMPARE) > 0);
         defaultMode.add(addToCompareButton);
 
         // add CREATE REPORT button for DEFAULT mode
@@ -347,7 +350,7 @@ public class PagingToolbar extends AbstractToolbar {
                     String firstScenarioName = "";
                     for (IModel<?> model : selectedItems) {
                         Object obj = model.getObject();
-                        int thisSuiteId = Integer.parseInt( ((Scenario) obj).suiteId);
+                        int thisSuiteId = Integer.parseInt(((Scenario) obj).suiteId);
                         if (thisSuiteId < firstSuiteId) {
                             firstSuiteId = thisSuiteId;
                             firstScenarioName = ((Scenario) obj).name;
@@ -381,7 +384,7 @@ public class PagingToolbar extends AbstractToolbar {
                 setResponsePage(SelectTestcaseReportPage.class, parameters);
             }
         };
-        createReportButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT) > 0);
+        createReportButton.setVisible((supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT) > 0);
         defaultMode.add(createReportButton);
 
         // add APPLY button for EDIT mode
@@ -410,7 +413,7 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        applyButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        applyButton.setVisible((supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
         editMode.add(applyButton);
 
         // add CANCEL button for DEFAULT mode
@@ -429,7 +432,7 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        cancelButton.setVisible( (supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
+        cancelButton.setVisible((supportedOperations & MainDataGrid.OPERATION_EDIT) > 0);
         cancelButton.setDefaultFormProcessing(false);
         editMode.add(cancelButton);
 
@@ -454,8 +457,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        statusChangePassButton.setVisible( (supportedOperations
-                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        statusChangePassButton.setVisible((supportedOperations
+                                           & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
         defaultMode.add(statusChangePassButton);
 
         AjaxButton statusChangeFailButton = new AjaxButton("statusChangeFailButton") {
@@ -478,8 +481,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        statusChangeFailButton.setVisible( (supportedOperations
-                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        statusChangeFailButton.setVisible((supportedOperations
+                                           & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
         defaultMode.add(statusChangeFailButton);
 
         AjaxButton statusChangeSkipButton = new AjaxButton("statusChangeSkipButton") {
@@ -502,8 +505,8 @@ public class PagingToolbar extends AbstractToolbar {
                 target.add(grid);
             }
         };
-        statusChangeSkipButton.setVisible( (supportedOperations
-                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
+        statusChangeSkipButton.setVisible((supportedOperations
+                                           & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
         defaultMode.add(statusChangeSkipButton);
     }
 

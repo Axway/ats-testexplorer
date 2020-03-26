@@ -195,6 +195,7 @@ public class ChartData implements Serializable {
      * @param axisAvgValue the axis average value
      * @param axisSumValue the axis sum value
      * @param axisTotalValue the axis total sum value
+     * @param axisCountValue the axis count value
      * @param displayValuesMode this mode value is some of the keys of the {@link SelectOption}s described in
      *      ChartsPanel.CUSTOM_INTERVAL_OPTIONS
      */

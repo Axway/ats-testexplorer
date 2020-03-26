@@ -141,7 +141,7 @@ public abstract class TestcaseReportPage extends WebPage {
      * Used to load a JS file located within a plugin's jar file
      * 
      * @param fullJsFilePath full path to the JS file including the jar file path and the JS file path inside
-     * @return
+     * @return JavaScript data
      */
     protected String loadJsFileFromJar( String fullJsFilePath ) {
 

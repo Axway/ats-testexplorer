@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,31 +44,31 @@ import com.axway.ats.log.autodb.io.SQLServerDbReadAccess;
  */
 public class DataPanel implements Serializable {
 
-    private static final long                   serialVersionUID                 = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private BaseStatisticsPanel                 globalPanel;
+    private BaseStatisticsPanel globalPanel;
 
-    private String                              name;
-    private String                              uiPrefix;
+    private String name;
+    private String uiPrefix;
 
     /*
      * Same statistics are placed in Statistic containers and Machine.
      * This eases the calculation afterwards
      */
-    private Map<Integer, StatisticContainer>    statContainers;
-    private Set<MachineDescription>             machineDescriptions;
+    private Map<Integer, StatisticContainer> statContainers;
+    private Set<MachineDescription>          machineDescriptions;
 
     // we want to give a unique index for each statistic for the whole Data Panel
     // container indexes are every 1000, in between are the statistic indexes
-    private static final int                    CONTAINER_INDEX_DELTAS           = 1000;
+    private static final int CONTAINER_INDEX_DELTAS = 1000;
 
-    private static final StatisticsTableCell    EMPTY_CELL                       = new StatisticsTableCell("",
-                                                                                                           false);
-    private static final StatisticsTableCell    NBSP_EMPTY_CELL                  = new StatisticsTableCell("&nbsp;",
-                                                                                                           false);
-    private static final String                 PARAMS_READING_UNIQUENESS_MAKRER = "_reading=";
+    private static final StatisticsTableCell EMPTY_CELL                       = new StatisticsTableCell("",
+                                                                                                        false);
+    private static final StatisticsTableCell NBSP_EMPTY_CELL                  = new StatisticsTableCell("&nbsp;",
+                                                                                                        false);
+    private static final String              PARAMS_READING_UNIQUENESS_MAKRER = "_reading=";
 
-    private static final String                 PROCESS_STAT_PREFIX              = "[process]";
+    private static final String PROCESS_STAT_PREFIX = "[process]";
 
     // the UI representation of the data kept in this class
     private ListView<List<StatisticsTableCell>> statisticsUIContainer;
@@ -88,7 +88,8 @@ public class DataPanel implements Serializable {
     }
 
     /**
-     * tell if we have any data in this data panel
+     * Tell if we have any data in this data panel
+     * @return boolean
      */
     public boolean hasData() {
 
@@ -116,15 +117,16 @@ public class DataPanel implements Serializable {
      *
      * @param statDescription the statistic description to add
      * @param isComparing whether we are in Compare mode or not
+     * @param instanceOfStatisticPanel is statistics panel
      */
     public void addStatisticDescription(
-                                         DbStatisticDescription statDescription,
-                                         boolean isComparing,
-                                         boolean instanceOfStatisticPanel ) {
+            DbStatisticDescription statDescription,
+            boolean isComparing,
+            boolean instanceOfStatisticPanel ) {
 
         if (isProcessStatistic(statDescription) && !isParentProcessStatistic(statDescription)) {
             // this is a process statistic description
-            addProcessStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel );
+            addProcessStatisticDescription(statDescription, isComparing, instanceOfStatisticPanel);
         } else {
             // this is a regular statistic description
 
@@ -142,7 +144,7 @@ public class DataPanel implements Serializable {
                 statContainers.put(containerIndexInDataPanel, container);
             }
             if (!container.isStatisticPresentInThisContainer(statDescription, instanceOfStatisticPanel)) {
-                container.addStatisticDescription(statDescription );
+                container.addStatisticDescription(statDescription);
             }
 
             addToRightMachine(statDescription, isComparing);
@@ -150,15 +152,15 @@ public class DataPanel implements Serializable {
     }
 
     private boolean isProcessStatistic(
-                                        DbStatisticDescription statDescription ) {
+            DbStatisticDescription statDescription ) {
 
         return statDescription.name.startsWith(PROCESS_STAT_PREFIX);
     }
 
     private void addProcessStatisticDescription(
-                                                 DbStatisticDescription statDescription,
-                                                 boolean isComparing,
-                                                 boolean instanceOfStatisticPanel ) {
+            DbStatisticDescription statDescription,
+            boolean isComparing,
+            boolean instanceOfStatisticPanel ) {
 
         // add to the right container
         String containerName = statDescription.parentName;
@@ -178,7 +180,7 @@ public class DataPanel implements Serializable {
     }
 
     private boolean isParentProcessStatistic(
-                                              DbStatisticDescription statDescription ) {
+            DbStatisticDescription statDescription ) {
 
         return statDescription.name.startsWith(PROCESS_STAT_PREFIX)
                && StringUtils.isNullOrEmpty(statDescription.parentName)
@@ -186,8 +188,8 @@ public class DataPanel implements Serializable {
     }
 
     private MachineDescription addToRightMachine(
-                                                  DbStatisticDescription statDescription,
-                                                  boolean isComparing ) {
+            DbStatisticDescription statDescription,
+            boolean isComparing ) {
 
         MachineDescription machine = null;
         for (MachineDescription machineDescription : machineDescriptions) {
@@ -213,10 +215,10 @@ public class DataPanel implements Serializable {
 
     /**
      * Display the collected
-     * @param statsForm
+     * @param statsForm Form
      */
     public void displayStatisticDescriptions(
-                                              Form<Object> statsForm ) {
+            Form<Object> statsForm ) {
 
         boolean isDataPanelVisible = machineDescriptions.size() > 0;
 
@@ -260,17 +262,18 @@ public class DataPanel implements Serializable {
 
                 // add parent table line if needed
                 String statParent = statDescription.parentName;
-                if( !StringUtils.isNullOrEmpty( statParent )
-                    && !statParent.equals( StatisticsPanel.SYSTEM_STATISTIC_CONTAINER )
-                    && !lastStatParent.equals( statParent ) ) {
+                if (!StringUtils.isNullOrEmpty(statParent)
+                    && !statParent.equals(StatisticsPanel.SYSTEM_STATISTIC_CONTAINER)
+                    && !lastStatParent.equals(statParent)) {
                     columns = new ArrayList<StatisticsTableCell>();
                     columns.add(NBSP_EMPTY_CELL);
                     if (statParent.startsWith(PROCESS_STAT_PREFIX)) {
                         // only Process parent element can hide its children (it is not a good idea to hide the User actions behind queue names)
-                        columns.add(new StatisticsTableCell("<a href=\"#\" onclick=\"showHiddenStatChildren(this);return false;\">"
-                                                            + statParent + "</a>",
-                                                            false,
-                                                            "parentStatTd"));
+                        columns.add(new StatisticsTableCell(
+                                "<a href=\"#\" onclick=\"showHiddenStatChildren(this);return false;\">"
+                                + statParent + "</a>",
+                                false,
+                                "parentStatTd"));
                     } else {
 
                         columns.add(new StatisticsTableCell(statParent, false, "parentStatTd"));
@@ -316,7 +319,7 @@ public class DataPanel implements Serializable {
 
             @Override
             protected void populateItem(
-                                         ListItem<List<StatisticsTableCell>> item ) {
+                    ListItem<List<StatisticsTableCell>> item ) {
 
                 // table TR
                 if (item.getIndex() == 0) {
@@ -324,7 +327,7 @@ public class DataPanel implements Serializable {
                     item.add(AttributeModifier.replace("onclick", "showOrHideTableRows('" + uiPrefix
                                                                   + "StatsTable',1,true);"));
                 } else if (item.getIndex() > 3) { // skip the machines,label and
-                                                  // measurement rows
+                    // measurement rows
                     item.add(AttributeModifier.replace("class", "statisticRow"));
                 }
                 if (hiddenRowIndexes.contains(item.getIndex())) {
@@ -337,11 +340,11 @@ public class DataPanel implements Serializable {
 
                     @Override
                     protected void populateItem(
-                                                 ListItem<StatisticsTableCell> item ) {
+                            ListItem<StatisticsTableCell> item ) {
 
                         // table TD
                         if (item.getIndex() > 0) { // skip the first (CheckBox)
-                                                   // column
+                            // column
                             item.add(AttributeModifier.replace("class", "statisticColumn"));
                         }
                         StatisticsTableCell cell = item.getModelObject();
@@ -353,7 +356,7 @@ public class DataPanel implements Serializable {
                                 // and will change the line color if it is selected or not
                                 checkBox.add(AttributeModifier.replace("onclick",
                                                                        "selectAllCheckboxes(this,'"
-                                                                                  + uiPrefix + "StatsTable');"));
+                                                                       + uiPrefix + "StatsTable');"));
                                 checkBox.add(AttributeModifier.replace("class", "allMachinesCheckbox"));
                             } else {
 
@@ -362,7 +365,7 @@ public class DataPanel implements Serializable {
                                 // Also the row/cell color will be changed.
                                 checkBox.add(AttributeModifier.replace("onclick",
                                                                        "unselectMainTrCheckbox(this,'"
-                                                                                  + uiPrefix + "StatsTable');"));
+                                                                       + uiPrefix + "StatsTable');"));
                                 checkBox.add(AttributeModifier.replace("class", "machineCheckbox"));
                                 item.add(AttributeModifier.replace("class",
                                                                    "statisticColumnWithCheckboxOnly"));
@@ -451,14 +454,14 @@ public class DataPanel implements Serializable {
     }
 
     private int getNewContainerIndexInDataPanel(
-                                                 String containerName ) {
+            String containerName ) {
 
         return (statContainers.size() + 1) * CONTAINER_INDEX_DELTAS;
     }
 
     public List<List<StatisticsTableCell>>
-            generateStatisticDetailRows( List<MachineDescription> uniqueMachinesList,
-                                         Map<String, List<DbStatisticDescription>> diagramContent ) {
+    generateStatisticDetailRows( List<MachineDescription> uniqueMachinesList,
+                                 Map<String, List<DbStatisticDescription>> diagramContent ) {
 
         List<List<StatisticsTableCell>> rows = new ArrayList<List<StatisticsTableCell>>();
 
@@ -506,13 +509,13 @@ public class DataPanel implements Serializable {
         columns = new ArrayList<StatisticsTableCell>();
         columns.add(new StatisticsTableCell("&nbsp;", false));
         rows.add(columns);
-        if( !StringUtils.isNullOrEmpty( queueName )
-            && !queueName.equals( StatisticsPanel.SYSTEM_STATISTIC_CONTAINER ) ) {
+        if (!StringUtils.isNullOrEmpty(queueName)
+            && !queueName.equals(StatisticsPanel.SYSTEM_STATISTIC_CONTAINER)) {
 
             columns = new ArrayList<StatisticsTableCell>();
-            columns.add( new StatisticsTableCell( "<i>" + queueName + "</i>", false ) );
-            columns.add( new StatisticsTableCell( "&nbsp;", false ) );
-            rows.add( columns );
+            columns.add(new StatisticsTableCell("<i>" + queueName + "</i>", false));
+            columns.add(new StatisticsTableCell("&nbsp;", false));
+            rows.add(columns);
         }
 
         StatisticsTableCell minCellLabel = new StatisticsTableCell("<div class=\"statDetailsMVal\">Min</div>", false);
@@ -520,7 +523,8 @@ public class DataPanel implements Serializable {
         StatisticsTableCell avgCellLabel = new StatisticsTableCell("<div class=\"statDetailsMVal\">Avg</div>", false);
 
         for (MachineDescription machine : uniqueMachinesList) {
-            DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine(statDescription);
+            DbStatisticDescription actualStatDescription = machine.getActualStatisticInfoForThisMachine(
+                    statDescription);
             if (actualStatDescription != null
                 && (actualStatDescription.machineId != dbStatDesc.machineId
                     || actualStatDescription.testcaseId != dbStatDesc.testcaseId)) {
@@ -539,12 +543,15 @@ public class DataPanel implements Serializable {
                 columns.add(new StatisticsTableCell("&nbsp;", false));
                 rows.add(columns);
 
-                StatisticsTableCell minCellValue = new StatisticsTableCell(String.valueOf(actualStatDescription.minValue),
-                                                                           false);
-                StatisticsTableCell avgCellValue = new StatisticsTableCell(String.valueOf(actualStatDescription.avgValue),
-                                                                           false);
-                StatisticsTableCell maxCellValue = new StatisticsTableCell(String.valueOf(actualStatDescription.maxValue),
-                                                                           false);
+                StatisticsTableCell minCellValue = new StatisticsTableCell(
+                        String.valueOf(actualStatDescription.minValue),
+                        false);
+                StatisticsTableCell avgCellValue = new StatisticsTableCell(
+                        String.valueOf(actualStatDescription.avgValue),
+                        false);
+                StatisticsTableCell maxCellValue = new StatisticsTableCell(
+                        String.valueOf(actualStatDescription.maxValue),
+                        false);
 
                 addDetailedstatisticDataRows(rows, minCellLabel, minCellValue);
                 addDetailedstatisticDataRows(rows, maxCellLabel, maxCellValue);
@@ -569,7 +576,7 @@ public class DataPanel implements Serializable {
     }
 
     /**
-     * machines are ordered in the list
+     * Machines are ordered in the list
      */
     class MachineDescriptionComparator implements Comparator<MachineDescription>, Serializable {
 
@@ -577,8 +584,8 @@ public class DataPanel implements Serializable {
 
         @Override
         public int compare(
-                            MachineDescription machine1,
-                            MachineDescription machine2 ) {
+                MachineDescription machine1,
+                MachineDescription machine2 ) {
 
             return machine1.compare(machine2);
         }

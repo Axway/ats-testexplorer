@@ -29,8 +29,8 @@ public class TestcaseLoadableDetachableModel extends LoadableDetachableModel<Tes
     private MainDataGrid      grid;
 
     /**
-     *
-     * @param testcase
+     * Wicket Testcase model
+     * @param testcase the backing model entity
      * @param grid Used for edit mode detection. If in edit mode then the
      * duration(state,result) is not checked and the model is not changed.
      * Otherwise if the model was changed in edit mode and the testcase is still

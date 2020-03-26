@@ -87,8 +87,6 @@ public class ScenariosPanel extends Panel {
      * Return list with all columns properties for the Scenario Page
      *
      * @return {@link List} of {@link TableColumn}s
-     * @throws DatabaseAccessException
-     * @throws SQLException
      */
     public List<TableColumn> getTableColumnDefinitions() {
 
@@ -102,7 +100,6 @@ public class ScenariosPanel extends Panel {
      * Set length, position and visibility to each column for the Scenario page
      *
      * @param dbColumnDefinitionList column definitions List
-     * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {

@@ -184,8 +184,8 @@ public class TestExplorerApplication extends WebApplication {
     /**
      * Add columnDefinition list for dbname
      * 
-     * @param dbName
-     * @param columnDefinition
+     * @param dbName database name
+     * @param columnDefinition data for the columns
      */
     public void setColumnDefinition( String dbName, List<TableColumn> columnDefinition ) {
 

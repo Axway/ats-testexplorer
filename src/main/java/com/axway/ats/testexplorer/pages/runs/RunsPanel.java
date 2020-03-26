@@ -248,9 +248,7 @@ public class RunsPanel extends Panel {
     /**
      * Return list with all columns properties for the Runs Page
      *
-     * @return
-     * @throws DatabaseAccessException
-     * @throws SQLException
+     * @return list of all columns properties
      */
     public List<TableColumn> getTableColumnDefinitions() {
 
@@ -264,7 +262,6 @@ public class RunsPanel extends Panel {
      * Set length, position and visibility to each column for the Runs page
      *
      * @param dbColumnDefinitionList column definitions List
-     * @param dbColumnDefinitionArray column definitions Array
      * @return {@link List} of {@link TableColumn}s
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {

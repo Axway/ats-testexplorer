@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Axway Software
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,13 +44,14 @@ import com.inmethod.grid.column.editable.EditablePropertyColumn;
 
 public class SuitesPanel extends Panel {
 
-    private static final long  serialVersionUID = 1L;
-    public static final String DB_TABLE_NAME    = "tSuite";
-    private String             runId;
+    private static final long   serialVersionUID = 1L;
+    public static final  String DB_TABLE_NAME    = "tSuite";
+    private              String runId;
 
-    List<TableColumn>          columnDefinitions;
+    List<TableColumn> columnDefinitions;
 
     public SuitesPanel( String id ) {
+
         super(id);
 
         columnDefinitions = getTableColumnDefinitions();
@@ -66,7 +67,7 @@ public class SuitesPanel extends Panel {
         MainDataGrid grid = new MainDataGrid("suitesTable", new SuitesDataSource(runId), getColumns(),
                                              columnDefinitions, "Suites",
                                              MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
-                                                                          | MainDataGrid.OPERATION_GET_LOG);
+                                             | MainDataGrid.OPERATION_GET_LOG);
         grid.setGridColumnsState(columnDefinitions);
         grid.setAllowSelectMultiple(true);
         grid.setSelectToEdit(false);
@@ -79,7 +80,7 @@ public class SuitesPanel extends Panel {
         parentPage.setMainGrid(grid);
     }
 
-    @SuppressWarnings( { "unchecked", "rawtypes" })
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public List<IGridColumn> getColumns() {
 
         List<IGridColumn> columns = new ArrayList<IGridColumn>();
@@ -212,14 +213,13 @@ public class SuitesPanel extends Panel {
     /**
      * Return list with all columns properties for the Suite Page
      *
-     * @return
-     * @throws DatabaseAccessException
-     * @throws SQLException
+     * @return list of properties
      */
     public List<TableColumn> getTableColumnDefinitions() {
 
         String dbName = ((TestExplorerSession) Session.get()).getDbName();
-        List<TableColumn> dbColumnDefinitionList = ((TestExplorerApplication) getApplication()).getColumnDefinition(dbName);
+        List<TableColumn> dbColumnDefinitionList = ((TestExplorerApplication) getApplication()).getColumnDefinition(
+                dbName);
         dbColumnDefinitionList = setTableColumnsProperties(dbColumnDefinitionList);
         return dbColumnDefinitionList;
     }
@@ -227,8 +227,7 @@ public class SuitesPanel extends Panel {
     /**
      * Set length, position and visibility to each column for the Suite page
      *
-    * @param dbColumnDefinitionList column definitions List
-     * @param dbColumnDefinitionArray column definitions Array
+     * @param dbColumnDefinitionList column definitions List
      * @return {@link List} of {@link TableColumn}s
      */
     private List<TableColumn> setTableColumnsProperties( List<TableColumn> dbColumnDefinitionList ) {

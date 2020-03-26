@@ -469,9 +469,9 @@ public class TestExplorerSQLServerDbReadAccess extends SQLServerDbReadAccess
     }
 
     /**
-     *Get columns definition table from DB
-     * @throws DatabaseAccessException 
-     * @throws SQLException 
+     * Get columns definition table from DB
+     * @throws DatabaseAccessException In case of an error
+     * @throws SQLException In case of an error
      */
     public List<TableColumn> getTableColumnDefinition() throws DatabaseAccessException, SQLException {
 
@@ -952,7 +952,6 @@ public class TestExplorerSQLServerDbReadAccess extends SQLServerDbReadAccess
 
     /**
      * Get runs that are not from certain product and version name
-     * @param productName the product name
      * @param productName the product name
      * @return list of {@link Run} that do not have the specified product and version names
      * */

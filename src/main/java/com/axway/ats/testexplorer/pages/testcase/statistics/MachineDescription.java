@@ -109,8 +109,8 @@ public class MachineDescription implements Serializable {
      * When we cycle over the statistic descriptions in a container, using this method we can get the
      * actual statistic description for this particular machine
      *
-     * @param statDescription
-     * @return
+     * @param statDescription  statistic ID
+     * @return actual statistic for this ID
      */
     public DbStatisticDescription getActualStatisticInfoForThisMachine(
                                                                         DbStatisticDescription statDescription ) {

@@ -35,10 +35,9 @@ public class NavigatorLabel extends Label {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param id
-     *            component id
-     * @param table
-     *            pageable view
+     * @param id component id
+     * @param table pageable view
+     * @param whatIsShowing what kind of entity is showing
      */
     public NavigatorLabel( final String id,
                            final DataGrid table,
