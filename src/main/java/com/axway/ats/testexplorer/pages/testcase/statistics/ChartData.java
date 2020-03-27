@@ -35,7 +35,7 @@ public class ChartData implements Serializable {
     private String            machineLabel;
     private String            unit;
     private int               testcaseId;
-    private int               statisticTypeId;
+    private long               statisticTypeId;
     private int               machineId;
 
     private List<Long>        timestamps       = new ArrayList<Long>();
@@ -140,12 +140,12 @@ public class ChartData implements Serializable {
         return this.testcaseId;
     }
 
-    public void setStatisticTypeId( int statisticTypeId ) {
+    public void setStatisticTypeId( long statisticTypeId ) {
 
         this.statisticTypeId = statisticTypeId;
     }
 
-    public int getStatisticTypeId() {
+    public long getStatisticTypeId() {
 
         return this.statisticTypeId;
     }

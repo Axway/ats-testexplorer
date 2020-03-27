@@ -51,6 +51,8 @@ IF "%SILENT_MODE_USED%" == "true" (
 rem set password
 IF NOT [%SECOND_CMD_ARGUMENT%]==[] (
     set PGPASSWORD=%SECOND_CMD_ARGUMENT%
+) ELSE (
+    set /p PGPASSWORD=Enter PostgreSQL password for user postgres:
 )
 
 :: see if database exists

@@ -35,14 +35,14 @@ INSERT INTO tInternal ([key],[value]) VALUES ('version', '4.0.7_draft')
 GO
 
 /****** Record the initial version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '18')
+INSERT INTO tInternal ([key],[value]) VALUES ('initialVersion', '19')
 GO
 
 /****** Record the internal version ******/
-INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '18')
+INSERT INTO tInternal ([key],[value]) VALUES ('internalVersion', '19')
 GO
 
-INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_18', SYSDATETIME());
+INSERT INTO tInternal ([key], value) VALUES ('Install_of_intVer_19', SYSDATETIME());
 GO
 
 /****** Object:  StoredProcedure [dbo].[stringArrayIntoTable] ******/
@@ -558,7 +558,7 @@ GO
 SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[tCheckpoints](
-    [checkpointId] [int] IDENTITY(1,1) NOT NULL,
+    [checkpointId] [bigint] IDENTITY(1,1) NOT NULL,
     [checkpointSummaryId] [int] NOT NULL,
     [name] [varchar](150) NOT NULL,
     [responseTime] [int] NOT NULL,
@@ -3169,7 +3169,7 @@ CREATE   PROCEDURE [dbo].[sp_start_checkpoint]
 ,@transferRateUnit VARCHAR(50)
 
 ,@checkpointSummaryId INT =0 OUT
-,@checkpointId INT =0 OUT
+,@checkpointId BIGINT =0 OUT
 
 AS
 
@@ -3237,7 +3237,7 @@ GO
 CREATE   PROCEDURE [dbo].[sp_end_checkpoint]
 
 @checkpointSummaryId INT
-,@checkpointId INT
+,@checkpointId BIGINT
 ,@responseTime INT
 ,@transferSize BIGINT
 ,@result INT
@@ -3313,7 +3313,7 @@ CREATE  PROCEDURE [dbo].[sp_insert_checkpoint]
 AS
 
 DECLARE @checkpointSummaryId INT=0
-DECLARE @checkpointId INT=0
+DECLARE @checkpointId BIGINT=0
 
 -- As this procedure is usually called from more more than one thread (from 1 or more ATS agents)
 -- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,

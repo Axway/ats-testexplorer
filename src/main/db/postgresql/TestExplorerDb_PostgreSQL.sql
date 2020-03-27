@@ -24,9 +24,9 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.7_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '18');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '18');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_18', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '19');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '19');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_19', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -203,7 +203,7 @@ CREATE TABLE "tCheckpointsSummary" (
 );
 
 CREATE TABLE "tCheckpoints" (
-    checkpointId        serial       PRIMARY KEY,
+    checkpointId        bigserial    PRIMARY KEY,
     checkpointSummaryId integer      NOT NULL,
     name                varchar(150) NOT NULL,
     responseTime        integer      NOT NULL,
@@ -2060,7 +2060,7 @@ $func$ LANGUAGE plpgsql;
 
 CREATE FUNCTION sp_get_checkpoint_statistics(fdate varchar(150), testcaseIds varchar(150), checkpointNames varchar(1000), parentNames varchar(1000))
 RETURNS TABLE (
-    statsTypeId INTEGER,
+    statsTypeId BIGINT,
     queueName VARCHAR(255),
     statsName VARCHAR(150),
     value INTEGER,
@@ -2348,7 +2348,7 @@ END;
 $func$ LANGUAGE plpgsql;
 
 
-CREATE FUNCTION sp_start_checkpoint(_loadQueueId INTEGER, _name VARCHAR(255), _mode INTEGER, _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER, OUT _checkpointId INTEGER)
+CREATE FUNCTION sp_start_checkpoint(_loadQueueId INTEGER, _name VARCHAR(255), _mode INTEGER, _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER, OUT _checkpointId BIGINT)
 RETURNS RECORD AS $func$
 DECLARE
 	-- 0 - FAILED
@@ -2392,7 +2392,7 @@ CREATE FUNCTION sp_insert_checkpoint(_loadQueueId INTEGER, _name VARCHAR(150), _
 RETURNS VOID AS $func$
 DECLARE
 	_checkpointSummaryId INTEGER DEFAULT 0;
-	_checkpointId INTEGER DEFAULT 0;
+	_checkpointId BIGINT DEFAULT 0;
 	_transferRate REAL;
 BEGIN
 	
@@ -2455,7 +2455,7 @@ BEGIN
 END;
 $func$ LANGUAGE plpgsql;
 
-CREATE FUNCTION sp_end_checkpoint(_checkpointSummaryId INTEGER, _checkpointId INTEGER, _responseTime INTEGER, _transferSize BIGINT, _result INTEGER, _mode INTEGER, 
+CREATE FUNCTION sp_end_checkpoint(_checkpointSummaryId INTEGER, _checkpointId BIGINT, _responseTime INTEGER, _transferSize BIGINT, _result INTEGER, _mode INTEGER, 
 								  _endTime TIMESTAMP, OUT rowsInserted INTEGER)
 RETURNS INTEGER AS $func$
 DECLARE

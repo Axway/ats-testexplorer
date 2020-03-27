@@ -328,3 +328,281 @@ UPDATE tInternal SET [value]='18' WHERE [key]='internalVersion'
 GO
 print '#18 INTERNAL VERSION UPGRADE FOOTER - END'
 GO
+
+print '#19 INTERNAL VERSION UPGRADE HEADER - START'
+GO
+INSERT INTO tInternal ([key], value) VALUES ('Upgrade_to_intVer_19', SYSDATETIME());
+GO
+print '#19 INTERNAL VERSION UPGRADE HEADER - END'
+GO
+print 'start ALTER TABLE tCheckpoints'
+GO
+-- BEGIN
+ALTER TABLE [dbo].[tCheckpoints]
+	DROP CONSTRAINT [PK_tCheckpointsAll]
+GO
+ALTER TABLE [dbo].[tCheckpoints]
+	ALTER COLUMN [checkpointId] [bigint] NOT NULL;
+GO
+ALTER TABLE [dbo].[tCheckpoints]
+	ADD CONSTRAINT [PK_tCheckpointsAll] PRIMARY KEY CLUSTERED (checkpointId);
+GO
+-- END
+print 'end ALTER TABLE tCheckpoints'
+GO
+print 'start ALTER PROCEDURE sp_start_checkpoint'
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER   PROCEDURE [dbo].[sp_start_checkpoint]
+
+@loadQueueId INT
+,@name VARCHAR(255)
+,@mode INT
+,@transferRateUnit VARCHAR(50)
+
+,@checkpointSummaryId INT =0 OUT
+,@checkpointId BIGINT =0 OUT
+
+AS
+
+-- 0 - FAILED
+-- 1 - PASSED
+-- 4 - RUNNING
+DECLARE @result INT =4
+
+-- As this procedure is usually called from more more than one thread (from 1 or more ATS agents)
+-- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,
+-- they all see the needed summary checkpoint is not present and they all create one. This is wrong!
+-- The fix is to make sure that only 1 thread at a time executes this stored procedure and all other threads are blocked.
+-- This is done by using a lock with exclusive mode. The lock is automatically released at the end of the transaction.
+
+BEGIN TRAN StartCheckpointTransaction
+DECLARE @get_app_lock_res INT
+EXEC @get_app_lock_res = sp_getapplock @Resource = 'StartCheckpointTransaction Lock ID', @LockMode = 'Exclusive';
+
+IF @get_app_lock_res < 0
+    -- error getting lock
+    -- client will see there was an error as @RowsInserted stays 0
+    RETURN;
+
+BEGIN
+
+    -- get an ID if already present
+    SET @checkpointSummaryId =( SELECT  checkpointSummaryId
+                                FROM    tCheckpointsSummary
+                                WHERE   loadQueueId = @loadQueueId AND name = @name   )
+
+    -- SUMMARY table - it keeps 1 row for ALL values of a checkpoint
+    IF (@checkpointSummaryId IS NOT NULL)
+        -- update existing entry
+        BEGIN
+            UPDATE tCheckpointsSummary
+            SET     numRunning = numRunning + 1
+            WHERE checkpointSummaryId = @checkpointSummaryId
+        END
+
+    -- insert in DETAILS table when running FULL mode - it keeps 1 row for EACH value of a checkpoint
+    --   @mode == 0 -> SHORT mode
+    --   @mode != 0 -> FULL mode
+    IF @mode != 0
+    BEGIN
+        INSERT INTO tCheckpoints
+            (checkpointSummaryId, name, responseTime, transferRate, transferRateUnit, result, endTime)
+        VALUES
+            (@checkpointSummaryId, @name, 0, 0, @transferRateUnit, @result, null)
+
+        SET @checkpointId = @@IDENTITY
+    END
+END
+
+IF @@ERROR <> 0 --error has happened
+    ROLLBACK
+ELSE
+    COMMIT
+GO
+print 'end ALTER PROCEDURE sp_start_checkpoint'
+GO
+print 'start ALTER PROCEDURE sp_end_checkpoint'
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER   PROCEDURE [dbo].[sp_end_checkpoint]
+
+@checkpointSummaryId INT
+,@checkpointId BIGINT
+,@responseTime INT
+,@transferSize BIGINT
+,@result INT
+,@mode INT
+,@endTime DATETIME
+
+,@RowsInserted INT =0 OUT
+
+AS
+
+DECLARE @transferRate FLOAT
+IF @responseTime > 0
+    -- in order to transform transferSize into float we multiply with 1000.0 instead of 1000
+    SET @transferRate = @transferSize*1000.0/@responseTime
+ELSE SET @transferRate = 0
+
+
+-- update DETAILS table when running FULL mode - it keeps 1 row for EACH value of a checkpoint
+--  @mode == 0 -> SHORT mode
+--  @mode != 0 -> FULL mode
+IF @mode != 0
+    BEGIN
+        UPDATE tCheckpoints
+        SET responseTime=@responseTime, transferRate=@transferRate, result=@result, endTime=@endTime
+        WHERE checkpointId = @checkpointId
+    END
+
+
+-- update SUMMARY table - it keeps 1 row for ALL values of a checkpoint
+IF (@result = 0)
+    -- checkpoint failed
+    BEGIN
+        UPDATE  tCheckpointsSummary
+        SET     numRunning = numRunning -1,
+                numFailed = numFailed + 1
+        WHERE   checkpointSummaryId = @checkpointSummaryId
+    END
+ELSE
+    -- checkpoint passed
+    BEGIN
+        UPDATE tCheckpointsSummary
+        SET     numRunning = numRunning -1,
+                numPassed = numPassed + 1,
+                minResponseTime = CASE WHEN @responseTime < minResponseTime THEN @responseTime ELSE minResponseTime END,
+                maxResponseTime = CASE WHEN @responseTime > maxResponseTime THEN @responseTime ELSE maxResponseTime END,
+                avgResponseTime = (avgResponseTime * numPassed + @responseTime)/(numPassed + 1),
+                minTransferRate = CASE WHEN @transferRate < minTransferRate THEN @transferRate ELSE minTransferRate END,
+                maxTransferRate = CASE WHEN @transferRate > maxTransferRate THEN @transferRate ELSE maxTransferRate END,
+                avgTransferRate = (avgTransferRate * numPassed + @transferRate)/(numPassed+ 1)
+        WHERE checkpointSummaryId = @checkpointSummaryId
+    END
+
+SET @RowsInserted = @@ROWCOUNT
+GO
+print 'end ALTER PROCEDURE sp_end_checkpoint'
+GO
+print 'start ALTER PROCEDURE sp_insert_checkpoint'
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER  PROCEDURE [dbo].[sp_insert_checkpoint]
+
+@loadQueueId INT
+,@name VARCHAR(150)
+,@responseTime INT
+,@endTime DATETIME
+,@transferSize BIGINT
+,@transferRateUnit VARCHAR(50)
+,@result INT
+,@mode INT
+
+AS
+
+DECLARE @checkpointSummaryId INT=0
+DECLARE @checkpointId BIGINT=0
+
+-- As this procedure is usually called from more more than one thread (from 1 or more ATS agents)
+-- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,
+-- they all see the needed summary checkpoint is not present and they all create one. This is wrong!
+-- The fix is to make sure that only 1 thread at a time executes this stored procedure and all other threads are blocked.
+-- This is done by using a lock with exlusive mode. The lock is automatically released at the end of the transaction.
+
+BEGIN TRAN InsertCheckpointTransaction
+DECLARE @get_app_lock_res INT
+EXEC @get_app_lock_res = sp_getapplock @Resource = 'InsertCheckpointTransaction Lock ID', @LockMode = 'Exclusive';
+
+IF @get_app_lock_res < 0
+    -- error getting lock
+    -- client will see there was an error as @RowsInserted stays 0
+    RETURN;
+
+BEGIN
+
+    IF (@result = 0)
+        BEGIN
+            SET @responseTime = 0
+            SET @transferSize = 0
+        END
+
+    DECLARE @transferRate FLOAT
+    IF @responseTime > 0
+        -- in order to transform transferSize into float we multiply with 1000.0 instead of 1000
+        SET @transferRate = @transferSize*1000.0/@responseTime
+    ELSE SET @transferRate = 0
+
+    -- get an ID if already present
+    SET @checkpointSummaryId =( SELECT  checkpointSummaryId
+                                FROM    tCheckpointsSummary
+                                WHERE   loadQueueId = @loadQueueId AND name = @name   )
+
+    -- SUMMARY table - it keeps 1 row for ALL values of a checkpoint
+    IF (@checkpointSummaryId IS NOT NULL)
+        -- update existing entry
+        IF (@result = 0)
+            -- checkpoint failed
+            BEGIN
+                UPDATE  tCheckpointsSummary
+                SET     numFailed = numFailed + 1
+                WHERE   checkpointSummaryId = @checkpointSummaryId
+            END
+        ELSE
+            -- checkpoint passed
+            BEGIN
+                UPDATE tCheckpointsSummary
+                SET     numPassed = numPassed + 1,
+                        minResponseTime = CASE WHEN @responseTime < minResponseTime THEN @responseTime ELSE minResponseTime END,
+                        maxResponseTime = CASE WHEN @responseTime > maxResponseTime THEN @responseTime ELSE maxResponseTime END,
+                        avgResponseTime = (avgResponseTime * numPassed + @responseTime)/(numPassed + 1),
+                        minTransferRate = CASE WHEN @transferRate < minTransferRate THEN @transferRate ELSE minTransferRate END,
+                        maxTransferRate = CASE WHEN @transferRate > maxTransferRate THEN @transferRate ELSE maxTransferRate END,
+                        avgTransferRate = (avgTransferRate * numPassed + @transferRate)/(numPassed+ 1)
+                WHERE checkpointSummaryId = @checkpointSummaryId
+            END
+
+    -- insert in DETAILS table when running FULL mode - it keeps 1 row for EACH value of a checkpoint
+   --   @mode == 0 -> SHORT mode
+    --   @mode != 0 -> FULL mode
+    IF @mode != 0
+    BEGIN
+        INSERT INTO tCheckpoints
+            (checkpointSummaryId, name, responseTime, transferRate, transferRateUnit, result, endTime)
+        VALUES
+            (@checkpointSummaryId, @name, @responseTime, @transferRate, @transferRateUnit, @result, @endTime)
+
+        SET @checkpointId = @@IDENTITY
+    END
+END
+
+IF @@ERROR <> 0 --error has happened
+    ROLLBACK
+ELSE
+    COMMIT
+GO
+print 'end ALTER PROCEDURE sp_insert_checkpoint'
+GO
+print '#19 INTERNAL VERSION UPGRADE FOOTER - START'
+GO
+IF (@@ERROR != 0)
+BEGIN
+    RAISERROR(N'Error occurred while performing update to internal version 19', 16, 1) WITH LOG;
+    RETURN;
+END
+UPDATE tInternal SET [value]='19' WHERE [key]='internalVersion'
+GO
+print '#19 INTERNAL VERSION UPGRADE FOOTER - END'
+GO

@@ -713,6 +713,7 @@ public class TestExplorerPGDbReadAccess extends PGDbReadAccess implements TestEx
     /**
      * Get runs that are not from certain product and version name
      * @param productName the product name
+     * @param versionName the version name
      * @return list of {@link Run} that do not have the specified product and version names
      * */
     @Override
