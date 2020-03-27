@@ -284,8 +284,16 @@ IF @get_app_lock_res < 0
 
 BEGIN
 
-UPDATE tCheckpointsSummary
-   SET     numPassed = numPassed+@numPassed,
+IF @numPassed = 0
+    -- no passed checkpoints for the current procerude invocation
+    UPDATE tCheckpointsSummary
+	SET    numPassed = numPassed+@numPassed,
+           numFailed = numFailed+@numFailed,
+           numRunning = numRunning+@numRunning
+	WHERE  checkpointSummaryId = @checkpointSummaryId;
+ELSE
+	UPDATE tCheckpointsSummary
+	SET    numPassed = numPassed+@numPassed,
            numFailed = numFailed+@numFailed,
            numRunning = numRunning+@numRunning,
            minResponseTime = CASE WHEN @minResponseTime < minResponseTime THEN @minResponseTime ELSE minResponseTime END,
@@ -296,7 +304,7 @@ UPDATE tCheckpointsSummary
 
            avgResponseTime = ((avgResponseTime * numPassed) + (@avgResponseTime * @numPassed)) / (numPassed + @numPassed),
            avgTransferRate = ((avgTransferRate * numPassed) + (@avgTransferRate * @numPassed)) / (numPassed  +@numPassed)
-   WHERE checkpointSummaryId = @checkpointSummaryId;
+	WHERE checkpointSummaryId = @checkpointSummaryId;
 END 
 
 IF @@ERROR <> 0 --error has happened
