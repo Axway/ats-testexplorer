@@ -433,26 +433,26 @@ public class LoadQueuesPanel extends Panel {
 
         String getMinTransferRate() {
 
-            float minTransferRate = Integer.MAX_VALUE;
+            double minTransferRate = Integer.MAX_VALUE;
             for (CheckpointSummary action : actions) {
                 if (minTransferRate > action.minTransferRate) {
                     minTransferRate = action.minTransferRate;
                 }
             }
 
-            return String.format("%.2f", minTransferRate);
+            return String.format("%.2d", minTransferRate);
         }
 
         String getMaxTransferRate() {
 
-            float maxTransferRate = 0;
+            double maxTransferRate = 0;
             for (CheckpointSummary action : actions) {
                 if (maxTransferRate < action.maxTransferRate) {
                     maxTransferRate = action.maxTransferRate;
                 }
             }
 
-            return String.format("%.2f", maxTransferRate);
+            return String.format("%.2d", maxTransferRate);
         }
 
         String getAvgTransferRate() {
