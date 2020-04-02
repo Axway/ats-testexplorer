@@ -440,7 +440,7 @@ public class LoadQueuesPanel extends Panel {
                 }
             }
 
-            return String.format("%.2d", minTransferRate);
+            return String.format("%.2f", minTransferRate);
         }
 
         String getMaxTransferRate() {
@@ -452,7 +452,7 @@ public class LoadQueuesPanel extends Panel {
                 }
             }
 
-            return String.format("%.2d", maxTransferRate);
+            return String.format("%.2f", maxTransferRate);
         }
 
         String getAvgTransferRate() {
