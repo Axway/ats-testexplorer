@@ -101,13 +101,10 @@ public class CsvWriter implements Serializable {
         Iterator<ChartData> userStatisticsIterator = collection.iterator();
         while (userStatisticsIterator.hasNext()) {
             ChartData data = userStatisticsIterator.next();
+            chartDataLists.add(data.getLabel() + " " + data.getUnit());
             String[] avgAxisValues = data.getAxisValuesAsString(0).split(",");
             for (int i = 0; i < data.getTimestamps().size(); i++) {
-                if (i == 0) {
-                    chartDataLists.add(data.getLabel() + " " + data.getUnit());
-                } else {
-                    chartDataLists.add(data.getTimestamps().get(i).toString() + "," + avgAxisValues[i]);
-                }
+                chartDataLists.add(data.getTimestamps().get(i).toString() + "," + avgAxisValues[i]);
             }
         }
         return chartDataLists;

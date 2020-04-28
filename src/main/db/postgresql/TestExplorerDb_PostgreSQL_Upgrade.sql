@@ -217,6 +217,61 @@ BEGIN
   RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_end_checkpoint';
 END
 $$;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_get_system_statistics';
+END
+$$;
+
+CREATE OR REPLACE FUNCTION sp_get_system_statistics(_fdate varchar(150), _testcaseIds varchar(150), _machineIds varchar(150), _statsTypeIds varchar(150), _whereClause text)
+RETURNS TABLE (
+    statsName VARCHAR(255),
+    statsParent VARCHAR(255),
+    statsUnit VARCHAR(50),
+    value REAL,
+    statsTypeId INTEGER,
+    statsAxis VARCHAR(255),
+    statsAxisTimestamp DOUBLE PRECISION,
+    machineId INTEGER,
+    testcaseId INTEGER
+) AS $func$
+DECLARE
+    _sql VARCHAR(8000);
+BEGIN
+    -- timestamp conversion note: 20 means yyyy-mm-dd hh:mi:ss
+    _sql := 'SELECT st.name AS statsName,
+                    st.parentName AS statsParent,
+                    st.units AS statsUnit,
+                    ss.value,
+                    st.statsTypeId,
+                    CAST(ss.timestamp AS VARCHAR) AS statsAxis,
+                    EXTRACT(EPOCH FROM (ss.timestamp - CAST(''' || _fdate || ''' AS TIMESTAMP))) AS statsAxisTimestamp,
+                    ss.machineId,
+                    ss.testcaseId
+
+             FROM      ' || $$"tSystemStats"$$ || ' ss
+             LEFT JOIN ' || $$"tStatsTypes"$$ || ' st ON (ss.statsTypeId = st.statsTypeId)
+             JOIN      ' || $$"tTestcases"$$ ||' tt ON (tt.testcaseId = ss.testcaseId)
+             WHERE ss.testcaseId IN ( ' || _testcaseIds || ' )
+             AND ss.machineId IN ( ' || _machineIds || ' )
+             AND st.statsTypeId IN ('|| _statsTypeIds || ')
+              AND ' || _whereClause || '
+              GROUP BY st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId
+              ORDER BY ss.timestamp';
+    RETURN QUERY EXECUTE _sql;
+END;
+$func$ LANGUAGE plpgsql;
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_get_system_statistics';
+END
+$$;
+
+
 DO language plpgsql $$
 BEGIN
   RAISE WARNING '#19 INTERNAL VERSION UPGRADE FOOTER - START';

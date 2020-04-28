@@ -595,6 +595,52 @@ ELSE
 GO
 print 'end ALTER PROCEDURE sp_insert_checkpoint'
 GO
+
+print 'start ALTER PROCEDURE sp_get_system_statistics'
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--*********************************************************
+ALTER                PROCEDURE [dbo].[sp_get_system_statistics]
+
+@fdate varchar(150),
+@testcaseIds varchar(150),
+@machineIds varchar(150),
+@statsTypeIds varchar(150),
+@whereClause varchar(MAX)
+
+AS
+
+DECLARE @sql varchar(8000)
+-- timestamp conversion note: 20 means yyyy-mm-dd hh:mi:ss
+SET     @sql = 'SELECT  st.name as statsName,
+                        st.parentName as statsParent,
+                        st.units as statsUnit,
+                        ss.value,
+                        st.statsTypeId,
+                        convert(varchar,ss.timestamp,20) as statsAxis,
+                        DATEDIFF(second, CONVERT( datetime, ''' + @fdate + ''', 20), ss.timestamp) as statsAxisTimestamp,
+                        ss.machineId,
+                        ss.testcaseId
+
+                     FROM       tSystemStats ss
+                     LEFT JOIN  tStatsTypes st ON (ss.statsTypeId = st.statsTypeId)
+                     JOIN       tTestcases tt ON (tt.testcaseId = ss.testcaseId)
+                     WHERE      ss.testcaseId in ( '+@testcaseIds+' )
+                     AND        ss.machineId in ( '+@machineIds+' )
+                     AND        st.statsTypeId IN ('+@statsTypeIds+')
+                     AND '+@whereClause+' 
+					 GROUP BY st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId 
+					 ORDER BY ss.timestamp'
+
+
+EXEC (@sql)
+GO
+print 'end ALTER PROCEDURE sp_get_system_statistics'
+GO
+
 print '#19 INTERNAL VERSION UPGRADE FOOTER - START'
 GO
 IF (@@ERROR != 0)

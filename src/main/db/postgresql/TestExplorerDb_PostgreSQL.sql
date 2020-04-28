@@ -1771,7 +1771,7 @@ END;
 $func$ LANGUAGE plpgsql;
 
 
-CREATE FUNCTION sp_get_system_statistics(_fdate varchar(150), _testcaseIds varchar(150), _machineIds varchar(150), _statsTypeIds varchar(150))
+CREATE FUNCTION sp_get_system_statistics(_fdate varchar(150), _testcaseIds varchar(150), _machineIds varchar(150), _statsTypeIds varchar(150), _whereClause text)
 RETURNS TABLE (
     statsName VARCHAR(255),
     statsParent VARCHAR(255),
@@ -1803,8 +1803,9 @@ BEGIN
              WHERE ss.testcaseId IN ( ' || _testcaseIds || ' )
              AND ss.machineId IN ( ' || _machineIds || ' )
              AND st.statsTypeId IN ('|| _statsTypeIds || ')
-             GROUP BY st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId
-             ORDER BY ss.timestamp';
+              AND ' || _whereClause || '
+              GROUP BY st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId
+              ORDER BY ss.timestamp';
     RETURN QUERY EXECUTE _sql;
 END;
 $func$ LANGUAGE plpgsql;

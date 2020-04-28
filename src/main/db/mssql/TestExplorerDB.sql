@@ -703,7 +703,8 @@ CREATE                PROCEDURE [dbo].[sp_get_system_statistics]
 @fdate varchar(150),
 @testcaseIds varchar(150),
 @machineIds varchar(150),
-@statsTypeIds varchar(150)
+@statsTypeIds varchar(150),
+@whereClause varchar(MAX)
 
 AS
 
@@ -720,13 +721,15 @@ SET     @sql = 'SELECT  st.name as statsName,
                         ss.testcaseId
 
                      FROM       tSystemStats ss
-                     LEFT JOIN tStatsTypes st ON (ss.statsTypeId = st.statsTypeId)
-                     JOIN    tTestcases tt ON (tt.testcaseId = ss.testcaseId)
-             WHERE       ss.testcaseId in ( '+@testcaseIds+' )
-                         AND ss.machineId in ( '+@machineIds+' )
-                         AND st.statsTypeId IN ('+@statsTypeIds+')
-             GROUP BY    st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId
-             ORDER BY    ss.timestamp'
+                     LEFT JOIN  tStatsTypes st ON (ss.statsTypeId = st.statsTypeId)
+                     JOIN       tTestcases tt ON (tt.testcaseId = ss.testcaseId)
+                     WHERE      ss.testcaseId in ( '+@testcaseIds+' )
+                     AND        ss.machineId in ( '+@machineIds+' )
+                     AND        st.statsTypeId IN ('+@statsTypeIds+')
+                     AND '+@whereClause+' 
+					 GROUP BY st.parentName, st.name, st.units, ss.timestamp, ss.value, st.statsTypeId, ss.machineId, ss.testcaseId 
+					 ORDER BY ss.timestamp'
+
 
 EXEC (@sql)
 GO
