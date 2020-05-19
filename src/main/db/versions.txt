@@ -34,6 +34,8 @@ ________________________________________________________________________________
                                                         Metainfo (key-value pairs) could be associated to testcase in addition to already supported run and scenario.
         17          |   4.0.7       | 09-10-2019    | DB: Added check for uniqueness of the machineName in tMachines table (4.0.7-M2) 
         18          |   4.0.7       | 03-12-2019    | DB: Support for logging with Microsoft JDBC driver. New function for update of checkpoint summaries and remove OUT parameters for insert messages procedures (4.0.7-M2)
+        19          |   4.0.7       | 27-03-2020    | DB: Change tCheckpoints.checkpointID from INT TO BIGINT;Update/add procedured for "per-hour" data aggregation
+        19          |   4.0.7       | 28-04-2020    | DB: Update/add procedured for "per-hour" data aggregation
 
 
 

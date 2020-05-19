@@ -1786,7 +1786,6 @@ RETURNS TABLE (
 DECLARE
     _sql VARCHAR(8000);
 BEGIN
-    -- timestamp conversion note: 20 means yyyy-mm-dd hh:mi:ss
     _sql := 'SELECT st.name AS statsName,
                     st.parentName AS statsParent,
                     st.units AS statsUnit,
