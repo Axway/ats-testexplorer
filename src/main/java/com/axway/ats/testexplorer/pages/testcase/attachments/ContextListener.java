@@ -37,7 +37,7 @@ public class ContextListener implements ServletContextListener {
     /** Parent directory where attached files directory will be created */
     private static final String ATTACHED_FILES_PARENT_DIR = "ats.attached.files.dir";
 
-    public static String getAttachedFilesDir() {
+    public static String getAttachedFilesDirAttribute() {
 
         return ATTACHED_FILES_DIR;
     }

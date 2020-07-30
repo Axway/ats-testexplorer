@@ -19,7 +19,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
@@ -179,8 +178,8 @@ public class TestExplorerPGDbWriteAccess extends PGDbWriteAccess implements Test
     private void deleteAttachedFilesToRun( String runId ) {
 
         ServletContext context = WebApplication.get().getServletContext();
-        if (context.getAttribute(ContextListener.getAttachedFilesDir()) == null) {
-            LOG.error("No property \"" + ContextListener.getAttachedFilesDir()
+        if (context.getAttribute(ContextListener.getAttachedFilesDirAttribute()) == null) {
+            LOG.error("No property \"" + ContextListener.getAttachedFilesDirAttribute()
                       + "\" was found. Attached files in the current run directory won't be deleted!");
         } else {
             String attachedfilesDir = context.getAttribute("ats-attached-files").toString();

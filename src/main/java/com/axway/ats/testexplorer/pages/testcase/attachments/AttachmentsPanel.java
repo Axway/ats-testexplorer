@@ -116,6 +116,7 @@ public class AttachmentsPanel extends Panel {
 
                 final String name = getFileSimpleName(buttons.get(item.getIndex()));
                 final Label buttonLabel = new Label("name", name);
+                buttonLabel.add(AttributeModifier.append("title", name));
 
                 Label fileSize = new Label("fileSize", getFileSize(viewedFile));
 
@@ -144,7 +145,7 @@ public class AttachmentsPanel extends Panel {
                                                                                   .getNavigationForTestcase(testcaseId,
                                                                                                             getTESession().getTimeOffset());
                             } catch (DatabaseAccessException e) {
-                                LOG.error("Can't get runId, suiteId and dbname for testcase with id="
+                                LOG.error("Can't get runId, suiteId and dbname for testcase with ID = "
                                           + testcaseId, e);
                             }
 
@@ -263,15 +264,20 @@ public class AttachmentsPanel extends Panel {
     private List<String> getAllAttachedFiles( String testcaseId ) {
 
         ServletContext context = ((WebApplication) getApplication()).getServletContext();
-        if (context.getAttribute(ContextListener.getAttachedFilesDir()) == null) {
+        String attachedFilesDir = (String) context.getAttribute(ContextListener.getAttachedFilesDirAttribute());
+        if ( attachedFilesDir == null) {
             String errorMsg = "No attached files can be displayed. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.";
             LOG.error(errorMsg);
             noButtonPanelInfo = errorMsg;
-
             return null;
         }
 
-        String attachedfilesDir = context.getAttribute("ats-attached-files").toString();
+        if (StringUtils.isNullOrEmpty(testcaseId)) {
+            String errorMsg = "Testcase ID is not provided.";
+            LOG.error(errorMsg);
+            noButtonPanelInfo = errorMsg;
+            return null;
+        }
 
         try {
             PageNavigation navigation = ((TestExplorerSession) Session.get()).getDbReadConnection()
@@ -283,7 +289,7 @@ public class AttachmentsPanel extends Panel {
 
             LocalFileSystemOperations fo = new LocalFileSystemOperations();
             // check if there is a directory for the current testcase and files attached to it
-            String baseDir = attachedfilesDir + "\\" + database;
+            String baseDir = attachedFilesDir + "\\" + database;
             String fullFilePath = baseDir + "\\" + runId + "\\" + suiteId + "\\" + testcaseId;
             fullFilePath = IoUtils.normalizeFilePath(fullFilePath);
             if (fo.doesFileExist(fullFilePath)) {
@@ -294,7 +300,7 @@ public class AttachmentsPanel extends Panel {
                 return null;
             }
         } catch (DatabaseAccessException e) {
-            LOG.error("There was problem getting testcase parameters, files attached to the current testcase will not be shown!");
+            LOG.error("There was problem getting testcase parameters, files attached to the current testcase will not be shown!", e);
         }
         return null;
     }

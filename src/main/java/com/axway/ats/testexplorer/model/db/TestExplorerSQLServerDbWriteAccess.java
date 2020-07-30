@@ -89,8 +89,8 @@ public class TestExplorerSQLServerDbWriteAccess extends SQLServerDbWriteAccess
     private void deleteAttachedFilesToRun( String runId ) {
 
         ServletContext context = WebApplication.get().getServletContext();
-        if (context.getAttribute(ContextListener.getAttachedFilesDir()) == null) {
-            LOG.error("No property \"" + ContextListener.getAttachedFilesDir()
+        if (context.getAttribute(ContextListener.getAttachedFilesDirAttribute()) == null) {
+            LOG.error("No property \"" + ContextListener.getAttachedFilesDirAttribute()
                       + "\" was found. Attached files in the current run directory won't be deleted!");
         } else {
             String attachedfilesDir = context.getAttribute("ats-attached-files").toString();

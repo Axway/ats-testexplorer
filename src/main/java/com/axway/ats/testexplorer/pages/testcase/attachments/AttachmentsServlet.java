@@ -59,7 +59,7 @@ public class AttachmentsServlet extends HttpServlet {
 
         Object checkContextAttribute = request.getSession()
                                               .getServletContext()
-                                              .getAttribute(ContextListener.getAttachedFilesDir());
+                                              .getAttribute(ContextListener.getAttachedFilesDirAttribute());
         // check if ats-attached-files property is set
         if (checkContextAttribute == null) {
             LOG.error("File could not be attached. \nPossible reason could be that neither 'CATALINA_HOME' "
