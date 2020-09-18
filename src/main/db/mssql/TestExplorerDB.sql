@@ -3131,15 +3131,15 @@ IF @get_app_lock_res < 0
 BEGIN
 
 IF @numPassed = 0
-    -- no passed checkpoints for the current procerude invocation
+    -- no passed checkpoints for the current procedure invocation
     UPDATE tCheckpointsSummary
-	SET    numPassed = numPassed+@numPassed,
+    SET    numPassed = numPassed+@numPassed,
            numFailed = numFailed+@numFailed,
            numRunning = numRunning+@numRunning
-	WHERE  checkpointSummaryId = @checkpointSummaryId;
+    WHERE  checkpointSummaryId = @checkpointSummaryId;
 ELSE
-	UPDATE tCheckpointsSummary
-	SET    numPassed = numPassed+@numPassed,
+    UPDATE tCheckpointsSummary
+    SET    numPassed = numPassed+@numPassed,
            numFailed = numFailed+@numFailed,
            numRunning = numRunning+@numRunning,
            minResponseTime = CASE WHEN @minResponseTime < minResponseTime THEN @minResponseTime ELSE minResponseTime END,
@@ -3150,7 +3150,7 @@ ELSE
 
            avgResponseTime = ((avgResponseTime * numPassed) + (@avgResponseTime * @numPassed)) / (numPassed + @numPassed),
            avgTransferRate = ((avgTransferRate * numPassed) + (@avgTransferRate * @numPassed)) / (numPassed  +@numPassed)
-	WHERE checkpointSummaryId = @checkpointSummaryId;
+    WHERE checkpointSummaryId = @checkpointSummaryId;
 END 
 
 IF @@ERROR <> 0 --error has happened
