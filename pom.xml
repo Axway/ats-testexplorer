@@ -18,7 +18,7 @@
         <java.classlevel.version>1.7</java.classlevel.version> <!-- Output class compliance level -->
         <maven.min.version>3.2.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ats.framework.version>4.0.7-SNAPSHOT</ats.framework.version>
+        <ats.framework.version>${project.version}</ats.framework.version>
 
         <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
         <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
@@ -45,7 +45,7 @@
         <apache.wicket.version>7.3.0</apache.wicket.version>
         <inmethod.grid.version>7.3.0</inmethod.grid.version>
         <javax.servlet.api.version>2.5</javax.servlet.api.version>
-        <junit.version>4.8.1</junit.version>
+        <junit.version>4.13.1</junit.version>
         <commons-io.version>2.5</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
 
@@ -597,13 +597,13 @@
     <developers>
         <developer>
             <name>Svilen Dikov</name>
-            <email>sdikov@axway.com</email>
+            <email>sdikov__@__axway.com</email>
             <organization>Axway</organization>
             <organizationUrl>http://www.axway.com</organizationUrl>
         </developer>
         <developer>
             <name>Dragoslav Slaveykov</name>
-            <email>dslaveykov@axway.com</email>
+            <email>dslaveykov__@__axway.com</email>
             <organization>Axway</organization>
             <organizationUrl>http://www.axway.com</organizationUrl>
         </developer>
