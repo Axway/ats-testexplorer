@@ -48,7 +48,7 @@ IF "%SILENT_MODE_USED%" == "true" (
 )
 
 REM check if there is already database with this name and write the result to file
-osql /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%dbname%'" -h-1 /o check_dbname.txt
+sqlcmd /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%dbname%'" -h-1 /o check_dbname.txt
 
 REM get only the first line from the file
 FOR /F "delims= " %%i IN ( check_dbname.txt ) DO (
@@ -136,7 +136,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 type TestExplorerDB.sql>>tempCreateDBScript.sql
-osql /E /d master /i tempCreateDBScript.sql /o install.log
+sqlcmd /E /d master /i tempCreateDBScript.sql /o install.log
 IF %ERRORLEVEL% NEQ 0 (
 	del /q /f tempCreateDBScript.sql
 	echo Installation was not successful. Check install.log file for errors.
