@@ -49,7 +49,7 @@ IF "%SILENT_MODE_USED%" == "true" (
 )
 
 REM check if there is database with this name and write the result to file
-osql /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%DB_NAME%'" -h-1 /o db_list.txt
+sqlcmd /E /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%DB_NAME%'" -h-1 /o db_list.txt
 
 FindStr %DB_NAME% db_list.txt > NUL
 
@@ -116,7 +116,7 @@ echo GO                                                                         
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%' WHERE [key] = 'version'       >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
 
-osql /b /E /d master /i tempUpgradeDBScript.sql /o upgrade.log
+sqlcmd /b /E /d master /i tempUpgradeDBScript.sql /o upgrade.log
 IF %ERRORLEVEL% NEQ 0 goto upgradeFailed
 
 
