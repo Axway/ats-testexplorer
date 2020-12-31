@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
+# Environment variables to use if non-default DB environment is used. Below are listed default values
+#   PGHOST=localhost
+#   PGPORT=5432
+#   PGUSER=postgres - 'postgres' admin DB user is used to create the new DB and create regular DB user
+
+# set host to connect to
+if [ -z "$PGHOST" ];
+then
+    PGHOST=localhost
+else
+    echo PGHOST environment variable is defined with value: $PGHOST
+fi
+
+# set port to connect to
+if [ -z "$PGPORT" ];
+then
+    PGPORT=5432
+else
+    echo PGPORT environment variable is defined with value: $PGPORT
+fi
 
 # save the starting folder location
 START_FOLDER="$PWD"
@@ -17,7 +37,7 @@ touch install.log
 CMD_ARGUMENT="$1"
 
 if [[ "$CMD_ARGUMENT" == "/?" || "$CMD_ARGUMENT" == "--help" ]] ; then
-	echo "Please specify the database name as first parameter and database password as second parameter for silent install"
+	echo "Please specify the database name as first parameter and admin DB password as second parameter for silent install"
 	exit
 fi
 
@@ -28,7 +48,7 @@ then
 fi
 
 DATABASE_EXISTS=1
-until [ "$DATABASE_EXISTS" == 0 ]; do		
+until [ "$DATABASE_EXISTS" == 0 ]; do
 
 	if [ -z "$CMD_ARGUMENT" ];
 	then
@@ -36,11 +56,11 @@ until [ "$DATABASE_EXISTS" == 0 ]; do
 	else
 		DB_NAME="$CMD_ARGUMENT"
 	fi
-		
+
 	# see if database exists
 	# psql -U postgres -h localhost -l | grep $DB_NAME | wc -l`
-	DATABASE_EXISTS=`psql -U postgres -h localhost -l | grep $DB_NAME | wc -l`
-	
+	DATABASE_EXISTS=`psql -U postgres -l | grep $DB_NAME | wc -l`
+
 	if [ "$DATABASE_EXISTS" != 0 ];
 	then
 		if [ ! -z "$CMD_ARGUMENT" ];
@@ -52,7 +72,7 @@ until [ "$DATABASE_EXISTS" == 0 ]; do
 		fi
 	fi
 done
-		
+
 
 echo "Installing \"$DB_NAME ..."
 echo "CREATE DATABASE \"$DB_NAME\";" >> tmpInstallDbScript.sql
@@ -61,7 +81,7 @@ echo "\connect $DB_NAME" >> tmpInstallDbScript.sql
 echo " " >> tmpInstallDbScript.sql
 cat TestExplorerDb_PostgreSQL.sql >> tmpInstallDbScript.sql
 
-psql -U postgres -h localhost -a -f tmpInstallDbScript.sql | grep 'ERROR:' > install.log
+psql -U postgres -a -f tmpInstallDbScript.sql | grep 'ERROR:' > install.log
 NUM_OF_ERRORS=`cat install.log | grep 'ERROR:' | wc -l`
 
 
