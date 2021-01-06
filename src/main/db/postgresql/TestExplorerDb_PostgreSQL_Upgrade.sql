@@ -36,6 +36,9 @@ BEGIN
   RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_start_checkpoint';
 END
 $$;
+
+DROP FUNCTION IF EXISTS sp_start_checkpoint(integer,character varying,integer,character varying);
+
 CREATE OR REPLACE FUNCTION sp_start_checkpoint(_loadQueueId INTEGER, _name VARCHAR(255), _mode INTEGER, _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER, OUT _checkpointId BIGINT)
 RETURNS RECORD AS $func$
 DECLARE
@@ -78,7 +81,7 @@ DO language plpgsql $$
 BEGIN
   RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_start_checkpoint';
 END
-
+$$;
 
 DO language plpgsql $$
 BEGIN
