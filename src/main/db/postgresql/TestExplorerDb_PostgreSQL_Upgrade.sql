@@ -32,7 +32,7 @@ END
 $$;
 
 DO language plpgsql $$
-BEGINgit
+BEGIN
   RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_start_checkpoint';
 END
 $$;
