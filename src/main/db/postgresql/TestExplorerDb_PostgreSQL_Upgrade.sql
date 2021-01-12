@@ -36,6 +36,9 @@ BEGIN
   RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_start_checkpoint';
 END
 $$;
+
+DROP FUNCTION IF EXISTS sp_start_checkpoint(integer,character varying,integer,character varying);
+
 CREATE OR REPLACE FUNCTION sp_start_checkpoint(_loadQueueId INTEGER, _name VARCHAR(255), _mode INTEGER, _transferRateUnit VARCHAR(50), OUT _checkpointSummaryId INTEGER, OUT _checkpointId BIGINT)
 RETURNS RECORD AS $func$
 DECLARE
@@ -78,13 +81,15 @@ DO language plpgsql $$
 BEGIN
   RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_start_checkpoint';
 END
-
+$$;
 
 DO language plpgsql $$
 BEGIN
   RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_insert_checkpoint';
 END
 $$;
+
+
 CREATE OR REPLACE FUNCTION sp_insert_checkpoint(_loadQueueId INTEGER, _name VARCHAR(150), _responseTime BIGINT, _endTime TIMESTAMP,
                                      _transferSize BIGINT, _transferRateUnit VARCHAR(50), _result INTEGER, _mode INTEGER)
 RETURNS VOID AS $func$
@@ -163,6 +168,9 @@ BEGIN
   RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_end_checkpoint';
 END
 $$;
+
+DROP FUNCTION IF EXISTS sp_end_checkpoint(integer, integer, integer, bigint, integer, integer, timestamp without time zone);
+
 CREATE OR REPLACE FUNCTION sp_end_checkpoint(_checkpointSummaryId INTEGER, _checkpointId BIGINT, _responseTime INTEGER, _transferSize BIGINT, _result INTEGER, _mode INTEGER, 
 								  _endTime TIMESTAMP, OUT rowsInserted INTEGER)
 RETURNS INTEGER AS $func$
@@ -225,6 +233,8 @@ BEGIN
 END
 $$;
 
+DROP FUNCTION IF EXISTS sp_get_system_statistics(character varying,character varying,character varying,character varying);
+
 CREATE OR REPLACE FUNCTION sp_get_system_statistics(_fdate varchar(150), _testcaseIds varchar(150), _machineIds varchar(150), _statsTypeIds varchar(150), _whereClause text)
 RETURNS TABLE (
     statsName VARCHAR(255),
@@ -267,6 +277,51 @@ $func$ LANGUAGE plpgsql;
 DO language plpgsql $$
 BEGIN
   RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_get_system_statistics';
+END
+$$;
+
+
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'start CREATE OR REPLACE FUNCTION sp_get_checkpoint_statistics';
+END
+$$;
+
+DROP FUNCTION IF EXISTS sp_get_checkpoint_statistics(character varying,character varying,character varying,character varying);
+
+CREATE OR REPLACE FUNCTION sp_get_checkpoint_statistics(fdate varchar(150), testcaseIds varchar(150), checkpointNames varchar(1000), parentNames varchar(1000))
+RETURNS TABLE (
+    statsTypeId BIGINT,
+    queueName VARCHAR(255),
+    statsName VARCHAR(150),
+    value INTEGER,
+    statsAxisTimestamp DOUBLE PRECISION,
+    testcaseId INTEGER
+) AS $func$
+DECLARE
+    _sql VARCHAR(8000);
+BEGIN
+    _sql := 'SELECT
+                   ch.checkpointId as statsTypeId,
+                   c.name as queueName,
+                   ch.name as statsName,
+                   ch.responseTime as value,
+                   EXTRACT(EPOCH FROM (ch.endTime - CAST( ''' || fdate || ''' AS TIMESTAMP))) as statsAxisTimestamp,
+                   tt.testcaseId
+             FROM ' || $$"tCheckpoints"$$ || ' ch
+             INNER JOIN ' || $$"tCheckpointsSummary"$$ || ' chs on (chs.checkpointSummaryId = ch.checkpointSummaryId)
+             INNER JOIN ' || $$"tLoadQueues"$$ || ' c on (c.loadQueueId = chs.loadQueueId)
+             INNER JOIN ' || $$"tTestcases"$$ || ' tt on (tt.testcaseId = c.testcaseId)
+             WHERE tt.testcaseId in ( ' || testcaseIds || ' ) AND ch.name in ( ' || checkpointNames || ' ) AND  c.name in ( ' || parentNames ||' ) AND ch.result = 1 AND ch.endTime IS NOT NULL
+             ORDER BY ch.endTime';
+    RETURN QUERY EXECUTE _sql;
+END;
+$func$ LANGUAGE plpgsql;
+
+DO language plpgsql $$
+BEGIN
+  RAISE WARNING 'end CREATE OR REPLACE FUNCTION sp_get_checkpoint_statistics';
 END
 $$;
 
