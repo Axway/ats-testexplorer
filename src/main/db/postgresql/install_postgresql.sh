@@ -45,9 +45,14 @@ fi
 if [ ! -z "$2" ];
 then
   export PGPASSWORD="$2"
-else
+fi
+
+# PGPASSWORD could have been provided and externally in env
+if [ -z "$PGPASSWORD" ];
+then
   # reads silently the value without echo to the terminal
   read -sp 'Enter admin DB (postgres) password and press enter (input is hidden): ' PGPASSWORD
+  export PGPASSWORD
   # new line
   echo ' '
 fi
@@ -80,7 +85,7 @@ until [ "$DATABASE_EXISTS" == 0 ]; do
 done
 
 
-echo "Installing \"$DB_NAME ..."
+echo "Installing \"$DB_NAME\" ..."
 echo "CREATE DATABASE \"$DB_NAME\";" >> tmpInstallDbScript.sql
 echo " " >> tmpInstallDbScript.sql
 echo "\connect $DB_NAME" >> tmpInstallDbScript.sql

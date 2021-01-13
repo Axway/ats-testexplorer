@@ -56,6 +56,16 @@ then
   export PGPASSWORD="$SECOND_CMD_ARGUMENT"
 fi
 
+# password could have been provided externally from env
+if [ -z "$PGPASSWORD" ];
+then
+  # reads silently the value without echo to the terminal
+  read -sp 'Enter admin DB (postgres) password and press enter (input is hidden): ' PGPASSWORD
+  export PGPASSWORD
+  # new line
+  echo ' '
+fi
+
 if [ -z "$PGPASSWORD" ];
 then
     echo "PGPASSWORD env variable not found/set. Aborting upgrade"
