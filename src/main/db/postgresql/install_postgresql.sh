@@ -19,6 +19,7 @@ then
 else
     echo PGPORT environment variable is defined with value: $PGPORT
 fi
+export PGHOST PGPORT
 
 # save the starting folder location
 START_FOLDER="$PWD"
