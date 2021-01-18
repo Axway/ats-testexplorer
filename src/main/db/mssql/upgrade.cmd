@@ -4,8 +4,8 @@
 :: save the starting folder location
 set START_FOLDER=%cd%
 
-set NEW_DB_VERSION=4.0.7
-set CURRENT_DB_VERSION=4.0.6
+set NEW_DB_VERSION=4.0.8
+set CURRENT_DB_VERSION=4.0.7
 
 :: navigate to the upgrade file directory
 cd  /d "%~dp0"
