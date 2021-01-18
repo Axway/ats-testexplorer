@@ -23,10 +23,10 @@ CREATE TABLE "tInternal" (
     value varchar(256) NOT NULL
 );
 
-INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.7_draft');
-INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '19');
-INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '19');
-INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_19', now());
+INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.8_draft');
+INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '20');
+INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '20');
+INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_20', now());
 
 CREATE TABLE "tRuns" (
     runId       serial       PRIMARY KEY,
@@ -2581,4 +2581,4 @@ $func$ LANGUAGE plpgsql;
 
 
 /* Record the version w/o _draft as complete installation */
-UPDATE "tInternal" SET value ='4.0.7' WHERE key = 'version';
+UPDATE "tInternal" SET value ='4.0.8' WHERE key = 'version';
