@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_DB_VERSION=4.0.6
-NEW_DB_VERSION=4.0.7
+OLD_DB_VERSION=4.0.7
+NEW_DB_VERSION=4.0.8
 NEEDS_UPGRADE=false
 
 # Environment variables to use if non-default DB environment is used. Below are listed default values
