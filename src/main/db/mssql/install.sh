@@ -1,126 +1,200 @@
-#!/bin/bash
+
 
 INTERACTIVE_MODE=0
 BATCH_MODE=1
 
 DB_NAME=""
 MODE=$INTERACTIVE_MODE
-SQLCMD_LOCATION="/opt/mssql-tools/bin/sqlcmd"
-LOG_FILE_LOCATION='install.log'
+
+echo "Linux/Docker cases do not work with default OS user"
 
 function print_help {
-		echo "usage : install.sh [arguments]
--h   | show this help text
--d   | set the database name. Example -d <SOME_DB_NAME>
--s   | set sqlcmd location. Example -s /home/user/tools/sqlcmd
--l   | set log file location. Example -l /home/atsuser/mssql/install.log
-"
+echo "The usage is ./install.sh [OPTION]...[VALUE]...
+The following script installs a ATS Logging DB to store test execution results. The version is 4.0.7"
+echo "Available options
+-H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
+-p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
+-d <target_SQL_database_name>, Might be specified by env variable: MSSQL_DBNAME
+-u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
+-s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
+-U <target_SQL_admin_name>,use current OS account Might be specified by env variable: MSSQL_ADMIN_NAME
+-S <target_SQL_admin_password>, use current OS account  Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
 }
 
+if [ -z "$MSSQL_HOST" ];
+then
+MSSQL_HOST=localhost
+else
+echo MSSQL_HOST enviroment variable is defined with the value: $MSSQL_HOST
+fi
 
-# process user input arguments
-while getopts "d:hs:l:" option; do
-	case $option in
-		d)
-			DB_NAME=$OPTARG
-			MODE=$BATCH_MODE
-		;;
-		h)
-			print_help
-			exit 0
-		;;
-		s)
-			SQLCMD_LOCATION=$OPTARG
-		;;
-		l)
-			LOG_FILE_LOCATION=$OPTARG
-		;;
-		\?)
-			echo "Invallid option: -$OPTARG"
-			print_help
-			exit 1
-		;;
-	esac
+
+if [ -z "$MSSQL_PORT"];
+then
+MSSQL_PORT=1433
+else
+echo MSSQL_PORT enviroment variable is defined with the value: $MSSQL_PORT
+fi
+
+
+if ! [ -z "$MSSQL_DBNAME"];
+then
+echo MSSQL_DBNAME enviroment variable is defined with the value: $MSSQL_DBNAME
+MODE=$BATCH_MODE
+fi
+
+
+if ! [ -z "$MSSQL_ADMIN_NAME"];
+then
+echo MSSQL_ADMIN_NAME enviroment variable is defined with the value: $MSSQL_ADMIN_NAME
+fi
+
+
+if ! [ -z "$MSSQL_ADMIN_PASSWORD"];
+then
+echo MSSQL_ADMIN_PASSWORD enviroment variable is defined with the value: $MSSQL_ADMIN_PASSWORD
+fi
+
+
+
+if [ -z "$MSSQL_USER_NAME"];
+then
+MSSQL_USER_NAME=AtsUser
+else
+echo MSSQL_USER_NAME enviroment variable is defined with the value: $MSSQL_USER_NAME
+fi
+
+
+if [ -z "$MSSQL_USER_PASSWORD"];
+then
+MSSQL_USER_PASSWORD=AtsPassword
+else
+echo MSSQL_USER_PASSWORD enviroment variable is defined with the value: $MSSQL_USER_PASSWORD
+fi
+
+
+
+while getopts ":H:p:d:u:s:U:S:h" option; do
+case $option in
+H)
+MSSQL_HOST=$OPTARG
+;;
+p)
+MSSQL_PORT=$OPTARG
+;;
+d)
+
+MSSQL_DBNAME=$OPTARG
+MODE=$BATCH_MODE
+;;
+u)
+MSSQL_USER_NAME=$OPTARG
+;;
+s)
+MSSQL_USER_PASSWORD=$OPTARG
+
+;;
+
+U)
+MSSQL_ADMIN_NAME=$OPTARG
+;;
+S)
+MSSQL_ADMIN_PASSWORD=$OPTARG
+
+;;
+
+h)
+print_help
+
+exit 0
+;;
+\?)
+echo "Invallid option: -$OPTARG"
+print_help
+
+exit 1
+;;
+esac
 done
 
-# log message about installing database
-echo INSTALLING Test Explorer Database
 
-
-# delete and recreate clean tempCreateDBScript.sql and install.log
-[ -e "tempCreateDBScript.sql" ] && rm tempCreateDBScript.sql
-touch tempCreateDBScript.sql
-[ -e "install.log" ] && rm install.log
-touch install.log
-
-
-if [ `which $SQLCMD_LOCATION | wc -l` -le 0 ];
+if [[ -z "$MSSQL_ADMIN_NAME" ]];
 then
-	echo Error. Location to sqlcmd "'"$SQLCMD_LOCATION"'" is wrong
-	exit 2
+echo "Admin user credentials need to be provided in order to create new database"
+
+exit 1
 fi
 
 
-# iterate until proper and free db name is selected when in interactive mode
+SQLCMD_LOCATION=""
+
+
+if ! [  -z "$(command -v sqlcmd)" ];
+then
+SQLCMD_LOCATION="$(command -v sqlcmd)"
+elif ! [-z "$(command -v /opt/mssql-tools/bin/sqlcmd)" ];
+then
+SQLCMD_LOCATION="$(command -v /opt/mssql-tools/bin/sqlcmd)"
+else
+echo "Location of command sqlcmd could not be found"
+
+fi
+
+
+# iterate until proper and db name is selected when in interactive mode
 if [ $MODE == $INTERACTIVE_MODE ];
 then
-	DATABASE_NOT_EXISTS=0
-	while [ "$DATABASE_NOT_EXISTS" == 0 ]; do
-		read -p 'Enter Database name: ' DB_NAME
-		DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
-		if [ $DATABASE_NOT_EXISTS -le 0 ];
-		then
-			echo "Error. Database with name '$DB_NAME' already exists."
-		fi
-	done
+DATABASE_NOT_EXISTS=1
+while [ "$DATABASE_NOT_EXISTS" == 1 ]; do
+read -p 'Enter Database name: ' DB_NAME
+DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
+if [ $DATABASE_NOT_EXISTS -ge 1 ];
+then
+echo "Error. Database with name '$DB_NAME' does not exist."
+fi
+done
 else
-	DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
-		if [ $DATABASE_NOT_EXISTS -le 0 ];
-		then
-			echo "Error. Database with name '$DB_NAME' already exists. Install aborted"
-			exit 3
-		fi
+DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
+if [ $DATABASE_NOT_EXISTS -ge 1 ];
+then
+echo "Error. Database with name '$DB_NAME' does not exist. Installation aborted"
+exit 3
+fi
 fi
 
-# generate new tempCreateDBScript.sql
+
 echo USE [master] > tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 
-echo CREATE DATABASE "$DB_NAME"  >> tempCreateDBScript.sql
+echo CREATE DATABASE "$MSSQL_DBNAME"  >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
-echo "EXEC dbo.sp_dbcmptlevel @dbname='"$DB_NAME"', @new_cmptlevel=100" >> tempCreateDBScript.sql
+echo "EXEC dbo.sp_dbcmptlevel @dbname='"$MSSQL_DBNAME"', @new_cmptlevel=100" >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
-echo USE ["$DB_NAME"] >> tempCreateDBScript.sql
+echo USE ["$MSSQL_DBNAME"] >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
-echo "CREATE LOGIN AtsUser WITH PASSWORD='AtsPassword', DEFAULT_DATABASE=["$DB_NAME"], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF" >> tempCreateDBScript.sql
+echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=["$MSSQL_DBNAME"], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF" >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
-echo "EXEC dbo.sp_grantdbaccess @loginame=[AtsUser], @name_in_db=[AtsUser]" >> tempCreateDBScript.sql
+echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]" >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
-echo "EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[AtsUser]" >> tempCreateDBScript.sql
+echo "EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[$MSSQL_USER_NAME]" >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
 cat TestExplorerDB.sql>> tempCreateDBScript.sql
 
-# if custom log file location is used, such file must be created empty prior to db install
-[ -e "$LOG_FILE_LOCATION" ] && rm $LOG_FILE_LOCATION
-touch $LOG_FILE_LOCATION
-
-# install the database
-$SQLCMD_LOCATION -i tempCreateDBScript.sql -S localhost -U SA -P $SA_PASSWORD -o $LOG_FILE_LOCATION
+$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD  -i tempCreateDBScript.sql -W
 
 
-# TODO get internal/initial version from that database to ensure that install was successful
-if [ `cat $LOG_FILE_LOCATION | wc -l` -le 0 ];
-then
-	echo Installation of ATS Log database "'"$DB_NAME"'" completed
-else
-	echo Installation of ATS Log database "'"$DB_NAME"'" completed
-fi
+$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -d $MSSQL_DBNAME -Q "SELECT * FROM tInternal"
 
-cat $LOG_FILE_LOCATION
 
