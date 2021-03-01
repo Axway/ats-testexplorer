@@ -266,7 +266,8 @@ public class AttachmentsPanel extends Panel {
         ServletContext context = ((WebApplication) getApplication()).getServletContext();
         String attachedFilesDir = (String) context.getAttribute(ContextListener.getAttachedFilesDirAttribute());
         if ( attachedFilesDir == null) {
-            String errorMsg = "No attached files can be displayed. \nPossible reason could be Tomcat 'CATALINA_HOME' or 'CATALINA_BASE' is not set.";
+            String errorMsg = "No attached files can be displayed. \nPossible reason could be that neither Tomcat's "
+                              + "'CATALINA_HOME' nor 'CATALINA_BASE' environment variables are set.";
             LOG.error(errorMsg);
             noButtonPanelInfo = errorMsg;
             return null;
