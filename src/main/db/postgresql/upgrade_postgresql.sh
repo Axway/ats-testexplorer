@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_DB_VERSION=4.0.6
-NEW_DB_VERSION=4.0.7
+OLD_DB_VERSION=4.0.7
+NEW_DB_VERSION=4.0.8
 NEEDS_UPGRADE=false
 
 INTERACTIVE_MODE=0
@@ -100,7 +100,7 @@ while getopts ":H:p:d:u:s:U:S:h" option; do
     exit 0
     ;;
   \?)
-    echo "Invallid option: -$OPTARG"
+    echo "Invalid option: -$OPTARG"
     print_help
     exit 1
     ;;
