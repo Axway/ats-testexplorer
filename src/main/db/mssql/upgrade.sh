@@ -1,7 +1,7 @@
 #!/bin/bash
 
-NEW_DB_VERSION=4.0.8
-CURRENT_DB_VERSION=4.0.7
+NEW_DB_VERSION=4.0.7
+CURRENT_DB_VERSION=4.0.6
 
 INTERACTIVE_MODE=0
 BATCH_MODE=1
@@ -44,9 +44,9 @@ else
   echo MSSQL_PORT enviroment variable is defined with the value: $MSSQL_PORT
 fi
 
-if ! [ -z "$MSSQL_DBNAME" ];
+if [ -n "$MSSQL_DBNAME" ];
 then
-    echo MSSQL_DBNAME enviroment variable is defined with the value: $MSSQL_DBNAME
+    echo MSSQL_DBNAME enviroment variable is defined with the value: "$MSSQL_DBNAME"
     MODE=$BATCH_MODE
 fi
 
@@ -67,7 +67,7 @@ else
 fi
 
 
-while getopts ":H:p:d:u:c:d:s:l:h" option; do
+while getopts ":H:p:d:U:S:d:s:l:h" option; do
     case $option in
         H)
             MSSQL_HOST=$OPTARG
@@ -75,10 +75,10 @@ while getopts ":H:p:d:u:c:d:s:l:h" option; do
         p)
             MSSQL_PORT=$OPTARG
             ;;
-        u)
+        U)
             MSSQL_USER_NAME=$OPTARG
             ;;
-        c)
+        S)
             MSSQL_USER_PASSWORD=$OPTARG
             ;;
         d)
@@ -93,7 +93,7 @@ while getopts ":H:p:d:u:c:d:s:l:h" option; do
             ;;
         h)
             print_help
-            exit 0
+            exit 1
             ;;
         \?)
             echo "Invalid option: -$OPTARG"
@@ -106,10 +106,10 @@ done
 SQLCMD_LOCATION=""
 
 
-if ! [  -z "$(command -v sqlcmd)" ];
+if [  -n "$(command -v sqlcmd)" ];
 then
     SQLCMD_LOCATION="$(command -v sqlcmd)"
-elif ! [-z "$(command -v /opt/mssql-tools/bin/sqlcmd)" ];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -z "$(command -v /opt/mssql-tools/bin/sqlcmd)" ];
+elif [ -n "$(command -v /opt/mssql-tools/bin/sqlcmd)" ];
 then
     SQLCMD_LOCATION="$(command -v /opt/mssql-tools/bin/sqlcmd)"
 else
@@ -126,9 +126,9 @@ touch tempUpgradeDBScript.sql
 [ -e "upgrade.log" ] && rm upgrade.log
 touch upgrade.log
 
-if [ `which $SQLCMD_LOCATION | wc -l` -le 0 ];
+if [ "$(which "$SQLCMD_LOCATION" | wc -l)" -le 0 ];
 then
-    echo Error. Location to sqlcmd "'"$SQLCMD_LOCATION"'" is wrong
+    echo Error. Location to sqlcmd "$SQLCMD_LOCATION" is wrong
     exit 2
 fi
 
@@ -137,29 +137,32 @@ if [ $MODE == $INTERACTIVE_MODE ];
 then
     DATABASE_NOT_EXISTS=1
     while [ "$DATABASE_NOT_EXISTS" == 1 ]; do
-        read -p 'Enter Database name: ' DB_NAME
-        DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
-        if [ $DATABASE_NOT_EXISTS -ge 1 ];
+        read -r -p 'Enter Database name: ' DB_NAME
+
+        DATABASE_NOT_EXISTS=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'"  | grep -c 0)
+        if [ "$DATABASE_NOT_EXISTS" -ne 0 ];
         then
             echo "Error. Database with name '$DB_NAME' does not exist."
         fi
     done
 else
-    DATABASE_NOT_EXISTS=`$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" -S localhost -U SA -P $SA_PASSWORD | grep 0 | wc -l`
-    if [ $DATABASE_NOT_EXISTS -ge 1 ];
+    DATABASE_NOT_EXISTS=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$DB_NAME'" | grep -c 0 )
+    if [ "$DATABASE_NOT_EXISTS" -ne 0 ];
     then
         echo "Error. Database with name '$DB_NAME' does not exist. Upgrade aborted"
         exit 3
     fi
 fi
 
+ MSSQL_DBNAME=$DB_NAME
+
 # if custom log file location is used, such file must be created empty prior to db upgrade
 [ -e "$LOG_FILE_LOCATION" ] && rm $LOG_FILE_LOCATION
-touch $LOG_FILE_LOCATION
+touch "$LOG_FILE_LOCATION"
 
 # find the version of the provided DB
 # Options for the filtering the result: -h -1 --> do not show headers, dashes; set nocount on --> does not show "(x rows selected)"; xargs - trim string, remove spaces after the actual value;
-DB_VERSION=`$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -d $DB_NAME -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs`
+DB_VERSION=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$DB_NAME" -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs)
 if [ "$DB_VERSION" ==  $NEW_DB_VERSION ];
 then
     echo "There is no need to upgrade. The current DB version is $NEW_DB_VERSION"
@@ -171,31 +174,33 @@ then
 fi
 
 echo "use [$DB_NAME]"                                                               > tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "PRINT GETDATE()"                                                              >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET ANSI_NULLS ON"                                  >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET ANSI_PADDING ON"                                >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET ANSI_WARNINGS ON"                               >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET ARITHABORT ON"                                  >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET CONCAT_NULL_YIELDS_NULL ON"                     >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "ALTER DATABASE [$DB_NAME] SET QUOTED_IDENTIFIER ON"                           >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "UPDATE tInternal SET value = '$NEW_DB_VERSION_draft' WHERE [key] = 'version'" >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-cat TestExplorerDB-Upgrade.sql                                                      >> tempUpgradeDBScript.sql
-echo "-- end of Upgrade script"                                                     >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
-echo "UPDATE tInternal SET value = '$NEW_DB_VERSION' WHERE [key] = 'version'"       >> tempUpgradeDBScript.sql
-echo "GO"                                                                           >> tempUpgradeDBScript.sql
+{
+echo "GO"
+echo "PRINT GETDATE()"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET ANSI_NULLS ON"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET ANSI_PADDING ON"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET ANSI_WARNINGS ON"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET ARITHABORT ON"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET CONCAT_NULL_YIELDS_NULL ON"
+echo "GO"
+echo "ALTER DATABASE [$DB_NAME] SET QUOTED_IDENTIFIER ON"
+echo "GO"
+echo "UPDATE tInternal SET value = '$NEW_DB_VERSION_draft' WHERE [key] = 'version'"
+echo "GO"
+cat TestExplorerDB-Upgrade.sql
+echo "-- end of Upgrade script"
+echo "GO"
+echo "UPDATE tInternal SET value = '$NEW_DB_VERSION' WHERE [key] = 'version'"
+echo "GO"
+}>> tempUpgradeDBScript.sql
 
 
-$SQLCMD_LOCATION -S tcp:$MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD  -i tempUpgradeDBScript.sql -W
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD"  -i tempUpgradeDBScript.sql -W
 
 
 echo "Upgrade Completed. Check the '$LOG_FILE_LOCATION' for details."

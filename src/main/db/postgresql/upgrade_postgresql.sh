@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_DB_VERSION=4.0.7
-NEW_DB_VERSION=4.0.8
+OLD_DB_VERSION=4.0.6
+NEW_DB_VERSION=4.0.7
 NEEDS_UPGRADE=false
 
 INTERACTIVE_MODE=0
@@ -10,9 +10,6 @@ MODE=$INTERACTIVE_MODE
 
 # save the starting folder location
 START_FOLDER="$PWD"
-
-# navigate to the upgrade file directory
-cd $(dirname $0)
 
 # delete previous tmpUpgradeDbScript.sql if one exists
 rm -rf tmpUpgradeDbScript.sql
@@ -34,17 +31,17 @@ else
   echo PGPORT enviroment variable is defined with the value: $PGPORT
 fi
 
-if ! [ -z "$PGDATABASE" ]; then
-  echo PGDATABASE enviroment variable is defined with the value: $PGDATABASE
+if [ -n "$PGDATABASE" ]; then
+  echo PGDATABASE enviroment variable is defined with the value: "$PGDATABASE"
   MODE=$BATCH_MODE
 fi
 
-if ! [ -z "$PGUSER" ]; then
-  echo PGUSER enviroment variable is defined with the value: $PGUSER
+if [ -n "$PGUSER" ]; then
+  echo PGUSER enviroment variable is defined with the value: "$PGUSER"
 fi
 
-if ! [ -z "$PGPASSWORD" ]; then
-  echo PGPASSWORD enviroment variable is defined with the value: $PGPASSWORD
+if [ -n "$PGPASSWORD" ]; then
+  echo PGPASSWORD enviroment variable is defined with the value: "$PGPASSWORD"
 fi
 
 export PGPASSWORD=$PGPASSWORD
@@ -97,7 +94,7 @@ while getopts ":H:p:d:u:s:U:S:h" option; do
   h)
     print_help
 
-    exit 0
+    exit 1
     ;;
   \?)
     echo "Invalid option: -$OPTARG"
@@ -110,7 +107,7 @@ done
 if [[ -z "$PGUSER" ]]; then
   echo "Admin user credentials need to be provided in order to create new database"
 
-  exit 1
+  exit 2
 fi
 
 function check_db_existance() {
@@ -119,7 +116,7 @@ function check_db_existance() {
   # see if database exists
   # psql -U postgres -h localhost -l | grep $PGDATABASE | wc -l`
 
-  DATABASE_EXISTS=$(psql -h $PGHOST -p $PGPORT -U $PGUSER -l | grep $PGDATABASE | wc -l)
+  DATABASE_EXISTS=$(psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -l | grep -c "$PGDATABASE")
 
   if [ "$DATABASE_EXISTS" == 0 ]; then
     if [ $MODE == $BATCH_MODE ]; then
@@ -137,17 +134,16 @@ DATABASE_EXISTS=0
 until [ "$DATABASE_EXISTS" == 1 ]; do
 
   if [ $MODE == $INTERACTIVE_MODE ]; then
-    read -p 'Enter Database name: ' PGDATABASE
+    read -r -p 'Enter Database name: ' PGDATABASE
   fi
   # see if database exists
-  # DATABASE_EXISTS=`psql -U AtsUser -h localhost -l | grep $PGDATABASE | wc -l`
   check_db_existance "$PGDATABASE"
   DATABASE_EXISTS=$?
 done
 
 # get database version and change NEEDS_UPGRADE flag if needed
 # DB_VERSION=`psql -U AtsUser -h localhost -d $PGDATABASE -t -c "SELECT \"value\" FROM \"tInternal\" WHERE \"key\" = 'version'" | xargs` # | xargs is used to trim the db version string
-DB_VERSION=$(psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT \"value\" FROM \"tInternal\" WHERE \"key\" = 'version'" | xargs) # | xargs is used to trim the db version string
+DB_VERSION=$(psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -t -c "SELECT \"value\" FROM \"tInternal\" WHERE \"key\" = 'version'" | xargs) # | xargs is used to trim the db version string
 
 if [ "$DB_VERSION" = "$OLD_DB_VERSION" ]; then
   NEEDS_UPGRADE=true
@@ -162,14 +158,15 @@ if [ "$NEEDS_UPGRADE" = true ]; then
   echo "UPDATE \"tInternal\" SET value = '${NEW_DB_VERSION}_draft' WHERE key = 'version';" >>tmpUpgradeDbScript.sql
   echo " " >>tmpUpgradeDbScript.sql
   cat TestExplorerDb_PostgreSQL_Upgrade.sql >>tmpUpgradeDbScript.sql
-  psql -U $PGUSER -h $PGHOST -p $PGPORT -a -f tmpUpgradeDbScript.sql | grep 'ERROR:\|WARNING:' >upgrade.log
-  NUM_OF_ERRORS=$(cat upgrade.log | grep 'ERROR:' | wc -l)
+  psql -U "$PGUSER" -h "$PGHOST" -p "$PGPORT" -a -f tmpUpgradeDbScript.sql | grep 'ERROR:\|WARNING:' >upgrade.log
+
+  NUM_OF_ERRORS=$(cat upgrade.log | grep -c 'ERROR:')
   if [[ "$NUM_OF_ERRORS" == 0 ]]; then
-    psql -U $PGUSER -h $PGHOST -d $PGDATABASE -t -c "UPDATE \"tInternal\" SET value = '$NEW_DB_VERSION' WHERE key = 'version'"
+    psql -U "$PGUSER" -h "$PGHOST" -d "$PGDATABASE" -t -c "UPDATE \"tInternal\" SET value = '$NEW_DB_VERSION' WHERE key = 'version'"
   else
     echo "Errors during install: $NUM_OF_ERRORS. See upgrade.log file for errors"
     if [ $MODE == $BATCH_MODE ]; then
-      exit 3
+      exit 4
     fi
   fi
 
@@ -178,11 +175,14 @@ if [ "$NEEDS_UPGRADE" = true ]; then
     exit 0
   fi
   # back to the starting folder location
-  cd $START_FOLDER
+  cd "$START_FOLDER" || {
+    echo "Failed to navigate to starting directory"
+    exit 5
+  }
 
 else
   echo "Could not upgrade \"$PGDATABASE\" from \"$DB_VERSION\" to \"$NEW_DB_VERSION\""
   if [ $MODE == $BATCH_MODE ]; then
-    exit 4
+    exit 6
   fi
 fi
