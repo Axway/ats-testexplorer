@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_DB_VERSION=4.0.6
-NEW_DB_VERSION=4.0.7
+OLD_DB_VERSION=4.0.7
+NEW_DB_VERSION=4.0.8
 NEEDS_UPGRADE=false
 
 INTERACTIVE_MODE=0
@@ -41,7 +41,7 @@ if [ -n "$PGUSER" ]; then
 fi
 
 if [ -n "$PGPASSWORD" ]; then
-  echo PGPASSWORD enviroment variable is defined with the value: "$PGPASSWORD"
+  echo PGPASSWORD enviroment variable is defined with environment variable
 fi
 
 export PGPASSWORD=$PGPASSWORD
@@ -55,7 +55,7 @@ fi
 if [ -z "$PSQL_USER_PASSWORD" ]; then
   PSQL_USER_PASSWORD=AtsPassword
 else
-  echo PSQL_USER_PASSWORD enviroment variable is defined with the value: $PSQL_USER_PASSWORD
+  echo PSQL_USER_PASSWORD enviroment variable is defined with environment variable
 fi
 
 while getopts ":H:p:d:u:s:U:S:h" option; do

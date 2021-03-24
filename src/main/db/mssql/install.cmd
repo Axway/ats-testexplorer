@@ -13,7 +13,7 @@ IF [%MSSQLHOST%]==[] (
 
 rem set port to connect to
 IF [%MSSQLPORT%]==[] (
-    set MSSQLPORT=5432
+    set MSSQLPORT=1433
 ) ELSE (
     echo MSSQLPORT environment variable is defined with value: %MSSQLPORT%
 )
@@ -29,7 +29,7 @@ IF [%MSSQL_ADMIN_NAME%] NEQ [] (
 )
 
 IF [%MSSQL_ADMIN_PASSWORD%] NEQ [] (
-    echo MSSQL_ADMIN_PASSWORD environment variable is defined with value: %MSSQL_ADMIN_PASSWORD%
+    echo MSSQL_ADMIN_PASSWORD environment variable is defined with environment variable
 )
 rem set the name of the mssql user to be created
 IF [%MSSQL_USER_NAME%]==[] (
@@ -42,7 +42,7 @@ rem set port to connect to
 IF [%MSSQL_USER_PASSWORD%]==[] (
     set MSSQL_USER_PASSWORD=AtsPassword
 ) ELSE (
-    echo MSSQL_USER_PASSWORD environment variable is defined with value: %MSSQL_USER_PASSWORD%
+    echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
 
 set HELP=false
@@ -159,15 +159,6 @@ echo USE [%MSSQLDATABASE%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 
 
-rem IF %ERRORLEVEL% NEQ 0 (
-rem	echo Installation was not successful
-rem	IF "%SILENT_MODE_USED%" == "true" (
-rem		exit 2
-rem	) ELSE (
-rem		GOTO :end
-rem	)
-rem )
-
 type TestExplorerDB.sql>>tempCreateDBScript.sql
 
 sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master /i tempCreateDBScript.sql /o install.log
@@ -177,7 +168,7 @@ sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASS
 IF %ERRORLEVEL% NEQ 0 (
 	del /q /f tempCreateDBScript.sql
 	echo Installation was not successful. Check install.log file for errors.
-	IF "%SILENT_MODE_USED%" == "true" (
+	IF "%MODE%" == "%BATCH_MODE%" (
 		exit 3
 	) ELSE (
 		GOTO :end
@@ -185,7 +176,7 @@ IF %ERRORLEVEL% NEQ 0 (
 ) ELSE (
 	del /q /f tempCreateDBScript.sql
 	echo Installation completed. Check install.log file for potential errors.
-	IF "%SILENT_MODE_USED%" == "true" (
+		IF "%MODE%" == "%BATCH_MODE%" (
 		exit 0
 	) ELSE (
 		GOTO :end

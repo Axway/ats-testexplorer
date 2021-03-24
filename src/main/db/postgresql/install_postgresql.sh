@@ -75,7 +75,7 @@ if [ -n "$PGUSER" ]; then
 fi
 
 if [ -n "$PGPASSWORD" ]; then
-  echo PGPASSWORD enviroment variable is defined with the value: "$PGPASSWORD"
+  echo PGPASSWORD enviroment variable is defined with environment variable
 fi
 
 export PGPASSWORD=$PGPASSWORD
@@ -89,7 +89,7 @@ fi
 if [ -z "$PSQL_USER_PASSWORD" ]; then
   PSQL_USER_PASSWORD=AtsPassword
 else
-  echo PSQL_USER_PASSWORD enviroment variable is defined with the value: $PSQL_USER_PASSWORD
+  echo PSQL_USER_PASSWORD enviroment variable is defined with environment variable
 fi
 
 while getopts ":H:p:d:u:s:U:S:h" option; do

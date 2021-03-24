@@ -43,7 +43,7 @@ if [ -n "$MSSQL_ADMIN_NAME" ]; then
 fi
 
 if [ -n "$MSSQL_ADMIN_PASSWORD" ]; then
-  echo MSSQL_ADMIN_PASSWORD enviroment variable is defined with the value:"$MSSQL_ADMIN_PASSWORD"
+  echo MSSQL_ADMIN_PASSWORD enviroment variable is defined with environment variable
 fi
 
 if [ -z "$MSSQL_USER_NAME" ]; then
@@ -55,7 +55,7 @@ fi
 if [ -z "$MSSQL_USER_PASSWORD" ]; then
   MSSQL_USER_PASSWORD=AtsPassword
 else
-  echo MSSQL_USER_PASSWORD enviroment variable is defined with the value: $MSSQL_USER_PASSWORD
+  echo MSSQL_USER_PASSWORD enviroment variable is defined with environment variable
 fi
 
 while getopts ":H:p:d:u:s:U:S:h" option; do

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-NEW_DB_VERSION=4.0.7
-CURRENT_DB_VERSION=4.0.6
+NEW_DB_VERSION=4.0.8
+CURRENT_DB_VERSION=4.0.7
 
 INTERACTIVE_MODE=0
 BATCH_MODE=1
@@ -63,7 +63,7 @@ if [ -z "$MSSQL_USER_PASSWORD" ];
 then
     MSSQL_USER_PASSWORD=AtsPassword
 else
-    echo MSSQL_USER_PASSWORD enviroment variable is defined with the value: $MSSQL_USER_PASSWORD
+    echo MSSQL_USER_PASSWORD enviroment variable is defined with environment variable
 fi
 
 

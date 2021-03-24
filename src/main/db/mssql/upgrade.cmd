@@ -5,8 +5,8 @@
 
 set START_FOLDER=%cd%
 
-set NEW_DB_VERSION=4.0.7
-set CURRENT_DB_VERSION=4.0.6
+set NEW_DB_VERSION=4.0.8
+set CURRENT_DB_VERSION=4.0.7
 
 :: navigate to the upgrade file directory
 cd  /d "%~dp0"
@@ -29,7 +29,7 @@ IF [%MSSQLHOST%]==[] (
 
 rem set port to connect to
 IF [%MSSQLPORT%]==[] (
-    set MSSQLPORT=5432
+    set MSSQLPORT=1433
 ) ELSE (
     echo MSSQLPORT environment variable is defined with value: %MSSQLPORT%
 )
@@ -45,7 +45,7 @@ IF [%MSSQL_ADMIN_NAME%] NEQ [] (
 )
 
 IF [%MSSQL_ADMIN_PASSWORD%] NEQ [] (
-    echo MSSQL_ADMIN_PASSWORD environment variable is defined with value: %MSSQL_ADMIN_PASSWORD%
+    echo MSSQL_ADMIN_PASSWORD environment variable is defined with environment variable
 )
 rem set the name of the mssql user to be created
 IF [%MSSQL_USER_NAME%]==[] (
@@ -58,7 +58,7 @@ rem set port to connect to
 IF [%MSSQL_USER_PASSWORD%]==[] (
     set MSSQL_USER_PASSWORD=AtsPassword
 ) ELSE (
-    echo MSSQL_USER_PASSWORD environment variable is defined with value: %MSSQL_USER_PASSWORD%
+    echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
 
 set HELP=false
@@ -96,7 +96,7 @@ if errorlevel 1 (
 		echo A database with the specified name: %MSSQLDATABASE% does not exist. Now will exit
 		exit 1
 	) ELSE (
-		echo  A database with the specified name: %MSSQLDATABASE% does not exist. Now will exit
+		echo  A database with the specified name: %MSSQLDATABASE% does not exist.
 		GOTO :set_MSSQLDATABASE
 	)
 )
@@ -166,7 +166,7 @@ GOTO :End
 :upgradeFailed
 rem del /f /q tempUpgradeDBScript.sql
 echo ERROR - upgrade failed. Check the 'upgrade.log' file for the errors.
-IF "%SILENT_MODE_USED%" == "true" (
+IF "%MODE%" == "%BATCH_MODE%" (
 	exit 2
 ) ELSE (
 	GOTO :End
@@ -176,7 +176,7 @@ IF "%SILENT_MODE_USED%" == "true" (
 :stopUpgrade
 del /f /q tempCheckVersion.sql
 echo Upgrade aborted. No changes are made to the database.
-IF "%SILENT_MODE_USED%" == "true" (
+IF "%MODE%" == "%BATCH_MODE%" (
 	exit 3
 ) ELSE (
 	GOTO :End
@@ -185,12 +185,9 @@ IF "%SILENT_MODE_USED%" == "true" (
 :: ##################    THE END    ########################################
 :End
 echo Upgrade completed. Check upgrade.log file for potential errors.
-IF "%MANUAL_MODE_USED%" == "true" (
-	pause
-	exit
-) ELSE IF "%CONSOLE_MODE_USED%" == "true" (
+IF "%MODE%" == "%INTERACTIVE_MODE%" (
 	rem return to the start folder
 	cd /d %START_FOLDER%
 ) ELSE (
-	exit 0
+	exit
 )
