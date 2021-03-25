@@ -5,7 +5,6 @@ rem set PGPORT=5432
 rem set PGUSER=postgres - 'postgres' admin DB user is used to create the new DB and create regular DB user
 
 rem set host to connect to
-set PGDATABASE=
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
@@ -23,17 +22,17 @@ IF [%PGPORT%]==[] (
     echo PGPORT environment variable is defined with value: %PGPORT%
 )
 
-IF [%PGDATABASE%]==[] (
+IF [%PGDATABASE%] NEQ [] (
    echo PGDATABASE environment variable is defined with value: %PGDATABASE%
    	set MODE=%BATCH_MODE%
 )
 
 rem set port to connect to
-IF [%PGUSER%]==[] (
+IF [%PGUSER%]  NEQ [] (
   echo PGUSER environment variable is defined with value: %PGUSER%
 )
 
-IF [%PGPASSWORD%]==[] (
+IF [%PGPASSWORD%] NEQ [] (
     echo PGPASSWORD environment variable is defined with environment variable
 )
 
@@ -100,7 +99,6 @@ echo %cmdcmdline% | find /i "%~0" >nul
 rem IF NOT ERRORLEVEL 1 set MODE=%INTERACTIVE_MODE%
 
 echo %PGDATABASE%
-echo "Silent mode used: %SILENT_MODE_USED%"
 :set_dbname
 IF  %MODE% == %INTERACTIVE_MODE% (
 	set /p PGDATABASE=Enter Database name:
@@ -113,7 +111,7 @@ IF %ERRORLEVEL% NEQ 0 (
 	echo Check if the provided postgres password, host and port are correct. In non-local mode pg_hba.conf should allow connect from current host.
 	IF %MODE% == %BATCH_MODE% (
 		del /f /q db_list.txt
-		exit 1
+	    exit 1
 	) ELSE (
 		GOTO :end
 	)
@@ -124,7 +122,7 @@ IF %ERRORLEVEL% == 0 (
 	IF %MODE% == %BATCH_MODE% (
 		echo Such database already exists. Rerun the script with different name or drop the database. Installation aborted.
 		del /f /q db_list.txt
-		exit 2
+		 exit 2
 	) ELSE (
 		echo Database with the same name already exists. Please choose another name or drop the database.
 		GOTO :set_dbname
@@ -152,7 +150,7 @@ psql -U %PSQL_USER_NAME% -h %PGHOST% -p %PGPORT% -d %PGDATABASE% -c "SELECT * FR
 IF %ERRORLEVEL% NEQ 0 (
 	echo Installation was not successful
 	IF "%MODE%" == "%BATCH_MODE%"  (
-	   exit 3
+	  exit 3
 	) ELSE (
 		GOTO :end
 	)

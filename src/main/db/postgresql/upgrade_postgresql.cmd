@@ -16,7 +16,6 @@ type nul > tmpUpgradeDbScript.sql
 del /f /q upgrade.log
 type nul > upgrade.log
 
-set PGDATABASE=
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
@@ -79,11 +78,10 @@ goto GETOPTS
 
 :: check if the script is executed manually
 echo %cmdcmdline% | find /i "%~0" >nul
-rem if not ERRORLEVEL 1 set MODE=%INTERACTIVE_MODE%
 
 
 :set_dbname
-IF  %MODE% == %INTERACTIVE_MODE% (
+IF  "%MODE%" == "%INTERACTIVE_MODE%" (
 	set /p PGDATABASE=Enter Database name:
 )
 
@@ -92,7 +90,7 @@ psql.exe -U %PGUSER% -h %PGHOST% -p %PGPORT% -l > db_list.txt
 IF %ERRORLEVEL% NEQ 0 (
 	echo There was problem getting checking for database existence
 	echo Check if the provided password is correct
-	IF "%MODE%" == %BATCH_MODE% (
+	IF "%MODE%" == "%BATCH_MODE%" (
 		del /f /q db_list.txt
 		exit 1
 	) ELSE (
@@ -102,7 +100,7 @@ IF %ERRORLEVEL% NEQ 0 (
 
 findstr /m %PGDATABASE% db_list.txt
 IF %ERRORLEVEL% NEQ 0 (
-	IF "%MODE%" == %BATCH_MODE% (
+	IF "%MODE%" == "%BATCH_MODE%" (
 		del /f /q db_list.txt
 		echo "Database %PGDATABASE% does not exist. Now will exit"
 		exit 2
@@ -129,7 +127,7 @@ IF %DB_VERSION%==%OLD_DB_VERSION% (
 ) ELSE (
 	echo "Could not upgrade %PGDATABASE% from %DB_VERSION% to %NEW_DB_VERSION%"
 	IF "%MODE%" == "%BATCH_MODE%"  (
-		exit 3
+		 exit 3
 	) ELSE (
 		GOTO :end
 	)
@@ -143,7 +141,7 @@ IF %NUM_OF_ERRORS%==0 (
 ) ELSE (
 	echo "Errors during upgrade: %NUM_OF_ERRORS%. See upgrade.log file for errors"
 	IF "%MODE%" == "%BATCH_MODE%" (
-		exit 4
+		 exit 4
 	) ELSE (
 		GOTO :end
 	)
