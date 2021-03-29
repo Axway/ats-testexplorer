@@ -8,14 +8,15 @@ BEGIN
       FROM   pg_catalog.pg_user
       WHERE  usename = 'AtsUser') THEN
 
+      -- Remove SUPERUSER role if DB backup/restore is not needed
       CREATE USER "AtsUser" WITH SUPERUSER CREATEDB LOGIN PASSWORD 'AtsPassword';
    END IF;
 END
 $body$;
 
-CREATE SCHEMA IF NOT EXISTS "AtsUser" AUTHORIZATION "AtsUser";
+CREATE SCHEMA IF NOT EXISTS "public" AUTHORIZATION "AtsUser";
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "AtsUser" TO "AtsUser";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "public" TO "AtsUser";
 
 CREATE TABLE "tInternal" (
     id    serial       PRIMARY KEY,
