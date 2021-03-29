@@ -20,46 +20,53 @@ echo It is recommended that you backup your database before continue!
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
+
 rem set host to connect to
 IF [%MSSQLHOST%]==[] (
     set MSSQLHOST=localhost
 ) ELSE (
-    echo MSSQLHOST environment variable is defined with value: %MSSQLHOST%
+    echo "MSSQLHOST environment variable is defined with value: %MSSQLHOST%"
 )
 
 rem set port to connect to
 IF [%MSSQLPORT%]==[] (
     set MSSQLPORT=1433
 ) ELSE (
-    echo MSSQLPORT environment variable is defined with value: %MSSQLPORT%
+    echo "MSSQLPORT environment variable is defined with value: %MSSQLPORT%"
 )
-rem set the name of the database to install
+rem set the name of the database to upgrade
 IF [%MSSQLDATABASE%] NEQ [] (
-    echo MSSQLDATABASE environment variable is defined with value: %MSSQLDATABASE%
+    echo "MSSQLDATABASE environment variable is defined with value: %MSSQLDATABASE%"
 	set MODE=%BATCH_MODE%
 )
 
 rem set the name of the mssql user
 IF [%MSSQL_ADMIN_NAME%] NEQ [] (
-    echo MSSQL_ADMIN_NAME environment variable is defined with value: %MSSQL_ADMIN_NAME%
+    echo "MSSQL_ADMIN_NAME environment variable is defined with value: %MSSQL_ADMIN_NAME%"
 )
 
 IF [%MSSQL_ADMIN_PASSWORD%] NEQ [] (
-    echo MSSQL_ADMIN_PASSWORD environment variable is defined with environment variable
+    echo "MSSQL_ADMIN_PASSWORD environment variable is defined and will be used"
 )
 rem set the name of the mssql user to be created
 IF [%MSSQL_USER_NAME%]==[] (
     set MSSQL_USER_NAME=AtsUser
 ) ELSE (
-    echo MSSQL_USER_NAME environment variable is defined with value: %MSSQL_USER_NAME%
+    echo "MSSQL_USER_NAME environment variable is defined with value: %MSSQL_USER_NAME%"
 )
 
 rem set port to connect to
 IF [%MSSQL_USER_PASSWORD%]==[] (
     set MSSQL_USER_PASSWORD=AtsPassword
 ) ELSE (
-    echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
+    echo "MSSQL_USER_PASSWORD environment variable is defined and will be used"
 )
+
+set path=%path%;"C:\Program Files\Microsoft SQL Server\MSSQL\Binn"
+:: check if the script is executed manually
+set CONSOLE_MODE_USED=true
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set CONSOLE_MODE_USED=false
 
 set HELP=false
 :GETOPTS
@@ -78,14 +85,35 @@ goto GETOPTS
 )
 
 
-IF %HELP% == "true" (
-echo Please specify the database name as a parameter for silent upgrade
+IF "%HELP%" == "true" (
+    echo "The usage is ./upgrade.cmd [OPTION]...[VALUE]...
+   The following script upgrades an ATS Logging DB from version %OLD_DB_VERSION% to current version %NEW_DB_VERSION%"
+     echo "Available options
+   -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
+   -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
+   -d <target_SQL_database_name>, default: no;  Required for non-interactive batch mode. Might be specified by env variable: MSSQL_DBNAME
+   -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
+   -s <target_SQL_user_password>, Might be specified by env variable: MSSQL_USER_PASSWORD
+   -U <target_SQL_admin_name>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_NAME
+   -S <target_SQL_admin_password>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
 )
 
-:set_MSSQLDATABASE
-IF %MODE%==%INTERACTIVE_MODE% (
+rem fill in required parameters that has not been previously stated
+IF "%MODE%"=="%INTERACTIVE_MODE%" (
 
-    SET /P MSSQLDATABASE=Enter Test Explorer database name:
+    IF [%MSSQL_ADMIN_NAME%]==[] (
+         SET /P MSSQL_ADMIN_NAME=Enter MSSQL sever admin name:
+         )
+
+         IF [%MSSQL_ADMIN_PASSWORD%]==[] (
+           SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL sever admin password:
+         )
+
+         IF [%MSSQLDATABASE%]==[] (
+         :set_MSSQLDATABASE
+           SET /P MSSQLDATABASE=Enter Test Explorer database name:
+          )
+       )
 )
 
 REM check if there is already database with this name and write the result
@@ -93,10 +121,10 @@ sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASS
 if errorlevel 1 (
 
 	 IF "%MODE%" == "%BATCH_MODE%" (
-		echo A database with the specified name: %MSSQLDATABASE% does not exist. Now will exit
+		echo "A database with the specified name: %MSSQLDATABASE% does not exist. Now will exit"
 		exit 1
 	) ELSE (
-		echo  A database with the specified name: %MSSQLDATABASE% does not exist.
+		echo  "A database with the specified name: %MSSQLDATABASE% does not exist."
 		GOTO :set_MSSQLDATABASE
 	)
 )
@@ -185,9 +213,12 @@ IF "%MODE%" == "%BATCH_MODE%" (
 :: ##################    THE END    ########################################
 :End
 echo Upgrade completed. Check upgrade.log file for potential errors.
-IF "%MODE%" == "%INTERACTIVE_MODE%" (
+IF "%CONSOLE_MODE_USED%" == "true" (
 	rem return to the start folder
 	cd /d %START_FOLDER%
-) ELSE (
-	exit
+) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%" (
+    	pause
+    	exit
+    ) ELSE (
+  	exit 0
 )

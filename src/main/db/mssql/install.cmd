@@ -45,6 +45,18 @@ IF [%MSSQL_USER_PASSWORD%]==[] (
     echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
 
+:: save the starting folder location
+set START_FOLDER=%cd%
+
+:: navigate to the install file directory
+cd  /d "%~dp0"
+
+set path=%path%;"C:\Program Files\Microsoft SQL Server\MSSQL\Binn"
+:: check if the script is executed manually
+set CONSOLE_MODE_USED=true
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set CONSOLE_MODE_USED=false
+
 set HELP=false
 :GETOPTS
 IF "%1" == "-H" ( set MSSQLHOST=%2& shift
@@ -62,30 +74,40 @@ goto GETOPTS
 )
 
 
+IF "%HELP%" == "true" (
+    echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]...
+   The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.8"
+     echo "Available options
+ -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
+   -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
+   -d <target_SQL_database_name>, default: no;  Required for non-interactive batch mode. Might be specified by env variable: MSSQL_DBNAME
+   -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
+   -s <target_SQL_user_password>, Might be specified by env variable: MSSQL_USER_PASSWORD
+   -U <target_SQL_admin_name>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_NAME
+   -S <target_SQL_admin_password>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
 
-IF %HELP% == "true" (
-echo Please specify the database name as a parameter for silent install
 )
-
-:: save the starting folder location
-set START_FOLDER=%cd%
-
-:: navigate to the install file directory
-cd  /d "%~dp0"
-
-echo INSTALLING Test Explorer Database
-set path=%path%;"C:\Program Files\Microsoft SQL Server\MSSQL\Binn"
 
 rem delete tempCreateDBScript.sql from previous installations
 IF EXIST tempCreateDBScript.sql (
 	del /f /q tempCreateDBScript.sql
 )
 
-
-:set_MSSQLDATABASE
+rem fill in required parameters that has not been previously stated
 IF %MODE%==%INTERACTIVE_MODE% (
 
-    SET /P MSSQLDATABASE=Enter Test Explorer database name:
+   IF [%MSSQL_ADMIN_NAME%]==[] (
+     SET /P MSSQL_ADMIN_NAME=Enter MSSQL sever admin name:
+     )
+
+     IF [%MSSQL_ADMIN_PASSWORD%]==[] (
+       SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL sever admin password:
+     )
+
+     IF [%MSSQLDATABASE%]==[] (
+     :set_MSSQLDATABASE
+       SET /P MSSQLDATABASE=Enter Test Explorer database name:
+      )
 )
 
 REM check if there is already database with this name and write the result
@@ -187,7 +209,7 @@ rem return to the start folder
 :end
 IF "%CONSOLE_MODE_USED%" == "true" (
 	cd /d %START_FOLDER%
-) ELSE IF "%MANUAL_MODE_USED%" == "true" (
+) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%" (
 	pause
 	exit
 )

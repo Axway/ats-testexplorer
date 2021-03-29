@@ -17,7 +17,7 @@ IF [%PGHOST%]==[] (
 
 rem set port to connect to
 IF [%PGPORT%]==[] (
-    set PGPORT=5433
+    set PGPORT=5432
 ) ELSE (
     echo PGPORT environment variable is defined with value: %PGPORT%
 )
@@ -33,7 +33,7 @@ IF [%PGUSER%]  NEQ [] (
 )
 
 IF [%PGPASSWORD%] NEQ [] (
-    echo PGPASSWORD environment variable is defined with environment variable
+    echo PGPASSWORD environment variable is defined and will be used
 )
 
 rem set port to connect to
@@ -46,9 +46,19 @@ IF [%PSQL_USER_NAME%]==[] (
 IF [%PSQL_USER_PASSWORD%]==[] (
     set PSQL_USER_PASSWORD=AtsPassword
 ) ELSE (
-    echo PSQL_USER_PASSWORD environment variable is defined with environment variable
+    echo PSQL_USER_PASSWORD environment variable is defined and will be used
 )
 
+:: save the starting folder location
+set START_FOLDER=%cd%
+
+:: navigate to the install file directory
+cd  /d "%~dp0"
+
+:: check if the script is executed manually
+set CONSOLE_MODE_USED=true
+echo %cmdcmdline% | find /i "%~0" >nul
+IF NOT ERRORLEVEL 1 set CONSOLE_MODE_USED=false
 
 set HELP=false
 :GETOPTS
@@ -68,23 +78,16 @@ goto GETOPTS
 
 IF "%HELP%" == "true" (
     echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]...
-   The following script installs a ATS Logging DB to store test execution results. The version is 4.0.7"
+   The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.8"
      echo "Available options
-   -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST
-   -p <target_SQL_server_port>, default is: 5433, Might be specified by env variable: PGPORT
-   -d <target_SQL_database_name>, Might be specified by env variable: PGDATABASE
-   -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME
-   -s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: PSQL_USER_PASSWORD
-   -U <target_SQL_admin_name>,use current OS account Might be specified by env variable: PGUSER
-   -S <target_SQL_admin_password>, use current OS account  Might be specified by env variable: PGPASSWORD"
-
+  -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST
+    -p <target_SQL_server_port>, default is: 5432, Might be specified by env variable: PGPORT
+    -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE
+    -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME
+    -s <target_SQL_user_password>, Might be specified by env variable: PSQL_USER_PASSWORD
+    -U <target_SQL_admin_name>,default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGUSER
+    -S <target_SQL_admin_password>, default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
 )
-
-:: save the starting folder location
-set START_FOLDER=%cd%
-
-:: navigate to the install file directory
-cd  /d "%~dp0"
 
 :: delete previous tmpInstallDbScript.sql if one exists
 del /f /q tmpInstallDbScript.sql
@@ -94,22 +97,30 @@ type nul >tmpInstallDbScript.sql
 del /f /q install.log
 type nul >install.log
 
-:: check if the script is executed manually
-echo %cmdcmdline% | find /i "%~0" >nul
-rem IF NOT ERRORLEVEL 1 set MODE=%INTERACTIVE_MODE%
-
-echo %PGDATABASE%
-:set_dbname
+rem fill in required parameters that has not been previously stated
 IF  %MODE% == %INTERACTIVE_MODE% (
-	set /p PGDATABASE=Enter Database name:
+
+IF [%PGUSER%]==[] (
+  SET /P PGUSER=Enter POSTGRE sever admin name:
+  )
+
+  IF [%PGPASSWORD%]==[] (
+    SET /P PGPASSWORD=Enter POSTGRE sever admin password:
+  )
+
+  IF [%PGDATABASE%]==[] (
+  :set_dbname
+   set /p PGDATABASE=Enter Database name:
+   )
+
 )
 
-:: see if database exists
+:: check if database exists
 psql -U %PGUSER% -h %PGHOST% -p %PGPORT% -l > db_list.txt
 IF %ERRORLEVEL% NEQ 0 (
 	echo There was problem checking for database existence
 	echo Check if the provided postgres password, host and port are correct. In non-local mode pg_hba.conf should allow connect from current host.
-	IF %MODE% == %BATCH_MODE% (
+	IF "%MODE%" == "%BATCH_MODE%" (
 		del /f /q db_list.txt
 	    exit 1
 	) ELSE (
@@ -122,7 +133,7 @@ IF %ERRORLEVEL% == 0 (
 	IF %MODE% == %BATCH_MODE% (
 		echo Such database already exists. Rerun the script with different name or drop the database. Installation aborted.
 		del /f /q db_list.txt
-		 exit 2
+     	 exit 2
 	) ELSE (
 		echo Database with the same name already exists. Please choose another name or drop the database.
 		GOTO :set_dbname
@@ -157,12 +168,12 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 :end
-rem IF "%CONSOLE_MODE_USED%" == "true" (
-rem	rem return to the start folder
-rem	cd /d %START_FOLDER%
-rem ) ELSE IF "%MANUAL_MODE_USED%" == "true" (
-rem	pause
-rem	exit
-rem ) ELSE (
-rem	exit 0
-rem )
+IF "%CONSOLE_MODE_USED%" == "true" (
+rem return to the start folder
+cd /d %START_FOLDER%
+) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%"  (
+	pause
+	exit
+ ) ELSE (
+	exit 0
+)

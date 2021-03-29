@@ -23,42 +23,49 @@ rem set host to connect to
 IF [%PGHOST%]==[] (
     set PGHOST=localhost
 ) ELSE (
-    echo PGHOST environment variable is defined with value: %PGHOST%
+    echo "PGHOST environment variable is defined with value: %PGHOST%"
 )
 
 rem set port to connect to
 IF [%PGPORT%]==[] (
     set PGPORT=5432
 ) ELSE (
-    echo PGPORT environment variable is defined with value: %PGPORT%
+    echo "PGPORT environment variable is defined with value: %PGPORT%"
 )
-rem set the name of the database to install
+rem set the name of the database to upgrade
 IF [%PGDATABASE%] NEQ [] (
-    echo PGDATABASE environment variable is defined with value: %PGDATABASE%
+    echo "PGDATABASE environment variable is defined with value: %PGDATABASE%"
 	set MODE=%BATCH_MODE%
 )
 
 rem set the name of the mssql user
 IF [%PGUSER%] NEQ [] (
-    echo PGUSER environment variable is defined with value: %PGUSER%
+    echo "PGUSER environment variable is defined with value: %PGUSER%"
 )
 
 IF [%PGPASSWORD%] NEQ [] (
-    echo PGPASSWORD environment variable is defined with environment variable
+    echo "PGPASSWORD environment variable is defined and will be used"
 )
 rem set the name of the mssql user to be created
 IF [%PSQL_USER_NAME%]==[] (
-    set PSQL_USER_NAME=AtsUser
+    set PSQL_USER_NAME="AtsUser"
 ) ELSE (
-    echo PSQL_USER_NAME environment variable is defined with value: %PSQL_USER_NAME%
+    echo "PSQL_USER_NAME environment variable is defined with value: %PSQL_USER_NAME%"
 )
 
 rem set port to connect to
 IF [%PSQL_USER_PASSWORD%]==[] (
-    set PSQL_USER_PASSWORD=AtsPassword
+    set PSQL_USER_PASSWORD="AtsPassword"
 ) ELSE (
-    echo PSQL_USER_PASSWORD environment variable is defined with environment variable
+    echo "PSQL_USER_PASSWORD environment variable is defined and will be used"
 )
+
+
+:: check if the script is executed manually
+set CONSOLE_MODE_USED=true
+echo %cmdcmdline% | find /i "%~0" >nul
+if not errorlevel 1 set CONSOLE_MODE_USED=false
+
 
 set HELP=false
 :GETOPTS
@@ -76,13 +83,37 @@ IF NOT "%1" == "" (
 goto GETOPTS
 )
 
-:: check if the script is executed manually
-echo %cmdcmdline% | find /i "%~0" >nul
+IF "%HELP%" == "true" (
+    echo "The usage is ./upgrade_postgresql.cmd [OPTION]...[VALUE]...
+   The following script upgrades an ATS Logging DB from version %OLD_DB_VERSION% to current version %NEW_DB_VERSION%"
+     echo "Available options
+   -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST
+   -p <target_SQL_server_port>, default is: 5432, Might be specified by env variable: PGPORT
+   -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE
+   -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME
+   -s <target_SQL_user_password>, Might be specified by env variable: PSQL_USER_PASSWORD
+   -U <target_SQL_admin_name>,default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGUSER
+   -S <target_SQL_admin_password>, default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
+
+)
 
 
-:set_dbname
+rem fill in required parameters that has not been previously stated
 IF  "%MODE%" == "%INTERACTIVE_MODE%" (
-	set /p PGDATABASE=Enter Database name:
+
+ IF [%PGUSER%]==[] (
+     SET /P PGUSER=Enter POSTGRE sever admin name:
+     )
+
+     IF [%PGPASSWORD%]==[] (
+       SET /P PGPASSWORD=Enter POSTGRE sever admin password:
+     )
+
+     IF [%PGDATABASE%]==[] (
+     :set_dbname
+       SET /P PGDATABASE=Enter Test Explorer database name:
+      )
+   )
 )
 
 :: see if database exists
@@ -147,4 +178,14 @@ IF %NUM_OF_ERRORS%==0 (
 	)
 )
 
+:end
+IF "%CONSOLE_MODE_USED%" == "true" (
+rem return to the start folder
+cd /d %START_FOLDER%
+) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%"  (
+	pause
+	exit
+ ) ELSE (
+	exit 0
+)
 
