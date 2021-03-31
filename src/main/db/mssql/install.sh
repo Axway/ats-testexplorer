@@ -2,60 +2,75 @@
 
 INTERACTIVE_MODE=0
 BATCH_MODE=1
-
-DB_NAME=""
 MODE=$INTERACTIVE_MODE
 
 echo "Linux/Docker cases do not work with default OS user"
 
 function print_help() {
-  echo "The usage is ./install.sh [OPTION]...[VALUE]...
-The following script installs a ATS Logging DB to store test execution results. The version is 4.0.7"
+  echo "The usage is ${0} [OPTION]...[VALUE]...
+The following script installs an ATS Logging DB to store test execution results. The version is 4.0.8"
   echo "Available options
 -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
 -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
--d <target_SQL_database_name>, Might be specified by env variable: MSSQL_DBNAME
+-d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DBNAME
 -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
 -s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
--U <target_SQL_admin_name>,use current OS account Might be specified by env variable: MSSQL_ADMIN_NAME
--S <target_SQL_admin_password>, use current OS account  Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
+-U <target_SQL_admin_name>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_NAME
+-S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode).  Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
+}
+
+function check_db_existence() {
+  # return number of existing DBs with provided name;
+  # $MSSQL_DBNAME is read as first argument
+  MSSQL_DBNAME="$1"
+
+  # Make sure PGPASSWORD is already set
+  DBS_OUTPUT=$($SQLCMD_LOCATION -S $MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD -Q "EXEC sp_databases")
+
+  if [ $? != 0 ]; then
+    echo "List of installed databases could not be retrieved. Possible cause is wrong host or port parameter, DB admin user or password"
+    echo "Use option \"-h\" for help"
+    exit 6
+  fi
+  DATABASE_EXISTS=$(echo "$DBS_OUTPUT" | grep -c --regexp="^$MSSQL_DBNAME")
+  return "$DATABASE_EXISTS"
 }
 
 if [ -z "$MSSQL_HOST" ]; then
   MSSQL_HOST=localhost
 else
-  echo MSSQL_HOST enviroment variable is defined with the value: $MSSQL_HOST
+  echo "MSSQL_HOST enviroment variable is defined with the value: $MSSQL_HOST"
 fi
 
 if [ -z "$MSSQL_PORT" ]; then
   MSSQL_PORT=1433
 else
-  echo MSSQL_PORT enviroment variable is defined with the value: $MSSQL_PORT
+  echo "MSSQL_PORT environment variable is defined with the value: $MSSQL_PORT"
 fi
 
 if [ -n "$MSSQL_DBNAME" ]; then
-  echo MSSQL_DBNAME enviroment variable is defined with the value: "$MSSQL_DBNAME"
+  echo "MSSQL_DBNAME environment variable is defined with the value: $MSSQL_DBNAME"
   MODE=$BATCH_MODE
 fi
 
 if [ -n "$MSSQL_ADMIN_NAME" ]; then
-  echo MSSQL_ADMIN_NAME enviroment variable is defined with the value: "$MSSQL_ADMIN_NAME"
+  echo "MSSQL_ADMIN_NAME environment variable is defined with the value: $MSSQL_ADMIN_NAME"
 fi
 
 if [ -n "$MSSQL_ADMIN_PASSWORD" ]; then
-  echo MSSQL_ADMIN_PASSWORD enviroment variable is defined with environment variable
+  echo "MSSQL_ADMIN_PASSWORD environment variable is defined and will be with be used"
 fi
 
 if [ -z "$MSSQL_USER_NAME" ]; then
   MSSQL_USER_NAME=AtsUser
 else
-  echo MSSQL_USER_NAME enviroment variable is defined with the value: $MSSQL_USER_NAME
+  echo "MSSQL_USER_NAME environment variable is defined with the value: $MSSQL_USER_NAME"
 fi
 
 if [ -z "$MSSQL_USER_PASSWORD" ]; then
   MSSQL_USER_PASSWORD=AtsPassword
 else
-  echo MSSQL_USER_PASSWORD enviroment variable is defined with environment variable
+  echo "MSSQL_USER_PASSWORD environment variable is defined and will be with be used"
 fi
 
 while getopts ":H:p:d:u:s:U:S:h" option; do
@@ -118,24 +133,31 @@ else
 
 fi
 
-# iterate until proper and db name is selected when in interactive mode
-if [ $MODE == $INTERACTIVE_MODE ]; then
-  DATABASE_NOT_EXISTS=1
-  while [ "$DATABASE_NOT_EXISTS" == 1 ]; do
-    read -p -r 'Enter Database name: ' DB_NAME
-    MSSQL_DBNAME=$DB_NAME
-    DATABASE_NOT_EXISTS=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$MSSQL_DBNAME'" | grep-c 0)
-    if [ "$DATABASE_NOT_EXISTS" -eq 0 ]; then
-      echo "Error. Database with name '$MSSQL_DBNAME' already exist."
-    fi
-  done
-else
-  DATABASE_NOT_EXISTS=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -Q "SELECT COUNT(*) FROM master.dbo.sysdatabases WHERE name = '$MSSQL_DBNAME'" | grep -c 0)
-  if [ "$DATABASE_NOT_EXISTS" -eq 0 ]; then
-    echo "Error. Database with name '$MSSQL_DBNAME' already exist. install aborted"
-    exit 2
+until [ "$DATABASE_EXISTS" == 0 ]; do
+
+  if [ "$MODE" == "$INTERACTIVE_MODE" ]; then
+    read -r -p 'Enter Database name: ' MSSQL_DBNAME
   fi
-fi
+
+  # see if database exists
+  check_db_existence "$MSSQL_DBNAME"
+  DATABASE_EXISTS=$?
+  if [ "$DATABASE_EXISTS" != 0 ]; then
+    if [ "$MODE" == "$BATCH_MODE" ]; then
+      echo "Database named $MSSQL_DBNAME already exists. Installation will abort."
+      exit 3
+    else
+      echo "Database named $MSSQL_DBNAME already exists. Please choose another name."
+    fi
+  fi
+done
+
+# delete previous install.log if one exists
+rm -rf install.log
+touch install.log
+
+# iterate until proper and db name is selected when in interactive mode
+# if [ $MODE == $INTERACTIVE_MODE ]; then
 
 echo USE [master] >tempCreateDBScript.sql
 {
@@ -145,7 +167,7 @@ echo USE [master] >tempCreateDBScript.sql
 
   echo GO
 
-  echo "EXEC dbo.sp_dbcmptlevel @dbname='$MSSQL_DBNAME', @new_cmptlevel=100"
+  #echo "EXEC dbo.sp_dbcmptlevel @dbname='$MSSQL_DBNAME', @new_cmptlevel=100"
 
   echo GO
 
@@ -153,21 +175,42 @@ echo USE [master] >tempCreateDBScript.sql
 
   echo GO
 
-  echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=[$MSSQL_DBNAME], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF"
+ # echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=[$MSSQL_DBNAME], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF"
 
   echo GO
 
-  echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
+  echo "EXEC dbo.sp_grantdbakjhkhkhccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
 
   echo GO
 
   echo "EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[$MSSQL_USER_NAME]"
 
-  echo GO
+ # echo GO
 
   cat TestExplorerDB.sql
 } >>tempCreateDBScript.sql
 
-$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W >install.log 2>&1
+
+NUM_OF_ERRORS=$(grep -ci --regex='ERROR:\|FATAL:' install.log)
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DBNAME" -Q "SELECT * FROM tInternal"
+
+if [[ "$NUM_OF_ERRORS" == 0 ]]; then
+  echo "Installation of database \"$MSSQL_DBNAME\" completed. Logs are located in install.log file"
+  if [ "$MODE" == "$BATCH_MODE" ]; then
+    exit 0
+  fi
+else
+  echo "Errors found during install: $NUM_OF_ERRORS"
+  echo "Installation of database \"$MSSQL_DBNAME\" was not successful. Logs are located in install.log file"
+  if [ "$MODE" == "$BATCH_MODE" ]; then
+    exit 4
+  fi
+fi
+
+# back to the starting folder location
+cd "$START_FOLDER" || {
+  echo "Failed to navigate back to the last working directory"
+  exit 5
+}
