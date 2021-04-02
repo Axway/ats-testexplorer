@@ -156,9 +156,6 @@ done
 rm -rf install.log
 touch install.log
 
-# iterate until proper and db name is selected when in interactive mode
-# if [ $MODE == $INTERACTIVE_MODE ]; then
-
 echo USE [master] >tempCreateDBScript.sql
 {
   echo GO
@@ -175,16 +172,14 @@ echo USE [master] >tempCreateDBScript.sql
 
   echo GO
 
-  echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=[$MSSQL_DATABASE], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF"
-
+  echo "IF NOT EXISTS ( SELECT name FROM master.sys.server_principals WHERE name = 'AtsUser' )"
+  echo "  BEGIN"
+  echo "     EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'$MSSQL_DBNAME', @deflanguage = N'us_english'"
+  echo "  END"
   echo GO
-
   echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
-
   echo GO
-
-  echo "EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[$MSSQL_USER_NAME]"
-
+  echo "       EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[$MSSQL_USER_NAME]"
   echo GO
 
   cat TestExplorerDB.sql
@@ -192,8 +187,22 @@ echo USE [master] >tempCreateDBScript.sql
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W >install.log 2>&1
 
+NUM_OF_ERRORS=$(grep -ci --regex='^Msg [0-9]*, Level [1-9]*, State' install.log)
+
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
+if [ "$NUM_OF_ERRORS" == 0 ]; then
+  echo "Installing of \"$MSSQL_DATABASE\" completed successfully. Logs are located in install.log file"
+  if [ $MODE == $BATCH_MODE ]; then
+    exit 0
+  fi
+else
+  echo "Errors during install: $NUM_OF_ERRORS"
+  echo "Installing of \"$MSSQL_DATABASE\" was not successful. Logs are located in install.log file"
+  if [ $MODE == $BATCH_MODE ]; then
+    exit 4
+  fi
+fi
 
 # back to the starting folder location
 cd "$START_FOLDER" || {
