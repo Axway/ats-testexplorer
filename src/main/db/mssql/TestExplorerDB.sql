@@ -1,9 +1,18 @@
 GO
 /****** Object:  User [AtsUser] ******/
-CREATE USER [AtsUser] FOR LOGIN [AtsUser] WITH DEFAULT_SCHEMA=[AtsUser]
+IF NOT EXISTS ( SELECT * FROM sys.database_principals WHERE name = 'AtsUser' )
+   BEGIN
+       CREATE USER [AtsUser] FOR LOGIN [AtsUser] WITH DEFAULT_SCHEMA=[AtsUser]
+   END
+
 GO
 /****** Object:  Schema [AtsUser] ******/
-CREATE SCHEMA [AtsUser] AUTHORIZATION [AtsUser]
+IF NOT EXISTS ( SELECT  *
+                FROM    sys.schemas
+                WHERE   name = N'AtsUser' )
+   BEGIN
+        EXEC (' CREATE SCHEMA [AtsUser] AUTHORIZATION [AtsUser] ')
+   END
 GO
 
 /****** Object:  Table [dbo].[tInternal] ******/
@@ -26,6 +35,12 @@ CREATE TABLE [dbo].[tInternal](
     [key] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+GO
+IF @@ERROR != 0
+    BEGIN
+    PRINT 'Error occurred during database creation' + @@ERROR
+       set noexec on
+    END
 GO
 SET ANSI_PADDING ON
 GO

@@ -5,21 +5,21 @@ set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
 rem set host to connect to
-IF [%MSSQLHOST%]==[] (
-    set MSSQLHOST=localhost
+IF [%MSSQL_HOST%]==[] (
+    set MSSQL_HOST=localhost
 ) ELSE (
-    echo MSSQLHOST environment variable is defined with value: %MSSQLHOST%
+    echo MSSQL_HOST environment variable is defined with value: %MSSQL_HOST%
 )
 
 rem set port to connect to
-IF [%MSSQLPORT%]==[] (
-    set MSSQLPORT=1433
+IF [%MSSQL_PORT%]==[] (
+    set MSSQL_PORT=1433
 ) ELSE (
-    echo MSSQLPORT environment variable is defined with value: %MSSQLPORT%
+    echo MSSQL_PORT environment variable is defined with value: %MSSQL_PORT%
 )
 rem set the name of the database to install
-IF [%MSSQLDATABASE%] NEQ [] (
-    echo MSSQLDATABASE environment variable is defined with value: %MSSQLDATABASE%
+IF [%MSSQL_DATABASE%] NEQ [] (
+    echo MSSQL_DATABASE environment variable is defined with value: %MSSQL_DATABASE%
 	set MODE=%BATCH_MODE%
 )
 
@@ -59,9 +59,9 @@ if not errorlevel 1 set CONSOLE_MODE_USED=false
 
 set HELP=false
 :GETOPTS
-IF "%1" == "-H" ( set MSSQLHOST=%2& shift
-)ELSE IF "%1" == "-p" ( set MSSQLPORT=%2& shift
-)ELSE IF "%1" == "-d" ( set MSSQLDATABASE=%2& set MODE=%BATCH_MODE%& shift
+IF "%1" == "-H" ( set MSSQL_HOST=%2& shift
+)ELSE IF "%1" == "-p" ( set MSSQL_PORT=%2& shift
+)ELSE IF "%1" == "-d" ( set MSSQL_DATABASE=%2& set MODE=%BATCH_MODE%& shift
 )ELSE IF "%1" == "-U" ( set MSSQL_ADMIN_NAME=%2& shift
 )ELSE IF "%1" == "--help" ( set HELP="true"
 )ELSE IF "%1" == "-S" ( set MSSQL_ADMIN_PASSWORD=%2& shift
@@ -104,14 +104,14 @@ IF %MODE%==%INTERACTIVE_MODE% (
        SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL sever admin password:
      )
 
-     IF [%MSSQLDATABASE%]==[] (
-     :set_MSSQLDATABASE
-       SET /P MSSQLDATABASE=Enter Test Explorer database name:
+     IF [%MSSQL_DATABASE%]==[] (
+     :set_MSSQL_DATABASE
+       SET /P MSSQL_DATABASE=Enter Test Explorer database name:
       )
 )
 
 REM check if there is already database with this name and write the result
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQLDATABASE%'" -h-1 | find /i "%MSSQLDATABASE%"
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQL_DATABASE%'" -h-1 | find /i "%MSSQL_DATABASE%"
 if not errorlevel 1 (
 
 	 IF "%MODE%" == "%BATCH_MODE%" (
@@ -119,7 +119,7 @@ if not errorlevel 1 (
 		exit 1
 	) ELSE (
 		echo Such database already exists. Please choose another name
-		GOTO :set_MSSQLDATABASE
+		GOTO :set_MSSQL_DATABASE
 	)
 )
 
@@ -128,81 +128,92 @@ if not errorlevel 1 (
 
 echo USE [master] > tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo CREATE DATABASE [%MSSQLDATABASE%]  >> tempCreateDBScript.sql
+echo CREATE DATABASE [%MSSQL_DATABASE%]  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_dbcmptlevel @dbname=N'%MSSQLDATABASE%', @new_cmptlevel=100 >> tempCreateDBScript.sql
+echo IF @@ERROR ^^!= 0 >> tempCreateDBScript.sql
+echo     BEGIN >> tempCreateDBScript.sql
+echo       PRINT 'Error occurred during database creation' + @@ERROR >> tempCreateDBScript.sql
+echo        set noexec on >> tempCreateDBScript.sql
+echo     END >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_NULL_DEFAULT OFF  >> tempCreateDBScript.sql
+echo EXEC dbo.sp_dbcmptlevel @dbname=N'%MSSQL_DATABASE%', @new_cmptlevel=100 >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_NULLS ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_NULL_DEFAULT OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_PADDING ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_NULLS ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_WARNINGS ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_PADDING ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ARITHABORT ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_WARNINGS ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET AUTO_CLOSE OFF  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ARITHABORT ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET AUTO_CREATE_STATISTICS ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET AUTO_CLOSE OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET AUTO_SHRINK OFF  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET AUTO_CREATE_STATISTICS ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET AUTO_UPDATE_STATISTICS ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET AUTO_SHRINK OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET CURSOR_CLOSE_ON_COMMIT OFF  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET AUTO_UPDATE_STATISTICS ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET CURSOR_DEFAULT  GLOBAL  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET CURSOR_CLOSE_ON_COMMIT OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET CONCAT_NULL_YIELDS_NULL ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET CURSOR_DEFAULT  GLOBAL  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET NUMERIC_ROUNDABORT OFF  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET CONCAT_NULL_YIELDS_NULL ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET QUOTED_IDENTIFIER ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET NUMERIC_ROUNDABORT OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET RECURSIVE_TRIGGERS OFF  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET QUOTED_IDENTIFIER ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET  READ_WRITE  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET RECURSIVE_TRIGGERS OFF  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET RECOVERY SIMPLE  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET  READ_WRITE  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET  MULTI_USER  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET RECOVERY SIMPLE  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET TORN_PAGE_DETECTION ON  >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET  MULTI_USER  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo USE [%MSSQLDATABASE%] >> tempCreateDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET TORN_PAGE_DETECTION ON  >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'%MSSQLDATABASE%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
+echo USE [%MSSQL_DATABASE%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_grantdbaccess @loginame = N'AtsUser', @name_in_db = N'AtsUser' >> tempCreateDBScript.sql
+echo IF NOT EXISTS ( SELECT name FROM master.sys.server_principals WHERE name = 'AtsUser' ) >> tempCreateDBScript.sql
+echo    BEGIN >> tempCreateDBScript.sql
+echo         EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'%MSSQL_DATABASE%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
+echo    END >> tempCreateDBScript.sql
+
+echo         EXEC dbo.sp_grantdbaccess @loginame = N'AtsUser', @name_in_db = N'AtsUser' >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
-echo EXEC dbo.sp_addrolemember @rolename = N'db_owner', @membername  = N'AtsUser' >> tempCreateDBScript.sql
-echo USE [%MSSQLDATABASE%] >> tempCreateDBScript.sql
+
+echo         EXEC dbo.sp_addrolemember @rolename = N'db_owner', @membername  = N'AtsUser' >> tempCreateDBScript.sql
+echo         USE [%MSSQL_DATABASE%] >> tempCreateDBScript.sql
+
 echo GO >> tempCreateDBScript.sql
 
 
 type TestExplorerDB.sql>>tempCreateDBScript.sql
 
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master /i tempCreateDBScript.sql /o install.log
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master /i tempCreateDBScript.sql /o install.log
 
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% -d %MSSQLDATABASE% -Q "SELECT * FROM tInternal"
+set NUM_OF_ERRORS=0
+for /f "tokens=*" %%a in ('findstr /R /C:"^Msg [0-9]*, Level [1-9]*, State" install.log') DO (
+set /a NUM_OF_ERRORS+= 1
+)
 
-IF %ERRORLEVEL% NEQ 0 (
-	del /q /f tempCreateDBScript.sql
-	echo Installation was not successful. Check install.log file for errors.
-	IF "%MODE%" == "%BATCH_MODE%" (
-		exit 3
-	) ELSE (
-		GOTO :end
-	)
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_USER_NAME% -P %MSSQL_USER_PASSWORD% -d %MSSQL_DATABASE% -Q "SELECT * FROM tInternal"
+
+IF %NUM_OF_ERRORS% == 0  (
+  echo "Installing of %MSSQL_DATABASE% completed successfully. Logs are located in install.log file"
+  IF  "%MODE%" == "%BATCH_MODE%" (
+    exit 0
+  )
 ) ELSE (
-	del /q /f tempCreateDBScript.sql
-	echo Installation completed. Check install.log file for potential errors.
-		IF "%MODE%" == "%BATCH_MODE%" (
-		exit 0
-	) ELSE (
-		GOTO :end
-	)
+  echo "Errors during install: %NUM_OF_ERRORS%"
+  echo "Installing of %MSSQL_DATABASE% was not successful. Logs are located in install.log file"
+  if  "%MODE%" == "%BATCH_MODE%" (
+    exit 4
+  )
 )
 
 rem return to the start folder

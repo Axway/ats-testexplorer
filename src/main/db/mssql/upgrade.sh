@@ -1,7 +1,7 @@
 #!/bin/bash
 
-NEW_DB_VERSION=4.0.7
-CURRENT_DB_VERSION=4.0.6
+NEW_DB_VERSION=4.0.8
+CURRENT_DB_VERSION=4.0.7
 
 INTERACTIVE_MODE=0
 BATCH_MODE=1
@@ -18,7 +18,7 @@ function print_help {
     echo "Available options
         -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
         -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
-        -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DBNAME
+        -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE
         -u <target_SQL_user_name>, default: Might be specified by env variable: MSSQL_USER_NAME
         -c <target_SQL_user_password>, default: no. Required for non-interactive (batch mode).Might be specified by env variable: MSSQL_USER_PASSWORD
         -s <target_SQLCMD_location>, set sqlcmd location.
@@ -27,8 +27,8 @@ function print_help {
 
 function check_db_existence() {
   # return number of existing DBs with provided name;
-  # $MSSQL_DBNAME is read as first argument
-  MSSQL_DBNAME="$1"
+  # $MSSQL_DATABASE is read as first argument
+  MSSQL_DATABASE="$1"
 
   # Make sure PGPASSWORD is already set
   DBS_OUTPUT=$($SQLCMD_LOCATION -S $MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -Q "EXEC sp_databases")
@@ -38,7 +38,7 @@ function check_db_existence() {
       echo "Use option \"-h\" for help"
       exit 6
   fi
-  DATABASE_EXISTS=$(echo "$DBS_OUTPUT" | grep -c --regexp="^$MSSQL_DBNAME")
+  DATABASE_EXISTS=$(echo "$DBS_OUTPUT" | grep -c --regexp="^$MSSQL_DATABASE ")
   return "$DATABASE_EXISTS"
 }
 
@@ -57,9 +57,9 @@ else
   echo "MSSQL_PORT environment variable is defined with the value: $MSSQL_PORT"
 fi
 
-if [ -n "$MSSQL_DBNAME" ];
+if [ -n "$MSSQL_DATABASE" ];
 then
-    echo "MSSQL_DBNAME environment variable is defined with the value: $MSSQL_DBNAME"
+    echo "MSSQL_DATABASE environment variable is defined with the value: $MSSQL_DATABASE"
     MODE=$BATCH_MODE
 fi
 
@@ -95,7 +95,7 @@ while getopts ":H:p:d:U:S:d:s:l:h" option; do
             MSSQL_USER_PASSWORD=$OPTARG
             ;;
         d)
-            MSSQL_DBNAME=$OPTARG
+            MSSQL_DATABASE=$OPTARG
             MODE=$BATCH_MODE
             ;;
         s)
@@ -148,18 +148,18 @@ DATABASE_EXISTS=0
 until [ "$DATABASE_EXISTS" != 0 ]; do
 
   if [ "$MODE" == "$INTERACTIVE_MODE" ]; then
-    read -r -p 'Enter Database name: ' MSSQL_DBNAME
+    read -r -p 'Enter Database name: ' MSSQL_DATABASE
   fi
 
   # see if database exists
-  check_db_existence "$MSSQL_DBNAME"
+  check_db_existence "$MSSQL_DATABASE"
   DATABASE_EXISTS=$?
   if [ "$DATABASE_EXISTS" == "0" ]; then
     if [ "$MODE" == "$BATCH_MODE" ]; then
-      echo "Database named $MSSQL_DBNAME does not exists. Upgrade will abort."
+      echo "Database named $MSSQL_DATABASE does not exists. Upgrade will abort."
       exit 3
     else
-      echo "Database named $MSSQL_DBNAME does not exists. Please choose another name."
+      echo "Database named $MSSQL_DATABASE does not exists. Please choose another name."
     fi
   fi
 done
@@ -171,7 +171,7 @@ touch "$LOG_FILE_LOCATION"
 
 # find the version of the provided DB
 # Options for the filtering the result: -h -1 --> do not show headers, dashes; set nocount on --> does not show "(x rows selected)"; xargs - trim string, remove spaces after the actual value;
-DB_VERSION=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DBNAME" -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs)
+DB_VERSION=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs)
 if [ "$DB_VERSION" ==  "$NEW_DB_VERSION" ];
 then
     echo "There is no need to upgrade. The current DB version is $NEW_DB_VERSION"
@@ -182,22 +182,22 @@ then
     exit 5
 fi
 
-echo "use [$MSSQL_DBNAME]"                                                               > tempUpgradeDBScript.sql
+echo "use [$MSSQL_DATABASE]"                                                               > tempUpgradeDBScript.sql
 {
 echo "GO"
 echo "PRINT GETDATE()"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET ANSI_NULLS ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET ANSI_NULLS ON"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET ANSI_PADDING ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET ANSI_PADDING ON"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET ANSI_WARNINGS ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET ANSI_WARNINGS ON"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET ARITHABORT ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET ARITHABORT ON"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET CONCAT_NULL_YIELDS_NULL ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET CONCAT_NULL_YIELDS_NULL ON"
 echo "GO"
-echo "ALTER DATABASE [$MSSQL_DBNAME] SET QUOTED_IDENTIFIER ON"
+echo "ALTER DATABASE [$MSSQL_DATABASE] SET QUOTED_IDENTIFIER ON"
 echo "GO"
 echo "UPDATE tInternal SET value = '$NEW_DB_VERSION_draft' WHERE [key] = 'version'"
 echo "GO"
@@ -211,7 +211,7 @@ echo "GO"
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD"  -i tempUpgradeDBScript.sql -W >upgrade.log 2>&1
 
-$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DBNAME" -Q "SELECT * FROM tInternal"
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
 	echo "Upgrade Completed. Check the '$LOG_FILE_LOCATION' for details."
 

@@ -12,7 +12,7 @@ The following script installs an ATS Logging DB to store test execution results.
   echo "Available options
 -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
 -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
--d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DBNAME
+-d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE
 -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
 -s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
 -U <target_SQL_admin_name>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_NAME
@@ -21,8 +21,8 @@ The following script installs an ATS Logging DB to store test execution results.
 
 function check_db_existence() {
   # return number of existing DBs with provided name;
-  # $MSSQL_DBNAME is read as first argument
-  MSSQL_DBNAME="$1"
+  # $MSSQL_DATABASE is read as first argument
+  MSSQL_DATABASE="$1"
 
   # Make sure PGPASSWORD is already set
   DBS_OUTPUT=$($SQLCMD_LOCATION -S $MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD -Q "EXEC sp_databases")
@@ -32,7 +32,7 @@ function check_db_existence() {
     echo "Use option \"-h\" for help"
     exit 6
   fi
-  DATABASE_EXISTS=$(echo "$DBS_OUTPUT" | grep -c --regexp="^$MSSQL_DBNAME")
+  DATABASE_EXISTS=$(echo "$DBS_OUTPUT" | grep -c --regexp="^$MSSQL_DATABASE ")
   return "$DATABASE_EXISTS"
 }
 
@@ -48,8 +48,8 @@ else
   echo "MSSQL_PORT environment variable is defined with the value: $MSSQL_PORT"
 fi
 
-if [ -n "$MSSQL_DBNAME" ]; then
-  echo "MSSQL_DBNAME environment variable is defined with the value: $MSSQL_DBNAME"
+if [ -n "$MSSQL_DATABASE" ]; then
+  echo "MSSQL_DATABASE environment variable is defined with the value: $MSSQL_DATABASE"
   MODE=$BATCH_MODE
 fi
 
@@ -83,7 +83,7 @@ while getopts ":H:p:d:u:s:U:S:h" option; do
     ;;
   d)
 
-    MSSQL_DBNAME=$OPTARG
+    MSSQL_DATABASE=$OPTARG
     MODE=$BATCH_MODE
     ;;
   u)
@@ -136,18 +136,18 @@ fi
 until [ "$DATABASE_EXISTS" == 0 ]; do
 
   if [ "$MODE" == "$INTERACTIVE_MODE" ]; then
-    read -r -p 'Enter Database name: ' MSSQL_DBNAME
+    read -r -p 'Enter Database name: ' MSSQL_DATABASE
   fi
 
   # see if database exists
-  check_db_existence "$MSSQL_DBNAME"
+  check_db_existence "$MSSQL_DATABASE"
   DATABASE_EXISTS=$?
   if [ "$DATABASE_EXISTS" != 0 ]; then
     if [ "$MODE" == "$BATCH_MODE" ]; then
-      echo "Database named $MSSQL_DBNAME already exists. Installation will abort."
+      echo "Database named $MSSQL_DATABASE already exists. Installation will abort."
       exit 3
     else
-      echo "Database named $MSSQL_DBNAME already exists. Please choose another name."
+      echo "Database named $MSSQL_DATABASE already exists. Please choose another name."
     fi
   fi
 done
@@ -163,51 +163,37 @@ echo USE [master] >tempCreateDBScript.sql
 {
   echo GO
 
-  echo CREATE DATABASE "$MSSQL_DBNAME"
+  echo CREATE DATABASE "$MSSQL_DATABASE"
 
   echo GO
 
-  #echo "EXEC dbo.sp_dbcmptlevel @dbname='$MSSQL_DBNAME', @new_cmptlevel=100"
+  echo "EXEC dbo.sp_dbcmptlevel @dbname='$MSSQL_DATABASE', @new_cmptlevel=100"
 
   echo GO
 
-  echo USE ["$MSSQL_DBNAME"]
+  echo USE ["$MSSQL_DATABASE"]
 
   echo GO
 
- # echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=[$MSSQL_DBNAME], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF"
+  echo "CREATE LOGIN $MSSQL_USER_NAME WITH PASSWORD='$MSSQL_USER_PASSWORD', DEFAULT_DATABASE=[$MSSQL_DATABASE], DEFAULT_LANGUAGE=[us_english], CHECK_POLICY=OFF"
 
   echo GO
 
-  echo "EXEC dbo.sp_grantdbakjhkhkhccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
+  echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
 
   echo GO
 
   echo "EXEC dbo.sp_addrolemember @rolename=[db_owner], @membername=[$MSSQL_USER_NAME]"
 
- # echo GO
+  echo GO
 
   cat TestExplorerDB.sql
 } >>tempCreateDBScript.sql
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W >install.log 2>&1
 
-NUM_OF_ERRORS=$(grep -ci --regex='ERROR:\|FATAL:' install.log)
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
-$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DBNAME" -Q "SELECT * FROM tInternal"
-
-if [[ "$NUM_OF_ERRORS" == 0 ]]; then
-  echo "Installation of database \"$MSSQL_DBNAME\" completed. Logs are located in install.log file"
-  if [ "$MODE" == "$BATCH_MODE" ]; then
-    exit 0
-  fi
-else
-  echo "Errors found during install: $NUM_OF_ERRORS"
-  echo "Installation of database \"$MSSQL_DBNAME\" was not successful. Logs are located in install.log file"
-  if [ "$MODE" == "$BATCH_MODE" ]; then
-    exit 4
-  fi
-fi
 
 # back to the starting folder location
 cd "$START_FOLDER" || {

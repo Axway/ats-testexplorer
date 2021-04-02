@@ -22,21 +22,21 @@ set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
 
 rem set host to connect to
-IF [%MSSQLHOST%]==[] (
-    set MSSQLHOST=localhost
+IF [%MSSQL_HOST%]==[] (
+    set MSSQL_HOST=localhost
 ) ELSE (
-    echo "MSSQLHOST environment variable is defined with value: %MSSQLHOST%"
+    echo "MSSQL_HOST environment variable is defined with value: %MSSQL_HOST%"
 )
 
 rem set port to connect to
-IF [%MSSQLPORT%]==[] (
-    set MSSQLPORT=1433
+IF [%MSSQL_PORT%]==[] (
+    set MSSQL_PORT=1433
 ) ELSE (
-    echo "MSSQLPORT environment variable is defined with value: %MSSQLPORT%"
+    echo "MSSQL_PORT environment variable is defined with value: %MSSQL_PORT%"
 )
 rem set the name of the database to upgrade
-IF [%MSSQLDATABASE%] NEQ [] (
-    echo "MSSQLDATABASE environment variable is defined with value: %MSSQLDATABASE%"
+IF [%MSSQL_DATABASE%] NEQ [] (
+    echo "MSSQL_DATABASE environment variable is defined with value: %MSSQL_DATABASE%"
 	set MODE=%BATCH_MODE%
 )
 
@@ -70,9 +70,9 @@ if not errorlevel 1 set CONSOLE_MODE_USED=false
 
 set HELP=false
 :GETOPTS
-IF "%1" == "-H" ( set MSSQLHOST=%2& shift
-)ELSE IF "%1" == "-p" ( set MSSQLPORT=%2& shift
-)ELSE IF "%1" == "-d" ( set MSSQLDATABASE=%2& set MODE=%BATCH_MODE%& shift
+IF "%1" == "-H" ( set MSSQL_HOST=%2& shift
+)ELSE IF "%1" == "-p" ( set MSSQL_PORT=%2& shift
+)ELSE IF "%1" == "-d" ( set MSSQL_DATABASE=%2& set MODE=%BATCH_MODE%& shift
 )ELSE IF "%1" == "-U" ( set MSSQL_ADMIN_NAME=%2& shift
 )ELSE IF "%1" == "--help" ( set HELP="true"
 )ELSE IF "%1" == "-S" ( set MSSQL_ADMIN_PASSWORD=%2& shift
@@ -109,23 +109,23 @@ IF "%MODE%"=="%INTERACTIVE_MODE%" (
            SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL sever admin password:
          )
 
-         IF [%MSSQLDATABASE%]==[] (
-         :set_MSSQLDATABASE
-           SET /P MSSQLDATABASE=Enter Test Explorer database name:
+         IF [%MSSQL_DATABASE%]==[] (
+         :set_MSSQL_DATABASE
+           SET /P MSSQL_DATABASE=Enter Test Explorer database name:
           )
        )
 )
 
 REM check if there is already database with this name and write the result
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQLDATABASE%'" -h-1 | find /i "%MSSQLDATABASE%"
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQL_DATABASE%'" -h-1 | find /i "%MSSQL_DATABASE%"
 if errorlevel 1 (
 
 	 IF "%MODE%" == "%BATCH_MODE%" (
-		echo "A database with the specified name: %MSSQLDATABASE% does not exist. Now will exit"
+		echo "A database with the specified name: %MSSQL_DATABASE% does not exist. Now will exit"
 		exit 1
 	) ELSE (
-		echo  "A database with the specified name: %MSSQLDATABASE% does not exist."
-		GOTO :set_MSSQLDATABASE
+		echo  "A database with the specified name: %MSSQL_DATABASE% does not exist."
+		GOTO :set_MSSQL_DATABASE
 	)
 )
 
@@ -146,7 +146,7 @@ echo ELSE                                                                       
 echo     PRINT 'Upgrading to version: ' + @newVersion;                                                  >> tempCheckVersion.sql
 echo GO                                                                                                 >> tempCheckVersion.sql
 
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /b /V 5 /d "%MSSQLDATABASE%" /i tempCheckVersion.sql
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /b /V 5 /d "%MSSQL_DATABASE%" /i tempCheckVersion.sql
 IF %ERRORLEVEL% NEQ 0 goto stopUpgrade
 
 
@@ -155,21 +155,21 @@ IF %ERRORLEVEL% NEQ 0 goto stopUpgrade
 del /f /q tempCheckVersion.sql
 type nul > tempUpgradeDBScript.sql
 
-echo use [%MSSQLDATABASE%]                                                          >> tempUpgradeDBScript.sql
+echo use [%MSSQL_DATABASE%]                                                          >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo PRINT GETDATE()                                                            >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_NULLS ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_NULLS ON                             >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_PADDING ON                           >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_PADDING ON                           >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ANSI_WARNINGS ON                          >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_WARNINGS ON                          >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET ARITHABORT ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ARITHABORT ON                             >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET CONCAT_NULL_YIELDS_NULL ON                >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET CONCAT_NULL_YIELDS_NULL ON                >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQLDATABASE%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%_draft' WHERE [key] = 'version' >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
@@ -179,7 +179,7 @@ echo GO                                                                         
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%' WHERE [key] = 'version'       >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
 
-sqlcmd -S tcp:%MSSQLHOST%,%MSSQLPORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /b /d master /i tempUpgradeDBScript.sql /o upgrade.log
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /b /d master /i tempUpgradeDBScript.sql /o upgrade.log
 IF %ERRORLEVEL% NEQ 0 goto upgradeFailed
 
 
