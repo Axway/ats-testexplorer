@@ -122,6 +122,25 @@ if [[ -z "$PGUSER" ]]; then
   exit 2
 fi
 
+# password could have been provided externally from env
+# if interactive mode
+#if [ -z "$PGPASSWORD" ];
+#then
+#  # reads silently the value without echo to the terminal
+#  read -sp 'Enter admin DB (postgres) password and press enter (input is hidden): ' PGPASSWORD
+#  export PGPASSWORD
+#  # new line
+#  echo ' '
+#fi
+
+if [ -z "$PGPASSWORD" ];
+then
+    echo "Neither PGPASSWORD env variable nor -S option is set. Aborting upgrade"
+    # TODO: optionally check for ~/.pgpass but complex parsing is needed to check if there is line for desired host:user
+    exit 3
+fi    
+
+
 function check_db_existence() {
   # return the number of DBs with provided name.
   PGDATABASE="$1"

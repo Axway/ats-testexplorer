@@ -1,4 +1,3 @@
---CREATE USER "AtsUser" WITH SUPERUSER CREATEDB LOGIN PASSWORD 'AtsPassword';
 
 DO
 $body$
@@ -25,6 +24,7 @@ CREATE TABLE "tInternal" (
 );
 
 INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.8_draft');
+
 INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '19');
 INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '19');
 INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_19', now());

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 function print_help() {
   echo "The usage is ${0} [OPTION] [VALUE] ...
 The following script installs an ATS Logging DB for storing test execution results. The current version is 4.0.8"
@@ -18,7 +19,7 @@ function check_db_existence() {
   # PGDATABASE is read as first argument
   PGDATABASE="$1"
 
-  # Make sure PGPASSWORD is already set
+  # Make sure PGPASSWORD (of admin) is already set
   DBS_OUTPUT=$(psql -h $PGHOST -p $PGPORT -U $PGUSER -l)
   if [ $? != 0 ]; then
       echo "List of installed databases could not be retrieved. Possible cause is wrong host or port parameter, DB admin user or password"
@@ -133,6 +134,18 @@ if [[ -z "$PGUSER" ]]; then
   exit 2
 fi
 
+# PGPASSWORD could have been provided and externally in env
+#if interactive mode:
+#if [ -z "$PGPASSWORD" ];
+#then
+#  # reads silently the value without echo to the terminal
+#  read -sp 'Enter admin DB (postgres) password and press enter (input is hidden): ' PGPASSWORD
+#  export PGPASSWORD
+#  # new line
+#  echo ' '
+#fi
+
+
 until [ "$DATABASE_EXISTS" == 0 ]; do
 
   if [ $MODE == $INTERACTIVE_MODE ]; then
@@ -162,9 +175,8 @@ cat TestExplorerDb_PostgreSQL.sql
 }>>tmpInstallDbScript.sql
 
 db=$PGDATABASE
-#unset PGDATABASE
+#unset PGDATABASE and switch to system DB
 PGDATABASE=postgres # default system database
-
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -a -f tmpInstallDbScript.sql >install.log 2>&1
 NUM_OF_ERRORS=$(grep -ci --regex='ERROR:\|FATAL:' install.log)
 
