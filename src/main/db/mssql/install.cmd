@@ -194,6 +194,9 @@ echo GO >> tempCreateDBScript.sql
 
 type TestExplorerDB.sql>>tempCreateDBScript.sql
 
+powershell -command "(get-content tempCreateDBScript.sql) -replace 'AtsUser', '%MSSQL_USER_NAME%'  | Set-Content tempCreateDBScript.sql"
+powershell -command "(get-content tempCreateDBScript.sql) -replace 'AtsPassword', '%MSSQL_USER_PASSWORD%'  | Set-Content tempCreateDBScript.sql"
+
 sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master /i tempCreateDBScript.sql /o install.log
 
 set NUM_OF_ERRORS=0

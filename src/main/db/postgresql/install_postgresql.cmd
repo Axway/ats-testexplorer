@@ -147,6 +147,9 @@ IF %ERRORLEVEL% == 0 (
 	set DBNAME=%PGDATABASE%
     set PGDATABASE=
 
+powershell -command "(get-content tmpInstallDbScript.sql) -replace 'AtsUser', '%PSQL_USER_NAME%'  | Set-Content tmpInstallDbScript.sql"
+powershell -command "(get-content tmpInstallDbScript.sql) -replace 'AtsPassword', '%PSQL_USER_PASSWORD%'  | Set-Content tmpInstallDbScript.sql"
+
 	psql -h %PGHOST% -p %PGPORT% -U %PGUSER% -a -f tmpInstallDbScript.sql | FINDSTR 'ERROR:' > install.log
 
 	echo Installing of "%PGDATABASE%" completed. See install.log file for errors
