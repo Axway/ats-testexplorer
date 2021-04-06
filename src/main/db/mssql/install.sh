@@ -185,6 +185,9 @@ echo USE [master] >tempCreateDBScript.sql
   cat TestExplorerDB.sql
 } >>tempCreateDBScript.sql
 
+sed -i "s/AtsUser/$MSSQL_USER_NAME/g" tempCreateDBScript.sql
+sed -i "s/AtsPassword/$MSSQL_USER_PASSWORD/g" tempCreateDBScript.sql
+
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W >install.log 2>&1
 
 NUM_OF_ERRORS=$(grep -ci --regex='^Msg [0-9]*, Level [1-9]*, State' install.log)

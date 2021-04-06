@@ -177,6 +177,10 @@ cat TestExplorerDb_PostgreSQL.sql
 db=$PGDATABASE
 #unset PGDATABASE and switch to system DB
 PGDATABASE=postgres # default system database
+
+sed -i "s/AtsUser/$PSQL_USER_NAME/g" tmpInstallDbScript.sql
+sed -i "s/AtsPassword/$PSQL_USER_PASSWORD/g" tmpInstallDbScript.sql
+
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -a -f tmpInstallDbScript.sql >install.log 2>&1
 NUM_OF_ERRORS=$(grep -ci --regex='ERROR:\|FATAL:' install.log)
 
