@@ -130,7 +130,7 @@ elif [ -n "$(command -v /opt/mssql-tools/bin/sqlcmd)" ]; then
   SQLCMD_LOCATION="$(command -v /opt/mssql-tools/bin/sqlcmd)"
 else
   echo "Location of command sqlcmd could not be found"
-
+  exit 11
 fi
 
 until [ "$DATABASE_EXISTS" == 0 ]; do
