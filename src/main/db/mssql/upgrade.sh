@@ -19,9 +19,11 @@ function print_help {
         -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
         -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
         -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE
-        -u <target_SQL_user_name>, default: Might be specified by env variable: MSSQL_USER_NAME
-        -c <target_SQL_user_password>, default: no. Required for non-interactive (batch mode).Might be specified by env variable: MSSQL_USER_PASSWORD
-        -s <target_SQLCMD_location>, set sqlcmd location.
+        -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
+        -s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
+        -U <target_SQL_admin_name>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_NAME
+        -S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode).  Might be specified by env variable: MSSQL_ADMIN_PASSWORD
+        -q <target_SQLCMD_location>, set sqlcmd location.
         -l <target_LOGFILE_location>, set log file location."
 }
 
@@ -31,7 +33,7 @@ function check_db_existence() {
   MSSQL_DATABASE="$1"
 
   # Make sure PGPASSWORD is already set
-  DBS_OUTPUT=$($SQLCMD_LOCATION -S $MSSQL_HOST,$MSSQL_PORT -U $MSSQL_USER_NAME -P $MSSQL_USER_PASSWORD -Q "EXEC sp_databases")
+  DBS_OUTPUT=$($SQLCMD_LOCATION -S $MSSQL_HOST,$MSSQL_PORT -U $MSSQL_ADMIN_NAME -P $MSSQL_ADMIN_PASSWORD -Q "EXEC sp_databases")
 
   if [ $? != 0 ]; then
       echo "List of installed databases could not be retrieved. Possible cause is wrong host or port parameter, DB admin user or password"
@@ -63,6 +65,13 @@ then
     MODE=$BATCH_MODE
 fi
 
+if [ -n "$MSSQL_ADMIN_NAME" ]; then
+  echo "MSSQL_ADMIN_NAME environment variable is defined with the value: $MSSQL_ADMIN_NAME"
+fi
+
+if [ -n "$MSSQL_ADMIN_PASSWORD" ]; then
+  echo "MSSQL_ADMIN_PASSWORD environment variable is defined and will be with be used"
+fi
 
 if [ -z "$MSSQL_USER_NAME" ];
 then
@@ -80,7 +89,7 @@ else
 fi
 
 
-while getopts ":H:p:d:U:S:d:s:l:h" option; do
+while getopts ":H:p:d:u:s:U:S:q:l:h" option; do
     case $option in
         H)
             MSSQL_HOST=$OPTARG
@@ -89,16 +98,22 @@ while getopts ":H:p:d:U:S:d:s:l:h" option; do
             MSSQL_PORT=$OPTARG
             ;;
         U)
-            MSSQL_USER_NAME=$OPTARG
+            MSSQL_ADMIN_NAME=$OPTARG
             ;;
         S)
+            MSSQL_ADMIN_PASSWORD=$OPTARG
+            ;;
+        u)
+            MSSQL_USER_NAME=$OPTARG
+            ;;
+        s)
             MSSQL_USER_PASSWORD=$OPTARG
             ;;
         d)
             MSSQL_DATABASE=$OPTARG
             MODE=$BATCH_MODE
             ;;
-        s)
+        q)
             SQLCMD_LOCATION=$OPTARG
             ;;
         l)
@@ -171,7 +186,7 @@ touch "$LOG_FILE_LOCATION"
 
 # find the version of the provided DB
 # Options for the filtering the result: -h -1 --> do not show headers, dashes; set nocount on --> does not show "(x rows selected)"; xargs - trim string, remove spaces after the actual value;
-DB_VERSION=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs)
+DB_VERSION=$($SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -d "$MSSQL_DATABASE" -h -1 -Q "set nocount on; SELECT value FROM tInternal WHERE [key]='version'" | xargs)
 if [ "$DB_VERSION" ==  "$NEW_DB_VERSION" ];
 then
     echo "There is no need to upgrade. The current DB version is $NEW_DB_VERSION"
@@ -209,7 +224,7 @@ echo "GO"
 }>> tempUpgradeDBScript.sql
 
 
-$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD"  -i tempUpgradeDBScript.sql -W >upgrade.log 2>&1
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD"  -i tempUpgradeDBScript.sql -W >upgrade.log 2>&1
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
