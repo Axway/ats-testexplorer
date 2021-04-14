@@ -19,14 +19,16 @@
         <java.classlevel.version>1.7</java.classlevel.version> <!-- Output class compliance level -->
         <maven.min.version>3.2.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ats.framework.version>4.0.8-SNAPSHOT</ats.framework.version>
+        <ats.framework.version>${project.version}</ats.framework.version>
 
 
         <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
         <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+        <maven-assemply-plugin.version>3.3.0</maven-assemply-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
+        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 
         <!-- nexus deployment plugin versions -->
         <org.sonatype.plugins.nexus.staging.maven.plugin.version>1.6.7
@@ -93,6 +95,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -321,6 +324,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assemply-plugin.version}</version>
                 <executions>
                     <!-- <execution> -->
                     <!-- <id>create-war</id> -->
@@ -515,7 +519,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-core</artifactId>
-            <version>4.0.8-SNAPSHOT</version>
+            <version>${ats.framework.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.mail</groupId>
@@ -550,7 +554,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-log</artifactId>
-            <version>4.0.8-SNAPSHOT</version>
+            <version>${ats.framework.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.mail</groupId>
