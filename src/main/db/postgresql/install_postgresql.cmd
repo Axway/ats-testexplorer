@@ -90,11 +90,15 @@ IF "%HELP%" == "true" (
 )
 
 :: delete previous tmpInstallDbScript.sql if one exists
+IF EXIST tmpInstallDbScript.sql (
 del /f /q tmpInstallDbScript.sql
+)
 type nul >tmpInstallDbScript.sql
 
 :: delete previous install.log if one exists
-del /f /q install.log
+IF EXIST install.log (
+    del /f /q install.log
+)
 type nul >install.log
 
 rem fill in required parameters that has not been previously stated

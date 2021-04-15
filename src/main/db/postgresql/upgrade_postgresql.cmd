@@ -10,10 +10,14 @@ set OLD_DB_VERSION=4.0.7
 set NEW_DB_VERSION=4.0.8
 
 :: delete previous tmpUpgradeDbScript.sql if one exists
+IF EXIST tmpUpgradeDbScript.sql (
 del /f /q tmpUpgradeDbScript.sql
+)
 type nul > tmpUpgradeDbScript.sql
 :: delete previous upgrade.log if one exists
-del /f /q upgrade.log
+IF EXIST upgrade.log (
+    del /f /q upgrade.log
+)
 type nul > upgrade.log
 
 set BATCH_MODE=0
