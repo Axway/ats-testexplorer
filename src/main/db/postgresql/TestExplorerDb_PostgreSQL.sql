@@ -13,7 +13,19 @@ BEGIN
 END
 $body$;
 
-CREATE SCHEMA IF NOT EXISTS "public" AUTHORIZATION "AtsUser";
+DO
+$body$
+BEGIN
+   IF NOT EXISTS (
+	   SELECT schema_name
+	   FROM information_schema.schemata
+	   WHERE schema_name = 'public') THEN
+
+          CREATE SCHEMA IF NOT EXISTS "public" AUTHORIZATION "AtsUser";
+
+   END IF;
+END
+$body$;
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "public" TO "AtsUser";
 
