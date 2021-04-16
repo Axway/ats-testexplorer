@@ -66,27 +66,28 @@ IF "%1" == "-H" ( set PGHOST=%2& shift
 )ELSE IF "%1" == "-p" ( set PGPORT=%2& shift
 )ELSE IF "%1" == "-d" ( set PGDATABASE=%2& set MODE=%BATCH_MODE%& shift
 )ELSE IF "%1" == "-U" ( set PGUSER=%2& shift
-)ELSE IF "%1" == "--help" ( set HELP="true"
+)ELSE IF "%1" == "--help" ( set HELP=true
 )ELSE IF "%1" == "-S" ( set PGPASSWORD=%2& shift
 )ELSE IF "%1" == "-u" ( set PSQL_USER_NAME=%2& shift
 )ELSE IF "%1" == "-s" ( set PSQL_USER_PASSWORD=%2& shift
-)ELSE ( set HELP="true" & if "%2%" ==! "" & shift )
+)ELSE ( set HELP=true & if "%2%" ==! "" & shift )
 shift
 IF NOT "%1" == "" (
 goto GETOPTS
 )
 
 IF "%HELP%" == "true" (
-    echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]...
-   The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.8"
-     echo "Available options
-  -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST
-    -p <target_SQL_server_port>, default is: 5432, Might be specified by env variable: PGPORT
-    -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE
-    -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME
-    -s <target_SQL_user_password>, Might be specified by env variable: PSQL_USER_PASSWORD
-    -U <target_SQL_admin_name>,default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGUSER
-    -S <target_SQL_admin_password>, default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
+   echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]..."
+   echo "The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.8"
+   echo "Available options"
+   echo " -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST"
+   echo " -p <target_SQL_server_port>, default is: 5432, Might be specified by env variable: PGPORT"
+   echo " -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE"
+   echo " -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME"
+   echo " -s <target_SQL_user_password>, Might be specified by env variable: PSQL_USER_PASSWORD"
+   echo " -U <target_SQL_admin_name>,default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGUSER"
+   echo " -S <target_SQL_admin_password>, default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
+   GOTO :end
 )
 
 :: delete previous tmpInstallDbScript.sql if one exists
@@ -105,11 +106,11 @@ rem fill in required parameters that has not been previously stated
 IF  %MODE% == %INTERACTIVE_MODE% (
 
 IF [%PGUSER%]==[] (
-  SET /P PGUSER=Enter POSTGRE sever admin name:
+  SET /P PGUSER=Enter PostgreSQL server admin name:
   )
 
   IF [%PGPASSWORD%]==[] (
-    SET /P PGPASSWORD=Enter POSTGRE sever admin password:
+    SET /P PGPASSWORD=Enter PostgreSQL server admin password:
   )
 
   IF [%PGDATABASE%]==[] (

@@ -108,7 +108,7 @@ while getopts ":H:p:d:u:s:U:S:h" option; do
     exit 0
     ;;
   \?)
-    echo "Invallid option: -$OPTARG"
+    echo "Invalid option: -$OPTARG"
     print_help
 
     exit 1

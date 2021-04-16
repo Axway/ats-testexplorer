@@ -97,11 +97,11 @@ rem fill in required parameters that has not been previously stated
 IF %MODE%==%INTERACTIVE_MODE% (
 
     IF [%MSSQL_ADMIN_NAME%]==[] (
-        SET /P MSSQL_ADMIN_NAME=Enter MSSQL sever admin name:
+        SET /P MSSQL_ADMIN_NAME=Enter MSSQL server admin name:
     )
 
      IF [%MSSQL_ADMIN_PASSWORD%]==[] (
-       SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL sever admin password:
+       SET /P MSSQL_ADMIN_PASSWORD=Enter MSSQL server admin password:
      )
 
      IF [%MSSQL_DATABASE%]==[] (
