@@ -2583,3 +2583,4 @@ $func$ LANGUAGE plpgsql;
 
 /* Record the version w/o _draft as complete installation */
 UPDATE "tInternal" SET value ='4.0.8' WHERE key = 'version';
+

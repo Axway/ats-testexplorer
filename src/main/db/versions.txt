@@ -36,7 +36,7 @@ ________________________________________________________________________________
         18          |   4.0.7       |  03-12-2019   | DB: Support for logging with Microsoft JDBC driver. New function for update of checkpoint summaries and remove OUT parameters for insert messages procedures (4.0.7-M2)
         19          |   4.0.7       |  27-03-2020   | DB: Change tCheckpoints.checkpointID from INT TO BIGINT;Update/add procedured for "per-hour" data aggregation
         19          |   4.0.7       |  28-04-2020   | DB: Update/add procedures for "per-hour" data aggregation
-        19          |   4.0.8       |  xx-03-2021   | No real change in SQL scripts from 4.0.7.
+        19          |   4.0.8       |  18-04-2021   | No real change in SQL scripts from 4.0.7.
 
 
 
