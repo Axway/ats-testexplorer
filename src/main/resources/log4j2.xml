@@ -7,7 +7,7 @@
            https://raw.githubusercontent.com/apache/logging-log4j2/rel/2.14.0/log4j-core/src/main/resources/Log4j-config.xsd">
     <!-- Configuration attribute to debug configuration: status="debug"-->
     <Appenders>
-        <Appender type="File" name="File" fileName="${sys:catalina.home:-target}/logs/TestExplorer-4.0.8.log">
+        <Appender type="File" name="File" fileName="${sys:catalina.home:-target}/logs/TestExplorer-4.0.9.log">
             <Layout type="PatternLayout">
                 <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
             </Layout>

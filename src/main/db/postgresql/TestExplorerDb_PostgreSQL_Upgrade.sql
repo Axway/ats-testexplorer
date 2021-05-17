@@ -1,5 +1,5 @@
 -- ***********************************************
--- Script for upgrade from version 4.0.7 to 4.0.8.
+-- Script for upgrade from version 4.0.8 to 4.0.9.
 -- ***********************************************
 
 \set ON_ERROR_STOP on

@@ -3,7 +3,7 @@
 
 function print_help() {
   echo "The usage is ${0} [OPTION] [VALUE] ...
-The following script installs an ATS Logging DB for storing test execution results. The current version is 4.0.8"
+The following script installs an ATS Logging DB for storing test execution results. The current version is 4.0.9"
   echo "Available options
   -H <target_SQL_server_host>, default is: localhost; Might be specified by env variable: PGHOST
   -p <target_SQL_server_port>, default is: 5432; Might be specified by env variable: PGPORT

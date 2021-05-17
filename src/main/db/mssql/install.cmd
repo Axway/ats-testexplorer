@@ -75,7 +75,7 @@ IF NOT "%1" == "" (
 
 IF "%HELP%" == "true" (
     echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]... "
-    echo "The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.8"
+    echo "The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.9"
     echo "Available options"
     echo "  --help print this usage text"
     echo "  -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST "
