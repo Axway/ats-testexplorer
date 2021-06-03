@@ -5,7 +5,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.7-SNAPSHOT</version>
+    <version>4.0.7-M4-1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
@@ -18,7 +18,6 @@
         <java.classlevel.version>1.7</java.classlevel.version> <!-- Output class compliance level -->
         <maven.min.version>3.2.5</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ats.framework.version>4.0.7-SNAPSHOT</ats.framework.version>
 
         <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
         <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
@@ -103,17 +102,17 @@
                                 <artifactItem>
                                     <groupId>com.axway.ats.framework</groupId>
                                     <artifactId>ats-common</artifactId>
-                                    <version>${ats.framework.version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.axway.ats.framework</groupId>
                                     <artifactId>ats-core</artifactId>
-                                    <version>${ats.framework.version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.axway.ats.framework</groupId>
                                     <artifactId>ats-log</artifactId>
-                                    <version>${ats.framework.version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>commons-dbcp</groupId>
@@ -456,7 +455,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-core</artifactId>
-            <version>${ats.framework.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.mail</groupId>
@@ -491,7 +490,7 @@
         <dependency>
             <groupId>com.axway.ats.framework</groupId>
             <artifactId>ats-log</artifactId>
-            <version>${ats.framework.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.mail</groupId>
