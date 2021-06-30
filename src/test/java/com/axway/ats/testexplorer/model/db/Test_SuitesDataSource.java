@@ -15,13 +15,13 @@
  */
 package com.axway.ats.testexplorer.model.db;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class Test_SuitesDataSource {
-    private static final Logger LOG = LogManager.getLogger(Test_SuitesDataSource.class);
+    private static final Logger LOG = Logger.getLogger(Test_SuitesDataSource.class);
 
     @Test
     public void test1() {
