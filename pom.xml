@@ -5,7 +5,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.7-M4-1</version>
+    <version>4.0.7-M4-2-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
