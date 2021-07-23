@@ -23,7 +23,7 @@ CREATE TABLE "tInternal" (
     value varchar(256) NOT NULL
 );
 
-INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.7.4.2_draft');
+INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.7.4.3_draft');
 INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '19');
 INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '19');
 INSERT INTO "tInternal" ("key", "value") VALUES ('Install_of_intVer_19', now());
@@ -2581,4 +2581,4 @@ $func$ LANGUAGE plpgsql;
 
 
 /* Record the version w/o _draft as complete installation */
-UPDATE "tInternal" SET value ='4.0.7.4.2' WHERE key = 'version';
+UPDATE "tInternal" SET value ='4.0.7.4.3' WHERE key = 'version';
