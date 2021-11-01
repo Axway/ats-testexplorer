@@ -79,14 +79,14 @@ goto GETOPTS
 IF "%HELP%" == "true" (
    echo "The usage is ./install_postgresql.cmd [OPTION]...[VALUE]..."
    echo "The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.9"
-   echo "Available options"
-   echo " -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: PGHOST"
-   echo " -p <target_SQL_server_port>, default is: 5432, Might be specified by env variable: PGPORT"
-   echo " -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE"
-   echo " -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: PSQL_USER_NAME"
-   echo " -s <target_SQL_user_password>, Might be specified by env variable: PSQL_USER_PASSWORD"
-   echo " -U <target_SQL_admin_name>,default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGUSER"
-   echo " -S <target_SQL_admin_password>, default: no; Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
+   echo "Available options:"
+   echo "  -H <target_SQL_server_host>, default is: localhost. Might be specified by env variable: PGHOST"
+   echo "  -p <target_SQL_server_port>, default is: 5432. Might be specified by env variable: PGPORT"
+   echo "  -d <target_SQL_database_name>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGDATABASE"
+   echo "  -u <target_SQL_user_name>, default is: AtsUser. Might be specified by env variable: PSQL_USER_NAME"
+   echo "  -s <target_SQL_user_password>. Might be specified by env variable: PSQL_USER_PASSWORD"
+   echo "  -U <target_SQL_admin_name>,default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGUSER"
+   echo "  -S <target_SQL_admin_password>, default: no. Required for non-interactive - batch mode. Might be specified by env variable: PGPASSWORD"
    GOTO :end
 )
 
