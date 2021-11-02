@@ -43,7 +43,7 @@
         <apache.commons-pool.version>1.5.5</apache.commons-pool.version>
         <apache.commons-compress.version>1.10</apache.commons-compress.version>
 
-        <apache.wicket.version>7.3.0</apache.wicket.version>
+        <apache.wicket.version>7.17.0</apache.wicket.version>
         <inmethod.grid.version>7.3.0</inmethod.grid.version>
         <javax.servlet.api.version>2.5</javax.servlet.api.version>
         <junit.version>4.13.1</junit.version>
