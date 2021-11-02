@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/Axway/ats-testexplorer.svg?branch=master)](https://travis-ci.org/Axway/ats-testexplorer)
 [![GitHub version](https://badge.fury.io/gh/Axway%2Fats-testexplorer.svg)](https://badge.fury.io/gh/Axway%2Fats-testexplorer)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 # ATS Test Explorer
@@ -7,7 +6,7 @@ Test Explorer is a web application used to review and analyze the results of aut
 **Documentaion** is available at https://axway.github.io/ats-testexplorer/ATS-Test-Explorer-Guide.html  
 **Video tutorials** are published on YouTube [here](https://www.youtube.com/watch?v=yeOrNUucNH0&list=PLLuHfb7NQS5oaENWHfYR5XuY-wNYvZgYj)
 
-**Download** location at https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/  
+**Download** location at https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/; Latest versions are currently just tagged
 **Docker Image** location at https://hub.docker.com/r/axway/ats-testexplorer-psql/  
 **Release notes** are published here https://axway.github.io/ats-testexplorer/Test-Explorer-Release-Notes.html
 
