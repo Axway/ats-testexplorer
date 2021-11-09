@@ -1,29 +1,30 @@
 @echo off
 @setlocal enabledelayedexpansion enableextensions
 
+set CURRENT_DB_VERSION=4.0.10
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
-rem set host to connect to
+
+REM Read environent variables which will be reused in the script
 IF [%MSSQL_HOST%]==[] (
     set MSSQL_HOST=localhost
 ) ELSE (
     echo MSSQL_HOST environment variable is defined with value: %MSSQL_HOST%
 )
 
-rem set port to connect to
 IF [%MSSQL_PORT%]==[] (
     set MSSQL_PORT=1433
 ) ELSE (
     echo MSSQL_PORT environment variable is defined with value: %MSSQL_PORT%
 )
-rem set the name of the database to install
+
 IF [%MSSQL_DATABASE%] NEQ [] (
     echo MSSQL_DATABASE environment variable is defined with value: %MSSQL_DATABASE%
     set MODE=%BATCH_MODE%
 )
 
-rem set the name of the mssql user
+REM Privileged user to create the ATS DB and set permissions for the regular non-privileged
 IF [%MSSQL_ADMIN_NAME%] NEQ [] (
     echo MSSQL_ADMIN_NAME environment variable is defined with value: %MSSQL_ADMIN_NAME%
 )
@@ -31,28 +32,28 @@ IF [%MSSQL_ADMIN_NAME%] NEQ [] (
 IF [%MSSQL_ADMIN_PASSWORD%] NEQ [] (
     echo MSSQL_ADMIN_PASSWORD environment variable is defined with environment variable
 )
-rem set the name of the mssql user to be created
+
+REM Regular (non-privileged) user to be used for ATS DB
 IF [%MSSQL_USER_NAME%]==[] (
     set MSSQL_USER_NAME=AtsUser
 ) ELSE (
     echo MSSQL_USER_NAME environment variable is defined with value: %MSSQL_USER_NAME%
 )
 
-rem set port to connect to
 IF [%MSSQL_USER_PASSWORD%]==[] (
     set MSSQL_USER_PASSWORD=AtsPassword
 ) ELSE (
     echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
 
-:: save the starting folder location
+REM Save the starting folder location
 set START_FOLDER=%cd%
 
-:: navigate to the install file directory
+REM navigate to the install file directory
 cd  /d "%~dp0"
 
 set path=%path%;"C:\Program Files\Microsoft SQL Server\MSSQL\Binn"
-:: check if the script is executed manually
+REM  check if the script is executed manually
 set CONSOLE_MODE_USED=true
 echo %cmdcmdline% | find /i "%~0" >nul
 if not errorlevel 1 set CONSOLE_MODE_USED=false
@@ -63,28 +64,33 @@ IF "%1" == "-H" ( set MSSQL_HOST=%2& shift
 )ELSE IF "%1" == "-p" ( set MSSQL_PORT=%2& shift
 )ELSE IF "%1" == "-d" ( set MSSQL_DATABASE=%2& set MODE=%BATCH_MODE%& shift
 )ELSE IF "%1" == "-U" ( set MSSQL_ADMIN_NAME=%2& shift
-)ELSE IF "%1" == "--help" ( set HELP="true"
+)ELSE IF "%1" == "--help" ( set HELP=true
 )ELSE IF "%1" == "-S" ( set MSSQL_ADMIN_PASSWORD=%2& shift
 )ELSE IF "%1" == "-u" ( set MSSQL_USER_NAME=%2& shift
 )ELSE IF "%1" == "-s" ( set MSSQL_USER_PASSWORD=%2& shift
-)ELSE ( set HELP="true" & if "%2%" ==! "" & shift )
+)ELSE ( IF NOT "%1" == ""  ( echo Unknown option: %1
+   echo.
+   set HELP=true
+   )
+)
 shift
 IF NOT "%1" == "" (
     goto GETOPTS
 )
 
+REM Quotes are print to console so escapes are nneded for special chars like ^ and " which makes text unreadable
 IF "%HELP%" == "true" (
-    echo "The usage is ./install.cmd [OPTION]...[VALUE]... "
-    echo "The following script installs an ATS Logging DB to store test execution results. The current version is 4.0.10"
-    echo "Available options"
-    echo "  --help print this usage text"
-    echo "  -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST "
-    echo "  -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT "
-    echo "  -d <target_SQL_database_name>, default: no;  Required for non-interactive batch mode. Might be specified by env variable: MSSQL_DBNAME "
-    echo "  -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME "
-    echo "  -s <target_SQL_user_password>, Might be specified by env variable: MSSQL_USER_PASSWORD "
-    echo "  -U <target_SQL_admin_name>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_NAME "
-    echo "  -S <target_SQL_admin_password>, default: no; Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
+    echo The usage is ./install.cmd ^[OPTION^]...^[VALUE^]...
+    echo The following script installs an ATS Logging DB to store test execution results. The current version is %CURRENT_DB_VERSION%
+    echo Available options:
+    echo   --help print this usage text
+    echo   -H ^<target_SQL_server_host^>, default is: localhost. Might be specified by env variable: MSSQL_HOST 
+    echo   -p ^<target_SQL_server_port^>, default is: 1433. Might be specified by env variable: MSSQL_PORT 
+    echo   -d ^<target_SQL_database_name^>, default: no. Required for non-interactive batch mode. Might be specified by env variable: MSSQL_DBNAME 
+    echo   -u ^<target_SQL_user_name^>, default is: AtsUser. Might be specified by env variable: MSSQL_USER_NAME 
+    echo   -s ^<target_SQL_user_password^>. Might be specified by env variable: MSSQL_USER_PASSWORD
+    echo   -U ^<target_SQL_admin_name^>, default: current OS user. Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_NAME 
+    echo   -S ^<target_SQL_admin_password^>, default: no. Required for non-interactive batch mode. Might be specified by env variable: MSSQL_ADMIN_PASSWORD
     GOTO :end
 )
 
@@ -111,20 +117,34 @@ IF %MODE%==%INTERACTIVE_MODE% (
 )
 
 REM check if there is already database with this name and write the result
-sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQL_DATABASE%'" -h-1 | find /i "%MSSQL_DATABASE%"
-if not errorlevel 1 (
+REM optional query: where name='%MSSQL_DATABASE%'
+sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases" -h-1 > db_list.txt
+IF %ERRORLEVEL% NEQ 0 (
+    echo There was problem checking for database existence with user %MSSQL_ADMIN_NAME%. Check connectivity and credentials
+    del /f /q db_list.txt
+    IF "%MODE%" == "%BATCH_MODE%" (
+        exit /B 2
+    ) ELSE (
+        GOTO :end
+    )
+)
 
+REM search for exact match in line in order to prevent substring matches; output is aligned with trailing spaces
+REM Example:"MY_DBNAME        "
+findstr /i /r /c:"^%MSSQL_DATABASE% *$" db_list.txt
+IF %ERRORLEVEL% EQU 0  (
      IF "%MODE%" == "%BATCH_MODE%" (
-        echo Such database already exists. Now will exit
-        exit 1
+        echo Such database already exists. Rerun the script with different name or drop the database. Installation is aborted.
+        exit /B 1
     ) ELSE (
         echo Such database already exists. Please choose another name
         GOTO :set_MSSQL_DATABASE
     )
 )
+del /f /q db_list.txt
 
 
-:: ##################   INSTALL SQL SCRIPT #####################
+REM ##################   INSTALL SQL SCRIPT #####################
 
 echo USE [master] > tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
@@ -201,29 +221,36 @@ sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PA
 
 set NUM_OF_ERRORS=0
 for /f "tokens=*" %%a in ('findstr /R /C:"^Msg [0-9]*, Level [1-9]*, State" install.log') DO (
-  set /a NUM_OF_ERRORS+= 1
+    set /a NUM_OF_ERRORS+= 1
 )
 
-sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_USER_NAME% -P %MSSQL_USER_PASSWORD% -d %MSSQL_DATABASE% -Q "SELECT * FROM tInternal"
 
 IF %NUM_OF_ERRORS% == 0  (
-    echo "Installing of %MSSQL_DATABASE% completed successfully. Logs are located in install.log file"
+    echo "Installation of database %MSSQL_DATABASE% completed successfully. Logs are located in install.log file"
+	sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_USER_NAME% -P %MSSQL_USER_PASSWORD% -d %MSSQL_DATABASE% -Q "SELECT * FROM tInternal"
+	set USER_ACCESS_CODE=0
+	IF %ERRORLEVEL% NEQ 0 (
+	    set USER_ACCESS_CODE=%ERRORLEVEL%
+	    echo "Error connecting with the regular (non-privileged) ATS DB user %MSSQL_USER_NAME%. Check access and credentials if user was already created."
+	)
     IF  "%MODE%" == "%BATCH_MODE%" (
-        exit 0
+        exit /b %USER_ACCESS_CODE%
     )
+	
 ) ELSE (
     echo "Errors during install: %NUM_OF_ERRORS%"
-    echo "Installing of %MSSQL_DATABASE% was not successful. Logs are located in install.log file"
+    echo "Installation of database %MSSQL_DATABASE% was not successful. Logs are located in install.log file"
     IF "%MODE%" == "%BATCH_MODE%" (
-        exit 4
+        exit /b 4
     )
 )
 
-rem return to the start folder
+
+REM return to the start folder
 :end
 IF "%CONSOLE_MODE_USED%" == "true" (
     cd /d %START_FOLDER%
 ) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%" (
     pause
-    exit
+    REM exit /b 0
 )
