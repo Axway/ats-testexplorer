@@ -7,7 +7,7 @@ BEGIN
       FROM   pg_catalog.pg_user
       WHERE  usename = 'AtsUser') THEN
 
-      -- Remove SUPERUSER role if DB backup/restore is not needed
+      -- Remove SUPERUSER role if ATS DB backup/restore is not needed
       CREATE USER "AtsUser" WITH SUPERUSER CREATEDB LOGIN PASSWORD 'AtsPassword';
    END IF;
 END
@@ -35,7 +35,7 @@ CREATE TABLE "tInternal" (
     value varchar(256) NOT NULL
 );
 
-INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.9_draft');
+INSERT INTO "tInternal" ("key","value") VALUES ('version', '4.0.10_draft');
 
 INSERT INTO "tInternal" ("key","value") VALUES ('initialVersion', '19');
 INSERT INTO "tInternal" ("key","value") VALUES ('internalVersion', '19');
@@ -2594,5 +2594,5 @@ $func$ LANGUAGE plpgsql;
 
 
 /* Record the version w/o _draft as complete installation */
-UPDATE "tInternal" SET value ='4.0.9' WHERE key = 'version';
+UPDATE "tInternal" SET value ='4.0.10' WHERE key = 'version';
 

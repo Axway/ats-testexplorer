@@ -91,7 +91,7 @@ public class RunsPanel extends Panel {
         for (final TableColumn cd : columnDefinitions) {
 
             AbstractColumn col;
-            if (cd.isEditable()) {
+            if (cd != null && cd.isEditable()) {
 
                 col = new EditablePropertyColumn(cd.getColumnId(), new Model<String>(cd.getColumnName()),
                                                  cd.getPropertyExpression(), cd.getSortProperty()) {
