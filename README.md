@@ -6,7 +6,7 @@ Test Explorer is a web application used to review and analyze the results of aut
 **Documentaion** is available at https://axway.github.io/ats-testexplorer/ATS-Test-Explorer-Guide.html  
 **Video tutorials** are published on YouTube [here](https://www.youtube.com/watch?v=yeOrNUucNH0&list=PLLuHfb7NQS5oaENWHfYR5XuY-wNYvZgYj)
 
-**Download** location at https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/ . Note that last releases are not published in public Maven repository so you have to build yourself dependencies first (ATS Framework) and then this project.
+**Download** location at https://oss.sonatype.org/content/groups/public/com/axway/ats/testexplorer/ats-testexplorer/. Note that last releases are not published in public Maven repository so you have to build yourself dependencies first (ATS Framework) and then this project. 
 **Docker Image** location at https://hub.docker.com/r/axway/ats-testexplorer-psql/  
 **Release notes** are published here https://axway.github.io/ats-testexplorer/Test-Explorer-Release-Notes.html 
 
