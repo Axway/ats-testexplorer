@@ -6,7 +6,7 @@ set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
 
-REM Read environent variables which will be reused in the script
+REM Read environment variables which will be reused in the script
 IF [%MSSQL_HOST%]==[] (
     set MSSQL_HOST=localhost
 ) ELSE (
@@ -68,9 +68,10 @@ IF "%1" == "-H" ( set MSSQL_HOST=%2& shift
 )ELSE IF "%1" == "-S" ( set MSSQL_ADMIN_PASSWORD=%2& shift
 )ELSE IF "%1" == "-u" ( set MSSQL_USER_NAME=%2& shift
 )ELSE IF "%1" == "-s" ( set MSSQL_USER_PASSWORD=%2& shift
-)ELSE ( IF NOT "%1" == ""  ( echo Unknown option: %1
-   echo.
-   set HELP=true
+)ELSE (
+   IF NOT "%1" == ""  ( echo Unknown option: %1
+       echo.
+       set HELP=true
    )
 )
 shift

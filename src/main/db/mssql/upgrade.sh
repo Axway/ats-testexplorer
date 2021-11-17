@@ -16,13 +16,13 @@ function print_help {
         If you have older version you should migrate incrementally,
         i.e. from version 4.0.5 first upgrade to 4.0.6 and then to 4.0.7"
     echo "Available options
-        -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
-        -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
-        -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE
-        -u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
-        -s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
+        -H <target_SQL_server_host>, default is: localhost. Might be specified by env variable: MSSQL_HOST.
+        -p <target_SQL_server_port>, default is: 1433. Might be specified by env variable: MSSQL_PORT.
+        -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE.
+        -u <target_SQL_user_name>, default is: AtsUser. Might be specified by env variable: MSSQL_USER_NAME.
+        -s <target_SQL_user_password>, default is: AtsPassword. Might be specified by env variable: MSSQL_USER_PASSWORD.
         -U <target_SQL_admin_name>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_NAME
-        -S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode).  Might be specified by env variable: MSSQL_ADMIN_PASSWORD
+        -S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_PASSWORD
         -q <target_SQLCMD_location>, set sqlcmd location.
         -l <target_LOGFILE_location>, set log file location."
 }
