@@ -4,7 +4,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.11-log4j1-SNAPSHOT</version>
+    <version>4.0.10</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
