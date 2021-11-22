@@ -38,7 +38,7 @@ ________________________________________________________________________________
         19          |   4.0.7       |  28-04-2020   | DB: Update/add procedures for "per-hour" data aggregation
         19          |   4.0.8       |  18-04-2021   | No real change in SQL scripts from 4.0.7.
         19          |   4.0.9       |  17-05-2021   | No real change in SQL scripts from 4.0.8.
-
+        19          |   4.0.10      |  17-11-2021   | No real change in SQL scripts from 4.0.9.
 
 
 

@@ -6,7 +6,7 @@ rem set PGUSER=postgres - 'postgres' admin DB user is used to create the new DB 
 
 setlocal
 
-set CURRENT_DB_VERSION=4.0.10
+set CURRENT_DB_VERSION=4.0.11
 rem set host to connect to
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
@@ -90,7 +90,7 @@ IF NOT "%1" == "" (
 REM Echo: Strings in quotes prints and the quotes to console so escapes are needed for special chars like ^ and " (which makes text not so readable)
 IF "%HELP%" == "true" (
     echo The usage is ./install_postgresql.cmd ^[OPTION^]...^[VALUE^]...
-    echo The following script installs an ATS Logging DB to store test execution results. The current version is %CURRENT_DB_VERSION%
+    echo The following script installs an ATS Logging DB to store test execution results. The current script version is %CURRENT_DB_VERSION%
     echo Available options:
     echo     -H ^<target_SQL_server_host^>, default is: localhost. Might be specified by env variable: PGHOST
     echo     -p ^<target_SQL_server_port^>, default is: 5432. Might be specified by env variable: PGPORT

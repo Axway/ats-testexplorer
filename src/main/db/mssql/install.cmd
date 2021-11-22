@@ -1,7 +1,7 @@
 @echo off
 @setlocal enabledelayedexpansion enableextensions
 
-set CURRENT_DB_VERSION=4.0.10
+set CURRENT_DB_VERSION=4.0.11
 set BATCH_MODE=0
 set INTERACTIVE_MODE=1
 set MODE=%INTERACTIVE_MODE%
@@ -82,7 +82,7 @@ IF NOT "%1" == "" (
 REM Quotes are print to console so escapes are nneded for special chars like ^ and " which makes text unreadable
 IF "%HELP%" == "true" (
     echo The usage is ./install.cmd ^[OPTION^]...^[VALUE^]...
-    echo The following script installs an ATS Logging DB to store test execution results. The current version is %CURRENT_DB_VERSION%
+    echo The following script installs an ATS Logging DB to store test execution results. The DB script is for version %CURRENT_DB_VERSION%
     echo Available options:
     echo   --help print this usage text
     echo   -H ^<target_SQL_server_host^>, default is: localhost. Might be specified by env variable: MSSQL_HOST 

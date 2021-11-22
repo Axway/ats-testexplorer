@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-CURRENT_DB_VERSION=4.0.10
+CURRENT_DB_VERSION=4.0.11
 
 function print_help() {
   echo "The usage is ${0} [OPTION] [VALUE] ...
-The following script installs an ATS Logging DB for storing test execution results. The current version is $CURRENT_DB_VERSION"
+The following script installs an ATS Logging DB for storing test execution results. The current DB script version is $CURRENT_DB_VERSION"
   echo "Available options
   -H <target_SQL_server_host>, default is: localhost; Might be specified by env variable: PGHOST
   -p <target_SQL_server_port>, default is: 5432; Might be specified by env variable: PGPORT

@@ -8,7 +8,7 @@ echo "Linux/Docker cases do not work with default OS user"
 
 function print_help() {
   echo "The usage is ${0} [OPTION]...[VALUE]...
-The following script installs an ATS Logging DB to store test execution results. The version is 4.0.10"
+The following script installs an ATS Logging DB to store test execution results. The script is for version 4.0.11"
   echo "Available options
 -H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
 -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT

@@ -6,8 +6,8 @@ set START_FOLDER=%cd%
 cd  /d "%~dp0"
 
 :: Note the trailing space at the beginning
-set OLD_DB_VERSION=4.0.9
-set NEW_DB_VERSION=4.0.10
+set OLD_DB_VERSION=4.0.10
+set NEW_DB_VERSION=4.0.11
 
 :: delete previous tmpUpgradeDbScript.sql if one exists
 IF EXIST tmpUpgradeDbScript.sql (
