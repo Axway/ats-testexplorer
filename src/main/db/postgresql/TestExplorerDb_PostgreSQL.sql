@@ -27,8 +27,6 @@ BEGIN
 END
 $body$;
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "public" TO "AtsUser";
-
 CREATE TABLE "tInternal" (
     id    serial       PRIMARY KEY,
     key   varchar(50)  NOT NULL,
@@ -2592,6 +2590,8 @@ BEGIN
 END
 $func$ LANGUAGE plpgsql;
 
+-- Grant after tables are created
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA "public" TO "AtsUser";
 
-/* Record the version w/o _draft as complete installation */
+-- Record the version w/o _draft as complete installation
 UPDATE "tInternal" SET value ='4.0.11' WHERE key = 'version';
