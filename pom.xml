@@ -4,12 +4,12 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.10-SNAPSHOT</version>
+    <version>4.0.10-log4j2-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
         ATS Web application for exploring ongoing and passed test executions of projects using ATS DB logging (ATS
-        Framework)
+        Framework). This is log4j 2 version branch. Temporarily suspended in favor of master-wo-log4j2 branch
     </description>
     <url>https://github.com/Axway/ats-testexplorer</url>
     <properties>
@@ -54,7 +54,7 @@
         <!-- jTDS: LGPL MsSQL JDBC driver -->
         <net.sourceforge.jtds.version>1.3.1</net.sourceforge.jtds.version>
         <joda-time.version>2.3</joda-time.version>
-        <log4j.version>2.14.0</log4j.version>
+        <log4j.version>2.15.0</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <build.number>SNAPSHOT</build.number>
     </properties>
