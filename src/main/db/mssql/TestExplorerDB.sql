@@ -1661,9 +1661,18 @@ BEGIN
 
       DELETE FROM tRuns WHERE runId = @idToken;
 
-    -- Delete any possible orphan messages in tUniqueMessages. This is used as some kind of cleanup
-    -- DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN ( SELECT tMessages.uniqueMessageId FROM tMessages );
-
+      /*
+         Delete any possible orphan (not already referenced) messages in tUniqueMessages. This is used as some kind of cleanup
+         Could be uncommented in case there are added indexes in the 3 referenced tables. Add and indexes after
+           "tUniqueMessages-related indexes" .
+         This is useful for big and long-running DBs which grow too much over time. However it is recommended to
+           have separate small DBs instead of single big one.
+         DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN
+                (      SELECT uniqueMessageId FROM tMessages
+                  UNION SELECT uniqueMessageId FROM tRunMessages
+                  UNION SELECT uniqueMessageId FROM tSuiteMessages
+                );
+      */
     END
 
 END
@@ -3507,7 +3516,8 @@ BEGIN
 
   -- When deleting tRunMessages, tSuiteMessages and tMessages we cannot not use AUTO DELETE for tUniqueMessages,
   -- because it is possible to have same message(identified by its uniqueMessageId) in more than one place in 
-  -- one or more of these parent tables
+  -- one or more of these parent tables;
+  -- Check comment after "tUniqueMessages-related indexes" to add indexes for faster delete on large DBs
   SET @start_time = (SELECT SYSDATETIME());
   PRINT 'START DELETING UNIQUE MESSAGES: ' + cast(@start_time as varchar(20));
   DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN 
@@ -3529,6 +3539,9 @@ BEGIN
 
 END
 GO
+
+
+/*** Add constraints section ***/
 
 /****** Object:  Default [DF_tSystemStats_machineId]    Script Date: 04/11/2011 20:46:21 ******/
 ALTER TABLE [dbo].[tSystemStats] ADD  CONSTRAINT [DF_tSystemStats_machineId]  DEFAULT ((0)) FOR [machineId]
@@ -3583,6 +3596,29 @@ REFERENCES [dbo].[tUniqueMessages] ([uniqueMessageId])
 GO
 ALTER TABLE [dbo].[tMessages] CHECK CONSTRAINT [FK_tMessages_tUniqueMessages1]
 GO
+/*** tUniqueMessages-related indexes. Add indexes for tables referring tUniqueMessages. This aids faster delete for big DBs. Uncomment and execute if needed  ***/
+/*
+CREATE NONCLUSTERED INDEX [IX_tRunMessages_uniqueMessageId] ON [dbo].[tRunMessages]
+(
+	[uniqueMessageId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_tSuiteMessages_uniqueMessageId] ON [dbo].[tSuiteMessages]
+(
+	[uniqueMessageId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_tMessages_uniqueMessageId] ON [dbo].[tMessages]
+(
+	[uniqueMessageId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+*/
+
 /****** Object:  ForeignKey [FK_tSuites_tRuns]    Script Date: 04/11/2011 20:46:21 ******/
 ALTER TABLE [dbo].[tSuites]  WITH CHECK ADD  CONSTRAINT [FK_tSuites_tRuns] FOREIGN KEY([runId])
 REFERENCES [dbo].[tRuns] ([runId])

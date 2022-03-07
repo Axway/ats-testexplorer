@@ -39,7 +39,7 @@ function check_db_existence() {
 if [ -z "$MSSQL_HOST" ]; then
   MSSQL_HOST=localhost
 else
-  echo "MSSQL_HOST enviroment variable is defined with the value: $MSSQL_HOST"
+  echo "MSSQL_HOST environment variable is defined with the value: $MSSQL_HOST"
 fi
 
 if [ -z "$MSSQL_PORT" ]; then

@@ -746,8 +746,17 @@ BEGIN
 
         DELETE FROM "tRuns" WHERE runId = CAST(idToken AS INTEGER);
 
-        -- Delete any possible orphan messages in tUniqueMessages. This is used as some kind of cleanup
-        -- DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN ( SELECT tMessages.uniqueMessageId FROM tMessages );
+        /*
+         Delete any possible orphan (not already referenced) messages in tUniqueMessages. This is used as some kind of cleanup.
+           Could be uncommented in case there are added indexes in the 3 referenced tables. This is useful for big and
+           long-running DBs which grow too much over time. However it is recommended to have separate small DBs instead
+           of single big one.
+         DELETE FROM tUniqueMessages WHERE tUniqueMessages.uniqueMessageId NOT IN
+                (      SELECT uniqueMessageId FROM tMessages
+                  UNION SELECT uniqueMessageId FROM tRunMessages
+                  UNION SELECT uniqueMessageId FROM tSuiteMessages
+                );
+        */
 	END LOOP;
 END;
 $$ LANGUAGE plpgsql;
