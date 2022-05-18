@@ -84,7 +84,7 @@ public class TestExplorerSession extends WebSession {
 
         configure();
 
-        LOG.debug("Created TESession sesssion");
+        LOG.debug("Created TESession session");
     }
 
     private void configure() {

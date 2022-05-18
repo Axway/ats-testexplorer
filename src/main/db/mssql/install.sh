@@ -10,13 +10,13 @@ function print_help() {
   echo "The usage is ${0} [OPTION]...[VALUE]...
 The following script installs an ATS Logging DB to store test execution results. The script is for version 4.0.11"
   echo "Available options
--H <target_SQL_server_host>, default is: localhost,Might be specified by env variable: MSSQL_HOST
+-H <target_SQL_server_host>, default is: localhost, Might be specified by env variable: MSSQL_HOST
 -p <target_SQL_server_port>, default is: 1433, Might be specified by env variable: MSSQL_PORT
 -d <target_SQL_database_name>, default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_DATABASE
--u <target_SQL_user_name>, default is: AtsUser,Might be specified by env variable: MSSQL_USER_NAME
--s <target_SQL_user_password>, default is: AtsPassword,Might be specified by env variable: MSSQL_USER_PASSWORD
+-u <target_SQL_user_name>, default is: AtsUser, Might be specified by env variable: MSSQL_USER_NAME
+-s <target_SQL_user_password>, default is: AtsPassword1, Might be specified by env variable: MSSQL_USER_PASSWORD
 -U <target_SQL_admin_name>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_NAME
--S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode).  Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
+-S <target_SQL_admin_password>,default: no. Required for non-interactive (batch mode). Might be specified by env variable: MSSQL_ADMIN_PASSWORD"
 }
 
 function check_db_existence() {
@@ -68,9 +68,11 @@ else
 fi
 
 if [ -z "$MSSQL_USER_PASSWORD" ]; then
-  MSSQL_USER_PASSWORD=AtsPassword
+  # Should meet default complexity policy: at least 8 characters long and contain characters from three of the following
+  #    four sets: Uppercase letters, Lowercase letters, Base 10 digits, and Symbols.
+  MSSQL_USER_PASSWORD=AtsPassword1
 else
-  echo "MSSQL_USER_PASSWORD environment variable is defined and will be with be used"
+  echo "MSSQL_USER_PASSWORD environment variable is defined and will be with be used. Note that it should meet the DB server policy for complexity"
 fi
 
 while getopts ":H:p:d:u:s:U:S:h" option; do
@@ -161,20 +163,17 @@ echo USE [master] >tempCreateDBScript.sql
   echo GO
 
   echo CREATE DATABASE "$MSSQL_DATABASE"
-
   echo GO
 
   echo "EXEC dbo.sp_dbcmptlevel @dbname='$MSSQL_DATABASE', @new_cmptlevel=100"
-
   echo GO
 
   echo USE ["$MSSQL_DATABASE"]
-
   echo GO
 
   echo "IF NOT EXISTS ( SELECT name FROM master.sys.server_principals WHERE name = 'AtsUser' )"
   echo "  BEGIN"
-  echo "     EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'$MSSQL_DBNAME', @deflanguage = N'us_english'"
+  echo "     EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword1', @defdb = N'$MSSQL_DBNAME', @deflanguage = N'us_english'"
   echo "  END"
   echo GO
   echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"
@@ -186,22 +185,22 @@ echo USE [master] >tempCreateDBScript.sql
 } >>tempCreateDBScript.sql
 
 sed -i "s/AtsUser/$MSSQL_USER_NAME/g" tempCreateDBScript.sql
-sed -i "s/AtsPassword/$MSSQL_USER_PASSWORD/g" tempCreateDBScript.sql
+sed -i "s/AtsPassword1/$MSSQL_USER_PASSWORD/g" tempCreateDBScript.sql
 
-$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W >install.log 2>&1
+$SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$MSSQL_ADMIN_PASSWORD" -i tempCreateDBScript.sql -W -e >install.log 2>&1
 
 NUM_OF_ERRORS=$(grep -ci --regex='^Msg [0-9]*, Level [1-9]*, State' install.log)
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
 if [ "$NUM_OF_ERRORS" == 0 ]; then
-  echo "Installing of \"$MSSQL_DATABASE\" completed successfully. Logs are located in install.log file"
+  echo "Installation of \"$MSSQL_DATABASE\" DB completed successfully. Logs are located in install.log file"
   if [ $MODE == $BATCH_MODE ]; then
     exit 0
   fi
 else
   echo "Errors during install: $NUM_OF_ERRORS"
-  echo "Installing of \"$MSSQL_DATABASE\" was not successful. Logs are located in install.log file"
+  echo "Installation of \"$MSSQL_DATABASE\" DB was NOT successful. Logs are located in install.log file"
   if [ $MODE == $BATCH_MODE ]; then
     exit 4
   fi

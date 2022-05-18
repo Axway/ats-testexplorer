@@ -59,7 +59,7 @@ IF [%PSQL_USER_NAME%]==[] (
 
 rem set port to connect to
 IF [%PSQL_USER_PASSWORD%]==[] (
-    set PSQL_USER_PASSWORD="AtsPassword"
+    set PSQL_USER_PASSWORD="AtsPassword1"
 ) ELSE (
     echo "PSQL_USER_PASSWORD environment variable is defined and will be used"
 )

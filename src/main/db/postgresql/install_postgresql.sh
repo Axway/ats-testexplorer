@@ -83,7 +83,7 @@ else
 fi
 
 if [ -z "$PSQL_USER_PASSWORD" ]; then
-  PSQL_USER_PASSWORD=AtsPassword
+  PSQL_USER_PASSWORD=AtsPassword1
 else
   echo "PSQL_USER_PASSWORD environment variable is defined and will be used"
 fi
@@ -180,7 +180,7 @@ db=$PGDATABASE
 PGDATABASE=postgres # default system database
 
 sed -i "s/AtsUser/$PSQL_USER_NAME/g" tmpInstallDbScript.sql
-sed -i "s/AtsPassword/$PSQL_USER_PASSWORD/g" tmpInstallDbScript.sql
+sed -i "s/AtsPassword1/$PSQL_USER_PASSWORD/g" tmpInstallDbScript.sql
 
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -a -f tmpInstallDbScript.sql >install.log 2>&1
 NUM_OF_ERRORS=$(grep -ci --regex='ERROR:\|FATAL:' install.log)

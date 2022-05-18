@@ -48,7 +48,7 @@ IF [%PSQL_USER_NAME%]==[] (
 )
 
 IF [%PSQL_USER_PASSWORD%]==[] (
-    set PSQL_USER_PASSWORD=AtsPassword
+    set PSQL_USER_PASSWORD=AtsPassword1
 ) ELSE (
     echo PSQL_USER_PASSWORD environment variable is defined and will be used
 )
@@ -167,7 +167,7 @@ IF %ERRORLEVEL% == 0 (
     set PGDATABASE=
 
     powershell -command "(get-content tmpInstallDbScript.sql) -replace 'AtsUser', '%PSQL_USER_NAME%'  | Set-Content tmpInstallDbScript.sql"
-    powershell -command "(get-content tmpInstallDbScript.sql) -replace 'AtsPassword', '%PSQL_USER_PASSWORD%'  | Set-Content tmpInstallDbScript.sql"
+    powershell -command "(get-content tmpInstallDbScript.sql) -replace 'AtsPassword1', '%PSQL_USER_PASSWORD%'  | Set-Content tmpInstallDbScript.sql"
 
     psql -h %PGHOST% -p %PGPORT% -U %PGUSER% -a -f tmpInstallDbScript.sql | FINDSTR 'ERROR:' > install.log
 

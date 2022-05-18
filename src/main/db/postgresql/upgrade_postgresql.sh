@@ -69,7 +69,7 @@ else
 fi
 
 if [ -z "$PSQL_USER_PASSWORD" ]; then
-  PSQL_USER_PASSWORD="AtsPassword"
+  PSQL_USER_PASSWORD="AtsPassword1"
 else
   echo "PSQL_USER_PASSWORD environment variable is defined and will be used"
 fi

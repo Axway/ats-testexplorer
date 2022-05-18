@@ -83,7 +83,7 @@ fi
 
 if [ -z "$MSSQL_USER_PASSWORD" ];
 then
-    MSSQL_USER_PASSWORD=AtsPassword
+    MSSQL_USER_PASSWORD=AtsPassword1
 else
     echo "MSSQL_USER_PASSWORD environment variable is defined and will be used"
 fi

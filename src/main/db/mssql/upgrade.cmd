@@ -57,7 +57,7 @@ IF [%MSSQL_USER_NAME%]==[] (
 
 rem set port to connect to
 IF [%MSSQL_USER_PASSWORD%]==[] (
-    set MSSQL_USER_PASSWORD=AtsPassword
+    set MSSQL_USER_PASSWORD=AtsPassword1
 ) ELSE (
     echo "MSSQL_USER_PASSWORD environment variable is defined and will be used"
 )

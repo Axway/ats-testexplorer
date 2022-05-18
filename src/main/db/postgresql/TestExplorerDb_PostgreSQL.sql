@@ -8,7 +8,7 @@ BEGIN
       WHERE  usename = 'AtsUser') THEN
 
       -- Remove SUPERUSER role if ATS DB backup/restore is not needed
-      CREATE USER "AtsUser" WITH SUPERUSER CREATEDB LOGIN PASSWORD 'AtsPassword';
+      CREATE USER "AtsUser" WITH SUPERUSER CREATEDB LOGIN PASSWORD 'AtsPassword1';
    END IF;
 END
 $body$;
@@ -17,12 +17,10 @@ DO
 $body$
 BEGIN
    IF NOT EXISTS (
-	   SELECT schema_name
-	   FROM information_schema.schemata
-	   WHERE schema_name = 'public') THEN
-
+       SELECT schema_name
+       FROM information_schema.schemata
+       WHERE schema_name = 'public') THEN
           CREATE SCHEMA IF NOT EXISTS "public" AUTHORIZATION "AtsUser";
-
    END IF;
 END
 $body$;

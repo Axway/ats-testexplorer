@@ -41,7 +41,7 @@ IF [%MSSQL_USER_NAME%]==[] (
 )
 
 IF [%MSSQL_USER_PASSWORD%]==[] (
-    set MSSQL_USER_PASSWORD=AtsPassword
+    set MSSQL_USER_PASSWORD=AtsPassword1
 ) ELSE (
     echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
@@ -100,7 +100,7 @@ IF EXIST tempCreateDBScript.sql (
     del /f /q tempCreateDBScript.sql
 )
 
-rem fill in required parameters that has not been previously stated
+rem Fill in required parameters that have not been previously stated
 IF %MODE%==%INTERACTIVE_MODE% (
 
     IF [%MSSQL_ADMIN_NAME%]==[] (
@@ -201,7 +201,7 @@ echo USE [%MSSQL_DATABASE%] >> tempCreateDBScript.sql
 echo GO >> tempCreateDBScript.sql
 echo IF NOT EXISTS ( SELECT name FROM master.sys.server_principals WHERE name = 'AtsUser' ) >> tempCreateDBScript.sql
 echo    BEGIN >> tempCreateDBScript.sql
-echo         EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword', @defdb = N'%MSSQL_DATABASE%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
+echo         EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword1', @defdb = N'%MSSQL_DATABASE%', @deflanguage = N'us_english' >> tempCreateDBScript.sql
 echo    END >> tempCreateDBScript.sql
 
 echo         EXEC dbo.sp_grantdbaccess @loginame = N'AtsUser', @name_in_db = N'AtsUser' >> tempCreateDBScript.sql
@@ -216,7 +216,7 @@ echo GO >> tempCreateDBScript.sql
 type TestExplorerDB.sql>>tempCreateDBScript.sql
 
 powershell -command "(get-content tempCreateDBScript.sql) -replace 'AtsUser', '%MSSQL_USER_NAME%'  | Set-Content tempCreateDBScript.sql"
-powershell -command "(get-content tempCreateDBScript.sql) -replace 'AtsPassword', '%MSSQL_USER_PASSWORD%'  | Set-Content tempCreateDBScript.sql"
+powershell -command "(get-content tempCreateDBScript.sql) -replace 'AtsPassword1', '%MSSQL_USER_PASSWORD%'  | Set-Content tempCreateDBScript.sql"
 
 sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master /i tempCreateDBScript.sql /o install.log
 
@@ -228,16 +228,15 @@ for /f "tokens=*" %%a in ('findstr /R /C:"^Msg [0-9]*, Level [1-9]*, State" inst
 
 IF %NUM_OF_ERRORS% == 0  (
     echo "Installation of database %MSSQL_DATABASE% completed successfully. Logs are located in install.log file"
-	sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_USER_NAME% -P %MSSQL_USER_PASSWORD% -d %MSSQL_DATABASE% -Q "SELECT * FROM tInternal"
-	set USER_ACCESS_CODE=0
-	IF %ERRORLEVEL% NEQ 0 (
-	    set USER_ACCESS_CODE=%ERRORLEVEL%
-	    echo "Error connecting with the regular (non-privileged) ATS DB user %MSSQL_USER_NAME%. Check access and credentials if user was already created."
-	)
+    sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_USER_NAME% -P %MSSQL_USER_PASSWORD% -d %MSSQL_DATABASE% -Q "SELECT * FROM tInternal"
+    set USER_ACCESS_CODE=0
+    IF %ERRORLEVEL% NEQ 0 (
+        set USER_ACCESS_CODE=%ERRORLEVEL%
+        echo "Error connecting with the regular (non-privileged) ATS DB user %MSSQL_USER_NAME%. Check access and credentials if user was already created."
+    )
     IF  "%MODE%" == "%BATCH_MODE%" (
         exit /b %USER_ACCESS_CODE%
     )
-	
 ) ELSE (
     echo "Errors during install: %NUM_OF_ERRORS%"
     echo "Installation of database %MSSQL_DATABASE% was not successful. Logs are located in install.log file"
