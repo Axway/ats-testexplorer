@@ -173,7 +173,7 @@ echo USE [master] >tempCreateDBScript.sql
 
   echo "IF NOT EXISTS ( SELECT name FROM master.sys.server_principals WHERE name = 'AtsUser' )"
   echo "  BEGIN"
-  echo "     EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword1', @defdb = N'$MSSQL_DBNAME', @deflanguage = N'us_english'"
+  echo "     EXEC master.dbo.sp_addlogin @loginame = N'AtsUser', @passwd = 'AtsPassword1', @defdb = N'$MSSQL_DATABASE', @deflanguage = N'us_english'"
   echo "  END"
   echo GO
   echo "EXEC dbo.sp_grantdbaccess @loginame=[$MSSQL_USER_NAME], @name_in_db=[$MSSQL_USER_NAME]"

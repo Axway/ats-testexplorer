@@ -37,7 +37,7 @@ IF [%MSSQL_PORT%]==[] (
 rem set the name of the database to upgrade
 IF [%MSSQL_DATABASE%] NEQ [] (
     echo "MSSQL_DATABASE environment variable is defined with value: %MSSQL_DATABASE%"
-	set MODE=%BATCH_MODE%
+    set MODE=%BATCH_MODE%
 )
 
 rem set the name of the mssql user
@@ -120,13 +120,13 @@ REM check if there is already database with this name and write the result
 sqlcmd -S tcp:%MSSQL_HOST%,%MSSQL_PORT% -U %MSSQL_ADMIN_NAME% -P %MSSQL_ADMIN_PASSWORD% /d master -Q"SET NOCOUNT ON;SELECT name FROM master.dbo.sysdatabases where name='%MSSQL_DATABASE%'" -h-1 | find /i "%MSSQL_DATABASE%"
 if errorlevel 1 (
 
-	 IF "%MODE%" == "%BATCH_MODE%" (
-		echo "A database with the specified name: %MSSQL_DATABASE% does not exist. Now will exit"
-		exit 1
-	) ELSE (
-		echo  "A database with the specified name: %MSSQL_DATABASE% does not exist."
-		GOTO :set_MSSQL_DATABASE
-	)
+    IF "%MODE%" == "%BATCH_MODE%" (
+        echo "A database with the specified name: %MSSQL_DATABASE% does not exist. Now will exit"
+        exit 1
+    ) ELSE (
+        echo  "A database with the specified name: %MSSQL_DATABASE% does not exist."
+    GOTO :set_MSSQL_DATABASE
+    )
 )
 
 
@@ -155,21 +155,21 @@ IF %ERRORLEVEL% NEQ 0 goto stopUpgrade
 del /f /q tempCheckVersion.sql
 type nul > tempUpgradeDBScript.sql
 
-echo use [%MSSQL_DATABASE%]                                                          >> tempUpgradeDBScript.sql
+echo use [%MSSQL_DATABASE%]                                                     >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo PRINT GETDATE()                                                            >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_NULLS ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_NULLS ON                        >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_PADDING ON                           >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_PADDING ON                      >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_WARNINGS ON                          >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ANSI_WARNINGS ON                     >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET ARITHABORT ON                             >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET ARITHABORT ON                        >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET CONCAT_NULL_YIELDS_NULL ON                >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET CONCAT_NULL_YIELDS_NULL ON           >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
-echo ALTER DATABASE [%MSSQL_DATABASE%] SET QUOTED_IDENTIFIER ON                      >> tempUpgradeDBScript.sql
+echo ALTER DATABASE [%MSSQL_DATABASE%] SET QUOTED_IDENTIFIER ON                 >> tempUpgradeDBScript.sql
 echo GO                                                                         >> tempUpgradeDBScript.sql
 echo UPDATE tInternal SET value = '%NEW_DB_VERSION%_draft' WHERE [key] = 'version' >> tempUpgradeDBScript.sql
 echo GO                                                                            >> tempUpgradeDBScript.sql
@@ -195,9 +195,9 @@ GOTO :End
 rem del /f /q tempUpgradeDBScript.sql
 echo ERROR - upgrade failed. Check the 'upgrade.log' file for the errors.
 IF "%MODE%" == "%BATCH_MODE%" (
-	exit 2
+    exit 2
 ) ELSE (
-	GOTO :End
+    GOTO :End
 )
 
 :: ##################   STOPING UPGRADE PROCEDURE   ########################
@@ -205,20 +205,20 @@ IF "%MODE%" == "%BATCH_MODE%" (
 del /f /q tempCheckVersion.sql
 echo Upgrade aborted. No changes are made to the database.
 IF "%MODE%" == "%BATCH_MODE%" (
-	exit 3
+    exit 3
 ) ELSE (
-	GOTO :End
+    GOTO :End
 )
 
 :: ##################    THE END    ########################################
 :End
 echo Upgrade completed. Check upgrade.log file for potential errors.
 IF "%CONSOLE_MODE_USED%" == "true" (
-	rem return to the start folder
-	cd /d %START_FOLDER%
+    rem return to the start folder
+    cd /d %START_FOLDER%
 ) ELSE IF "%MODE%" == "%INTERACTIVE_MODE%" (
-    	pause
-    	exit
+        pause
+        exit
     ) ELSE (
-  	exit 0
+    exit 0
 )

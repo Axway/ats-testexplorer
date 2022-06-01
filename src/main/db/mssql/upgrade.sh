@@ -197,7 +197,7 @@ then
     exit 5
 fi
 
-echo "use [$MSSQL_DATABASE]"                                                               > tempUpgradeDBScript.sql
+echo "use [$MSSQL_DATABASE]"    > tempUpgradeDBScript.sql
 {
 echo "GO"
 echo "PRINT GETDATE()"
@@ -228,5 +228,5 @@ $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_ADMIN_NAME" -P "$
 
 $SQLCMD_LOCATION -S tcp:"$MSSQL_HOST","$MSSQL_PORT" -U "$MSSQL_USER_NAME" -P "$MSSQL_USER_PASSWORD" -d "$MSSQL_DATABASE" -Q "SELECT * FROM tInternal"
 
-	echo "Upgrade Completed. Check the '$LOG_FILE_LOCATION' for details."
+echo "Upgrade Completed. Check the '$LOG_FILE_LOCATION' for details."
 
