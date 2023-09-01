@@ -1183,6 +1183,11 @@ ul.feedbackPanel {
     border-radius: 10px 10px 10px 10px / 10px 10px 10px 10px;
 }
 
+li.feedbackPanelINFO {
+    color: black;
+    font-weight: normal;
+}
+
 ul.feedbackPanel li {
     padding: 5px 5px 5px 30px;
     list-style:none;

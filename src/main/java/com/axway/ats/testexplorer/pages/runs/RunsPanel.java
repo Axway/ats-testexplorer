@@ -61,11 +61,12 @@ public class RunsPanel extends Panel {
         super(id);
 
         columnDefinitions = getTableColumnDefinitions();
+        int supportedGridOperations = MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
+                | MainDataGrid.OPERATION_ADD_TO_COMPARE | MainDataGrid.OPERATION_EXPORT_DATA;
         MainDataGrid grid = new MainDataGrid("runsTable", new RunsDataSource(this),
                                              getColumns(parentPage), columnDefinitions,
                                              "Runs",
-                                             MainDataGrid.OPERATION_DELETE | MainDataGrid.OPERATION_EDIT
-                                                     | MainDataGrid.OPERATION_ADD_TO_COMPARE);
+                                             supportedGridOperations);
 
         grid.setGridColumnsState(columnDefinitions);
         grid.setAllowSelectMultiple(true);

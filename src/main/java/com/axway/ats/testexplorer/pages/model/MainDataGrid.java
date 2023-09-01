@@ -49,6 +49,8 @@ public class MainDataGrid extends DataGrid {
     public static final int OPERATION_STATUS_CHANGE  = 0x08;
     public static final int OPERATION_CREATE_REPORT  = 0x10;
     public static final int OPERATION_GET_LOG        = 0x20;
+    /** export grid data to file (CSV) for additional manipulation or reports */
+    public static final int OPERATION_EXPORT_DATA    = 0x40;
 
     /**
      * Crates a new {@link MainDataGrid} instance.

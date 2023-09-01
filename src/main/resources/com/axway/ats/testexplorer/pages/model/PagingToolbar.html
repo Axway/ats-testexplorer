@@ -30,11 +30,16 @@
                                 style="border:none;float:left;padding:4px 7px 0 8px;" />
                             <span style="text-align:center;width:110px;">Add to compare</span>
                         </a>
-                        <a     title="Create a report for the selected testcase.
-If you have select more than one testcase - we will work with the fist one."
+                        <a title="Create a report for the selected testcase.
+If you have select more than one testcase - the fist one will be used."
                             href="#" class="button" style="margin: 2px 5px 2px 5px;" wicket:id="createReportButton">
                             <img src="images/report.png" alt="" style="border:none;float:left;padding:4px 7px 0 8px;" />
                             <span style="text-align:center;width:50px;">Report</span>
+                        </a>
+                        <a href="#" wicket:id="downloadCSV" class="button" title="Download the selected runs in CSV file"
+                           style="margin: 2px 5px 2px 5px;">
+                            <img src="images/csv.png" width="16" height="16" alt="" class="csv-icon" style="border:none;float:left;padding:4px 7px 0 8px;" />
+                            <span style="text-align:center;width:50px;">Export</span>
                         </a>
 
 

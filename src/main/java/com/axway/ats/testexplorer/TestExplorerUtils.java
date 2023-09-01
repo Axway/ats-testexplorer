@@ -133,6 +133,18 @@ public class TestExplorerUtils {
     }
 
     /**
+     * Filter string for export to CSV file. Escape non-printable chars and replace comma with semicolon.
+     * @param value value for escaping
+     * @return the escaped string
+     */
+    public static String escapeForCSV(String value) {
+        if (StringUtils.isNullOrEmpty(value)) {
+            return "";
+        }
+        return StringUtils.escapeNonPrintableAsciiCharacters(value).replace(",", ";");
+    }
+
+    /**
      *
      * @param pdfExporterPath absolute path to the PDF exporter executable file
      * @param pageUrl page url to export

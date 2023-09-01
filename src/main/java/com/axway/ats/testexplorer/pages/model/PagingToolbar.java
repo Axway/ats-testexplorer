@@ -15,11 +15,19 @@
  */
 package com.axway.ats.testexplorer.pages.model;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
+import com.axway.ats.testexplorer.TestExplorerUtils;
+import com.axway.ats.testexplorer.model.db.RunLoadableDetachableModel;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.Session;
@@ -287,11 +295,15 @@ public class PagingToolbar extends AbstractToolbar {
                 }
             }
         };
+        String msgsButtonLabel;
         if (dataSource instanceof ScenariosDataSource) {
-            messageButton.add(new Label("button_label", "Suite messages"));
+            msgsButtonLabel = "Suite messages";
         } else if (dataSource instanceof SuitesDataSource) {
-            messageButton.add(new Label("button_label", "Run messages"));
+            msgsButtonLabel = "Run messages";
+        } else {
+            msgsButtonLabel = "No messages";
         }
+        messageButton.add(new Label("button_label", msgsButtonLabel));
         messageButton.setVisible((supportedOperations & MainDataGrid.OPERATION_GET_LOG) > 0);
         defaultMode.add(messageButton);
 
@@ -386,6 +398,31 @@ public class PagingToolbar extends AbstractToolbar {
         };
         createReportButton.setVisible((supportedOperations & MainDataGrid.OPERATION_CREATE_REPORT) > 0);
         defaultMode.add(createReportButton);
+        AjaxButton exportCSVButton = new AjaxButton("downloadCSV") {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onSubmit( AjaxRequestTarget target, Form<?> form ) {
+
+                Collection<IModel<?>> selectedItems = grid.getSelectedItems();
+                if (selectedItems.isEmpty()) {
+                    warn("Please select set of rows to be exported in CSV file");
+                    return;
+                }
+                String fileName = exportSelectedItems(grid.getSelectedItems());
+                info("Exported file is generated in the Web Container's temp directory");
+                LOG.info("Exported file is generated in the Web Container's temp directory: " + fileName);
+                // TODO generate download after/at the end of the refresh Ajax response
+                // unselect the items
+                grid.resetSelectedItems();
+                target.add(grid);
+
+
+            }
+        };
+        exportCSVButton.setVisible((supportedOperations & MainDataGrid.OPERATION_EXPORT_DATA) > 0);
+        defaultMode.add(exportCSVButton);
 
         // add APPLY button for EDIT mode
         AjaxButton applyButton = new AjaxButton("applyButton", grid.getForm()) {
@@ -508,6 +545,101 @@ public class PagingToolbar extends AbstractToolbar {
         statusChangeSkipButton.setVisible((supportedOperations
                                            & MainDataGrid.OPERATION_STATUS_CHANGE) > 0);
         defaultMode.add(statusChangeSkipButton);
+    }
+
+    /**
+     * Exports selected Runs in CSV format
+     * @param selectedItems - collection of selected Run items
+     * @return on success, the name of the file created in the temp directory
+     * @throws RuntimeException
+     */
+    private String exportSelectedItems(Collection<IModel> selectedItems) throws RuntimeException {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_'at'_HH-mm-ss");
+        String prefix = "ATS_TestExplorer_RunsExport_" + sdf.format(new Date());
+        File tmpFile;
+        String fileName = null;
+        try {
+            tmpFile = File.createTempFile(prefix, ".csv");
+            fileName = tmpFile.getName();
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating temp file for CSV export", e);
+        }
+        StringBuilder sb = new StringBuilder(4096);
+        try (BufferedWriter bw = new BufferedWriter( new PrintWriter(tmpFile))) {
+            // write header
+            //              1,        2,       3,       4,     5,
+            sb.append("Run ID, Run Name, Product, Version, Build,"
+                      + " OS, Total Scenarios, Failed Scenarios, Total testcases, Failed testcases,"
+                      + " Skipped Scenarios, Skipped testcases, Percentage passed testcases, Start time, End time,"
+                      + " Duration, User note");
+            bw.write(sb.toString());
+            sb.setLength(0);
+            bw.newLine();
+
+            String note;
+            int i = 0;
+            for (IModel<?> model : selectedItems) {
+                i++;
+                RunLoadableDetachableModel runM = (RunLoadableDetachableModel) model;
+                Run currentRun = runM.getObject();
+                sb.append(currentRun.runId + ", ");
+                sb.append(TestExplorerUtils.escapeForCSV(currentRun.runName) + ", ");
+                sb.append(TestExplorerUtils.escapeForCSV(currentRun.productName) + ", ");
+                sb.append(TestExplorerUtils.escapeForCSV(currentRun.versionName) + ", ");
+                sb.append(TestExplorerUtils.escapeForCSV(currentRun.buildName) + ", ");
+
+                sb.append(TestExplorerUtils.escapeForCSV(currentRun.os) + ", ");
+                sb.append(currentRun.scenariosTotal + ", ");
+                sb.append(currentRun.scenariosFailed + ", ");
+                sb.append(currentRun.testcasesTotal + ", ");
+                sb.append(currentRun.testcasesFailed + ", ");
+
+                sb.append(currentRun.scenariosSkipped + ", ");
+                sb.append(currentRun.testcasesSkipped + ", ");
+                sb.append(currentRun.testcasesPassedPercent + ", ");
+                sb.append(currentRun.getDateStartLong() + ", ");
+                sb.append(currentRun.getDateEndLong() + ", ");
+
+                // Duration
+                if (currentRun.getEndTimestamp() <= currentRun.getTimeOffset()) { // no end time
+                    sb.append(" N/A, ");
+                } else {
+                    sb.append(currentRun.getDurationAsString(1L /* current time, will not be used */ ) + ", ");
+                }
+                if (currentRun.userNote == null) {
+                    note = "";
+                } else {
+                    note = TestExplorerUtils.escapeForCSV(currentRun.userNote);
+                }
+                sb.append(note);
+
+                bw.write(sb.toString());
+                sb.setLength(0);
+                bw.newLine();
+            }
+            bw.flush();
+            LOG.info("Exported Run info for " + i + " items");
+        } catch (IOException e) {
+            LOG.error("I/O error writing to file " + tmpFile.getAbsolutePath(), e);
+            return null;
+        }
+        return fileName;
+       /* IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(tmpFile));
+        getRequestCycle().scheduleRequestHandlerAfterCurrent(
+                new ResourceStreamRequestHandler(resourceStream) {
+                    @Override
+                    public void respond(IRequestCycle requestCycle)
+                    {
+                        super.respond(requestCycle);
+                        if (! Files.remove(tmpFile)) {
+                            LOG.warn("Error deleting temp file " + tmpFile.getAbsolutePath());
+                        } else {
+                            LOG.info("Successfully deleted temp CSV file after download: " + tmpFile.getAbsolutePath());
+                        }
+                    }
+                }.setFileName(fileName).setContentDisposition(ContentDisposition.ATTACHMENT));
+       */
     }
 
     /**

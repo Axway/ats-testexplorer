@@ -225,7 +225,7 @@ public class TestcasePage extends BasePage {
                                                                                suiteName, scenarioName, testName,
                                                                                getNext, getLast);
         } catch (DatabaseAccessException e) {
-            LOG.error("Can't get next|pervious|last testcase id", e);
+            LOG.error("Can't get next|previous|last testcase ID", e);
         }
         return null;
     }
