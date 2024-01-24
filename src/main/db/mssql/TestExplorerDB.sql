@@ -93,7 +93,7 @@ BEGIN
     END
 END
 GO
-/****** Object:  Table [dbo].[tRuns]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tRuns] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -119,7 +119,7 @@ CREATE TABLE [dbo].[tRuns](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tSuites]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tSuites] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -147,7 +147,7 @@ CREATE NONCLUSTERED INDEX IX_tSuites_ByRun ON [dbo].[tSuites]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tScenarios]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tScenarios] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -168,7 +168,7 @@ CREATE TABLE [dbo].[tScenarios](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tTestcases]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tTestcases] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -204,7 +204,7 @@ ALTER TABLE [dbo].[tTestcases] CHECK CONSTRAINT [FK_tTestcases_tSuites]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tMachines]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tMachines] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -224,7 +224,7 @@ CREATE TABLE [dbo].[tMachines](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tRunMetainfo]    Script Date: 01/07/2016 10:10:10 ******/
+/****** Object:  Table [dbo].[tRunMetainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -254,7 +254,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tRunMetainfo] CHECK CONSTRAINT [FK_tRunMetainfo_tRuns]
 GO
-/****** Object:  Table [dbo].[tScenarioMetainfo]    Script Date: 01/07/2016 10:10:10 ******/
+/****** Object:  Table [dbo].[tScenarioMetainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -286,7 +286,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tScenarioMetainfo] CHECK CONSTRAINT [FK_tScenarioMetainfo_tScenarios]
 GO
-/****** Object:  Table [dbo].[tTestcaseMetainfo]    Script Date: 30/04/2019 10:50:22 ******/
+/****** Object:  Table [dbo].[tTestcaseMetainfo] ******/
 CREATE TABLE [dbo].[tTestcaseMetainfo](
   [metainfoId] [int] IDENTITY(1,1) NOT NULL,
   [testcaseId] [int] NOT NULL,
@@ -312,7 +312,7 @@ REFERENCES [dbo].[tTestcases] ([testcaseId])
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
-/****** Object:  Table [dbo].[tSytemProperties]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tSytemProperties] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -333,7 +333,7 @@ CREATE TABLE [dbo].[tSytemProperties](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tMessageTypes]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tMessageTypes] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -351,7 +351,7 @@ CREATE TABLE [dbo].[tMessageTypes](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tUniqueMessages]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tUniqueMessages] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -424,7 +424,7 @@ GO
 ALTER TABLE dbo.tSuiteMessages WITH CHECK ADD CONSTRAINT FK_tSuiteMessages_tMachines FOREIGN KEY( machineId)
 REFERENCES tMachines(machineId)
 GO
-/****** Object:  Table [dbo].[tMessages]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tMessages] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -458,7 +458,7 @@ CREATE NONCLUSTERED INDEX IX_tMessages_parentMessageId ON dbo.tMessages    (
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tStatsTypes]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tStatsTypes] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -480,7 +480,7 @@ CREATE TABLE [dbo].[tStatsTypes](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tSystemStats]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Table [dbo].[tSystemStats] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -503,7 +503,7 @@ CREATE NONCLUSTERED INDEX [IX_tSystemStats_testcaseId] ON [dbo].[tSystemStats]
     [testcaseId] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tLoadQueues]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tLoadQueues] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -536,7 +536,7 @@ CREATE NONCLUSTERED INDEX IX_tLoadQueues_byTestcaseId ON dbo.tLoadQueues
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tCheckpointsSummary]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tCheckpointsSummary] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -565,7 +565,7 @@ CREATE TABLE [dbo].[tCheckpointsSummary](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Table [dbo].[tCheckpoints]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  Table [dbo].[tCheckpoints] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -613,7 +613,7 @@ CREATE TABLE [dbo].[tColumnDefinition](
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_testcases_count]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_testcases_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -634,7 +634,7 @@ EXEC     (@sql_1)
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_testcases]    Script Date: 08/11/2017 17:30:48 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_testcases] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -671,7 +671,7 @@ EXEC ('DECLARE testcaseCursor CURSOR FOR
                 SELECT testcaseId, ROW_NUMBER() OVER (ORDER BY testcaseId ) AS Row
                 FROM tTestcases ' + @WhereClause + ' ) as tr
             WHERE tr.Row >= ' + @StartRecord + ' AND tr.Row <= ' + @RecordsCount)
-            
+
 OPEN testcaseCursor
 
 WHILE 0 = @fetchStatus
@@ -688,17 +688,17 @@ WHILE 0 = @fetchStatus
 				tTestcases.name,
 				tTestcases.dateStart,
 				tTestcases.dateEnd,
-				
+
 				CASE WHEN tTestcases.dateEnd IS NULL
 					THEN datediff(second, tTestcases.dateStart, GETDATE() )
 					ELSE datediff(second, tTestcases.dateStart, tTestcases.dateEnd )
 				END AS duration,
-	            
+
 				tTestcases.result,
 				tTestcases.userNote
 			FROM tTestcases 
 			WHERE testcaseId = @testcaseId
-			
+
 		END
     END
 CLOSE testcaseCursor
@@ -707,7 +707,7 @@ DEALLOCATE testcaseCursor
 EXEC('SELECT * FROM #tmpTestcases ORDER BY ' + @SortCol + ' ' + @SortType )
 drop table #tmpTestcases
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_system_statistics]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_system_statistics] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -748,7 +748,7 @@ SET     @sql = 'SELECT  st.name as statsName,
 
 EXEC (@sql)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_system_statistic_descriptions]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_system_statistic_descriptions] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -787,7 +787,7 @@ SET     @sql = 'SELECT  tt.testcaseId, tt.name as testcaseName,
 EXEC (@sql)
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_number_of_checkpoints_per_queue]    Script Date: 10/30/2017 11:19:46 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_number_of_checkpoints_per_queue] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -813,7 +813,7 @@ group by tLoadQueues.testcaseId, tLoadQueues.name';
 EXEC (@sql)
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_suites_count]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_suites_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -834,7 +834,7 @@ EXEC     (@sql_1)
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_suites]    Script Date: 26/06/2012 10:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_suites] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -952,7 +952,7 @@ DEALLOCATE suitesCursor
 select * from @tmpSuites
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_scenarios_count]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_scenarios_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -971,7 +971,7 @@ EXEC     ('SELECT COUNT(DISTINCT(scenarioId)) AS scenariosCount FROM tTestcases 
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_scenarios]    Script Date: 08/10/2017 17:34:57 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_scenarios] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1108,7 +1108,7 @@ drop table #tmpTestcases
 EXEC('SELECT * FROM #tmpScenarios ORDER BY ' + @SortCol + ' ' + @SortType)
 drop table #tmpScenarios
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_runs_count]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_runs_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1129,7 +1129,7 @@ EXEC     (@sql_1)
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_runs]    Script Date: 26/06/2012 10:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_runs] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1257,7 +1257,7 @@ select * from @tmpRuns
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_testcases]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_testcases] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1276,7 +1276,7 @@ EXEC (	'select  tRuns.runId, tRuns.runName, tScenarios.scenarioId, tSuites.name 
 			inner join tRuns on (tSuites.runId = tRuns.runId)
 			where tTestcases.suiteId = ' + @suiteId)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_testcase]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_testcase] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1303,7 +1303,7 @@ EXEC('	select	tr.runId,
     inner join tRuns tr on (ts.runId = tr.runId)
     where tt.testcaseId = ' + @testcaseId);
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_suites]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_suites] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1320,7 +1320,7 @@ SET     @sql = 'select runName from tRuns where runId = ' + @runId;
 
 EXEC (@sql)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_scenarios]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_navigation_for_scenarios] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1390,7 +1390,7 @@ SET     @sql = 'select top 1 tt.testcaseId from tTestcases tt
 
 EXEC (@sql)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_messages_count]    Script Date: 01/13/2015 14:18:57 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_messages_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1414,7 +1414,7 @@ EXEC (@sql_1)
 
 SET ARITHABORT ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_messages]    Script Date: 01/13/2015 14:18:57 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_messages] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1503,7 +1503,7 @@ SELECT * FROM @tmpMessages
         CASE WHEN @SortCol = 'message' AND @SortType = 'DESC' THEN message END DESC,
         messageId;
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_loadqueues]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_loadqueues] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1518,7 +1518,7 @@ CREATE  PROCEDURE [dbo].[sp_get_loadqueues]
 AS
 
 DECLARE @sql_1 varchar(8000)
-SET        @sql_1 =  'SELECT         loadQueueId,
+SET        @sql_1 =  'SELECT    loadQueueId,
                                 name,
                                 sequence,
                                 hostsList,
@@ -1539,7 +1539,7 @@ SET        @sql_1 =  'SELECT         loadQueueId,
 
 EXEC (@sql_1)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_checkpoints_summary]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoints_summary] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1558,7 +1558,7 @@ SET        @sql_1 =  'SELECT * FROM tCheckpointsSummary ' + @WhereClause + ' ORD
 
 EXEC     (@sql_1)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_checkpoints]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoints] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1601,7 +1601,7 @@ SET        @sql2 =  'SELECT      *
 
 EXEC     (@sql1 + @sql2)
 GO
-/****** Object:  StoredProcedure [dbo].[getAutoDate]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[getAutoDate] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1622,7 +1622,7 @@ SET @outdate = CONVERT(DATETIME,@indate)
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_delete_run]    Script Date: 09/26/2016 16:19:57 ******/
+/****** Object:  StoredProcedure [dbo].[sp_delete_run] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1678,7 +1678,7 @@ BEGIN
 END
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_delete_suite]    Script Date: 09/26/2016 16:31:55 ******/
+/****** Object:  StoredProcedure [dbo].[sp_delete_suite] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1758,7 +1758,7 @@ BEGIN
     END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[getUniqueMessageId]    Script Date: 10/28/2011 16:09:30 ******/
+/****** Object:  StoredProcedure [dbo].[getUniqueMessageId] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1802,7 +1802,7 @@ DOIT:
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[getStatsTypeId]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[getStatsTypeId] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1831,7 +1831,7 @@ IF (@statsTypeId IS NULL)
     END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[getMachineId]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[getMachineId] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1854,7 +1854,7 @@ IF (@machineId IS NULL)
     END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_end_run]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_run] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1876,7 +1876,7 @@ EXECUTE [dbo].[getAutoDate] @dateEnd, @dateEndActual OUTPUT
 UPDATE  tRuns SET dateEnd = @dateEndActual WHERE  runId = @runId
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_run]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_run] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1951,7 +1951,7 @@ WHERE tRuns.runId=@runId
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_start_run]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_start_run] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1983,7 +1983,7 @@ VALUES (@productName, @versionName, @buildName, @runName, @OSName, @dateStartAct
 SET @RunID = @@IDENTITY
 SET @RowsInserted = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_add_run_metainfo]    Script Date: 01/07/2011 10:10:10 ******/
+/****** Object:  StoredProcedure [dbo].[sp_add_run_metainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2001,7 +2001,7 @@ AS
   INSERT INTO tRunMetainfo VALUES(@runId, @metaKey, @metaValue)
 SET @RowsInserted = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_suite]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_suite] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2041,7 +2041,7 @@ WHERE    tSuites.suiteId=@suiteId
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_populate_system_statistic_definition]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_populate_system_statistic_definition] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2065,7 +2065,7 @@ EXECUTE [dbo].[getStatsTypeId] @parentName, @internalName, @name, @unit, @params
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_start_suite]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_start_suite] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2096,7 +2096,7 @@ VALUES (@suiteName, @runId, @dateStartActual, @package)
 SET @suiteId = @@IDENTITY
 SET @RowsInserted = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_insert_system_statistic_by_ids]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_insert_system_statistic_by_ids] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2289,12 +2289,12 @@ IF @@ERROR <> 0 --error has happened
 ELSE
     COMMIT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_end_suite]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_suite] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-/****** Object:  StoredProcedure [dbo].[sp_end_suite]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_suite] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2316,7 +2316,7 @@ EXECUTE [dbo].[getAutoDate] @dateEnd, @dateEndActual OUTPUT
 UPDATE  tSuites SET dateEnd = @dateEndActual WHERE  suiteId = @suiteId
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_clear_scenario_metainfo]    Script Date: 07/14/2016 15:51:37 ******/
+/****** Object:  StoredProcedure [dbo].[sp_clear_scenario_metainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2339,7 +2339,7 @@ IF (@scenarioId > 0)
     SET @RowsDeleted = @@ROWCOUNT
     END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_add_scenario_metainfo]    Script Date: 07/27/2016 17:37:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_add_scenario_metainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2363,7 +2363,7 @@ INSERT INTO tScenarioMetainfo VALUES(@scenarioId, @metaKey, @metaValue)
 SET @RowsInserted = @@ROWCOUNT
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_update_scenario]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_scenario] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2384,7 +2384,7 @@ WHERE    tScenarios.scenarioId=@scenarioId
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_testcase]    Script Date: 10/16/2017 13:26:39 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_testcase] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2464,7 +2464,7 @@ WHERE scenarioId = (SELECT scenarioId FROM tTestcases WHERE testcaseId = @testca
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_machine_info]    Script Date: 12/15/2011 14:19:50 ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_machine_info] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2488,7 +2488,7 @@ UPDATE tMachines SET machineInfo=@machineInfo WHERE machineId=@machineId
 
 SET @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_end_testcase]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_testcase] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2520,7 +2520,7 @@ WHERE    testcaseId = @testcaseId
 
 SET     @RowsUpdated = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_start_testcase]    Script Date: 26/06/2012 10:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_start_testcase] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2589,7 +2589,7 @@ SET @tcId = @@IDENTITY
 SET @RowsInserted = @@ROWCOUNT
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_delete_testcase]    Script Date: 03/19/2012 17:05:20 ******/
+/****** Object:  StoredProcedure [dbo].[sp_delete_testcase] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2661,7 +2661,7 @@ ELSE
         EXECUTE sp_executesql @sql, @ParmDefinition, @scenarioIdOut=@scenarioId OUTPUT
     END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_add_testcase_metainfo]    Script Date: 30/04/2019 10:53:35 ******/
+/****** Object:  StoredProcedure [dbo].[sp_add_testcase_metainfo] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2682,7 +2682,7 @@ INSERT INTO tTestcaseMetainfo VALUES(@testcaseId, @metaKey, @metaValue)
 
 SET @RowsInserted = @@ROWCOUNT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_insert_message]    Script Date: 10/13/2014 17:54:12 ******/
+/****** Object:  StoredProcedure [dbo].[sp_insert_message] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2711,12 +2711,12 @@ DECLARE @Hash                INT
 DECLARE @uniqueMessageId    INT
 DECLARE @messageChunk        NVARCHAR(3952)
 
-DECLARE     @pos             INT
-SELECT     @pos             = 1
-DECLARE     @chunkSize        INT
-SELECT     @chunkSize          = 3950
+DECLARE    @pos              INT
+SELECT     @pos              = 1
+DECLARE    @chunkSize        INT
+SELECT     @chunkSize        = 3950
 SELECT     @RowsInserted     = 0
-DECLARE        @parentMessageId    INT = NULL
+DECLARE    @parentMessageId  INT = NULL
 
 -- get machine's id
 DECLARE @machineId INT
@@ -2728,7 +2728,7 @@ BEGIN
 
     EXECUTE [dbo].[getUniqueMessageId] @messageChunk, @uniqueMessageId OUTPUT
     -- insert the message
-    IF (DATALENGTH(@message) > @chunkSize*2 AND @pos = 1)   -- NVARCHAR uses 2 bytes per char, so we have to double 'chunkSize' in order to compalre it with DATALENGTH
+    IF (DATALENGTH(@message) > @chunkSize*2 AND @pos = 1)   -- NVARCHAR uses 2 bytes per char, so we have to double 'chunkSize' in order to compare it with DATALENGTH
         BEGIN
             INSERT INTO tMessages
                 (testcaseId, messageTypeId, timestamp, escapeHtml, uniqueMessageId, machineId, threadName , parentMessageId)
@@ -2805,7 +2805,7 @@ END
 
 
 GO
-/****** Object:  StoredProcedure [dbo].[sp_insert_suite_message]    Script Date: 09/26/2016 18:47:48 ******/
+/****** Object:  StoredProcedure [dbo].[sp_insert_suite_message] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2861,7 +2861,7 @@ BEGIN
 END
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_run_messages]    Script Date: 09/26/2016 18:02:47 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_run_messages] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2902,7 +2902,7 @@ SET @sql = 'SELECT * from (
 EXEC (@sql)
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_run_messages_count]    Script Date: 09/26/2016 18:04:10 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_run_messages_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2929,7 +2929,7 @@ SET ARITHABORT ON
 GO
 
 
-/****** Object:  StoredProcedure [dbo].[sp_get_suite_messages]    Script Date: 09/26/2016 18:37:11 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_suite_messages] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2969,7 +2969,7 @@ EXEC (@sql)
 GO
 
 
-/****** Object:  StoredProcedure [dbo].[sp_get_suite_messages_count]    Script Date: 09/26/2016 18:38:46 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_suite_messages_count] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2996,7 +2996,7 @@ SET ARITHABORT ON
 GO
 
 
-/****** Object:  StoredProcedure [dbo].[sp_end_loadqueue]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_loadqueue] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3087,7 +3087,7 @@ BEGIN
         END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_populate_checkpoint_summary]    Script Date: 08/24/2017 15:09:22 ******/
+/****** Object:  StoredProcedure [dbo].[sp_populate_checkpoint_summary] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3113,7 +3113,7 @@ BEGIN
     SET @checkpointSummaryId = @@IDENTITY
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_update_checkpoint_summary]    Script Date: 12/2/2019 2:56:32 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_update_checkpoint_summary] ******/
 SET ANSI_NULLS ON
 GO
 
@@ -3182,7 +3182,7 @@ IF @@ERROR <> 0 --error has happened
 ELSE
     COMMIT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_start_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_start_checkpoint] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3255,7 +3255,7 @@ IF @@ERROR <> 0 --error has happened
 ELSE
     COMMIT
 GO
-/****** Object:  StoredProcedure [dbo].[sp_end_checkpoint]    Script Date: 04/11/2011 20:46:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_end_checkpoint] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3320,7 +3320,7 @@ ELSE
 SET @RowsInserted = @@ROWCOUNT
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_insert_checkpoint]    Script Date: 05/31/2012 11:18:42 ******/
+/****** Object:  StoredProcedure [dbo].[sp_insert_checkpoint] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3346,7 +3346,7 @@ DECLARE @checkpointId BIGINT=0
 -- it happens that more than 1 thread enters this stored procedure at the same time and they all ask for the checkpoint summary id,
 -- they all see the needed summary checkpoint is not present and they all create one. This is wrong!
 -- The fix is to make sure that only 1 thread at a time executes this stored procedure and all other threads are blocked.
--- This is done by using a lock with exlusive mode. The lock is automatically released at the end of the transaction.
+-- This is done by using a lock with exclusive mode. The lock is automatically released at the end of the transaction.
 
 BEGIN TRAN InsertCheckpointTransaction
 DECLARE @get_app_lock_res INT
@@ -3420,7 +3420,7 @@ ELSE
     COMMIT
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistics]    Script Date: 06/28/2011 16:05:37 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistics] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3454,7 +3454,7 @@ ORDER BY ch.endTime';
 
 EXEC (@sql)
 GO
-/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistic_descriptions]    Script Date: 06/27/2011 10:19:48 ******/
+/****** Object:  StoredProcedure [dbo].[sp_get_checkpoint_statistic_descriptions] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3543,10 +3543,10 @@ GO
 
 /*** Add constraints section ***/
 
-/****** Object:  Default [DF_tSystemStats_machineId]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  Default [DF_tSystemStats_machineId] ******/
 ALTER TABLE [dbo].[tSystemStats] ADD  CONSTRAINT [DF_tSystemStats_machineId]  DEFAULT ((0)) FOR [machineId]
 GO
-/****** Object:  ForeignKey [FK_tCheckpoints_tCheckpointsSummary]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tCheckpoints_tCheckpointsSummary] ******/
 ALTER TABLE [dbo].[tCheckpoints]  WITH CHECK ADD  CONSTRAINT [FK_tCheckpoints_tCheckpointsSummary] FOREIGN KEY([checkpointSummaryId])
 REFERENCES [dbo].[tCheckpointsSummary] ([checkpointSummaryId])
 ON UPDATE CASCADE
@@ -3554,7 +3554,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tCheckpoints] CHECK CONSTRAINT [FK_tCheckpoints_tCheckpointsSummary]
 GO
-/****** Object:  ForeignKey [FK_tCheckpointsSummary_tLoadQueues]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tCheckpointsSummary_tLoadQueues] ******/
 ALTER TABLE [dbo].[tCheckpointsSummary]  WITH CHECK ADD  CONSTRAINT [FK_tCheckpointsSummary_tLoadQueues] FOREIGN KEY([loadQueueId])
 REFERENCES [dbo].[tLoadQueues] ([loadQueueId])
 ON UPDATE CASCADE
@@ -3562,7 +3562,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tCheckpointsSummary] CHECK CONSTRAINT [FK_tCheckpointsSummary_tLoadQueues]
 GO
-/****** Object:  ForeignKey [FK_tLoadQueues_tTestcases]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tLoadQueues_tTestcases] ******/
 ALTER TABLE [dbo].[tLoadQueues]  WITH CHECK ADD  CONSTRAINT [FK_tLoadQueues_tTestcases] FOREIGN KEY([testcaseId])
 REFERENCES [dbo].[tTestcases] ([testcaseId])
 ON UPDATE CASCADE
@@ -3570,19 +3570,19 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tLoadQueues] CHECK CONSTRAINT [FK_tLoadQueues_tTestcases]
 GO
-/****** Object:  ForeignKey [FK_tMessages_tMachines]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tMessages_tMachines] ******/
 ALTER TABLE [dbo].[tMessages]  WITH CHECK ADD  CONSTRAINT [FK_tMessages_tMachines] FOREIGN KEY([machineId])
 REFERENCES [dbo].[tMachines] ([machineId])
 GO
 ALTER TABLE [dbo].[tMessages] CHECK CONSTRAINT [FK_tMessages_tMachines]
 GO
-/****** Object:  ForeignKey [FK_tMessages_tMessageTypes]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tMessages_tMessageTypes] ******/
 ALTER TABLE [dbo].[tMessages]  WITH CHECK ADD  CONSTRAINT [FK_tMessages_tMessageTypes] FOREIGN KEY([messageTypeId])
 REFERENCES [dbo].[tMessageTypes] ([messageTypeId])
 GO
 ALTER TABLE [dbo].[tMessages] CHECK CONSTRAINT [FK_tMessages_tMessageTypes]
 GO
-/****** Object:  ForeignKey [FK_tMessages_tTestcases]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tMessages_tTestcases] ******/
 ALTER TABLE [dbo].[tMessages]  WITH CHECK ADD  CONSTRAINT [FK_tMessages_tTestcases] FOREIGN KEY([testcaseId])
 REFERENCES [dbo].[tTestcases] ([testcaseId])
 ON UPDATE CASCADE
@@ -3590,7 +3590,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tMessages] CHECK CONSTRAINT [FK_tMessages_tTestcases]
 GO
-/****** Object:  ForeignKey [FK_tMessages_tUniqueMessages1]    Script Date: 04/11/2011 20:46:20 ******/
+/****** Object:  ForeignKey [FK_tMessages_tUniqueMessages1] ******/
 ALTER TABLE [dbo].[tMessages]  WITH CHECK ADD  CONSTRAINT [FK_tMessages_tUniqueMessages1] FOREIGN KEY([uniqueMessageId])
 REFERENCES [dbo].[tUniqueMessages] ([uniqueMessageId])
 GO
@@ -3619,7 +3619,7 @@ CREATE NONCLUSTERED INDEX [IX_tMessages_uniqueMessageId] ON [dbo].[tMessages]
 GO
 */
 
-/****** Object:  ForeignKey [FK_tSuites_tRuns]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSuites_tRuns] ******/
 ALTER TABLE [dbo].[tSuites]  WITH CHECK ADD  CONSTRAINT [FK_tSuites_tRuns] FOREIGN KEY([runId])
 REFERENCES [dbo].[tRuns] ([runId])
 ON UPDATE CASCADE
@@ -3627,13 +3627,13 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tSuites] CHECK CONSTRAINT [FK_tSuites_tRuns]
 GO
-/****** Object:  ForeignKey [FK_tSystemStats_tMachines]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSystemStats_tMachines] ******/
 ALTER TABLE [dbo].[tSystemStats]  WITH CHECK ADD  CONSTRAINT [FK_tSystemStats_tMachines] FOREIGN KEY([machineId])
 REFERENCES [dbo].[tMachines] ([machineId])
 GO
 ALTER TABLE [dbo].[tSystemStats] CHECK CONSTRAINT [FK_tSystemStats_tMachines]
 GO
-/****** Object:  ForeignKey [FK_tSystemStats_tStatsTypes]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSystemStats_tStatsTypes] ******/
 ALTER TABLE [dbo].[tSystemStats]  WITH CHECK ADD  CONSTRAINT [FK_tSystemStats_tStatsTypes] FOREIGN KEY([statsTypeId])
 REFERENCES [dbo].[tStatsTypes] ([statsTypeId])
 ON UPDATE CASCADE
@@ -3641,7 +3641,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tSystemStats] CHECK CONSTRAINT [FK_tSystemStats_tStatsTypes]
 GO
-/****** Object:  ForeignKey [FK_tSystemStats_tTestcases]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSystemStats_tTestcases] ******/
 ALTER TABLE [dbo].[tSystemStats]  WITH CHECK ADD  CONSTRAINT [FK_tSystemStats_tTestcases] FOREIGN KEY([testcaseId])
 REFERENCES [dbo].[tTestcases] ([testcaseId])
 ON UPDATE CASCADE
@@ -3649,13 +3649,13 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tSystemStats] CHECK CONSTRAINT [FK_tSystemStats_tTestcases]
 GO
-/****** Object:  ForeignKey [FK_tSytemProperties_tMachines]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSytemProperties_tMachines] ******/
 ALTER TABLE [dbo].[tSytemProperties]  WITH CHECK ADD  CONSTRAINT [FK_tSytemProperties_tMachines] FOREIGN KEY([machineId])
 REFERENCES [dbo].[tMachines] ([machineId])
 GO
 ALTER TABLE [dbo].[tSytemProperties] CHECK CONSTRAINT [FK_tSytemProperties_tMachines]
 GO
-/****** Object:  ForeignKey [FK_tSytemProperties_tRuns]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tSytemProperties_tRuns] ******/
 ALTER TABLE [dbo].[tSytemProperties]  WITH CHECK ADD  CONSTRAINT [FK_tSytemProperties_tRuns] FOREIGN KEY([runId])
 REFERENCES [dbo].[tRuns] ([runId])
 ON UPDATE CASCADE
@@ -3663,7 +3663,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[tSytemProperties] CHECK CONSTRAINT [FK_tSytemProperties_tRuns]
 GO
-/****** Object:  ForeignKey [FK_tTestcases_tScenarios]    Script Date: 04/11/2011 20:46:21 ******/
+/****** Object:  ForeignKey [FK_tTestcases_tScenarios] ******/
 ALTER TABLE [dbo].[tTestcases]  WITH CHECK ADD  CONSTRAINT [FK_tTestcases_tScenarios] FOREIGN KEY([scenarioId])
 REFERENCES [dbo].[tScenarios] ([scenarioId])
 ON UPDATE CASCADE
@@ -3686,7 +3686,7 @@ insert into tMessageTypes (messageTypeId, name) values (7, 'system')
 GO
 
 
-/****** Object:  Insert Into Table [dbo].[tColumnDefinition]    Script Date: 04/07/2014 16:46:20 ******/
+/****** Object:  Insert Into Table [dbo].[tColumnDefinition] ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
