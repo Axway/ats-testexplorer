@@ -78,12 +78,14 @@ fi
 
 if [ -z "$PSQL_USER_NAME" ]; then
   PSQL_USER_NAME=AtsUser
+  echo "Regular DB user is not defined. Will be used default one: $PSQL_USER_NAME"
 else
   echo "PSQL_USER_NAME environment variable is defined with the value: $PSQL_USER_NAME"
 fi
 
 if [ -z "$PSQL_USER_PASSWORD" ]; then
   PSQL_USER_PASSWORD=AtsPassword1
+  echo "Regular user DB password is not defined. Will be used default one: $PSQL_USER_PASSWORD"
 else
   echo "PSQL_USER_PASSWORD environment variable is defined and will be used"
 fi

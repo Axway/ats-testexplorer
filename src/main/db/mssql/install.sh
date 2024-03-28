@@ -63,6 +63,7 @@ fi
 
 if [ -z "$MSSQL_USER_NAME" ]; then
   MSSQL_USER_NAME=AtsUser
+  echo "Regular DB user is not defined. Will be used default one: $MSSQL_USER_NAME"
 else
   echo "MSSQL_USER_NAME environment variable is defined with the value: $MSSQL_USER_NAME"
 fi
@@ -71,6 +72,7 @@ if [ -z "$MSSQL_USER_PASSWORD" ]; then
   # Should meet default complexity policy: at least 8 characters long and contain characters from three of the following
   #    four sets: Uppercase letters, Lowercase letters, Base 10 digits, and Symbols.
   MSSQL_USER_PASSWORD=AtsPassword1
+  echo "Regular user DB password is not defined. Will be used default one: $MSSQL_USER_PASSWORD"
 else
   echo "MSSQL_USER_PASSWORD environment variable is defined and will be with be used. Note that it should meet the DB server policy for complexity"
 fi

@@ -36,12 +36,14 @@ IF [%MSSQL_ADMIN_PASSWORD%] NEQ [] (
 REM Regular (non-privileged) user to be used for ATS DB
 IF [%MSSQL_USER_NAME%]==[] (
     set MSSQL_USER_NAME=AtsUser
+    echo DB user is not defined. Will be used default one: %MSSQL_USER_NAME%
 ) ELSE (
     echo MSSQL_USER_NAME environment variable is defined with value: %MSSQL_USER_NAME%
 )
 
 IF [%MSSQL_USER_PASSWORD%]==[] (
     set MSSQL_USER_PASSWORD=AtsPassword1
+    echo DB user password is not defined. Will be used default one: %MSSQL_USER_PASSWORD%
 ) ELSE (
     echo MSSQL_USER_PASSWORD environment variable is defined with environment variable
 )
