@@ -5,7 +5,7 @@
 
     <groupId>com.axway.ats.testexplorer</groupId>
     <artifactId>ats-testexplorer</artifactId>
-    <version>4.0.11-log4j1-SNAPSHOT</version>
+    <version>4.0.11-M3</version>
     <packaging>war</packaging>
     <name>ATS-TestExplorer</name>
     <description>
@@ -657,12 +657,6 @@
         <developer>
             <name>Svilen Dikov</name>
             <email>sdikov _@_ axway.com</email>
-            <organization>Axway</organization>
-            <organizationUrl>http://www.axway.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Dragoslav Slaveykov</name>
-            <email>dslaveykov _@_ axway.com</email>
             <organization>Axway</organization>
             <organizationUrl>http://www.axway.com</organizationUrl>
         </developer>
