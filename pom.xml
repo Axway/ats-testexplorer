@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.axway.ats.testexplorer</groupId>
@@ -41,7 +42,7 @@
         <apache.commons-lang.version>2.4</apache.commons-lang.version>
         <apache.commons-dbcp.version>1.4</apache.commons-dbcp.version>
         <apache.commons-pool.version>1.5.5</apache.commons-pool.version>
-        <apache.commons-compress.version>1.10</apache.commons-compress.version>
+        <apache.commons-compress.version>1.26.0</apache.commons-compress.version>
 
         <apache.wicket.version>7.18.0</apache.wicket.version>
         <inmethod.grid.version>7.18.0</inmethod.grid.version>
@@ -80,7 +81,7 @@
                                     </pluginExecutionFilter>
                                     <action>
                                         <!-- M2E should ignore the plugin -->
-                                        <execute />
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -584,15 +585,15 @@
             <version>${inmethod.grid.version}</version>
         </dependency>
         <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${org.slf4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
-                <groupId>org.slf4j</groupId>
-                <!--<artifactId>slf4j-log4j12</artifactId>-->
-                <artifactId>slf4j-reload4j</artifactId>
-                <version>${org.slf4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <!--<artifactId>slf4j-log4j12</artifactId>-->
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
